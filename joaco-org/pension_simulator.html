@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BPO · Zero-Based Operating Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F2EA;
+    --paper-2:#EFE9DD;
+    --card:#FCFAF5;
+    --ink:#211C18;
+    --ink-soft:#5A5048;
+    --ink-faint:#8A7F73;
+    --line:#D9CFBE;
+    --line-strong:#C3B6A0;
+    --mul:#7A1E4B;
+    --mul-deep:#5C1138;
+    --mul-soft:#F3E2E9;
+    --ochre:#B9852F;
+    --green:#3F6B4A;
+    --teal:#2E5D63;
+    --shadow:0 1px 2px rgba(33,28,24,.04),0 8px 28px rgba(33,28,24,.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Hanken Grotesk',system-ui,sans-serif;
+    font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(33,28,24,.025) 1px, transparent 0);
+    background-size:22px 22px;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .serif{font-family:'Fraunces',Georgia,serif;}
+  .app{display:flex;min-height:100vh;}
+
+  /* ---------- Sidebar ---------- */
+  .side{
+    width:248px;flex:0 0 248px;
+    background:var(--ink);
+    color:#EDE6DA;
+    padding:26px 20px;
+    position:sticky;top:0;height:100vh;
+    display:flex;flex-direction:column;
+  }
+  .brand .kicker{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ochre);
+  }
+  .brand h1{
+    font-family:'Fraunces',serif;font-weight:600;font-size:25px;line-height:1.05;
+    margin:8px 0 4px;color:#F6F2EA;
+  }
+  .brand .sub{font-size:12px;color:#A9A096;line-height:1.4;}
+  .nav{margin-top:30px;display:flex;flex-direction:column;gap:2px;}
+  .nav button{
+    all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;
+    padding:11px 12px;border-radius:8px;color:#C9C0B4;font-size:13.5px;font-weight:500;
+    transition:background .15s,color .15s;
+  }
+  .nav button .num{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#7E756A;width:14px;
+  }
+  .nav button:hover{background:rgba(255,255,255,.05);color:#EDE6DA;}
+  .nav button.on{background:var(--mul);color:#fff;}
+  .nav button.on .num{color:#E7B8CE;}
+  .side .foot{margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.09);}
+  .printbtn{
+    all:unset;cursor:pointer;width:100%;text-align:center;
+    border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:9px;
+    font-size:12px;color:#EDE6DA;letter-spacing:.04em;transition:.15s;
+  }
+  .printbtn:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.4);}
+
+  /* ---------- Main ---------- */
+  .main{flex:1;min-width:0;padding:40px 52px 80px;max-width:1080px;}
+  .view{display:none;animation:rise .4s ease both;}
+  .view.on{display:block;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  .vhead{margin-bottom:28px;padding-bottom:18px;border-bottom:2px solid var(--ink);}
+  .vhead .step{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--mul);text-transform:uppercase;}
+  .vhead h2{font-family:'Fraunces',serif;font-weight:600;font-size:34px;line-height:1.04;margin:6px 0 8px;letter-spacing:-.01em;}
+  .vhead p{margin:0;color:var(--ink-soft);max-width:62ch;font-size:14.5px;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;box-shadow:var(--shadow);}
+  .grid{display:grid;gap:16px;}
+  .g2{grid-template-columns:1fr 1fr;}
+  .g3{grid-template-columns:repeat(3,1fr);}
+  @media(max-width:900px){.g2,.g3{grid-template-columns:1fr;}}
+
+  .label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);}
+  .editable{outline:none;border-radius:5px;transition:background .15s,box-shadow .15s;}
+  .editable:hover{background:var(--mul-soft);}
+  .editable:focus{background:#fff;box-shadow:0 0 0 2px var(--mul);}
+  .edit-hint{font-size:11px;color:var(--ink-faint);font-style:italic;}
+
+  /* North star */
+  .northcard{background:linear-gradient(135deg,var(--mul-deep),var(--mul));color:#fff;border:none;}
+  .northcard .label{color:#E7B8CE;}
+  .northcard .mission{font-family:'Fraunces',serif;font-size:24px;line-height:1.3;font-weight:500;margin:10px 0 0;}
+  .northcard .mission:hover{background:rgba(255,255,255,.1);}
+  .northcard .mission:focus{background:rgba(255,255,255,.16);box-shadow:0 0 0 2px #fff;}
+
+  .principle{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line);}
+  .principle:last-child{border-bottom:none;}
+  .principle .n{font-family:'Fraunces',serif;font-size:30px;color:var(--mul);line-height:1;width:42px;flex:0 0 42px;}
+  .principle .t b{display:block;font-size:14.5px;margin-bottom:2px;}
+  .principle .t span{font-size:13.5px;color:var(--ink-soft);}
+
+  /* from-to */
+  .fromto{width:100%;border-collapse:collapse;}
+  .fromto td{padding:11px 4px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px;}
+  .fromto .from{color:var(--ink-faint);width:42%;}
+  .fromto .arrow{width:46px;text-align:center;color:var(--mul);font-weight:700;}
+  .fromto .to{font-weight:600;}
+
+  /* remit columns */
+  .remitcol h3{font-family:'Fraunces',serif;font-size:18px;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+  .pill{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;padding:3px 7px;border-radius:20px;text-transform:uppercase;}
+  .pill.own{background:#E4EFE6;color:var(--green);}
+  .pill.share{background:#FBEFD9;color:var(--ochre);}
+  .pill.out{background:#EFE9DD;color:var(--ink-faint);}
+  .remitcol ul{margin:10px 0 0;padding-left:0;list-style:none;}
+  .remitcol li{font-size:13.5px;padding:7px 0 7px 18px;border-bottom:1px dashed var(--line);position:relative;color:var(--ink-soft);}
+  .remitcol li:before{content:'';position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:2px;}
+  .remitcol.c-own li:before{background:var(--green);}
+  .remitcol.c-share li:before{background:var(--ochre);}
+  .remitcol.c-out li{text-decoration:line-through;color:var(--ink-faint);}
+  .remitcol.c-out li:before{background:var(--line-strong);}
+
+  /* stakeholders / roles tables */
+  .dtable{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .dtable th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);padding:0 10px 8px;border-bottom:1.5px solid var(--ink);}
+  .dtable td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .dtable tr:hover td{background:var(--paper-2);}
+  .dtable td b{color:var(--ink);}
+
+  /* pillars */
+  .pillar{border-left:3px solid var(--mul);padding:4px 0 4px 18px;}
+  .pillar .pn{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mul);letter-spacing:.1em;}
+  .pillar h3{font-family:'Fraunces',serif;font-size:20px;margin:3px 0 6px;}
+  .pillar p{margin:0 0 10px;font-size:13.5px;color:var(--ink-soft);}
+  .pillar .meta{display:flex;gap:20px;flex-wrap:wrap;font-size:12.5px;}
+  .pillar .meta span b{color:var(--ink-faint);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.1em;display:block;font-family:'IBM Plex Mono',monospace;}
+
+  /* matrix */
+  .matwrap{display:grid;grid-template-columns:1fr 360px;gap:26px;}
+  @media(max-width:1000px){.matwrap{grid-template-columns:1fr;}}
+  .plotbox{position:relative;}
+  .plot{
+    position:relative;aspect-ratio:1;background:var(--card);
+    border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);
+    border-radius:0 12px 0 0;overflow:visible;margin:8px 0 0 6px;
+  }
+  .quad{position:absolute;width:50%;height:50%;display:flex;align-items:flex-start;justify-content:flex-start;}
+  .quad span{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;color:var(--ink-faint);font-weight:600;line-height:1.3;}
+  .q-tl{top:0;left:0;background:rgba(63,107,74,.07);}
+  .q-tr{top:0;right:0;background:rgba(122,30,75,.07);}
+  .q-bl{bottom:0;left:0;background:rgba(33,28,24,.025);}
+  .q-br{bottom:0;right:0;background:rgba(185,133,47,.06);}
+  .midline{position:absolute;background:var(--line-strong);}
+  .midline.h{left:0;right:0;top:50%;height:1px;}
+  .midline.v{top:0;bottom:0;left:50%;width:1px;}
+  .dot{
+    position:absolute;width:26px;height:26px;border-radius:50%;transform:translate(-50%,50%);
+    background:var(--mul);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:grab;
+    box-shadow:0 2px 8px rgba(33,28,24,.25);border:2px solid #fff;z-index:2;
+    transition:transform .05s,box-shadow .15s;touch-action:none;user-select:none;
+  }
+  .dot:hover{box-shadow:0 4px 14px rgba(122,30,75,.4);z-index:5;}
+  .dot.dragging{cursor:grabbing;transform:translate(-50%,50%) scale(1.18);z-index:10;}
+  .dot.ph-stab{background:var(--teal);}
+  .dot.ph-build{background:var(--mul);}
+  .dot.ph-scale{background:var(--ochre);}
+  .dot.sel{box-shadow:0 0 0 4px var(--mul-soft),0 4px 14px rgba(122,30,75,.5);}
+  .axlabel{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
+  .ax-x{text-align:center;margin:12px 0 0 6px;}
+  .ax-y{position:absolute;left:-46px;top:50%;transform:rotate(-90deg) translateX(0);transform-origin:center;white-space:nowrap;}
+
+  .initlist{display:flex;flex-direction:column;gap:3px;max-height:560px;overflow:auto;padding-right:4px;}
+  .initrow{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:.12s;}
+  .initrow:hover{background:var(--paper-2);}
+  .initrow.sel{background:var(--mul-soft);border-color:var(--line-strong);}
+  .initrow .badge{width:20px;height:20px;border-radius:50%;flex:0 0 20px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9.5px;display:flex;align-items:center;justify-content:center;}
+  .initrow .nm{flex:1;font-size:13px;line-height:1.25;}
+  .initrow .sc{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-faint);text-align:right;}
+  .initrow .sc b{color:var(--ink);}
+
+  .focusbox{margin-top:18px;}
+  .focusrank{counter-reset:fr;}
+  .focusrank .fitem{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);}
+  .focusrank .fitem .r{font-family:'Fraunces',serif;font-size:22px;color:var(--mul);width:30px;flex:0 0 30px;}
+  .focusrank .fitem .nm{flex:1;font-size:14px;}
+  .focusrank .fitem .why{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-faint);}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--ink-soft);}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+
+  /* roadmap */
+  .phaserow{display:grid;grid-template-columns:170px 1fr;gap:0;border-bottom:1px solid var(--line);}
+  .phaselab{padding:18px 20px 18px 0;border-right:2px solid var(--ink);}
+  .phaselab .ph{font-family:'Fraunces',serif;font-size:21px;}
+  .phaselab .tm{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mul);letter-spacing:.08em;}
+  .phaselab .gl{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+  .phaseitems{padding:18px 0 18px 22px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;}
+  .chip{background:var(--card);border:1px solid var(--line-strong);border-radius:20px;padding:6px 13px;font-size:12.5px;}
+  .chip b{color:var(--mul);}
+
+  .cadence{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  @media(max-width:800px){.cadence{grid-template-columns:1fr 1fr;}}
+  .cad{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;}
+  .cad .freq{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mul);}
+  .cad h4{font-family:'Fraunces',serif;font-size:17px;margin:6px 0 6px;}
+  .cad p{margin:0;font-size:12.5px;color:var(--ink-soft);}
+
+  .metrics2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:800px){.metrics2{grid-template-columns:1fr;}}
+  .mblock h4{font-family:'Fraunces',serif;font-size:18px;margin:0 0 10px;display:flex;align-items:center;gap:9px;}
+  .mblock h4 .tag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;padding:3px 7px;border-radius:5px;text-transform:uppercase;}
+  .tag.lead{background:var(--mul-soft);color:var(--mul);}
+  .tag.lag{background:#E4EFE6;color:var(--green);}
+  .mblock li{font-size:13.5px;padding:7px 0;border-bottom:1px dashed var(--line);color:var(--ink-soft);}
+  .mblock ul{list-style:none;padding:0;margin:0;}
+
+  .secttitle{font-family:'Fraunces',serif;font-size:21px;margin:34px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line-strong);}
+  .note{background:var(--mul-soft);border:1px solid #E4C6D3;border-radius:10px;padding:14px 16px;font-size:13px;color:var(--mul-deep);margin-top:20px;}
+  .note b{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px;}
+
+  @media print{
+    .side{display:none;}
+    .main{max-width:none;padding:0;}
+    .view{display:block!important;page-break-after:always;animation:none;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brand">
+      <div class="kicker">Business Planning &amp; Operations</div>
+      <h1>Zero-Based<br>Operating Plan</h1>
+      <div class="sub">From restructure to coordinated execution — built from first principles.</div>
+    </div>
+    <nav class="nav" id="nav">
+      <button data-v="north" class="on"><span class="num">00</span> North Star</button>
+      <button data-v="remit"><span class="num">01</span> Remit &amp; Operating Model</button>
+      <button data-v="strategy"><span class="num">02</span> Strategic Pillars</button>
+      <button data-v="prioritize"><span class="num">03</span> Where to Focus</button>
+      <button data-v="roadmap"><span class="num">04</span> Tactical Roadmap</button>
+    </nav>
+    <div class="foot">
+      <button class="printbtn" onclick="window.print()">⎙  Print / Save as PDF</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- 00 NORTH STAR -->
+    <section class="view on" id="view-north">
+      <div class="vhead">
+        <div class="step">Step 00 · The Why</div>
+        <h2>North Star &amp; Zero-Based Reset</h2>
+        <p>A restructure is a rare permission to start from zero. Nothing the old team did carries over by right — every activity must re-earn its place against the new mandate. This is where we name the single outcome BPO is accountable for.</p>
+      </div>
+
+      <div class="card northcard" style="margin-bottom:18px;">
+        <div class="label">Mission — the one sentence</div>
+        <div class="mission editable" contenteditable="true">Enable the Oncology Business Unit to plan, decide and execute with speed and confidence — turning strategy into coordinated, measurable action.</div>
+      </div>
+
+      <div class="grid g2">
+        <div class="card">
+          <div class="label">The four zero-based questions</div>
+          <div style="margin-top:8px;">
+            <div class="principle"><div class="n serif">01</div><div class="t"><b>If BPO didn't exist, would we invent it?</b><span>Justify the function's existence against the new OBU remit — not its history.</span></div></div>
+            <div class="principle"><div class="n serif">02</div><div class="t"><b>What outcome do we own that no one else does?</b><span>Find the irreducible mandate. Everything else is shared or out.</span></div></div>
+            <div class="principle"><div class="n serif">03</div><div class="t"><b>What would we stop doing today?</b><span>De-scoping is the value of zero-basing. Name what falls away.</span></div></div>
+            <div class="principle"><div class="n serif">04</div><div class="t"><b>With limited capacity, what comes first?</b><span>A new team can't do everything at once. Sequence ruthlessly.</span></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="label">The shift this restructure must deliver</div>
+          <table class="fromto" style="margin-top:10px;">
+            <tr><td class="from">Reactive reporting</td><td class="arrow">→</td><td class="to">Forward-looking decision support</td></tr>
+            <tr><td class="from">Fragmented planning across teams</td><td class="arrow">→</td><td class="to">One integrated planning rhythm</td></tr>
+            <tr><td class="from">Data scattered in silos</td><td class="arrow">→</td><td class="to">A single, trusted source of truth</td></tr>
+            <tr><td class="from">Tracking activity</td><td class="arrow">→</td><td class="to">Managing outcomes &amp; performance</td></tr>
+            <tr><td class="from">Ad-hoc requests &amp; firefighting</td><td class="arrow">→</td><td class="to">A predictable operating cadence</td></tr>
+            <tr><td class="from">Manual, retrospective analysis</td><td class="arrow">→</td><td class="to">AI-augmented ways of working</td></tr>
+          </table>
+        </div>
+      </div>
+      <p class="edit-hint" style="margin-top:14px;">Tip: the mission statement is editable — click it to rewrite in your own words.</p>
+    </section>
+
+    <!-- 01 REMIT -->
+    <section class="view" id="view-remit">
+      <div class="vhead">
+        <div class="step">Step 01 · The What &amp; How</div>
+        <h2>Remit, Boundaries &amp; Operating Model</h2>
+        <p>Zero-basing the scope: draw three lines — what BPO owns outright, what it co-owns (and so needs explicit decision rights), and what it deliberately puts down. The hardest column is the third.</p>
+      </div>
+
+      <div class="grid g3">
+        <div class="card remitcol c-own">
+          <h3>Core <span class="pill own">BPO owns</span></h3>
+          <ul>
+            <li>Integrated business planning (annual + LRP)</li>
+            <li>The operating rhythm / business cadence</li>
+            <li>Performance management &amp; KPI framework</li>
+            <li>Forecasting process &amp; assumptions governance</li>
+            <li>Resource &amp; budget allocation process</li>
+            <li>Commercial project &amp; portfolio governance</li>
+            <li>Ways of working, playbooks &amp; standards</li>
+          </ul>
+        </div>
+        <div class="card remitcol c-share">
+          <h3>Shared <span class="pill share">co-own · RACI</span></h3>
+          <ul>
+            <li>SFE — targeting, segmentation, territory (w/ Sales)</li>
+            <li>Incentive compensation (w/ Finance &amp; HR)</li>
+            <li>Data governance &amp; analytics (w/ DS&amp;AI)</li>
+            <li>Market &amp; competitive intelligence (w/ Marketing)</li>
+            <li>Demand signals &amp; access inputs (w/ Medical, MA)</li>
+            <li>Above-country reporting alignment (w/ Global)</li>
+          </ul>
+        </div>
+        <div class="card remitcol c-out">
+          <h3>Out of scope <span class="pill out">de-scoped</span></h3>
+          <ul>
+            <li>Day-to-day brand marketing execution</li>
+            <li>Individual rep coaching &amp; field management</li>
+            <li>IT system administration</li>
+            <li>Raw data engineering / pipelines (DS&amp;AI · IT)</li>
+            <li>Regulatory &amp; medical content</li>
+            <li>One-off bespoke analysis on demand</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="secttitle">Stakeholders &amp; the value BPO delivers to each</h3>
+      <div class="card">
+        <table class="dtable">
+          <thead><tr><th>Stakeholder</th><th>What they need from BPO</th><th>Proof it's working</th></tr></thead>
+          <tbody>
+            <tr><td><b>OBU Leadership</b></td><td>Decision-ready insight, one plan, clear priorities</td><td>Decisions taken on cadence, not ad-hoc</td></tr>
+            <tr><td><b>Brand &amp; Marketing</b></td><td>Planning structure, performance visibility, fewer fire-drills</td><td>Fewer ad-hoc data requests</td></tr>
+            <tr><td><b>Sales</b></td><td>Clean targets, territory clarity, fair incentives</td><td>Targeting accuracy &amp; IC satisfaction</td></tr>
+            <tr><td><b>Finance</b></td><td>Reliable forecasts, disciplined resource allocation</td><td>Forecast accuracy &amp; reallocation speed</td></tr>
+            <tr><td><b>DS&amp;AI</b></td><td>Business framing &amp; a prioritized analytics demand backlog</td><td>Use-cases scoped &amp; sequenced, not random</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="secttitle">Capabilities → new roles (where the restructure lands)</h3>
+      <div class="card">
+        <table class="dtable">
+          <thead><tr><th>Capability needed</th><th>New role / owner</th><th>Build · Borrow · Buy</th></tr></thead>
+          <tbody>
+            <tr><td><b>Business planning &amp; cadence</b></td><td>Business Planning Lead + Planning Partners</td><td>Build</td></tr>
+            <tr><td><b>Performance &amp; insight</b></td><td>Performance Management Lead + Analysts</td><td>Build / Borrow (DS&amp;AI)</td></tr>
+            <tr><td><b>Operational excellence (SFE, IC)</b></td><td>Commercial Ops Lead</td><td>Build</td></tr>
+            <tr><td><b>Data &amp; AI enablement</b></td><td>AI Product Lead (DS&amp;AI partner)</td><td>Borrow / Build</td></tr>
+            <tr><td><b>Portfolio &amp; governance</b></td><td>Portfolio &amp; Governance Lead (PMO)</td><td>Build</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 02 STRATEGY -->
+    <section class="view" id="view-strategy">
+      <div class="vhead">
+        <div class="step">Step 02 · The Strategy</div>
+        <h2>Strategic Pillars</h2>
+        <p>Four pillars translate the mission into durable strategic intent. Each has a single accountable owner and a success metric — if it can't be measured, it isn't a pillar, it's an aspiration.</p>
+      </div>
+      <div class="grid g2">
+        <div class="card"><div class="pillar">
+          <div class="pn">PILLAR 01</div><h3>One Integrated Planning Rhythm</h3>
+          <p>A single annual + long-range planning process and a predictable operating cadence that replaces fragmented, parallel planning.</p>
+          <div class="meta"><span><b>Owner</b>Planning Lead</span><span><b>Metric</b>Planning cycle time · % decisions on cadence</span></div>
+        </div></div>
+        <div class="card"><div class="pillar">
+          <div class="pn">PILLAR 02</div><h3>Decision-Grade Performance &amp; Insight</h3>
+          <p>Trusted KPIs on a single source of truth, surfaced through forward-looking dashboards leaders actually use to decide.</p>
+          <div class="meta"><span><b>Owner</b>Performance Lead</span><span><b>Metric</b>Data trust / adoption · time-to-insight</span></div>
+        </div></div>
+        <div class="card"><div class="pillar">
+          <div class="pn">PILLAR 03</div><h3>Operational Excellence</h3>
+          <p>SFE, incentive comp and resource allocation executed cleanly, fairly and responsively — the engine that runs without drama.</p>
+          <div class="meta"><span><b>Owner</b>Commercial Ops Lead</span><span><b>Metric</b>Targeting accuracy · IC satisfaction</span></div>
+        </div></div>
+        <div class="card"><div class="pillar">
+          <div class="pn">PILLAR 04</div><h3>AI-Enabled Ways of Working</h3>
+          <p>Embed analytics and AI into planning and operations, and build the team's capability to work in this new way.</p>
+          <div class="meta"><span><b>Owner</b>AI Product Lead</span><span><b>Metric</b># decisions AI-augmented · capability score</span></div>
+        </div></div>
+      </div>
+      <div class="note"><b>Reading the cascade</b>Mission (Step 00) → Pillars (here) → Initiatives prioritized in Step 03 → sequenced into the Roadmap in Step 04. Every initiative should ladder up to exactly one pillar.</div>
+    </section>
+
+    <!-- 03 PRIORITIZE -->
+    <section class="view" id="view-prioritize">
+      <div class="vhead">
+        <div class="step">Step 03 · Where to Focus</div>
+        <h2>Impact × Effort Prioritization</h2>
+        <p>The whole inventory of candidate initiatives, scored on value to the mandate vs. effort to deliver. Drag any dot to re-score it — the focus order on the right re-ranks live. A new team's job is to find the quick wins first and sequence the big bets.</p>
+      </div>
+      <div class="matwrap">
+        <div class="plotbox">
+          <div class="ax-y axlabel">Impact →</div>
+          <div class="plot" id="plot">
+            <div class="quad q-tl"><span>Quick wins<br>do now</span></div>
+            <div class="quad q-tr"><span>Major bets<br>plan &amp; sequence</span></div>
+            <div class="quad q-bl"><span>Fill-ins<br>if capacity</span></div>
+            <div class="quad q-br"><span>Avoid<br>/ park</span></div>
+            <div class="midline h"></div><div class="midline v"></div>
+          </div>
+          <div class="axlabel ax-x">Effort →</div>
+          <div class="legend">
+            <span><i style="background:var(--teal)"></i>Stabilize</span>
+            <span><i style="background:var(--mul)"></i>Build</span>
+            <span><i style="background:var(--ochre)"></i>Scale</span>
+            <span style="color:var(--ink-faint)">· drag dots to re-score</span>
+          </div>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:8px;">Initiative inventory · click to highlight</div>
+          <div class="initlist" id="initlist"></div>
+          <div class="focusbox card" style="margin-top:16px;padding:18px 20px;">
+            <div class="label">Recommended focus order</div>
+            <div class="focusrank" id="focusrank" style="margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 ROADMAP -->
+    <section class="view" id="view-roadmap">
+      <div class="vhead">
+        <div class="step">Step 04 · The Tactical Plan</div>
+        <h2>Roadmap, Governance &amp; Metrics</h2>
+        <p>Prioritized initiatives sequenced into three phases. Stabilize first to earn credibility, build the engine, then scale and embed. Governance is the rhythm that keeps it honest; metrics tell you if it's real.</p>
+      </div>
+
+      <div class="card" style="padding:0 24px;">
+        <div class="phaserow">
+          <div class="phaselab"><div class="ph serif">Stabilize</div><div class="tm">0–3 MONTHS</div><div class="gl">Earn trust. Get the basics running and decision rights clear.</div></div>
+          <div class="phaseitems">
+            <span class="chip"><b>·</b> Operating cadence / business review rhythm</span>
+            <span class="chip"><b>·</b> Roles, RACI &amp; decision rights</span>
+            <span class="chip"><b>·</b> Stakeholder map &amp; comms plan</span>
+            <span class="chip"><b>·</b> KPI framework v1</span>
+            <span class="chip"><b>·</b> Resource allocation framework</span>
+            <span class="chip"><b>·</b> PMO / portfolio governance basics</span>
+          </div>
+        </div>
+        <div class="phaserow">
+          <div class="phaselab"><div class="ph serif">Build</div><div class="tm">3–9 MONTHS</div><div class="gl">Construct the engine — integrated planning, forecasting, ops.</div></div>
+          <div class="phaseitems">
+            <span class="chip"><b>·</b> Integrated annual planning redesign</span>
+            <span class="chip"><b>·</b> LRP / forecasting model &amp; process</span>
+            <span class="chip"><b>·</b> SFE refresh: segmentation &amp; targeting</span>
+            <span class="chip"><b>·</b> Incentive comp design &amp; ops</span>
+            <span class="chip"><b>·</b> AI use-case backlog (w/ DS&amp;AI)</span>
+            <span class="chip"><b>·</b> Capability building / playbooks</span>
+          </div>
+        </div>
+        <div class="phaserow" style="border-bottom:none;">
+          <div class="phaselab"><div class="ph serif">Scale</div><div class="tm">9–18 MONTHS</div><div class="gl">Mature the data foundation and embed AI ways of working.</div></div>
+          <div class="phaseitems">
+            <span class="chip"><b>·</b> Single source of truth maturity</span>
+            <span class="chip"><b>·</b> Self-serve analytics / AI planning assistant</span>
+            <span class="chip"><b>·</b> Embed AI into the operating rhythm</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="secttitle">Operating cadence — the governance rhythm</h3>
+      <div class="cadence">
+        <div class="cad"><div class="freq">Weekly</div><h4>Ops stand-up</h4><p>Issue triage, blockers, in-flight initiative status. Short, action-only.</p></div>
+        <div class="cad"><div class="freq">Monthly</div><h4>Business review</h4><p>Performance vs plan, KPI deep-dive, decisions on the table.</p></div>
+        <div class="cad"><div class="freq">Quarterly</div><h4>Strategic review</h4><p>Re-prioritize the matrix, course-correct, resource reallocation.</p></div>
+        <div class="cad"><div class="freq">Annual</div><h4>Plan + LRP</h4><p>Full integrated planning cycle and long-range refresh.</p></div>
+      </div>
+
+      <h3 class="secttitle">How we'll know it's working</h3>
+      <div class="card">
+        <div class="metrics2">
+          <div class="mblock">
+            <h4>Leading <span class="tag lead">we control</span></h4>
+            <ul>
+              <li>Cadence adherence — % of reviews held on schedule</li>
+              <li>Planning cycle time — from kickoff to signed plan</li>
+              <li>Data trust score — stakeholder confidence in numbers</li>
+              <li>RACI clarity — % of decisions with a named owner</li>
+              <li># AI use-cases live in the planning workflow</li>
+            </ul>
+          </div>
+          <div class="mblock">
+            <h4>Lagging <span class="tag lag">the outcome</span></h4>
+            <ul>
+              <li>Forecast accuracy vs actuals</li>
+              <li>Decision speed &amp; quality (leadership rated)</li>
+              <li>OBU performance vs plan</li>
+              <li>Stakeholder satisfaction with BPO</li>
+              <li>Reduction in ad-hoc / off-cadence requests</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="note"><b>A word on honesty</b>This plan is a starting hypothesis built from a generic OBU BPO pattern — validate the remit, owners and scores with your own leadership before committing. The structure is sound; the specifics are yours to challenge.</div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- Nav switching ----
+  var navBtns = document.querySelectorAll('#nav button');
+  navBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      navBtns.forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+      document.getElementById('view-'+b.dataset.v).classList.add('on');
+      document.querySelector('.main').scrollTo(0,0);
+      window.scrollTo(0,0);
+    });
+  });
+
+  // ---- Initiative data (impact & effort on 0..10) ----
+  var inits = [
+    {id:1,  nm:"Stand up the operating cadence / business review rhythm", impact:9, effort:3, phase:"stab"},
+    {id:2,  nm:"Define KPI framework & single dashboard v1",             impact:9, effort:6, phase:"build"},
+    {id:3,  nm:"Establish single source of truth / data trust",          impact:8, effort:8, phase:"scale"},
+    {id:4,  nm:"Redesign integrated annual planning process",            impact:8, effort:6, phase:"build"},
+    {id:5,  nm:"Build LRP / forecasting model & process",                impact:7, effort:7, phase:"build"},
+    {id:6,  nm:"Clarify roles, RACI & decision rights",                  impact:8, effort:2, phase:"stab"},
+    {id:7,  nm:"SFE refresh: segmentation & targeting",                  impact:7, effort:5, phase:"build"},
+    {id:8,  nm:"Incentive compensation design & ops",                    impact:6, effort:6, phase:"build"},
+    {id:9,  nm:"Resource / budget allocation framework",                 impact:7, effort:4, phase:"stab"},
+    {id:10, nm:"Project & portfolio governance (PMO)",                   impact:6, effort:4, phase:"stab"},
+    {id:11, nm:"AI use-case backlog & prioritization (w/ DS&AI)",        impact:7, effort:4, phase:"build"},
+    {id:12, nm:"Self-serve analytics / AI planning assistant",           impact:8, effort:8, phase:"scale"},
+    {id:13, nm:"Capability building / playbooks / training",             impact:6, effort:3, phase:"build"},
+    {id:14, nm:"Stakeholder map & communication plan",                   impact:5, effort:2, phase:"stab"}
+  ];
+
+  var plot = document.getElementById('plot');
+  var initlist = document.getElementById('initlist');
+  var focusrank = document.getElementById('focusrank');
+  var selectedId = null;
+
+  function clamp(v){ return Math.max(0, Math.min(10, v)); }
+
+  // ---- Render dots into the plot ----
+  function renderDots(){
+    // remove existing dots only
+    plot.querySelectorAll('.dot').forEach(function(d){d.remove();});
+    inits.forEach(function(it){
+      var d = document.createElement('div');
+      d.className = 'dot ph-'+it.phase + (it.id===selectedId?' sel':'');
+      d.textContent = it.id;
+      d.style.left = (it.effort/10*100)+'%';
+      d.style.bottom = (it.impact/10*100)+'%';
+      d.dataset.id = it.id;
+      d.title = it.nm+' — impact '+it.impact+', effort '+it.effort;
+      attachDrag(d, it);
+      d.addEventListener('click', function(e){ if(!d._moved){ select(it.id); } });
+      plot.appendChild(d);
+    });
+  }
+
+  // ---- Drag to re-score ----
+  function attachDrag(el, it){
+    var dragging = false;
+    el._moved = false;
+    function down(e){
+      dragging = true; el._moved = false;
+      el.classList.add('dragging');
+      select(it.id);
+      e.preventDefault();
+    }
+    function move(e){
+      if(!dragging) return;
+      el._moved = true;
+      var rect = plot.getBoundingClientRect();
+      var cx = (e.touches ? e.touches[0].clientX : e.clientX);
+      var cy = (e.touches ? e.touches[0].clientY : e.clientY);
+      var ex = (cx - rect.left)/rect.width*10;
+      var im = (rect.bottom - cy)/rect.height*10;
+      it.effort = Math.round(clamp(ex)*10)/10;
+      it.impact = Math.round(clamp(im)*10)/10;
+      el.style.left = (it.effort/10*100)+'%';
+      el.style.bottom = (it.impact/10*100)+'%';
+      updateSidebar();
+    }
+    function up(){
+      if(dragging){ dragging=false; el.classList.remove('dragging'); renderDots(); }
+    }
+    el.addEventListener('mousedown', down);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+    el.addEventListener('touchstart', down, {passive:false});
+    window.addEventListener('touchmove', move, {passive:false});
+    window.addEventListener('touchend', up);
+  }
+
+  var phaseColor = { stab:'var(--teal)', build:'var(--mul)', scale:'var(--ochre)' };
+
+  // ---- Initiative list ----
+  function renderList(){
+    initlist.innerHTML = '';
+    inits.forEach(function(it){
+      var row = document.createElement('div');
+      row.className = 'initrow'+(it.id===selectedId?' sel':'');
+      row.dataset.id = it.id;
+      row.innerHTML =
+        '<span class="badge" style="background:'+phaseColor[it.phase]+'">'+it.id+'</span>'+
+        '<span class="nm">'+it.nm+'</span>'+
+        '<span class="sc">I <b>'+it.impact+'</b><br>E <b>'+it.effort+'</b></span>';
+      row.addEventListener('click', function(){ select(it.id); });
+      initlist.appendChild(row);
+    });
+  }
+
+  // ---- Focus ranking: priority = impact*2 - effort (favour high value, low effort) ----
+  function renderFocus(){
+    var ranked = inits.slice().sort(function(a,b){
+      return (b.impact*2 - b.effort) - (a.impact*2 - a.effort);
+    }).slice(0,6);
+    focusrank.innerHTML = '';
+    ranked.forEach(function(it,i){
+      var why;
+      if(it.impact>=7 && it.effort<=4) why='quick win';
+      else if(it.impact>=7 && it.effort>=7) why='major bet · sequence';
+      else if(it.impact>=7) why='high value';
+      else why='supporting';
+      var f = document.createElement('div');
+      f.className='fitem';
+      f.innerHTML='<span class="r serif">'+(i+1)+'</span>'+
+                  '<span class="nm">'+it.nm+'</span>'+
+                  '<span class="why">'+why+'</span>';
+      focusrank.appendChild(f);
+    });
+  }
+
+  function updateSidebar(){ renderList(); renderFocus(); }
+
+  function select(id){
+    selectedId = id;
+    renderDots(); renderList();
+  }
+
+  // initial render
+  renderDots();
+  renderList();
+  renderFocus();
+})();
+</script>
+</body>
+</html>

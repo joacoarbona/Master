@@ -42,3 +42,27 @@ En ambos casos las URLs quedan:
   joaco.org/#/proyectos              → hub de proyectos
   joaco.org/#/fiesta                 → hub de la fiesta
   joaco.org/gabinete/pension_simulator.html  → HTML directo (compartible)
+
+## Añadir una APP REACT (.jsx / .tsx de artefactos de Claude)
+1. Copia el fichero a src/works/ con un nombre limpio (p.ej. MiApp.jsx).
+2. En src/App.tsx añade una línea al registro APPS:
+     "mi-app": lazy(() => import("./works/MiApp.jsx")),
+3. Añade su tile en ElGabinete.tsx o ProjectsMenu.tsx con href "#/app/mi-app".
+4. Si importa una librería nueva, npm install <libreria>.
+5. git push (Vercel recompila solo).
+
+Dependencias ya instaladas: recharts, lucide-react, @supabase/supabase-js, tailwindcss.
+
+## Pendiente de configurar
+- MortgageSimulator: poner SUPABASE_URL y SUPABASE_ANON_KEY reales en
+  src/works/MortgageSimulator.jsx (líneas ~25-26) para que guarde datos.
+
+## Persistencia entre sesiones (localStorage)
+Sin base de datos: los datos viven en el navegador del dispositivo.
+- DCOS Navigator: portfolio completo (autoguardado) — vía polyfill window.storage
+- Blondie Macro: escenarios guardados por el usuario — vía polyfill window.storage
+- AI Product Tycoon: la partida se guarda sola en cada turno (clave joaco-tycoon-v1)
+- Simulador Hipotecario: configuración y previsión Euríbor (joaco-hipoteca-*)
+El polyfill está en src/storage-polyfill.ts: cualquier app futura que use
+window.storage (artefactos de Claude con persistencia) funcionará sin cambios.
+Nota: por navegador/dispositivo. Para sincronizar entre dispositivos, Supabase.

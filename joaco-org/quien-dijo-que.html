@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mímica · Cumpleaños</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--pink:#ff5fa2;--grape:#7b3ff2;--sun:#ffd23f;--mint:#26d7ae;--sky:#3fbdf2;--orange:#ff8c42;--ink:#2a1a4a;--cream:#fff6fb;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{font-family:'Fredoka',sans-serif;color:var(--cream);min-height:100%;overflow-x:hidden;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(255,140,66,.4), transparent 42%),
+      radial-gradient(circle at 85% 18%, rgba(38,215,174,.35), transparent 42%),
+      radial-gradient(circle at 82% 90%, rgba(123,63,242,.45), transparent 46%),
+      linear-gradient(135deg,#ef476f,#ff8c42 55%,#ffd23f);}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px clamp(12px,3vw,30px) 36px;}
+  header{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}
+  header h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(26px,5vw,52px);color:#fff;
+    text-shadow:0 4px 0 rgba(123,63,242,.5),0 8px 22px rgba(0,0,0,.35);text-align:center;}
+  button{font-family:'Fredoka';cursor:pointer;border:none;border-radius:16px;font-weight:600;transition:transform .08s,filter .15s;}
+  button:active{transform:translateY(3px);}
+  .btn{font-size:clamp(14px,2vw,18px);padding:11px 18px;color:#fff;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.32);}
+  .btn.on{background:var(--mint);border-color:var(--mint);color:#053b30;}
+  .cats{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0;}
+
+  .timer-ring{position:relative;width:clamp(96px,18vw,140px);height:clamp(96px,18vw,140px);margin:6px auto 0;}
+  .timer-ring svg{transform:rotate(-90deg);width:100%;height:100%;}
+  .timer-ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:clamp(34px,7vw,56px);color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.4);}
+  .timer-ring.low .num{color:#fff;animation:pulse .5s infinite;}
+  @keyframes pulse{50%{transform:scale(1.12);}}
+
+  .card{margin:16px auto;max-width:760px;background:#fff;color:var(--ink);border-radius:28px;
+    padding:clamp(28px,6vw,60px) 20px;text-align:center;box-shadow:0 16px 44px rgba(0,0,0,.4);min-height:clamp(160px,30vw,240px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
+  .card .cat{font-weight:700;color:var(--pink);font-size:clamp(15px,2.5vw,20px);text-transform:uppercase;letter-spacing:1px;}
+  .card .word{font-family:'Baloo 2';font-weight:800;font-size:clamp(38px,9vw,86px);line-height:1.05;}
+  .card.idle .word{color:#b9a7e0;font-size:clamp(26px,6vw,52px);}
+
+  .actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .big{font-family:'Baloo 2';font-weight:800;font-size:clamp(20px,3.5vw,30px);padding:16px 34px;color:#fff;border-radius:20px;}
+  .ok{background:linear-gradient(180deg,#5be584,var(--mint));box-shadow:0 6px 0 #109b78;color:#053b30;}
+  .pass{background:linear-gradient(180deg,#ffd97a,var(--orange));box-shadow:0 6px 0 #c96a1f;color:#5b2d00;}
+  .start{background:linear-gradient(180deg,#ff7eb6,var(--pink));box-shadow:0 6px 0 #c43d78;}
+  .big:active{transform:translateY(5px);}
+
+  .scorebar{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:14px 0 4px;}
+  .stat{background:rgba(255,255,255,.14);border-radius:16px;padding:10px 22px;font-weight:700;font-size:clamp(16px,2.4vw,22px);}
+  .stat b{font-family:'Baloo 2';color:#fff;font-size:1.3em;}
+  .team{border:3px solid transparent;border-radius:16px;padding:10px 20px;font-weight:700;font-size:clamp(15px,2.3vw,20px);background:rgba(255,255,255,.12);transition:.2s;}
+  .team.active{transform:scale(1.06);box-shadow:0 6px 18px rgba(0,0,0,.3);}
+  .team.rosa{border-color:var(--pink);} .team.rosa.active{background:rgba(255,95,162,.35);}
+  .team.azul{border-color:var(--sky);} .team.azul.active{background:rgba(63,189,242,.35);}
+  .team .pts{font-family:'Baloo 2';color:var(--sun);font-size:1.3em;}
+
+  .opts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;margin-top:6px;}
+  .opts label{font-weight:600;}
+  select{font-family:'Fredoka';font-size:16px;padding:9px 12px;border-radius:12px;border:none;font-weight:600;color:var(--ink);}
+  .hint-bar{text-align:center;margin-top:16px;font-size:14px;opacity:.85;}
+  kbd{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:1px 8px;font-family:inherit;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><span style="font-size:clamp(26px,5vw,48px)">🎭</span><h1>Mímica</h1><span style="font-size:clamp(26px,5vw,48px)">⏱️</span></header>
+
+  <div class="cats" id="cats"></div>
+
+  <div class="timer-ring" id="ring">
+    <svg viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="10"/>
+      <circle id="arc" cx="50" cy="50" r="44" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"
+        stroke-dasharray="276.5" stroke-dashoffset="0"/>
+    </svg>
+    <div class="num" id="timeNum">60</div>
+  </div>
+
+  <div class="card idle" id="card">
+    <div class="cat" id="cardCat"></div>
+    <div class="word" id="cardWord">Elige categorías y pulsa ¡EMPEZAR!</div>
+  </div>
+
+  <div class="actions">
+    <button class="big ok" id="okBtn" disabled>✅ ¡Acierto!</button>
+    <button class="big start" id="startBtn">▶ ¡EMPEZAR!</button>
+    <button class="big pass" id="passBtn" disabled>⏭️ Paso</button>
+  </div>
+
+  <div class="scorebar" id="scorebar"></div>
+
+  <div class="opts">
+    <label>⏱️ Tiempo:</label>
+    <select id="dur"><option value="30">30 s</option><option value="60" selected>60 s</option><option value="90">90 s</option><option value="120">2 min</option></select>
+    <button class="btn" id="teamsBtn">👯 Modo equipos</button>
+  </div>
+
+  <div class="hint-bar">Mando/teclado: <kbd>Espacio</kbd> acierto · <kbd>→</kbd> paso · <kbd>Enter</kbd> empezar/parar. La que mima <b>no puede hablar</b> 🤫</div>
+</div>
+
+<script>
+const WORDS={
+  '🐾 Animales':['perro','gato','elefante','mono','serpiente','canguro','pingüino','león','rana','caballo','pollito','vaca','conejo','tortuga','araña','oso','jirafa','pato','ratón','delfín','cocodrilo','mariposa'],
+  '🤸 Acciones':['bailar','dormir','nadar','cocinar','llorar','reír','saltar','conducir','cepillarse los dientes','peinarse','cantar','correr','estornudar','pintar','jugar al fútbol','hacer fotos','soplar velas','abrir un regalo','montar en bici','barrer'],
+  '🎩 Personajes':['una princesa','un superhéroe','un robot','un fantasma','una bruja','un pirata','un dinosaurio','una sirena','un hada','un mago','un zombi gracioso','un astronauta','un payaso','un caballero'],
+  '🧸 Objetos':['paraguas','teléfono','guitarra','tarta','globo','gafas','reloj','pelota','escoba','peluche','helado','tijeras','cámara','sombrero','cepillo de dientes'],
+  '👩‍🚀 Profesiones':['médica','profesor','policía','bombera','cocinero','futbolista','cantante','astronauta','peluquera','veterinario','bailarina','pintor','jardinero'],
+  '🎉 De fiesta':['soplar las velas','repartir la tarta','hacer una foto de grupo','dar un regalo','jugar al escondite','hinchar un globo','cantar cumpleaños feliz','tirar confeti','ponerse un gorro']
+};
+const CIRC=2*Math.PI*44;
+let chosen=new Set(Object.keys(WORDS)), pool=[], running=false, timeLeft=60, total=60, timer=null;
+let hits=0, teamsMode=false, scores=[0,0], turn=0;
+let actx=null;
+
+const catsEl=document.getElementById('cats');
+const arc=document.getElementById('arc');
+const timeNum=document.getElementById('timeNum');
+const ring=document.getElementById('ring');
+const card=document.getElementById('card');
+const okBtn=document.getElementById('okBtn');
+const passBtn=document.getElementById('passBtn');
+const startBtn=document.getElementById('startBtn');
+
+function buildCats(){
+  catsEl.innerHTML='';
+  Object.keys(WORDS).forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='btn on'; b.textContent=cat;
+    b.addEventListener('click',()=>{
+      if(chosen.has(cat)){ if(chosen.size>1){chosen.delete(cat); b.classList.remove('on');} }
+      else { chosen.add(cat); b.classList.add('on'); }
+    });
+    catsEl.appendChild(b);
+  });
+}
+function refillPool(){
+  pool=[];
+  chosen.forEach(c=>WORDS[c].forEach(w=>pool.push({cat:c,word:w})));
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+}
+function nextWord(){
+  if(!pool.length) refillPool();
+  const item=pool.pop();
+  document.getElementById('cardCat').textContent=item.cat;
+  document.getElementById('cardWord').textContent=item.word;
+  card.classList.remove('idle');
+}
+function beep(f,d){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type='triangle';
+  o.connect(g);g.connect(actx.destination);g.gain.value=.25;o.start();
+  g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d);o.stop(actx.currentTime+d);}catch(e){}}
+function setRing(){
+  const frac=timeLeft/total;
+  arc.style.strokeDashoffset=CIRC*(1-frac);
+  arc.setAttribute('stroke', timeLeft<=5?'#ff3b6b':(timeLeft<=10?'#ffd23f':'#fff'));
+  timeNum.textContent=timeLeft;
+  ring.classList.toggle('low',timeLeft<=10);
+}
+function start(){
+  refillPool();
+  total=+document.getElementById('dur').value; timeLeft=total; hits=0;
+  running=true; setRing(); nextWord(); renderScore();
+  okBtn.disabled=false; passBtn.disabled=false;
+  startBtn.textContent='⏹ Parar';
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    timeLeft--; setRing();
+    if(timeLeft<=5 && timeLeft>0) beep(700,.12);
+    if(timeLeft<=0) end();
+  },1000);
+}
+function end(){
+  clearInterval(timer); running=false;
+  beep(300,.6);
+  okBtn.disabled=true; passBtn.disabled=true;
+  startBtn.textContent='▶ ¡EMPEZAR!';
+  card.classList.add('idle');
+  document.getElementById('cardCat').textContent='';
+  document.getElementById('cardWord').textContent='¡Tiempo! Aciertos: '+hits+' 🎉';
+  if(teamsMode){ scores[turn]+=hits; turn=1-turn; renderScore(); }
+}
+function renderScore(){
+  const sb=document.getElementById('scorebar');
+  if(teamsMode){
+    sb.innerHTML='<div class="team rosa '+(turn===0?'active':'')+'">🌸 Rosas <span class="pts">'+scores[0]+'</span></div>'+
+      '<div class="stat">Esta ronda: <b>'+hits+'</b></div>'+
+      '<div class="team azul '+(turn===1?'active':'')+'">💙 Azules <span class="pts">'+scores[1]+'</span></div>';
+  } else {
+    sb.innerHTML='<div class="stat">✅ Aciertos: <b>'+hits+'</b></div>';
+  }
+}
+function hit(){ if(!running)return; hits++; renderScore(); nextWord(); }
+function pass(){ if(!running)return; nextWord(); }
+
+okBtn.addEventListener('click',hit);
+passBtn.addEventListener('click',pass);
+startBtn.addEventListener('click',()=> running?end():start());
+document.getElementById('teamsBtn').addEventListener('click',e=>{
+  teamsMode=!teamsMode; e.target.classList.toggle('on',teamsMode);
+  e.target.textContent=teamsMode?'👯 Equipos: ON':'👯 Modo equipos';
+  scores=[0,0];turn=0;renderScore();
+});
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='SELECT')return;
+  if(e.code==='Space'){e.preventDefault();hit();}
+  else if(e.key==='ArrowRight'){e.preventDefault();pass();}
+  else if(e.code==='Enter'){e.preventDefault();running?end():start();}
+});
+buildCats(); renderScore(); setRing();
+</script>
+</body>
+</html>

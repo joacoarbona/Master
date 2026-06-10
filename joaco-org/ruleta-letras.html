@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Ruleta · Cumpleaños</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--pink:#ff5fa2;--grape:#7b3ff2;--sun:#ffd23f;--mint:#26d7ae;--sky:#3fbdf2;--ink:#2a1a4a;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{font-family:'Fredoka',sans-serif;color:#fff6fb;height:100vh;overflow:hidden;display:flex;flex-direction:column;
+    padding:clamp(8px,1.6vh,18px) clamp(12px,2vw,28px);
+    background:
+      radial-gradient(circle at 15% 15%, rgba(255,210,63,.32), transparent 40%),
+      radial-gradient(circle at 85% 18%, rgba(38,215,174,.32), transparent 42%),
+      radial-gradient(circle at 82% 90%, rgba(255,95,162,.4), transparent 46%),
+      linear-gradient(135deg,#7b3ff2,#3fbdf2 60%,#26d7ae);}
+  header{text-align:center;flex:none;margin-bottom:6px;}
+  header h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(22px,4.5vh,46px);line-height:1;
+    text-shadow:0 4px 0 rgba(123,63,242,.6),0 8px 22px rgba(0,0,0,.35);}
+  .layout{flex:1;min-height:0;display:grid;grid-template-columns:300px minmax(0,1fr);gap:clamp(12px,2vw,24px);align-items:stretch;}
+  .panel{background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.22);border-radius:20px;padding:14px;backdrop-filter:blur(6px);
+    display:flex;flex-direction:column;min-height:0;}
+  .panel h2{font-family:'Baloo 2';font-size:18px;margin-bottom:8px;flex:none;}
+  textarea{flex:1;min-height:0;width:100%;resize:none;border:none;border-radius:12px;padding:10px;font-family:'Fredoka';font-size:15px;color:var(--ink);line-height:1.45;}
+  .opt{display:flex;align-items:center;gap:9px;margin-top:10px;font-weight:600;font-size:15px;cursor:pointer;flex:none;}
+  .opt input{width:19px;height:19px;accent-color:var(--mint);}
+  button{font-family:'Fredoka';cursor:pointer;border:none;border-radius:14px;font-weight:600;transition:transform .08s;}
+  button:active{transform:translateY(2px);}
+  .btn{font-size:15px;padding:10px 16px;color:#fff;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.3);margin-top:9px;width:100%;flex:none;}
+  .btn.on{background:var(--mint);border-color:var(--mint);color:#053b30;}
+  .wheelwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,1.6vh,16px);min-height:0;}
+  .wheelstage{position:relative;width:min(46vw,56vh);aspect-ratio:1;flex:none;}
+  canvas#wheel{width:100%;height:100%;display:block;filter:drop-shadow(0 12px 26px rgba(0,0,0,.4));}
+  .pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-size:clamp(30px,5vh,46px);z-index:3;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4));}
+  .hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:clamp(40px,7vh,60px);height:clamp(40px,7vh,60px);border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,#ffd23f);box-shadow:0 4px 12px rgba(0,0,0,.4),inset -4px -4px 8px rgba(180,120,0,.4);
+    display:flex;align-items:center;justify-content:center;font-size:clamp(20px,3.4vh,28px);z-index:2;}
+  .spinBtn{font-family:'Baloo 2';font-weight:800;font-size:clamp(20px,3.6vh,32px);padding:clamp(10px,1.8vh,16px) clamp(34px,5vw,50px);color:#fff;
+    background:linear-gradient(180deg,#ff7eb6,var(--pink));box-shadow:0 6px 0 #c43d78,0 12px 24px rgba(0,0,0,.3);border-radius:18px;flex:none;}
+  .spinBtn:active{transform:translateY(5px);box-shadow:0 2px 0 #c43d78;}
+  .spinBtn:disabled{filter:grayscale(.6) brightness(.85);box-shadow:0 6px 0 #888;cursor:default;}
+  .winner{flex:none;min-height:1.2em;text-align:center;font-family:'Baloo 2';font-size:clamp(24px,4.4vh,44px);color:var(--sun);text-shadow:0 3px 12px rgba(0,0,0,.4);}
+  .hint-bar{flex:none;text-align:center;margin-top:6px;font-size:clamp(11px,1.7vh,14px);opacity:.85;}
+  kbd{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:1px 7px;font-family:inherit;}
+  canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:55;}
+  @media (max-width:760px){
+    body{height:auto;min-height:100vh;overflow:auto;}
+    .layout{grid-template-columns:1fr;}
+    .wheelstage{width:min(86vw,60vh);}
+    textarea{height:140px;flex:none;}
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<header><h1>🎡 La Ruleta 🎁</h1></header>
+
+<div class="layout">
+  <div class="panel">
+    <h2>✏️ Participantes</h2>
+    <textarea id="names" spellcheck="false">Carmen L
+Lucía
+Carmen A
+Mila
+Rocío
+Casilda M
+Mencía
+Casilda A
+Lola
+Jimena
+Ana</textarea>
+    <label class="opt"><input type="checkbox" id="removeWin"> Quitar al ganador tras girar</label>
+    <button class="btn" id="applyBtn">✅ Actualizar ruleta</button>
+    <button class="btn on" id="voiceBtn">🔊 Voz: ON</button>
+  </div>
+
+  <div class="wheelwrap">
+    <div class="wheelstage">
+      <div class="pointer">🔻</div>
+      <canvas id="wheel"></canvas>
+      <div class="hub">🎉</div>
+    </div>
+    <button class="spinBtn" id="spinBtn">¡GIRAR!</button>
+    <div class="winner" id="winner"></div>
+    <div class="hint-bar"><kbd>Espacio</kbd> o <kbd>Enter</kbd> = girar · escribe un nombre por línea y pulsa Actualizar</div>
+  </div>
+</div>
+
+<script>
+const COLORS=['#ff5fa2','#7b3ff2','#26d7ae','#3fbdf2','#ffd23f','#9d4edd','#ff8c42','#ef476f','#06d6a0','#118ab2','#e76f9e','#5e60ce'];
+let names=[], rotation=0, spinning=false, voice=true;
+const cvW=document.getElementById('wheel'), ctx=cvW.getContext('2d');
+const winnerEl=document.getElementById('winner');
+const spinBtn=document.getElementById('spinBtn');
+
+function readNames(){ names=document.getElementById('names').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean); draw(); winnerEl.textContent=''; }
+function sizeCanvas(){ const r=cvW.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; cvW.width=r.width*dpr; cvW.height=r.height*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); draw(); }
+function draw(){
+  const w=cvW.clientWidth,h=cvW.clientHeight,cx=w/2,cy=h/2,R=Math.min(w,h)/2-4;
+  ctx.clearRect(0,0,w,h);
+  if(!names.length){ctx.fillStyle='rgba(255,255,255,.2)';ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fill();return;}
+  const n=names.length,seg=2*Math.PI/n;
+  for(let i=0;i<n;i++){
+    const a0=rotation+i*seg,a1=a0+seg;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,a0,a1);ctx.closePath();
+    ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=2;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(a0+seg/2);
+    ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#fff';
+    const fs=Math.max(13,Math.min(26,R/Math.max(6,n)*1.6));
+    ctx.font='700 '+fs+'px Fredoka, sans-serif';ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=3;
+    let label=names[i]; if(label.length>12) label=label.slice(0,11)+'…';
+    ctx.fillText(label,R-14,0);ctx.restore();
+  }
+  ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.lineWidth=8;ctx.strokeStyle='#fff';ctx.stroke();
+}
+function speak(t){ if(!voice||!window.speechSynthesis)return; try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='es-ES';u.rate=.95;u.pitch=1.15;const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith('es'));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){} }
+function spin(){
+  if(spinning||names.length<2)return;
+  spinning=true;spinBtn.disabled=true;winnerEl.textContent='';
+  const n=names.length,seg=2*Math.PI/n;
+  const turns=5+Math.random()*3, target=rotation+turns*2*Math.PI+Math.random()*2*Math.PI;
+  const start=rotation,dur=4200,t0=performance.now();
+  function frame(t){
+    const p=Math.min(1,(t-t0)/dur),ease=1-Math.pow(1-p,3);
+    rotation=start+(target-start)*ease;draw();
+    if(p<1){requestAnimationFrame(frame);}
+    else{
+      spinning=false;spinBtn.disabled=false;
+      const pointer=-Math.PI/2,theta=(((pointer-rotation)%(2*Math.PI))+2*Math.PI)%(2*Math.PI),idx=Math.floor(theta/seg)%n,win=names[idx];
+      winnerEl.textContent='🏆 '+win;celebrate();speak('¡'+win+'!');
+      if(document.getElementById('removeWin').checked){ setTimeout(()=>{ names.splice(idx,1); document.getElementById('names').value=names.join('\n'); draw(); },1800); }
+    }
+  }
+  requestAnimationFrame(frame);
+}
+document.getElementById('applyBtn').addEventListener('click',readNames);
+spinBtn.addEventListener('click',spin);
+document.getElementById('voiceBtn').addEventListener('click',e=>{ voice=!voice;e.target.classList.toggle('on',voice);e.target.textContent=voice?'🔊 Voz: ON':'🔇 Voz: OFF'; });
+document.addEventListener('keydown',e=>{ if(e.target.tagName==='TEXTAREA')return; if(e.code==='Space'||e.code==='Enter'){e.preventDefault();spin();} });
+
+const cv=document.getElementById('confetti'),cx2=cv.getContext('2d');
+function rs(){cv.width=innerWidth;cv.height=innerHeight;}rs();addEventListener('resize',()=>{rs();sizeCanvas();});
+let parts=[],cf=false;
+function celebrate(){const c=['#ff5fa2','#ffd23f','#26d7ae','#3fbdf2','#9d4edd','#fff'];
+  for(let i=0;i<220;i++)parts.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,s:6+Math.random()*8,c:c[i%c.length],r:Math.random()*6.28,vr:(Math.random()-.5)*.3});
+  if(!cf)loop();}
+function loop(){cf=true;cx2.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;cx2.save();cx2.translate(p.x,p.y);cx2.rotate(p.r);cx2.fillStyle=p.c;cx2.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cx2.restore();});
+  parts=parts.filter(p=>p.y<cv.height+30);
+  if(parts.length)requestAnimationFrame(loop);else{cf=false;cx2.clearRect(0,0,cv.width,cv.height);}}
+
+if(window.speechSynthesis)speechSynthesis.getVoices();
+readNames(); sizeCanvas();
+</script>
+</body>
+</html>
