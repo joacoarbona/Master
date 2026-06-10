@@ -51,12 +51,12 @@ const placeholderSlot = (n: number, color: TileColor): ProjectTile => ({
 export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "wayra", emoji: "🚀", title: "Wayra Portfolio", description: "Explorador de participadas Telefónica", color: "c1", href: "/proyectos/wayra-portfolio.html" },
   { id: "cybercab", emoji: "🚕", title: "Cybercab Madrid", description: "Simulador de impacto robotaxi", color: "c2", href: "/proyectos/cybercab-madrid-simulador.html" },
-  placeholderSlot(1, "c3"),
-  placeholderSlot(2, "c4"),
-  placeholderSlot(3, "c1"),
-  placeholderSlot(4, "c2"),
-  placeholderSlot(5, "c3"),
-  placeholderSlot(6, "c4"),
+  { id: "healthcare-thesis", emoji: "🏥", title: "Healthcare Thesis", description: "Simulador de tesis de inversión 2026-2032", color: "c3", href: "#/app/healthcare-thesis" },
+  { id: "healthcare-ira", emoji: "💊", title: "IRA Squeeze", description: "Impacto IRA en farmacéuticas expuestas", color: "c4", href: "#/app/healthcare-ira" },
+  { id: "blondie-macro", emoji: "📈", title: "Blondie Macro España", description: "Simulador macroeconómico (lente austriaca)", color: "c1", href: "#/app/blondie-macro" },
+  { id: "iq-markets", emoji: "🧠", title: "IQ Markets", description: "Panel de mercados e inteligencia", color: "c2", href: "#/app/iq-markets" },
+  { id: "hipoteca", emoji: "🏠", title: "Simulador Hipotecario", description: "Hipotecas España con datos BCE", color: "c3", href: "#/app/hipoteca" },
+  { id: "tycoon", emoji: "🎮", title: "AI Product Tycoon", description: "Imperio Agéntico — estrategia PMO/IA", color: "c4", href: "#/app/tycoon" },
   placeholderSlot(7, "c1"),
 ];
 

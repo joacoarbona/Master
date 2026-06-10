@@ -53,6 +53,7 @@ export const DEFAULT_GAMES: PartyGame[] = [
   { id: "ruleta", emoji: "🎡", title: "La Ruleta", description: "Sorteos y turnos", color: "c1", href: "/fiesta/ruleta.html" },
   { id: "quiz", emoji: "🎂", title: "Quiz", description: "Preguntas de la cumpleañera", color: "c3", href: "/fiesta/quiz-cumpleanera.html" },
   { id: "princesas-magicas", emoji: "🧚", title: "Princesas Mágicas", description: "Fondo + princesa + tu cara", color: "c4", href: "/fiesta/princesas-magicas.html" },
+  { id: "ruleta-letras", emoji: "🔤", title: "Ruleta de Letras", description: "Letra aleatoria con historial", color: "c2", href: "/fiesta/ruleta-letras.html" },
 ];
 
 const STYLES = `
