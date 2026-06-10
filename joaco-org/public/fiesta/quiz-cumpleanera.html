@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz de la Cumpleañera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--pink:#ff5fa2;--grape:#7b3ff2;--sun:#ffd23f;--mint:#26d7ae;--sky:#3fbdf2;--ink:#2a1a4a;--cream:#fff6fb;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{font-family:'Fredoka',sans-serif;color:var(--cream);min-height:100%;overflow-x:hidden;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(255,210,63,.32), transparent 42%),
+      radial-gradient(circle at 85% 18%, rgba(255,95,162,.4), transparent 42%),
+      radial-gradient(circle at 82% 90%, rgba(38,215,174,.35), transparent 46%),
+      linear-gradient(135deg,#7b3ff2,#9d4edd 55%,#ff5fa2);}
+  .wrap{max-width:1000px;margin:0 auto;padding:16px clamp(12px,3vw,30px) 36px;}
+  header{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}
+  header h1{font-family:'Baloo 2';font-weight:800;font-size:clamp(24px,4.6vw,48px);color:#fff;
+    text-shadow:0 4px 0 rgba(123,63,242,.5),0 8px 22px rgba(0,0,0,.35);text-align:center;}
+  .edit-name{font:inherit;color:#fff;background:transparent;border:none;text-align:center;outline:none;border-bottom:2px dashed rgba(255,255,255,.4);padding:0 6px;}
+  .edit-name:focus{border-bottom-color:var(--sun);}
+  button{font-family:'Fredoka';cursor:pointer;border:none;border-radius:16px;font-weight:600;transition:transform .08s,filter .15s;}
+  button:active{transform:translateY(3px);}
+  .btn{font-size:clamp(14px,2vw,18px);padding:11px 18px;color:#fff;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.32);}
+  .btn.on{background:var(--mint);border-color:var(--mint);color:#053b30;}
+
+  .qcard{margin:18px auto;max-width:780px;background:#fff;color:var(--ink);border-radius:28px;
+    padding:clamp(24px,5vw,46px);box-shadow:0 16px 44px rgba(0,0,0,.4);min-height:clamp(200px,34vw,300px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;}
+  .qnum{font-weight:700;color:var(--pink);letter-spacing:1px;font-size:clamp(14px,2.2vw,18px);text-transform:uppercase;}
+  .qtext{font-family:'Baloo 2';font-weight:800;font-size:clamp(26px,5vw,48px);line-height:1.1;}
+  .answer{font-size:clamp(22px,4vw,38px);font-weight:700;color:var(--mint);background:#f1fff9;border:3px dashed var(--mint);
+    border-radius:18px;padding:14px 26px;display:none;}
+  .answer.show{display:block;animation:pop .4s;}
+  @keyframes pop{0%{transform:scale(.7);opacity:0;}100%{transform:scale(1);opacity:1;}}
+
+  .actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:4px;}
+  .big{font-family:'Baloo 2';font-weight:800;font-size:clamp(18px,3.2vw,28px);padding:15px 30px;color:#fff;border-radius:20px;}
+  .reveal{background:linear-gradient(180deg,#ffe17a,var(--sun));box-shadow:0 6px 0 #c79a14;color:#5b3d00;}
+  .nav{background:linear-gradient(180deg,#ff7eb6,var(--pink));box-shadow:0 6px 0 #c43d78;}
+  .big:active{transform:translateY(5px);}
+  .big:disabled{filter:grayscale(.5) brightness(.85);cursor:default;}
+
+  .scorebar{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:16px 0 4px;align-items:center;}
+  .team{display:flex;align-items:center;gap:10px;border:3px solid transparent;border-radius:16px;padding:8px 16px;font-weight:700;font-size:clamp(15px,2.3vw,20px);background:rgba(255,255,255,.12);}
+  .team.rosa{border-color:var(--pink);} .team.azul{border-color:var(--sky);}
+  .team .pts{font-family:'Baloo 2';color:var(--sun);font-size:1.3em;min-width:28px;text-align:center;}
+  .team button{font-size:20px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.25);color:#fff;padding:0;}
+
+  details{margin-top:18px;background:rgba(255,255,255,.1);border-radius:18px;padding:14px 18px;}
+  summary{cursor:pointer;font-weight:700;font-size:18px;}
+  textarea{width:100%;height:240px;margin-top:12px;border:none;border-radius:14px;padding:12px;font-family:'Fredoka';font-size:15px;color:var(--ink);line-height:1.6;resize:vertical;}
+  .tip{font-size:13px;opacity:.8;margin-top:8px;}
+  .hint-bar{text-align:center;margin-top:16px;font-size:14px;opacity:.85;}
+  kbd{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:1px 8px;font-family:inherit;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><span style="font-size:clamp(24px,4.6vw,44px)">🎂</span>
+    <h1>¿Cuánto sabéis de <input class="edit-name" id="who" value="la cumpleañera" size="13" spellcheck="false">?</h1>
+    <span style="font-size:clamp(24px,4.6vw,44px)">❓</span></header>
+
+  <div class="qcard">
+    <div class="qnum" id="qnum">Pregunta 1</div>
+    <div class="qtext" id="qtext">Pulsa "Siguiente" para empezar</div>
+    <div class="answer" id="answer"></div>
+  </div>
+
+  <div class="actions">
+    <button class="big reveal" id="revealBtn">💡 Mostrar respuesta</button>
+    <button class="big nav" id="nextBtn">➡️ Siguiente</button>
+  </div>
+
+  <div class="scorebar" id="scorebar"></div>
+
+  <details>
+    <summary>✏️ Editar preguntas</summary>
+    <textarea id="qedit"></textarea>
+    <button class="btn" id="applyBtn" style="margin-top:10px">✅ Guardar preguntas</button>
+    <div class="tip">Una por línea, con el formato <b>Pregunta | Respuesta</b>. Cambia el nombre de arriba y rellena las respuestas reales de tu hija.</div>
+  </details>
+
+  <div class="hint-bar">Mando/teclado: <kbd>Espacio</kbd> mostrar respuesta · <kbd>→</kbd> siguiente · Las niñas gritan su respuesta y el adulto da el punto.</div>
+</div>
+
+<script>
+const DEFAULT=`¿Cuál es su color favorito? | 
+¿Cuál es su comida favorita? | 
+¿Qué animal le gustaría tener? | 
+¿Cuál es su película favorita? | 
+¿Cómo se llama su mejor amiga? | 
+¿Cuál es su asignatura favorita? | 
+¿Qué quiere ser de mayor? | 
+¿Cuál es su postre favorito? | 
+¿Qué deporte o hobby le encanta? | 
+¿Cuál es su canción favorita ahora mismo? | 
+¿A dónde le gustaría viajar? | 
+¿Cuál es su emoji favorito? | `;
+let questions=[], idx=-1, scores=[0,0];
+
+function parse(text){
+  return text.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+    const [q,...a]=l.split('|'); return {q:q.trim(), a:(a.join('|')||'').trim()};
+  });
+}
+function load(text){
+  questions=parse(text); idx=-1;
+  document.getElementById('qedit').value=text;
+  document.getElementById('qtext').textContent='Pulsa "Siguiente" para empezar';
+  document.getElementById('qnum').textContent='Listas: '+questions.length+' preguntas';
+  document.getElementById('answer').classList.remove('show');
+}
+function show(i){
+  idx=(i+questions.length)%questions.length;
+  const item=questions[idx];
+  document.getElementById('qnum').textContent='Pregunta '+(idx+1)+' / '+questions.length;
+  document.getElementById('qtext').textContent=item.q;
+  const ans=document.getElementById('answer');
+  ans.textContent = item.a? ('✅ '+item.a) : '(respuesta sin rellenar)';
+  ans.classList.remove('show');
+}
+function next(){ if(!questions.length)return; show(idx+1); }
+function reveal(){ if(idx<0)return; document.getElementById('answer').classList.add('show'); }
+
+function renderScore(){
+  document.getElementById('scorebar').innerHTML=
+    '<div class="team rosa">🌸 Rosas <button data-t="0" data-d="-1">−</button><span class="pts">'+scores[0]+'</span><button data-t="0" data-d="1">+</button></div>'+
+    '<div class="team azul">💙 Azules <button data-t="1" data-d="-1">−</button><span class="pts">'+scores[1]+'</span><button data-t="1" data-d="1">+</button></div>';
+  document.querySelectorAll('.scorebar button').forEach(b=>{
+    b.addEventListener('click',()=>{const t=+b.dataset.t,d=+b.dataset.d;scores[t]=Math.max(0,scores[t]+d);renderScore();});
+  });
+}
+
+document.getElementById('nextBtn').addEventListener('click',next);
+document.getElementById('revealBtn').addEventListener('click',reveal);
+document.getElementById('applyBtn').addEventListener('click',()=>load(document.getElementById('qedit').value));
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT')return;
+  if(e.code==='Space'){e.preventDefault();reveal();}
+  else if(e.key==='ArrowRight'){e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();show(idx-1);}
+});
+load(DEFAULT); renderScore();
+</script>
+</body>
+</html>

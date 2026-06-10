@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Briefing Dossier · Senior Director, AIC BBU EU&amp;CA · v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1b1f2a; --ink-soft: #3f4756; --slate: #6b7280; --faint: #9ca3af;
+  --paper: #fbf9f4; --surface: #ffffff; --cream: #f8f6f1; --cream-deep: #f1ede2;
+  --rule: #e5e1d8; --rule-soft: #f1efe7;
+  --crimson: #9e2a2b; --crimson-soft: #c84b4d; --crimson-pale: #f7e2e3; --crimson-bg: #fbeded;
+  --gold: #b68b3f; --gold-soft: #d9b870; --gold-pale: #f5ecd8; --gold-bg: #faf3e1; --gold-dk: #8c6a2c;
+  --navy: #21304d; --navy-soft: #3a4d70; --teal: #2c6e7b; --sage: #748a6d;
+  --font-head: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+#top, #candidate, #m1, #m2, #m3, #m4, #m5, #m6, #m7, #m8 { scroll-margin-top: 80px; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 15.5px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(158, 42, 43, 0.025) 0, transparent 50%), radial-gradient(circle at 80% 70%, rgba(182, 139, 63, 0.020) 0, transparent 50%); }
+
+.topbar { position: sticky; top: 0; z-index: 100; background: rgba(251, 249, 244, 0.92); backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%); border-bottom: 1px solid var(--rule); }
+.topbar-inner { max-width: 1380px; margin: 0 auto; padding: 14px 36px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); }
+.brand-mark { width: 32px; height: 32px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-family: var(--font-head); font-weight: 600; font-size: 16px; }
+.brand-text { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); }
+.brand-text strong { color: var(--ink); }
+.module-nav { display: flex; gap: 4px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+.module-nav a { display: grid; place-items: center; width: 32px; height: 32px; color: var(--slate); text-decoration: none; border: 1px solid transparent; transition: all 0.18s ease; }
+.module-nav a:hover { color: var(--crimson); border-color: var(--rule); background: var(--surface); }
+.topbar-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); letter-spacing: 0.10em; text-transform: uppercase; text-align: right; }
+
+.container { max-width: 1280px; margin: 0 auto; padding: 0 48px; position: relative; z-index: 1; }
+.module { padding: 88px 0 56px; position: relative; }
+.module + .module { border-top: 1px solid var(--rule); }
+.module-head { display: grid; grid-template-columns: 220px 1fr; gap: 40px; margin-bottom: 56px; align-items: start; }
+.module-tag { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--crimson); border-top: 2px solid var(--crimson); padding-top: 14px; position: sticky; top: 88px; transition: color 0.2s ease, border-color 0.2s ease; }
+.module-tag .roman { display: block; font-family: var(--font-head); font-size: 64px; font-weight: 300; color: var(--ink); margin-top: 8px; line-height: 1; font-style: italic; }
+.module-title { font-family: var(--font-head); font-size: 56px; font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; }
+.module-lede { font-family: var(--font-head); font-size: 21px; font-weight: 300; font-style: italic; color: var(--ink-soft); line-height: 1.45; max-width: 720px; margin-bottom: 24px; }
+
+.level-toggle { display: inline-flex; background: var(--cream-deep); border: 1px solid var(--rule); padding: 4px; gap: 2px; }
+.level-btn { padding: 10px 18px; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); background: transparent; border: none; cursor: pointer; transition: all 0.18s ease; display: flex; align-items: center; gap: 8px; }
+.level-btn:hover { color: var(--ink); background: rgba(255, 255, 255, 0.5); }
+.level-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); transition: background 0.18s ease; }
+.level-btn[data-level="foundations"] .dot { background: var(--crimson-soft); }
+.level-btn[data-level="expert"] .dot { background: var(--gold-soft); }
+.level-btn[data-level="foundations"].active { background: var(--crimson); color: white; }
+.level-btn[data-level="expert"].active { background: var(--gold); color: white; }
+.level-btn.active .dot { background: white; }
+.module[data-active-level="expert"] .module-tag { color: var(--gold); border-top-color: var(--gold); }
+
+.subsection { padding: 36px 0; border-top: 1px solid var(--rule-soft); }
+.subsection:first-of-type { border-top: none; }
+.subsection[data-level="expert"] { display: none; }
+.module[data-active-level="expert"] .subsection[data-level="foundations"] { display: none; }
+.module[data-active-level="expert"] .subsection[data-level="expert"] { display: block; }
+.module[data-active-level="expert"] .subsection[data-level="expert"]:first-of-type { border-top: none; }
+.subsection[data-level="expert"] .subsection-number, .subsection[data-level="expert"] .subsection-number strong { color: var(--gold); }
+.subsection-meta { display: grid; grid-template-columns: 220px 1fr; gap: 40px; margin-bottom: 28px; align-items: start; }
+.subsection-number { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); }
+.subsection-number strong { display: block; font-family: var(--font-head); font-size: 32px; font-weight: 300; font-style: italic; color: var(--ink); margin-top: 6px; line-height: 1; }
+.level-badge { display: inline-block; margin-top: 8px; padding: 2px 8px; font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--crimson); color: var(--crimson); }
+.subsection[data-level="expert"] .level-badge { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+.action-title { font-family: var(--font-head); font-size: 30px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 12px; }
+.lede { font-family: var(--font-head); font-size: 16px; font-style: italic; color: var(--ink-soft); line-height: 1.55; max-width: 760px; }
+.subsection-body { margin-left: 260px; max-width: 980px; }
+@media (max-width: 1100px) { .subsection-meta { grid-template-columns: 1fr; } .subsection-body { margin-left: 0; } .module-head { grid-template-columns: 1fr; } .module-tag { position: static; } }
+
+.takeaway { background: var(--cream); border-left: 4px solid var(--crimson); padding: 18px 24px; margin: 28px 0; display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
+.subsection[data-level="expert"] .takeaway { border-left-color: var(--gold); }
+.takeaway-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--crimson); }
+.subsection[data-level="expert"] .takeaway-label { color: var(--gold-dk); }
+.takeaway-text { font-family: var(--font-head); font-size: 15px; font-style: italic; line-height: 1.55; color: var(--ink-soft); }
+
+.quote-block { display: grid; grid-template-columns: 6px 1fr; gap: 24px; margin: 32px 0; align-items: start; }
+.quote-bar { background: var(--crimson); height: 100%; }
+.subsection[data-level="expert"] .quote-bar { background: var(--gold); }
+.quote-text { font-family: var(--font-head); font-size: 28px; font-weight: 300; font-style: italic; line-height: 1.35; letter-spacing: -0.01em; color: var(--ink); }
+.quote-text.small { font-size: 22px; }
+
+.card-grid { display: grid; gap: 16px; margin: 24px 0; }
+.card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 880px) { .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .card-grid.cols-2, .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: 1fr; } }
+.ncard { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--crimson); padding: 18px 20px; }
+.ncard.gold { border-left-color: var(--gold); }
+.ncard.navy { border-left-color: var(--navy); }
+.ncard.teal { border-left-color: var(--teal); }
+.ncard.sage { border-left-color: var(--sage); }
+.subsection[data-level="expert"] .ncard:not(.gold):not(.navy):not(.teal):not(.sage) { border-left-color: var(--gold); }
+.ncard-num { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--crimson); letter-spacing: 0.12em; margin-bottom: 8px; }
+.ncard.gold .ncard-num { color: var(--gold); }
+.ncard.navy .ncard-num { color: var(--navy); }
+.ncard.teal .ncard-num { color: var(--teal); }
+.subsection[data-level="expert"] .ncard:not(.gold):not(.navy):not(.teal):not(.sage) .ncard-num { color: var(--gold); }
+.ncard-title { font-family: var(--font-head); font-size: 17px; font-weight: 500; line-height: 1.25; margin-bottom: 8px; color: var(--ink); }
+.ncard-body { font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); }
+.ncard-body em { font-family: var(--font-head); font-style: italic; }
+
+.stat-grid { display: grid; gap: 12px; margin: 24px 0; }
+.stat-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 880px) { .stat-grid.cols-3 { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { background: var(--cream); border: 1px solid var(--rule); padding: 24px 20px; }
+.stat-card-number { font-family: var(--font-head); font-size: 44px; font-weight: 400; line-height: 1; color: var(--crimson); letter-spacing: -0.02em; margin-bottom: 10px; }
+.stat-card.gold .stat-card-number { color: var(--gold); }
+.stat-card.navy .stat-card-number { color: var(--navy); }
+.stat-card-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--slate); margin-bottom: 6px; }
+.stat-card-detail { font-family: var(--font-head); font-size: 13.5px; font-style: italic; color: var(--ink-soft); line-height: 1.5; }
+
+.ctable { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 24px 0; }
+.ctable thead { background: var(--ink); color: var(--paper); }
+.ctable thead th { padding: 12px 14px; text-align: left; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.ctable tbody tr { background: var(--surface); border-bottom: 1px solid var(--rule-soft); }
+.ctable tbody tr:nth-child(even) { background: var(--rule-soft); }
+.ctable tbody td { padding: 12px 14px; vertical-align: top; color: var(--ink-soft); }
+.ctable tbody td.col-key { font-family: var(--font-head); font-weight: 500; color: var(--ink); font-size: 14.5px; }
+.ctable tbody td.col-az { color: var(--crimson); font-weight: 500; }
+.subsection[data-level="expert"] .ctable tbody td.col-az { color: var(--gold); }
+.ctable tbody td.muted { color: var(--slate); font-style: italic; }
+
+.chart { background: var(--surface); border: 1px solid var(--rule); padding: 24px; margin: 24px 0; }
+.chart-title { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--crimson); margin-bottom: 4px; }
+.subsection[data-level="expert"] .chart-title { color: var(--gold); }
+.chart-subtitle { font-family: var(--font-head); font-size: 16px; color: var(--ink); margin-bottom: 16px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart-source { font-family: var(--font-mono); font-size: 9.5px; color: var(--faint); margin-top: 8px; letter-spacing: 0.06em; }
+
+.flow-grid { display: grid; gap: 8px; margin: 24px 0; grid-template-columns: repeat(5, 1fr); }
+@media (max-width: 880px) { .flow-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 540px) { .flow-grid { grid-template-columns: repeat(2, 1fr); } }
+.flow-cell { background: var(--surface); border: 1px solid var(--rule); border-top: 3px solid var(--crimson); padding: 14px 14px 16px; }
+.subsection[data-level="expert"] .flow-cell { border-top-color: var(--gold); }
+.flow-cell-num { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--crimson); letter-spacing: 0.12em; margin-bottom: 8px; }
+.subsection[data-level="expert"] .flow-cell-num { color: var(--gold); }
+.flow-cell-title { font-family: var(--font-head); font-size: 14.5px; font-weight: 500; line-height: 1.2; margin-bottom: 8px; color: var(--ink); }
+.flow-cell-detail { font-family: var(--font-mono); font-size: 9.5px; font-weight: 500; color: var(--slate); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 4px; }
+.flow-cell-body { font-size: 12px; color: var(--ink-soft); font-style: italic; line-height: 1.4; }
+
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+@media (max-width: 880px) { .three-col { grid-template-columns: 1fr; } }
+.tc-card { background: var(--surface); border: 1px solid var(--rule); display: flex; flex-direction: column; }
+.tc-card-head { background: var(--crimson); color: white; padding: 14px 18px; }
+.tc-card.gold .tc-card-head { background: var(--gold); }
+.tc-card.navy .tc-card-head { background: var(--navy); }
+.subsection[data-level="expert"] .tc-card:not(.gold):not(.navy):not(.teal):not(.muted) .tc-card-head { background: var(--gold); }
+.tc-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.9; margin-bottom: 4px; }
+.tc-head-title { font-family: var(--font-head); font-size: 18px; font-weight: 500; line-height: 1.2; }
+.tc-card-body { padding: 18px 20px 22px; flex: 1; }
+.tc-section { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); margin: 12px 0 6px; }
+.tc-section:first-child { margin-top: 0; }
+.tc-list { list-style: none; padding: 0; }
+.tc-list li { padding-left: 16px; position: relative; font-size: 13px; line-height: 1.5; color: var(--ink-soft); margin-bottom: 6px; }
+.tc-list li::before { content: ""; position: absolute; left: 0; top: 0.65em; width: 6px; height: 6px; border-radius: 50%; background: var(--crimson); }
+.tc-card.gold .tc-list li::before { background: var(--gold); }
+.tc-card.navy .tc-list li::before { background: var(--navy); }
+.subsection[data-level="expert"] .tc-card:not(.gold):not(.navy):not(.teal):not(.muted) .tc-list li::before { background: var(--gold); }
+.tc-body-text { font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 8px; }
+.tc-body-text em { font-family: var(--font-head); font-style: italic; }
+
+.pillar-card { background: var(--surface); border: 1px solid var(--rule); overflow: hidden; display: flex; flex-direction: column; }
+.pillar-card-head { background: var(--crimson); color: white; padding: 12px 20px; }
+.pillar-card.gold .pillar-card-head { background: var(--gold); }
+.pillar-card.navy .pillar-card-head { background: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-card-head { background: var(--gold); }
+.pillar-card-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.9; }
+.pillar-card-body { padding: 22px 24px; flex: 1; display: flex; flex-direction: column; }
+.pillar-card-title { font-family: var(--font-head); font-size: 22px; font-weight: 500; line-height: 1.2; margin-bottom: 12px; color: var(--ink); }
+.pillar-card-claim { font-family: var(--font-head); font-size: 14px; font-style: italic; color: var(--crimson); line-height: 1.5; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+.pillar-card.gold .pillar-card-claim { color: var(--gold); }
+.pillar-card.navy .pillar-card-claim { color: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-card-claim { color: var(--gold); }
+.pillar-section-label { font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--slate); margin-bottom: 6px; }
+.pillar-evidence { list-style: none; padding: 0; margin-bottom: 18px; }
+.pillar-evidence li { padding-left: 14px; position: relative; font-size: 12.5px; line-height: 1.45; color: var(--ink-soft); margin-bottom: 4px; }
+.pillar-evidence li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 5px; height: 5px; border-radius: 50%; background: var(--crimson); }
+.pillar-card.gold .pillar-evidence li::before { background: var(--gold); }
+.pillar-card.navy .pillar-evidence li::before { background: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-evidence li::before { background: var(--gold); }
+.pillar-bet { font-family: var(--font-head); font-size: 14px; font-weight: 500; color: var(--crimson); margin-top: auto; padding-top: 12px; border-top: 1px solid var(--rule); }
+.pillar-card.gold .pillar-bet { color: var(--gold); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-bet { color: var(--gold); }
+
+.hero { background: var(--ink); color: var(--paper); padding: 88px 0 96px; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(182, 139, 63, 0.10) 0, transparent 50%), radial-gradient(circle at 15% 80%, rgba(158, 42, 43, 0.12) 0, transparent 50%); pointer-events: none; }
+.hero-inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; position: relative; }
+.hero-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-soft); margin-bottom: 20px; }
+.hero-title { font-family: var(--font-head); font-size: clamp(48px, 7vw, 96px); font-weight: 300; line-height: 0.96; letter-spacing: -0.025em; margin-bottom: 32px; max-width: 1100px; }
+.hero-title em { font-style: italic; font-weight: 300; color: var(--gold-soft); }
+.hero-dek { font-family: var(--font-head); font-size: clamp(18px, 1.8vw, 22px); font-style: italic; color: #c7ccd6; max-width: 720px; margin-bottom: 40px; line-height: 1.45; }
+.hero-meta { display: grid; grid-template-columns: auto auto auto auto; gap: 64px; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 32px; max-width: 1100px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; color: #a8b0bd; }
+.hero-meta strong { display: block; color: var(--gold-soft); font-size: 22px; font-weight: 400; font-family: var(--font-head); margin-top: 6px; text-transform: none; letter-spacing: 0; font-style: italic; }
+@media (max-width: 880px) { .hero-meta { grid-template-columns: 1fr 1fr; gap: 24px; } }
+
+.footer { background: var(--ink); color: var(--paper); padding: 64px 0 48px; margin-top: 80px; }
+.footer-inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+.footer-rule { height: 1px; background: var(--gold-soft); width: 120px; margin-bottom: 24px; }
+.footer-title { font-family: var(--font-head); font-size: 28px; font-weight: 400; margin-bottom: 12px; }
+.footer-meta { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #a8b0bd; }
+
+.candidate-section { background: linear-gradient(180deg, #f4eee0 0%, #f8f3e7 60%, var(--paper) 100%); padding: 96px 0 88px; position: relative; border-bottom: 1px solid var(--rule); overflow: hidden; }
+.candidate-section::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--gold) 0%, var(--crimson) 50%, var(--navy) 100%); }
+.candidate-head { max-width: 1100px; margin-bottom: 56px; position: relative; z-index: 1; }
+.candidate-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+.candidate-eyebrow::before { content: ""; width: 36px; height: 1px; background: var(--gold); }
+.candidate-title { font-family: var(--font-head); font-size: clamp(48px, 6.5vw, 84px); font-weight: 300; line-height: 0.98; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 32px; }
+.candidate-title em { font-style: italic; font-weight: 400; color: var(--crimson); }
+.candidate-dek { font-family: var(--font-head); font-size: clamp(18px, 1.7vw, 21px); font-style: italic; line-height: 1.6; color: var(--ink-soft); max-width: 920px; }
+.candidate-dek strong { font-style: normal; font-weight: 500; color: var(--ink); background: linear-gradient(180deg, transparent 60%, var(--gold-pale) 60%); padding: 0 2px; }
+.candidate-sub { margin: 64px 0; position: relative; z-index: 1; }
+.candidate-sub-head { display: grid; grid-template-columns: 80px 1fr; gap: 28px; margin-bottom: 28px; align-items: baseline; }
+.candidate-sub-num { font-family: var(--font-head); font-size: 36px; font-weight: 300; font-style: italic; color: var(--crimson); line-height: 1; text-align: right; border-right: 2px solid var(--crimson); padding-right: 16px; }
+.candidate-sub-title { font-family: var(--font-head); font-size: clamp(24px, 2.4vw, 32px); font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); }
+.candidate-sub-lede { font-family: var(--font-head); font-size: 16px; font-style: italic; color: var(--ink-soft); margin: 8px 0 0 108px; max-width: 820px; }
+.candidate-sub-body { margin-left: 108px; margin-top: 28px; }
+@media (max-width: 1100px) {
+  .candidate-sub-head { grid-template-columns: 1fr; }
+  .candidate-sub-num { text-align: left; border-right: none; border-bottom: 2px solid var(--crimson); padding-right: 0; padding-bottom: 4px; display: inline-block; }
+  .candidate-sub-lede, .candidate-sub-body { margin-left: 0; }
+}
+.career-tl { background: white; border: 1px solid var(--rule); padding: 28px 24px; margin: 24px 0; }
+.career-tl svg { display: block; width: 100%; height: auto; }
+
+.combo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 24px 0; }
+@media (max-width: 980px) { .combo-grid { grid-template-columns: 1fr; } }
+.combo-card { background: white; border: 1px solid var(--rule); padding: 28px 26px 30px; position: relative; display: flex; flex-direction: column; }
+.combo-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--crimson); }
+.combo-card.gold::before { background: var(--gold); }
+.combo-card.navy::before { background: var(--navy); }
+.combo-num { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; color: var(--crimson); margin: 6px 0 14px; }
+.combo-card.gold .combo-num { color: var(--gold); }
+.combo-card.navy .combo-num { color: var(--navy); }
+.combo-title { font-family: var(--font-head); font-size: 22px; font-weight: 500; line-height: 1.22; margin-bottom: 16px; color: var(--ink); }
+.combo-formula { font-family: var(--font-head); font-size: 17px; font-style: italic; font-weight: 400; color: var(--crimson); margin: 14px 0; padding: 14px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); text-align: center; }
+.combo-card.gold .combo-formula { color: var(--gold); }
+.combo-card.navy .combo-formula { color: var(--navy); }
+.combo-body { font-size: 13.5px; line-height: 1.62; color: var(--ink-soft); margin-top: 4px; }
+.combo-body strong { color: var(--ink); font-weight: 600; }
+
+.both-sides { background: white; border: 1px solid var(--rule); padding: 32px 28px; margin: 24px 0; display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; align-items: stretch; }
+@media (max-width: 880px) { .both-sides { grid-template-columns: 1fr; padding: 24px; gap: 24px; } }
+.bs-col { padding: 4px 24px; }
+.bs-col.left { border-right: 1px dashed var(--rule); }
+@media (max-width: 880px) { .bs-col.left { border-right: none; border-bottom: 1px dashed var(--rule); padding-bottom: 24px; } }
+.bs-bridge { display: grid; place-items: center; position: relative; }
+.bs-bridge-circle { width: 64px; height: 64px; border-radius: 50%; background: var(--ink); color: white; display: grid; place-items: center; font-family: var(--font-head); font-size: 30px; font-style: italic; }
+.bs-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.16em; color: var(--crimson); margin-bottom: 10px; }
+.bs-col.right .bs-tag { color: var(--gold); }
+.bs-title { font-family: var(--font-head); font-size: 20px; font-weight: 500; line-height: 1.2; margin-bottom: 8px; color: var(--ink); }
+.bs-years { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--slate); letter-spacing: 0.08em; margin-bottom: 16px; }
+.bs-list { list-style: none; padding: 0; }
+.bs-list li { padding-left: 18px; position: relative; font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 8px; }
+.bs-list li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 10px; height: 1.5px; background: var(--crimson); }
+.bs-col.right .bs-list li::before { background: var(--gold); }
+.bs-list li strong { color: var(--ink); font-weight: 600; }
+.bs-quote { font-family: var(--font-head); font-size: 19px; font-style: italic; line-height: 1.4; color: var(--crimson); text-align: center; grid-column: 1 / -1; margin: 32px 8px 8px; padding-top: 24px; border-top: 1px solid var(--rule); }
+
+.fit-map .ctable td.col-key { font-size: 14px; }
+.fit-map .ctable td.col-az { font-style: italic; }
+
+.gap-callout { background: linear-gradient(135deg, var(--cream-deep) 0%, var(--cream) 100%); border: 1px solid var(--rule); border-left: 5px solid var(--crimson); padding: 32px 36px; margin: 24px 0; }
+.gap-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--crimson); margin-bottom: 12px; }
+.gap-title { font-family: var(--font-head); font-size: 24px; font-weight: 500; line-height: 1.25; color: var(--ink); margin-bottom: 14px; }
+.gap-body { font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+.gap-body strong { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark">J</span>
+      <span class="brand-text">AIC BBU EU&amp;CA · <strong>v1.0</strong></span>
+    </a>
+    <div class="module-nav">
+      <a href="#candidate" style="color: var(--gold); border-color: var(--gold-pale); background: var(--gold-pale);">§</a>
+      <a href="#m1">I</a><a href="#m2">II</a><a href="#m3">III</a><a href="#m4">IV</a>
+      <a href="#m5">V</a><a href="#m6">VI</a><a href="#m7">VII</a><a href="#m8">VIII</a>
+    </div>
+    <div class="topbar-meta">Senior Director · AI Commercial<br/>BBU · Europe &amp; Canada</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Briefing dossier · v1.0 · June 2026 · Two-tier</div>
+    <h1 class="hero-title">The case for the <em>translator.</em></h1>
+    <p class="hero-dek">Eight modules · two depth levels each. The JD asks for someone bilingual in business and AI — embedded in the Region, accountable for the full lifecycle, fluent in the EAI org. The candidacy is that translator, native.</p>
+    <div class="hero-meta">
+      <div>Role<strong>Senior Director, AIC</strong></div>
+      <div>Unit<strong>BBU · CVRM · R&amp;I · Inf. Disease</strong></div>
+      <div>Region<strong>Europe &amp; Canada</strong></div>
+      <div>Prepared for<strong>Joaquín · Barcelona</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- CANDIDATE PROLOGUE -->
+<section class="candidate-section" id="candidate">
+  <div class="container">
+
+    <header class="candidate-head">
+      <div class="candidate-eyebrow">Prologue · the candidate</div>
+      <h1 class="candidate-title">A career <em>built</em> to translate.</h1>
+      <p class="candidate-dek">Every era of Joaquín's career sits on the seam between business and technology. <strong>Law + BBA</strong> (legal + commercial). <strong>IMS / IQVIA consulting</strong> (advisor + delivery). <strong>L'Oréal Head of BI</strong> (business + analytics). <strong>IQVIA ACOE Europe</strong> (commercial + AI). <strong>AstraZeneca DS&amp;AI Commercial</strong> (business operations + AI delivery, today). The JD asks for a "bilingual translator" — Joaquín has been bilingual for twenty years.</p>
+    </header>
+
+    <!-- 01 · Career arc -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">01</div>
+        <h2 class="candidate-sub-title">Twenty years on the translator seam — five eras, each adding a layer the JD names explicitly.</h2>
+      </div>
+      <p class="candidate-sub-lede">Read forward: legal training → strategy consulting → commercial P&amp;L → analytics + AI delivery → enterprise AI translator.</p>
+
+      <div class="candidate-sub-body">
+        <div class="career-tl">
+          <svg viewBox="0 0 1240 480" xmlns="http://www.w3.org/2000/svg">
+            <line x1="80" y1="280" x2="1180" y2="280" stroke="#1b1f2a" stroke-width="2"/>
+            <g>
+              <line x1="80" y1="275" x2="80" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="80" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2005</text>
+              <line x1="330" y1="275" x2="330" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="330" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2010</text>
+              <line x1="580" y1="275" x2="580" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="580" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2015</text>
+              <line x1="830" y1="275" x2="830" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="830" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2020</text>
+              <line x1="1080" y1="275" x2="1080" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="1080" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2025</text>
+            </g>
+            <rect x="80" y="252" width="50" height="22" fill="#b68b3f"/>
+            <rect x="130" y="252" width="150" height="22" fill="#c84b4d"/>
+            <rect x="280" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="430" y="252" width="150" height="22" fill="#21304d"/>
+            <rect x="580" y="252" width="100" height="22" fill="#c84b4d"/>
+            <rect x="680" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="780" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="880" y="252" width="150" height="22" fill="#6d1a1b"/>
+            <rect x="1030" y="252" width="100" height="22" fill="#1b1f2a"/>
+
+            <line x1="105" y1="252" x2="105" y2="220" stroke="#b68b3f" stroke-width="0.8"/>
+            <text x="105" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">Garrigues</text>
+            <text x="105" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Legal + business</text>
+
+            <line x1="505" y1="252" x2="505" y2="220" stroke="#21304d" stroke-width="0.8"/>
+            <text x="505" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">L'Oréal · Head of BI</text>
+            <text x="505" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Commercial + data</text>
+
+            <line x1="730" y1="252" x2="730" y2="220" stroke="#9e2a2b" stroke-width="0.8"/>
+            <text x="730" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">Spain ACOE</text>
+            <text x="730" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">AI patent · use cases</text>
+
+            <line x1="955" y1="252" x2="955" y2="220" stroke="#6d1a1b" stroke-width="0.8"/>
+            <text x="955" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">OE Director · IQVIA</text>
+            <text x="955" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">$15M+ delivered</text>
+
+            <line x1="205" y1="252" x2="205" y2="148" stroke="#c84b4d" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="205" y="138" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">IMS · Junior</text>
+            <text x="205" y="124" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Commercial + SFE</text>
+
+            <line x1="330" y1="252" x2="330" y2="100" stroke="#9e2a2b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="330" y="90" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">IMS · Senior</text>
+            <text x="330" y="76" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Brussels · proposals</text>
+
+            <line x1="830" y1="252" x2="830" y2="148" stroke="#9e2a2b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="830" y="138" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">ACOE Europe</text>
+            <text x="830" y="124" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">20+ team · 7 countries</text>
+
+            <line x1="1080" y1="252" x2="1080" y2="80" stroke="#1b1f2a" stroke-width="1.2"/>
+            <rect x="970" y="48" width="220" height="36" fill="#1b1f2a"/>
+            <text x="1080" y="66" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="15" font-weight="600" fill="#b68b3f">AstraZeneca DS&amp;AI Commercial</text>
+            <text x="1080" y="78" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="500" fill="white" letter-spacing="1.2">TRANSLATOR · NOW</text>
+
+            <g transform="translate(0, 340)">
+              <line x1="80" y1="0" x2="380" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="230" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#9e2a2b">ERA I · LEGAL + STRATEGY</text>
+              <text x="230" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">Translator training begins</text>
+
+              <line x1="430" y1="0" x2="580" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="505" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#21304d">ERA II · COMMERCIAL P&amp;L</text>
+              <text x="505" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">Business side fluent</text>
+
+              <line x1="580" y1="0" x2="880" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="730" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#9e2a2b">ERA III · AI/ANALYTICS DELIVERY</text>
+              <text x="730" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">Technology side fluent</text>
+
+              <line x1="880" y1="0" x2="1030" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="955" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#6d1a1b">ERA IV · DIRECTOR</text>
+              <text x="955" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">$15M scale delivered</text>
+
+              <line x1="1030" y1="56" x2="1130" y2="56" stroke="#1b1f2a" stroke-width="2"/>
+              <text x="1080" y="78" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#1b1f2a">ERA V · AZ INSIDER</text>
+              <text x="1080" y="92" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#1b1f2a">DSAI Commercial</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The arc IS the role</div>
+          <div class="takeaway-text">Every era trained one half of the bilingual capability the JD asks for. By Era V, both halves are operational simultaneously. This is not a role to grow into — it is the role already being performed at AZ DSAI, one level up.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 · Numbers -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">02</div>
+        <h2 class="candidate-sub-title">Six outcomes — each maps to an explicit JD accountability.</h2>
+      </div>
+      <p class="candidate-sub-lede">No paper claim. Every number verifiable from the CV.</p>
+
+      <div class="candidate-sub-body">
+        <div class="stat-grid cols-3">
+          <div class="stat-card">
+            <div class="stat-card-label">Delivery scale</div>
+            <div class="stat-card-number">$15M+</div>
+            <div class="stat-card-detail">IQVIA Operational Effectiveness Director · global Org Deep Dive · value tracked through to realisation.</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-card-label">Matrix scope</div>
+            <div class="stat-card-number">20+</div>
+            <div class="stat-card-detail">Consultants led across <strong>7 European countries</strong> · ACOE Europe · Region-scale orchestration.</div>
+          </div>
+          <div class="stat-card navy">
+            <div class="stat-card-label">Commercial P&amp;L</div>
+            <div class="stat-card-number">€90M</div>
+            <div class="stat-card-detail">L'Oréal Pharma Beauty · Head of BI · commercial decisioning + forecasting + business case discipline.</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">AI productionised</div>
+            <div class="stat-card-number" style="font-size: 38px;">US patent</div>
+            <div class="stat-card-detail">Investigator + Site Identification AI · ideation through deployment + adoption — the full lifecycle.</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-card-label">Commercial deal-craft</div>
+            <div class="stat-card-number">€350K<span style="font-size: 24px;">/yr</span></div>
+            <div class="stat-card-detail">Strategy proposals designed and sold to top pharma · 13 years sustained · stakeholder management to VP level.</div>
+          </div>
+          <div class="stat-card navy">
+            <div class="stat-card-label">Pharma data tenure</div>
+            <div class="stat-card-number">13</div>
+            <div class="stat-card-detail">Years at IMS / IQVIA · the world's largest pharma data &amp; analytics vendor · seen every use case taxonomy.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 · Three combinations -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">03</div>
+        <h2 class="candidate-sub-title">Three combinations — the JD asks for all three, simultaneously.</h2>
+      </div>
+      <p class="candidate-sub-lede">Most candidates have two; the third is the one that compounds the value.</p>
+
+      <div class="candidate-sub-body">
+        <div class="combo-grid">
+          <div class="combo-card">
+            <div class="combo-num">COMBINATION 01</div>
+            <h3 class="combo-title">Bilingual native</h3>
+            <div class="combo-formula">Business × Science × Tech</div>
+            <p class="combo-body"><strong>Law + BBA</strong> training · <strong>13 years</strong> commercial pharma consulting · <strong>2 years</strong> client-side DSAI Commercial. The translator function the JD names is the function Joaquín has been performing under different titles for two decades. Not a stretch — a description.</p>
+          </div>
+          <div class="combo-card gold">
+            <div class="combo-num">COMBINATION 02</div>
+            <h3 class="combo-title">Full lifecycle owner</h3>
+            <div class="combo-formula">Ideation → decommissioning</div>
+            <p class="combo-body">From scoping use cases (consulting era) → designing AI solutions (ACOE) → productionising at scale (US patent) → standardising portfolio practices (AZ DSAI). The JD's "full AI lifecycle" is not a competency to learn — it is the throughline of the career.</p>
+          </div>
+          <div class="combo-card navy">
+            <div class="combo-num">COMBINATION 03</div>
+            <h3 class="combo-title">Region-native</h3>
+            <div class="combo-formula">EU + 4 languages</div>
+            <p class="combo-body"><strong>Europe ACOE 20+ team · 7 countries</strong> · 2 years Brussels strategy consulting · <strong>4 languages</strong> (EN, ES, FR, DE) · cultural fluency across all major BBU European markets. The Region scope is not new geography — it is recognised geography.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Why these specifically</div>
+          <div class="takeaway-text">The JD calls out "bilingual," "full lifecycle ownership," and "embedded in the Region." Each is a Director-floor expectation. Joaquín brings all three with measurable evidence — and from inside AZ DSAI.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 · Both sides -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">04</div>
+        <h2 class="candidate-sub-title">Already inside DSAI Commercial. Already partnering with EAI. One step up, not one step sideways.</h2>
+      </div>
+      <p class="candidate-sub-lede">The seam is the asset — and the candidacy is the natural promotion case, not the lateral move.</p>
+
+      <div class="candidate-sub-body">
+        <div class="both-sides">
+          <div class="bs-col left">
+            <div class="bs-tag">VENDOR / DELIVERY ARC</div>
+            <div class="bs-title">IMS Consulting · IQVIA · L'Oréal</div>
+            <div class="bs-years">2005 — 2024 · 19 years · 13 in pharma at IMS/IQVIA</div>
+            <ul class="bs-list">
+              <li><strong>Consulting</strong>: deepest commercial work in <strong>CVRM + Respiratory</strong> — SFE, market access, launch</li>
+              <li><strong>L'Oréal</strong>: ran €90M brand-level BI · client-side translator</li>
+              <li><strong>ACOE Europe</strong>: 20+ team · 7 countries · use case factory</li>
+              <li><strong>OE Director</strong>: $15M+ delivered · governance + sponsor mgmt</li>
+              <li><strong>AI productionised</strong>: US patent on Site ID AI at scale</li>
+            </ul>
+          </div>
+          <div class="bs-bridge">
+            <div class="bs-bridge-circle">↔</div>
+          </div>
+          <div class="bs-col right">
+            <div class="bs-tag">CURRENT · TRANSLATOR ON THE R&amp;D SIDE</div>
+            <div class="bs-title">AstraZeneca · DS&amp;AI</div>
+            <div class="bs-years">2024 — NOW · 2 years · Barcelona · 15+ yrs pharma total</div>
+            <ul class="bs-list">
+              <li>Director · DSAI Business Planning &amp; Operations</li>
+              <li><strong>Supporting R&amp;D across BBU and OBU</strong> — cross-BU exposure operational</li>
+              <li>Standardised <strong>portfolio + PM practices</strong> across the function</li>
+              <li>Engaged on the <strong>#EAI agenda</strong> at N+2 leadership</li>
+              <li>Active <strong>DSAI peer network</strong> across R&amp;D + commercial sides</li>
+            </ul>
+          </div>
+          <div class="bs-quote">15+ years pharma · deepest commercial roots in BBU · already R&amp;D-side at AZ. The next layer is commercial-side AIC, one rung up.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The interview answer to "why Senior Director"</div>
+          <div class="takeaway-text">"At Director level I have standardised the function's operating spine and engaged at N+2 on EAI. The next layer is owning the translator function for a Region. The capability is built; the mandate is the step-up."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 · The depth signal — BBU is where the consulting roots run deepest -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">05</div>
+        <h2 class="candidate-sub-title">Where the commercial roots actually run — BBU therapy areas, not adjacencies.</h2>
+      </div>
+      <p class="candidate-sub-lede">Reframe the conventional reading: BBU is not a pivot. It is where the deepest IMS / IQVIA commercial consulting experience originally sat — and where the current AZ role already operates on the R&amp;D side.</p>
+
+      <div class="candidate-sub-body">
+        <div class="gap-callout" style="border-left-color: var(--gold);">
+          <div class="gap-tag" style="color: var(--gold-dk);">THE DEPTH SIGNAL</div>
+          <h3 class="gap-title">15+ years pharma across IMS, IQVIA and AstraZeneca — with the deepest commercial consulting in CVRM and Respiratory, not Oncology.</h3>
+          <p class="gap-body">During the 13-year IMS / IQVIA arc the commercial engagements that recurred most often were in <strong>cardiovascular</strong> (sales force optimisation, market access, brand strategy) and <strong>respiratory</strong> (specialist segmentation, launch readiness). Oncology consulting touched the portfolio later. At AstraZeneca today, DS&amp;AI sits on the <strong>R&amp;D</strong> side and supports <strong>both BBU and OBU</strong> — meaning the current AZ context already spans both business units. Net: this role plays to deeper commercial roots, not to an adjacency.</p>
+        </div>
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">DEPTH SIGNAL 01</div>
+            <div class="ncard-title">IQVIA commercial — deepest in BBU</div>
+            <div class="ncard-body"><strong>CVRM and Respiratory</strong> dominated the commercial pharma case mix across Madrid and Brussels engagements. Sales force optimisation, segmentation, launch sequencing — all in BBU therapy areas before Oncology became prominent in the portfolio.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">DEPTH SIGNAL 02</div>
+            <div class="ncard-title">Current AZ DS&amp;AI — R&amp;D across both BUs</div>
+            <div class="ncard-body">The current Director role supports R&amp;D for <strong>both BBU and OBU</strong>. Already cross-BU operationally — no learning curve on either side. The function pivot to commercial-side AIC is the actual step-up.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">DEPTH SIGNAL 03</div>
+            <div class="ncard-title">The real pivot is R&amp;D → Commercial</div>
+            <div class="ncard-body">Where commercial fluency needs reactivation: post-2018 commercial models (digital field, omnichannel, agentic engagement). The <strong>TA depth is already there</strong>; the Q1 2027 immersion is commercial reactivation, not TA learning.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The interview move</div>
+          <div class="takeaway-text">If asked "you're at AZ DS&amp;AI — why BBU AIC?": answer the function pivot honestly (R&amp;D-side → Commercial-side AIC), then make the TA depth point unprompted. "BBU is not a pivot for me — it is where my deepest commercial consulting roots originate. The function pivot to commercial-side is the real step-up — and that is the work I want."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 · Fit map -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">06</div>
+        <h2 class="candidate-sub-title">Every JD requirement to specific career evidence — the trace is clean.</h2>
+      </div>
+      <p class="candidate-sub-lede">Eight JD-named requirements. Eight evidence points. One acknowledged gap (above) with mitigation.</p>
+
+      <div class="candidate-sub-body fit-map">
+        <table class="ctable">
+          <thead>
+            <tr><th style="width: 36%;">JD requirement</th><th>Career evidence</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="col-key">Substantial transformation programs in commercial pharma</td><td class="col-az">IQVIA OE Director · $15M+ delivered · global Org Deep Dive · L'Oréal Pharma Beauty €90M BI lead</td></tr>
+            <tr><td class="col-key">Bilingual business / science / tech translation</td><td class="col-az">Law + BBA + 13 years commercial pharma consulting + 2 years DSAI Commercial — bilingual by training and tenure</td></tr>
+            <tr><td class="col-key">Full AI use case lifecycle ownership</td><td class="col-az">US patent on AI from ideation through productionisation · ACOE Europe use case factory · current AZ portfolio practices</td></tr>
+            <tr><td class="col-key">Operate in highly matrixed organisations</td><td class="col-az">Europe ACOE · 20+ team · 7 countries · current dotted-line + functional matrix at AZ DSAI</td></tr>
+            <tr><td class="col-key">Region-scale + EU/Canada scope</td><td class="col-az">2 years Brussels strategy consulting · ACOE Europe lead · 4 languages · EU regulatory + commercial fluency</td></tr>
+            <tr><td class="col-key">Financial &amp; business case discipline</td><td class="col-az">€90M P&amp;L L'Oréal · IQVIA proposals up to €350K/yr · current AZ portfolio governance work</td></tr>
+            <tr><td class="col-key">Alliance / strategic partnership leadership</td><td class="col-az">Vendor relationships managed at OE Director level · Innovation Hub + Accelerator participation at IQVIA · current cross-AZ engagement</td></tr>
+            <tr><td class="col-key">AI literacy + governance + compliance</td><td class="col-az">Law foundation · GDPR / AI Act fluency built · current EAI engagement · standardised AZ DSAI governance practices</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The compact case</div>
+          <div class="takeaway-text">Every JD requirement has direct evidence. The single named gap (BBU vs OBU) is acknowledged in §5 with mitigation. This is fit by accumulation, not by paper match — and the AZ-insider dimension makes it a promotion case, not a hiring risk.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE I — Decoding the role -->
+<section class="module" id="m1" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · I<span class="roman">I</span></div>
+      <div>
+        <h2 class="module-title">Decoding the role.</h2>
+        <p class="module-lede">The title is "Business Partner." The function is closer to "Regional translator + portfolio owner + change leader" — three roles in one mandate.</p>
+        <div class="level-toggle" data-module="m1">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Five accountabilities — read them as a system, not as a list.</h3>
+          <p class="lede">Each is named explicitly in the JD; each requires a distinct posture and a distinct stakeholder cluster.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-4">
+          <div class="ncard">
+            <div class="ncard-num">PILLAR 01</div>
+            <div class="ncard-title">AI strategy + portfolio ownership</div>
+            <div class="ncard-body">Single business owner for AI solutions in the Region · roadmap aligned to BBU priorities · "build once, scale to many" discipline.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">PILLAR 02</div>
+            <div class="ncard-title">Translation of needs → AI use cases</div>
+            <div class="ncard-body">Engage business · surface needs · scope use cases with success metrics, data requirements, risk tier. The bilingual function in action.</div>
+          </div>
+          <div class="ncard navy">
+            <div class="ncard-num">PILLAR 03</div>
+            <div class="ncard-title">Delivery, scale, adoption, value</div>
+            <div class="ncard-body">Co-lead with EAI delivery teams · ownership through pilot, deployment, adoption, ROI, and (when needed) decommissioning.</div>
+          </div>
+          <div class="ncard teal">
+            <div class="ncard-num">PILLAR 04</div>
+            <div class="ncard-title">Change leadership</div>
+            <div class="ncard-body">AI literacy · process + role shifts · embedded ways of working · the antidote to one-off pilots.</div>
+          </div>
+        </div>
+
+        <div class="card-grid cols-2">
+          <div class="ncard sage">
+            <div class="ncard-num">PILLAR 05</div>
+            <div class="ncard-title">Data, governance &amp; compliance — Regional point of contact</div>
+            <div class="ncard-body">Partner with EDE + AITT · ensure data is AI-ready and compliant (GDPR, HIPAA, AI Act, SaMD) · registry-before-scale, model/data cards, ongoing monitoring, human-in-the-loop where required.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">THE INTEGRATION</div>
+            <div class="ncard-title">All five active simultaneously</div>
+            <div class="ncard-body">No pillar can be "deferred to next quarter." A Senior Director who treats them as serial sequence has misread the role. The mandate is portfolio-level concurrency.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The framing discipline</div>
+          <div class="takeaway-text">In every round, answer the five pillars as accountabilities, not tasks. Never describe the role as "AI projects." The JD's language is portfolio, lifecycle, and embedded translation — match that vocabulary precisely.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Where the role sits — the EAI/AIC operating funnel.</h3>
+          <p class="lede">Top-of-funnel innovation, middle-funnel use case translation, bottom-funnel scaled adoption. You own the middle.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="chart">
+          <div class="chart-title">EAI / AIC operating funnel</div>
+          <div class="chart-subtitle">Where AIC Business Partners plug in</div>
+          <svg viewBox="0 0 880 280" xmlns="http://www.w3.org/2000/svg">
+            <rect x="60" y="20" width="760" height="48" fill="#9e2a2b"/>
+            <text x="80" y="40" font-size="10" font-weight="700" fill="white" letter-spacing="3">TOP — STRATEGY &amp; INNOVATION</text>
+            <text x="80" y="58" font-family="Fraunces, Georgia, serif" font-size="16" font-weight="500" fill="white">EAI strategy · AI30 focus areas · enterprise scouting</text>
+
+            <path d="M 440 70 L 440 86 L 432 78 M 440 86 L 448 78" stroke="#1b1f2a" stroke-width="1.5" fill="none"/>
+
+            <rect x="140" y="92" width="600" height="48" fill="#b68b3f"/>
+            <text x="160" y="112" font-size="10" font-weight="700" fill="white" letter-spacing="3">MIDDLE — TRANSLATOR · YOUR SEAT</text>
+            <text x="160" y="130" font-family="Fraunces, Georgia, serif" font-size="16" font-weight="500" fill="white">AIC Business Partner — scope · shape · co-deliver · drive adoption · decommission</text>
+
+            <path d="M 440 142 L 440 158 L 432 150 M 440 158 L 448 150" stroke="#1b1f2a" stroke-width="1.5" fill="none"/>
+
+            <rect x="220" y="164" width="440" height="48" fill="#21304d"/>
+            <text x="240" y="184" font-size="10" font-weight="700" fill="white" letter-spacing="3">BOTTOM — REGIONAL EXECUTION</text>
+            <text x="240" y="202" font-family="Fraunces, Georgia, serif" font-size="16" font-weight="500" fill="white">Markets · Brand teams · field force · field operations</text>
+
+            <text x="440" y="252" text-anchor="middle" font-size="11" fill="#6b7280" font-style="italic">EAI defines the "what." Markets do the "do." The AIC translator owns the "how" — the conversion of strategy into adoption.</text>
+          </svg>
+          <div class="chart-source">Source: AZ EAI / AIC organisational structure per JD · interpretation</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">How to frame the role</div>
+          <div class="takeaway-text">Position yourself as the conversion engine between EAI strategy and Region execution. The JD's dotted-line to Region + reporting to VP AIC IS the funnel's structural mid-position — not a coordination job, a conversion mandate.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The dotted-line topology — three reporting lines, three forums, three accountabilities.</h3>
+          <p class="lede">Misreading the reporting topology is the single most common year-one mistake for a "business partner" role.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead>
+            <tr>
+              <th style="width: 22%;">Reporting line</th>
+              <th style="width: 22%;">Counterpart</th>
+              <th style="width: 16%;">Cadence</th>
+              <th>Accountability</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="col-key">Solid — to VP AIC</td><td class="col-az">VP, AI Commercial</td><td>Weekly</td><td>AI strategy delivery · cross-Region coordination · AIC Leadership Team contribution</td></tr>
+            <tr><td class="col-key">Dotted — to BBU EU&amp;CA Region Leader</td><td class="col-az">Region SVP / President</td><td>Bi-weekly</td><td>Seat at Region leadership table · Region priorities alignment · sponsor relationship</td></tr>
+            <tr><td class="col-key">Functional — to AIC Leadership Team peers</td><td class="col-az">Other AIC Business Partners (OBU, R&amp;D, etc.)</td><td>Monthly</td><td>Cross-unit use case reuse · "build once, scale to many" discipline · shared learnings</td></tr>
+          </tbody>
+        </table>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">Three masters, three rooms, three accountabilities. The Senior Director who reads the matrix correctly thrives; the one who doesn't, drowns by Q2.</div>
+        </div>
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">FAILURE MODE 01</div>
+            <div class="ncard-title">Over-indexing on the Region</div>
+            <div class="ncard-body">Drifts toward becoming a Region staff function · misses cross-unit reuse opportunities · loses AIC peer credibility.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">FAILURE MODE 02</div>
+            <div class="ncard-title">Over-indexing on AIC central</div>
+            <div class="ncard-body">Misses Region context · scoped use cases don't land in real BBU workflows · adoption signals stall at G3.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">FAILURE MODE 03</div>
+            <div class="ncard-title">Ignoring peer Business Partners</div>
+            <div class="ncard-body">Forfeits the "build once, scale to many" lever · ends up rebuilding what other units already shipped · the JD-named reuse discipline collapses.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Week-one move</div>
+          <div class="takeaway-text">Schedule the first three rhythms in week one — VP AIC weekly, Region SVP bi-weekly, AIC peer monthly. Calendar them as standing. The cadence IS the matrix in operation; it cannot be improvised.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE II — The translator function -->
+<section class="module" id="m2" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · II<span class="roman">II</span></div>
+      <div>
+        <h2 class="module-title">The translator function.</h2>
+        <p class="module-lede">"Bilingual in business and technology" is the JD's core metaphor — and the central skill the role is paid for.</p>
+        <div class="level-toggle" data-module="m2">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Bilingual is three languages, not two — business · science · technology.</h3>
+          <p class="lede">Most "AI business partners" speak two. The JD asks for three, with fluency, in the same conversation.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="three-col">
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">LANGUAGE A</div><div class="tc-head-title">Business</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">What it sounds like</div>
+              <ul class="tc-list">
+                <li>"Volume growth, NPS, share-of-voice"</li>
+                <li>"Brand readouts, P&amp;L variance"</li>
+                <li>"Time-to-decision in launch sequencing"</li>
+              </ul>
+              <div class="tc-section">Who speaks it</div>
+              <p class="tc-body-text"><em>Region SVP · Brand Directors · Market Leads · Field Excellence.</em></p>
+            </div>
+          </div>
+          <div class="tc-card gold">
+            <div class="tc-card-head"><div class="tc-tag">LANGUAGE B</div><div class="tc-head-title">Science / clinical</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">What it sounds like</div>
+              <ul class="tc-list">
+                <li>"Endpoints, mechanism of action"</li>
+                <li>"Indication, label, ROA"</li>
+                <li>"Patient pathway, KOL engagement"</li>
+              </ul>
+              <div class="tc-section">Who speaks it</div>
+              <p class="tc-body-text"><em>Medical Affairs · MSLs · Clinical Operations · KOLs.</em></p>
+            </div>
+          </div>
+          <div class="tc-card navy">
+            <div class="tc-card-head"><div class="tc-tag">LANGUAGE C</div><div class="tc-head-title">Technology</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">What it sounds like</div>
+              <ul class="tc-list">
+                <li>"Data residency, model card, eval"</li>
+                <li>"Agentic platform, RAG, fine-tune"</li>
+                <li>"Drift monitoring, governance gate"</li>
+              </ul>
+              <div class="tc-section">Who speaks it</div>
+              <p class="tc-body-text"><em>EAI engineering · AIC capability teams · CIT · GBS.</em></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The Senior Director test</div>
+          <div class="takeaway-text">A Senior Director in this role must move between all three in the same meeting without translation overhead. If the room has to wait while the Director "translates internally," fluency is missing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The AI use case lifecycle — six stages, ideation through decommissioning.</h3>
+          <p class="lede">The JD names "ideation through decommissioning" explicitly — and the decommissioning stage is the one most candidates skip in interviews.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="flow-grid">
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 01</div><div class="flow-cell-title">Ideation</div><div class="flow-cell-detail">Need surfaced</div><div class="flow-cell-body">Business problem framed · candidate AI fit assessed.</div></div>
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 02</div><div class="flow-cell-title">Scoping</div><div class="flow-cell-detail">Use case defined</div><div class="flow-cell-body">Problem statement · metrics · data · risk tier.</div></div>
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 03</div><div class="flow-cell-title">Pilot</div><div class="flow-cell-detail">Constrained scope</div><div class="flow-cell-body">Prove value in one market / one brand · evidence framework.</div></div>
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 04</div><div class="flow-cell-title">Scale</div><div class="flow-cell-detail">Regional deploy</div><div class="flow-cell-body">Multi-market rollout · adoption engineering · change mgmt.</div></div>
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 05</div><div class="flow-cell-title">Steady state</div><div class="flow-cell-detail">BAU + ROI</div><div class="flow-cell-body">Embedded · KPI-tracked · ongoing monitoring · drift control.</div></div>
+        </div>
+
+        <div class="card-grid cols-2">
+          <div class="ncard">
+            <div class="ncard-num">STAGE 06</div>
+            <div class="ncard-title">Remediation OR decommissioning</div>
+            <div class="ncard-body">If value drifts or risk emerges: remediate, or shut down. The JD names this explicitly — most pharmas do not have the discipline to retire AI solutions. The Senior Director who can is rare.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">RULE</div>
+            <div class="ncard-title">Every stage has a gate, an owner, and an evidence pack</div>
+            <div class="ncard-body">"Registry-before-scale" (JD-named) means stage 3 → 4 demands registration in the enterprise registry · model card · data card · ongoing monitoring set up.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The 30-second elevator answer</div>
+          <div class="takeaway-text">"Use case lifecycle is six stages: ideation, scoping, pilot, scale, steady state, and remediation-or-decommissioning. The last stage is the one most teams skip — and the one a Senior Director must protect."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Translation antipatterns — six failure modes the Senior Director must recognise and stop.</h3>
+          <p class="lede">Each antipattern looks reasonable mid-flight. Each costs the function adoption velocity and credibility.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">ANTIPATTERN 01</div>
+            <div class="ncard-title">The technology-led solution</div>
+            <div class="ncard-body">"We have an LLM, what should we do with it?" The business need is back-fit to the technology. Pilot succeeds, scale fails — because no business owner ever wanted the outcome.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ANTIPATTERN 02</div>
+            <div class="ncard-title">The undefined success metric</div>
+            <div class="ncard-body">"It will increase engagement." Engagement how, measured against what baseline, attributed how? The JD-named "clear metrics" requirement is precisely this antidote.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ANTIPATTERN 03</div>
+            <div class="ncard-title">The orphan pilot</div>
+            <div class="ncard-body">Pilot ships beautifully · no owner for scale · no operating model for adoption · no shut-off plan. The "one-off pilot" the JD warns against.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ANTIPATTERN 04</div>
+            <div class="ncard-title">The "build new" reflex</div>
+            <div class="ncard-body">Custom build when reuse from another unit exists. The JD's "build once, scale to many" exists precisely to interrupt this reflex.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ANTIPATTERN 05</div>
+            <div class="ncard-title">The compliance afterthought</div>
+            <div class="ncard-body">GDPR / AI Act / PV review happens at G3. Outcome: re-baselined plan · 6-month slip · sponsor confidence dented. Registry-before-scale exists to prevent this.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ANTIPATTERN 06</div>
+            <div class="ncard-title">The "AI literacy" delegation</div>
+            <div class="ncard-body">Change + literacy is delegated to HR/AITO without translator partnership. Result: training without context · adoption stalls · ROI claims unattributable.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"A translator's most valuable habit is not translation — it is refusal. Refusing the technology-led solution, the undefined metric, the orphan pilot. Refusal IS the work."</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The Senior Director discipline</div>
+          <div class="takeaway-text">Build a translator's intake template that screens for these six antipatterns at G1. Any use case scoring two or more is sent back for re-shaping before resources are committed. The template IS the function's adoption insurance.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">A use case scoring rubric — seven dimensions, one number, one decision.</h3>
+          <p class="lede">A rubric forces the translator function to be transparent. Sponsors can see why use case A wins and use case B is sent back.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width:50px;">#</th><th style="width:22%;">Dimension</th><th>What is scored</th><th style="width:14%;">Weight</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01</td><td>Business impact</td><td>Quantified value at scale · attributable · within Region scope</td><td class="col-az">25%</td></tr>
+            <tr><td class="col-key">02</td><td>Strategic alignment</td><td>Ladders to BBU TA priorities · AI30 focus area · current launches</td><td class="col-az">15%</td></tr>
+            <tr><td class="col-key">03</td><td>Adoption feasibility</td><td>Fits real workflows · stakeholder pull confirmed · change burden manageable</td><td class="col-az">15%</td></tr>
+            <tr><td class="col-key">04</td><td>Data readiness</td><td>Required data available · quality acceptable · governance cleared</td><td class="col-az">15%</td></tr>
+            <tr><td class="col-key">05</td><td>Reuse potential</td><td>Cross-market · cross-brand · cross-unit reusability score</td><td class="col-az">10%</td></tr>
+            <tr><td class="col-key">06</td><td>Risk tier</td><td>AI Act / PV / privacy tier known · mitigation defined</td><td class="col-az">10%</td></tr>
+            <tr><td class="col-key">07</td><td>Time-to-value</td><td>Realistic pilot in &lt;6 months · scale in &lt;18 months</td><td class="col-az">10%</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">How to deploy it</div>
+          <div class="takeaway-text">Publish the rubric to Region stakeholders in week 4. Score every incoming use case openly. The transparency IS the translator's authority — sponsors stop asking "why this one?" because the answer is in the rubric.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE III — BBU therapy area intel -->
+<section class="module" id="m3" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · III<span class="roman">III</span></div>
+      <div>
+        <h2 class="module-title">BBU therapy area intelligence.</h2>
+        <p class="module-lede">Three therapy areas · adjacent commercial dynamics · the honest TA pivot, with specifics.</p>
+        <div class="level-toggle" data-module="m3">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three BBU therapy areas — each with a distinct commercial model and a distinct AI use case profile.</h3>
+          <p class="lede">CVRM is mature + biomarker-poor. R&amp;I is launch-heavy + specialist. ID is event-driven + payer-sensitive.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="three-col">
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">TA 01</div><div class="tc-head-title">CVRM — Cardiovascular, Renal, Metabolic</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">AZ flagship assets</div>
+              <ul class="tc-list">
+                <li>Farxiga (dapagliflozin)</li>
+                <li>Brilinta · Crestor (mature)</li>
+                <li>Wider CVRM pipeline including Lokelma, roxadustat</li>
+              </ul>
+              <div class="tc-section">Commercial dynamic</div>
+              <p class="tc-body-text"><em>Primary care + specialist mix · large patient populations · biomarker-poor for now · launch sequencing critical.</em></p>
+              <div class="tc-section">AI use case sweet spots</div>
+              <p class="tc-body-text">HCP segmentation · patient identification · adherence · payer narrative.</p>
+            </div>
+          </div>
+
+          <div class="tc-card gold">
+            <div class="tc-card-head"><div class="tc-tag">TA 02</div><div class="tc-head-title">R&amp;I — Respiratory &amp; Immunology</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">AZ flagship assets</div>
+              <ul class="tc-list">
+                <li>Fasenra (severe eosinophilic asthma)</li>
+                <li>Tezspire (severe asthma)</li>
+                <li>Saphnelo (SLE) · Symbicort · Breztri</li>
+              </ul>
+              <div class="tc-section">Commercial dynamic</div>
+              <p class="tc-body-text"><em>Specialist-led · biomarker-rich · launch-heavy with continual indication expansions.</em></p>
+              <div class="tc-section">AI use case sweet spots</div>
+              <p class="tc-body-text">Patient finding · specialist engagement · real-world evidence · launch readiness.</p>
+            </div>
+          </div>
+
+          <div class="tc-card navy">
+            <div class="tc-card-head"><div class="tc-tag">TA 03</div><div class="tc-head-title">Infectious Diseases</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">AZ flagship assets</div>
+              <ul class="tc-list">
+                <li>Beyfortus / nirsevimab (RSV)</li>
+                <li>COVID-19 portfolio (legacy)</li>
+                <li>Vaccine + monoclonal pipeline</li>
+              </ul>
+              <div class="tc-section">Commercial dynamic</div>
+              <p class="tc-body-text"><em>Seasonal + event-driven · public health overlap · payer-sensitive · access-led.</em></p>
+              <div class="tc-section">AI use case sweet spots</div>
+              <p class="tc-body-text">Demand forecasting · stockholding optimisation · public-health narrative · access engagement.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The pattern</div>
+          <div class="takeaway-text">Each TA needs a different translator dialect — but the underlying use case taxonomy is shared. Master the taxonomy first; the TA dialects follow rapidly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The real pivot is R&amp;D-side → Commercial-side · not OBU → BBU. Shared substrate, different stakeholder cluster.</h3>
+          <p class="lede">The therapy areas are not the pivot — that depth is already there from 13 years IMS/IQVIA commercial consulting. The function side is the actual step-up.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width: 22%;">Dimension</th><th>R&amp;D-side DS&amp;AI (current)</th><th>Commercial-side AIC (target)</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">Primary stakeholders</td><td>R&amp;D scientists · clinical operations · target ID teams</td><td class="col-az">Brand · field force · patient teams · access leads</td></tr>
+            <tr><td class="col-key">Use case archetypes</td><td>Site ID · biomarker · trial efficiency · molecule prioritisation</td><td class="col-az">HCP engagement · patient finding · payer narrative · launch optimisation</td></tr>
+            <tr><td class="col-key">Data assets</td><td>Clinical trial · biomarker · molecular · RWE for R&amp;D</td><td class="col-az">Sales · claims · EHR · RWE for commercial · field activity</td></tr>
+            <tr><td class="col-key">Governance bar</td><td>GxP · clinical evidence · regulatory submission</td><td class="col-az">Commercial compliance · AI Act · GDPR · PV</td></tr>
+            <tr><td class="col-key">Time horizon</td><td>Multi-year R&amp;D cycles</td><td class="col-az">Quarterly commercial cycles</td></tr>
+            <tr><td class="col-key">Shared substrate</td><td colspan="2" class="col-az" style="text-align:center;">EAI org · AZ data fabric · governance principles · Microsoft Fabric — the same on both sides</td></tr>
+          </tbody>
+        </table>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"The function shift is real — but the substrate is shared, and the therapy area depth is already deepest precisely in BBU (CVRM + Respiratory), from 13 years IMS/IQVIA commercial consulting."</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The honest framing</div>
+          <div class="takeaway-text">Acknowledge the function pivot openly: R&amp;D-side → Commercial-side AIC. Show why it is a natural step-up, not a leap: same substrate, same AZ context, deeper commercial consulting roots in the target TAs than in the current R&amp;D context's TA mix.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Where AI Commercial creates differential value — six high-conviction use case archetypes across BBU.</h3>
+          <p class="lede">Director-grade conviction: which archetypes are the ROI gold, where is the noise, and what does Region scope change.</p>
+        </div>
+      </div>
+      <div class="subsence-body">
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">ARCHETYPE 01 · CVRM</div>
+            <div class="ncard-title">HCP next-best-action</div>
+            <div class="ncard-body">Field rep AI suggestions for primary care + specialist mix · Veeva + Agentforce powered · high reuse across European markets. Mature archetype, scaling well at peers.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ARCHETYPE 02 · R&amp;I</div>
+            <div class="ncard-title">Severe-asthma patient finding</div>
+            <div class="ncard-body">EHR + claims based identification of severe-asthma candidates · biomarker-rich population enables high precision · Fasenra / Tezspire launch fit. High value, high adoption demand.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ARCHETYPE 03 · ID</div>
+            <div class="ncard-title">Seasonal demand forecasting</div>
+            <div class="ncard-body">RSV / Beyfortus seasonal demand modelling · public health data + claims · operations + access partnership. Distinctive ID-shaped archetype, fewer pharma precedents.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">ARCHETYPE 04 · CROSS</div>
+            <div class="ncard-title">Agentic customer engagement</div>
+            <div class="ncard-body">Salesforce Agentforce-class agentic platforms for HCP engagement · the AZ-Salesforce December 2025 deal anchors this · highest reuse potential, highest governance bar.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">ARCHETYPE 05 · CROSS</div>
+            <div class="ncard-title">Insight aggregation for field</div>
+            <div class="ncard-body">"Insight Explorer" class platforms aggregating macro, market, brand, customer signals for field decision support · directly leverages Joaquín's current build.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">ARCHETYPE 06 · CROSS</div>
+            <div class="ncard-title">Adherence + RWE engine</div>
+            <div class="ncard-body">CVRM + R&amp;I both reward adherence narratives to payers · AI on RWE generates the narrative + tracks the impact. Reuse across multiple brands.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">Six archetypes, three TAs, one translator function. The cross-archetype reuse (04 + 05 + 06) is where Senior Director-grade portfolio thinking earns its premium.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Year-one portfolio shape</div>
+          <div class="takeaway-text">Day-90 portfolio target: two TA-specific archetypes (one R&amp;I, one CVRM) advancing through G2; one cross-archetype (agentic customer engagement) in pilot. Year-one delivery: at least one of each in scaled adoption with KPI evidence.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE IV — Europe & Canada region -->
+<section class="module" id="m4" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · IV<span class="roman">IV</span></div>
+      <div>
+        <h2 class="module-title">Europe &amp; Canada region.</h2>
+        <p class="module-lede">Eight key markets · two regulatory environments · one operating model. The Region is the canvas the translator paints on.</p>
+        <div class="level-toggle" data-module="m4">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Eight markets · three tiers · one Region operating model.</h3>
+          <p class="lede">EU5 + Nordics + Spain + Canada. The market mix shapes both the use case priority and the data residency strategy.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width: 16%;">Market</th><th style="width: 14%;">Tier</th><th style="width: 22%;">Digital maturity</th><th>Commercial dynamic</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">Germany</td><td>Tier 1</td><td class="col-az">High · DiGA pioneer</td><td>Largest EU market · access-led · powerful payer system</td></tr>
+            <tr><td class="col-key">France</td><td>Tier 1</td><td class="col-az">High · HDH live</td><td>Centralised payer · KOL-heavy specialist routes</td></tr>
+            <tr><td class="col-key">UK</td><td>Tier 1</td><td class="col-az">High · NHS data</td><td>NICE-driven access · centralised commissioning</td></tr>
+            <tr><td class="col-key">Spain</td><td>Tier 1</td><td class="col-az">Advancing · regional</td><td>Region-by-region access · Catalonia + Madrid hubs</td></tr>
+            <tr><td class="col-key">Italy</td><td>Tier 1</td><td>Fragmented</td><td>Regional access · slow uniform adoption</td></tr>
+            <tr><td class="col-key">Canada</td><td>Tier 2</td><td class="col-az">Mature · provincial</td><td>Provincial payers · NA market integrated</td></tr>
+            <tr><td class="col-key">Nordics</td><td>Tier 2</td><td class="col-az">High · Findata, DK</td><td>Smaller markets, mature digital, fast adoption</td></tr>
+            <tr><td class="col-key">Benelux + others</td><td>Tier 3</td><td>Mixed</td><td>Pragmatic adoption · pilot-friendly</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Region-shape implication</div>
+          <div class="takeaway-text">EU5 demands AI-Act-ready · Spain offers Catalan + Madrid hub leverage · Nordics are the rapid-pilot canvas · Canada is the NA-coordination layer. A use case portfolio that fits all four operating contexts is the Region-grade portfolio.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three regulatory anchors that shape every Region use case — EU AI Act · EHDS · GDPR.</h3>
+          <p class="lede">Plus the medical-device dimension where AI enters clinical workflow. Compliance is the moat — and the JD-named integration point with EDE.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-4">
+          <div class="ncard">
+            <div class="ncard-num">EU AI ACT</div>
+            <div class="ncard-title">High-risk obligations</div>
+            <div class="ncard-body">Annex III high-risk lands Dec 2027 · medical AI devices Aug 2028. Compliance-by-design from G1.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">EHDS</div>
+            <div class="ncard-title">Secondary use 2029</div>
+            <div class="ncard-body">Federated access via HDABs · query-to-data architecture · permit-based pharma access.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">GDPR + LOCAL</div>
+            <div class="ncard-title">Privacy + residency</div>
+            <div class="ncard-body">DPIA per use case · purpose limitation · EU-only processing for sensitive data.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">MDR / SaMD</div>
+            <div class="ncard-title">When AI enters clinical</div>
+            <div class="ncard-body">Medical device classification triggers · CE mark obligations · post-market surveillance.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The integration with EDE</div>
+          <div class="takeaway-text">The JD names Enterprise Demand Excellence + AITT as the data + compliance handshake. The Senior Director should treat EDE as a peer pillar — not an enabler — and design every Region use case with EDE in the room from G0.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The Spanish + Catalan asymmetric advantage — and how to deploy it in the Region role.</h3>
+          <p class="lede">Spanish-native, Barcelona-based, with a Catalan hub network. This is the single biggest differentiator vs an external Senior Director.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">ADVANTAGE 01</div>
+            <div class="ncard-title">Spanish market depth</div>
+            <div class="ncard-body">Native Spanish · IESE network · Barcelona AZ hub fluency · understanding of region-by-region access reality. A Region SVP gets a Senior Director who reads Spain on day 1.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ADVANTAGE 02</div>
+            <div class="ncard-title">Catalan ecosystem network</div>
+            <div class="ncard-body">Biocat-led ecosystem familiarity · Hospital Clínic + Vall d'Hebron context · Savana / Quibim / Tucuvi-class start-up landscape. Spanish AI partner sourcing is structurally faster.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ADVANTAGE 03</div>
+            <div class="ncard-title">EU multilingual</div>
+            <div class="ncard-body">4 languages (EN fluent, ES native, FR intermediate, DE basic) · Brussels 2-year background · pan-EU stakeholder fluency that an English-only Senior Director will need 18 months to approach.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"AZ has a Barcelona hub and a Madrid presence. The Region needs a Senior Director who reads both natively — that is structurally me."</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The interview move</div>
+          <div class="takeaway-text">Frame Spain as a Region asset under-leveraged by the previous translator structure. Volunteer: "Spain is the natural test bed for several Region archetypes — and where I can deliver pilots faster than any external hire."</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE V — AI Commercial use cases -->
+<section class="module" id="m5" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · V<span class="roman">V</span></div>
+      <div>
+        <h2 class="module-title">AI Commercial use cases — the portfolio canvas.</h2>
+        <p class="module-lede">Three customer engagement spines · one actionable insight layer · one agentic delivery channel. The JD names all three.</p>
+        <div class="level-toggle" data-module="m5">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The customer engagement spine — three stakeholder clusters, each with distinct AI use cases.</h3>
+          <p class="lede">HCP · patient · payer. The translator function shapes use cases against each, with different metrics and different evidence frameworks.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="three-col">
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">CLUSTER 01</div><div class="tc-head-title">HCP engagement</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Use case archetypes</div>
+              <ul class="tc-list">
+                <li>Next-best-action for reps</li>
+                <li>HCP segmentation + targeting</li>
+                <li>KOL identification + engagement</li>
+                <li>Field activity optimisation</li>
+              </ul>
+              <div class="tc-section">Metrics</div>
+              <p class="tc-body-text"><em>Engagement depth · share-of-voice · script outcomes.</em></p>
+            </div>
+          </div>
+          <div class="tc-card gold">
+            <div class="tc-card-head"><div class="tc-tag">CLUSTER 02</div><div class="tc-head-title">Patient engagement</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Use case archetypes</div>
+              <ul class="tc-list">
+                <li>Patient identification (severe asthma, etc.)</li>
+                <li>Adherence interventions</li>
+                <li>Patient support program optimisation</li>
+                <li>Care pathway analytics</li>
+              </ul>
+              <div class="tc-section">Metrics</div>
+              <p class="tc-body-text"><em>Identification rate · adherence delta · time-on-therapy.</em></p>
+            </div>
+          </div>
+          <div class="tc-card navy">
+            <div class="tc-card-head"><div class="tc-tag">CLUSTER 03</div><div class="tc-head-title">Payer + access engagement</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Use case archetypes</div>
+              <ul class="tc-list">
+                <li>HEOR narrative generation</li>
+                <li>Real-world evidence pipelines</li>
+                <li>Demand + stockholding forecasting</li>
+                <li>Access scenario planning</li>
+              </ul>
+              <div class="tc-section">Metrics</div>
+              <p class="tc-body-text"><em>Access approval rate · time-to-access · forecast accuracy.</em></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The portfolio logic</div>
+          <div class="takeaway-text">A Region portfolio should aim for at least one scaled archetype in each cluster within 18 months. Concentration in only one cluster signals immature translator function — and is usually a sign the role has been over-indexed on one stakeholder voice.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Agentic platforms — the JD names them explicitly. Salesforce Agentforce is the AZ-committed direction.</h3>
+          <p class="lede">AZ–Salesforce Dec 2025 deal · Agentforce for Life Sciences · Health Cloud · Data Cloud as the substrate.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">SUBSTRATE</div>
+            <div class="ncard-title">Salesforce Data Cloud + Health Cloud</div>
+            <div class="ncard-body">The data + record substrate that Agentforce sits on · existing Veeva integration · AZ Cust IT investment.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">PLATFORM</div>
+            <div class="ncard-title">Agentforce for Life Sciences</div>
+            <div class="ncard-body">Agentic AI built for pharma use cases · launched late 2025 · AZ early adopter via Dec 2025 deal.</div>
+          </div>
+          <div class="ncard navy">
+            <div class="ncard-num">AZ-INTERNAL</div>
+            <div class="ncard-title">AI Gateway · Agent Mesh · BIKG</div>
+            <div class="ncard-body">AZ's own agentic infrastructure · governance + orchestration layer · BIKG (biological knowledge graph) as a domain accelerator.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The Senior Director vocabulary</div>
+          <div class="takeaway-text">Be fluent on Agentforce-class agentic capabilities and AZ-internal stack (AI Gateway, Agent Mesh, BIKG). A Senior Director who can talk both vendor + internal stack signals operating-grade familiarity.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">A worked example — a R&amp;I "severe asthma patient finding" use case end-to-end, the way a translator shapes it.</h3>
+          <p class="lede">Use this example in interviews when asked "walk me through how you'd shape a use case."</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-2">
+          <div class="ncard">
+            <div class="ncard-num">G0 · IDEATION</div>
+            <div class="ncard-title">Need surfaced from R&amp;I Brand Director</div>
+            <div class="ncard-body">"We are under-identifying severe asthma candidates for Fasenra / Tezspire in Germany and Spain." Translator action: confirm the business problem (not the technology), name the sponsor.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">G1 · SCOPING</div>
+            <div class="ncard-title">Problem statement + metrics + data</div>
+            <div class="ncard-body">Identify eosinophil-eligible patients via EHR + claims signals · success metric = 25% more identified candidates in pilot markets · data: hospital EHR (Spain) + claims (Germany) · risk tier: medium (no clinical decision).</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">G2 · PILOT DESIGN</div>
+            <div class="ncard-title">Co-led with EAI · scoped to 2 markets, 1 quarter</div>
+            <div class="ncard-body">Pilot in Spain (Catalonia anchor) + Germany (1 region). Partner: Savana for Spain EHR NLP, Datavant-class for German claims. Evidence framework: identification rate vs SoC list.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">G3 · SCALE</div>
+            <div class="ncard-title">If pilot wins · expand to 5 EU markets</div>
+            <div class="ncard-body">Register in enterprise registry · model card + data card co-authored · ongoing monitoring set up · Region adoption plan with Change pillar.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">G4 · STEADY STATE</div>
+            <div class="ncard-title">Embed in field operations · benefits tracked</div>
+            <div class="ncard-body">KPI: time-to-Fasenra-script for newly-identified patients. ROI: incremental scripts attributable to AI-driven identification. Embedded in Veeva field workflow.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">G5 · DECOMMISSIONING TRIGGER</div>
+            <div class="ncard-title">If model drift &gt; threshold · or label change · or biomarker shift</div>
+            <div class="ncard-body">Pre-defined retirement conditions · graceful handover to next-generation use case · the discipline most pharmas skip.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">The worked example IS the interview answer. A Senior Director who can walk this through in under 5 minutes signals operating maturity faster than any STAR.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VI — EAI org + governance -->
+<section class="module" id="m6" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VI<span class="roman">VI</span></div>
+      <div>
+        <h2 class="module-title">The EAI org &amp; governance fabric.</h2>
+        <p class="module-lede">Seven acronyms · one governance frame · one Senior Director who needs to read them all fluently.</p>
+        <div class="level-toggle" data-module="m6">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The EAI org map — seven internal acronyms the JD names. Know them, name them, partner with them.</h3>
+          <p class="lede">An external candidate guesses; an internal candidate names them with confidence. That fluency IS evidence.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width: 14%;">Acronym</th><th style="width: 28%;">What it does</th><th>How you partner with them</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">AIC</td><td>AI Commercial — your team</td><td class="col-az">Sit on AIC Leadership Team · report to VP AIC · peer with other unit Business Partners</td></tr>
+            <tr><td class="col-key">AISI</td><td>AI Strategy &amp; Innovation</td><td class="col-az">Top-of-funnel partner · enterprise scouting · AI30 focus areas owner</td></tr>
+            <tr><td class="col-key">AITC</td><td>AI Technology &amp; Compute</td><td class="col-az">Platform partner · AI Gateway · Agent Mesh · infrastructure substrate</td></tr>
+            <tr><td class="col-key">AICA</td><td>AI Customer Analytics</td><td class="col-az">Delivery partner for HCP + patient + payer engagement use cases</td></tr>
+            <tr><td class="col-key">AIEI</td><td>AI Enterprise Insights</td><td class="col-az">Cross-functional insight delivery · aggregation across business units</td></tr>
+            <tr><td class="col-key">AITT</td><td>AI Talent &amp; Training</td><td class="col-az">AI literacy partner · joint upskilling plans · co-owned with HR</td></tr>
+            <tr><td class="col-key">EDE</td><td>Enterprise Demand Excellence</td><td class="col-az">Data + governance partner · ensures data is AI-ready and compliant</td></tr>
+          </tbody>
+        </table>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">The org map is the partnership map. The Senior Director who reads it as bureaucracy fails; one who reads it as a coordination canvas thrives.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The week-one move</div>
+          <div class="takeaway-text">Schedule one 30-min introductory call with the lead of each acronym in week one. Establish the cadence, the handshake artefact, the escalation criterion. By day 30 every partnership has a working rhythm.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Governance principles — four named in the JD, applied to every use case.</h3>
+          <p class="lede">Registry-before-scale · model + data cards · ongoing monitoring · human-in-the-loop where required.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-4">
+          <div class="ncard">
+            <div class="ncard-num">PRINCIPLE 01</div>
+            <div class="ncard-title">Registry-before-scale</div>
+            <div class="ncard-body">Every use case registered before G3 (pilot → scale). The registry is the audit foundation and the reuse signal.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">PRINCIPLE 02</div>
+            <div class="ncard-title">Model cards + data cards</div>
+            <div class="ncard-body">Documented per use case · what data trained the model · how it was evaluated · what known limitations.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">PRINCIPLE 03</div>
+            <div class="ncard-title">Ongoing monitoring</div>
+            <div class="ncard-body">Drift detection · performance degradation · usage anomaly. Set up at G3, owned through G5.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">PRINCIPLE 04</div>
+            <div class="ncard-title">Human-in-the-loop where required</div>
+            <div class="ncard-body">High-risk decisions (clinical, regulatory, access) require human review. Lower-risk (suggestion, ranking) can be auto-action.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The non-negotiable</div>
+          <div class="takeaway-text">A use case that fails any of these four cannot reach G3. The Senior Director's job is to enforce that line — even when sponsors push for speed. The discipline IS the moat.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The data, governance &amp; compliance handshake — six artefacts that turn the EDE / AITT partnership from interface into capability.</h3>
+          <p class="lede">The JD names you as the BBU EU&amp;CA single point of contact. Make the partnership visible by codifying the artefacts.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">ARTEFACT 01</div>
+            <div class="ncard-title">Use case intake template</div>
+            <div class="ncard-body">Co-authored with EDE · risk tier · data requirements · governance pre-clearance fields · ensures G1 includes EDE perspective.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ARTEFACT 02</div>
+            <div class="ncard-title">DPIA-by-template</div>
+            <div class="ncard-body">Standard DPIA per archetype · accelerates G1 → G2 · pre-cleared with privacy.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ARTEFACT 03</div>
+            <div class="ncard-title">AI Act risk-tier classifier</div>
+            <div class="ncard-body">Codified Annex III + Article 6 classification · run at G1 · result determines governance cadence.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ARTEFACT 04</div>
+            <div class="ncard-title">Joint G3 audit pack</div>
+            <div class="ncard-body">Registry entry · model + data card · ongoing monitoring plan · human-in-the-loop spec. All four required for scale.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ARTEFACT 05</div>
+            <div class="ncard-title">Quarterly compliance review</div>
+            <div class="ncard-body">Joint review with EDE · portfolio-level compliance signal · drift, anomaly, audit-readiness rolled up.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">ARTEFACT 06</div>
+            <div class="ncard-title">AI literacy partnership plan</div>
+            <div class="ncard-body">Co-built with AITT + HR · targeted at BBU EU&amp;CA stakeholders · supports adoption + meets AI Act Article 4 literacy obligation.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Day-90 commitment</div>
+          <div class="takeaway-text">Day-90 deliverable: artefacts 01, 02, 03 codified for the BBU EU&amp;CA portfolio. Joint signed-off with EDE + AITT. The handshake IS the operating discipline — visible, auditable, repeatable.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VII — Interview mechanics -->
+<section class="module" id="m7" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VII<span class="roman">VII</span></div>
+      <div>
+        <h2 class="module-title">Interview mechanics.</h2>
+        <p class="module-lede">Five rounds · five distinct conversations. For Senior Director, the C-level round weighs heavier than the rest combined.</p>
+        <div class="level-toggle" data-module="m7">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Five rounds — each tests a different cluster, each demands a different posture.</h3>
+          <p class="lede">For Senior Director, the C-level round and the Region SVP round are the two that decide it.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width:90px;">Round</th><th>Who</th><th>What's tested</th><th>Your posture</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01 · HR</td><td class="muted">Recruiter</td><td>Motivation · band · TA pivot openly</td><td class="col-az">Volunteer BBU gap with mitigation</td></tr>
+            <tr><td class="col-key">02 · Hiring</td><td class="muted">VP AIC</td><td>Operational competence · translator fluency</td><td class="col-az">Bilingual demonstration · 3 STARs</td></tr>
+            <tr><td class="col-key">03 · Region</td><td class="muted">BBU EU&amp;CA SVP</td><td>Region fit · stakeholder gravitas · Region-strategic narrative</td><td class="col-az">Region-shaped portfolio vision · Spanish/Catalan asset</td></tr>
+            <tr><td class="col-key">04 · C-level</td><td class="muted">Hoots · N+2</td><td>Strategic vision · AI30 ladder · operating posture</td><td class="col-az">Conviction · 18-month vision · risk register</td></tr>
+            <tr><td class="col-key">05 · Peer panel</td><td class="muted">AIC peers + EDE</td><td>Cross-pillar fluency · reuse discipline</td><td class="col-az">Six integration moves · governance handshake</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Senior Director nuance</div>
+          <div class="takeaway-text">At Senior Director the C-level + Region SVP rounds carry disproportionate weight. Land both, and even an imperfect peer round can be recovered. Miss either, and a perfect peer round is not enough.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three STARs that anchor the role — translator scale + use case lifecycle + AI delivery.</h3>
+          <p class="lede">Each ~2 minutes. Each lands on Reflection. Pre-rehearse aloud at home.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">STAR 01 · TRANSLATOR AT SCALE</div>
+            <div class="ncard-title">Europe ACOE Lead · 7 countries</div>
+            <div class="ncard-body"><strong>S</strong>: IQVIA needed coherent analytics delivery across European pharma clients · TA + market diversity. <strong>T</strong>: I owned ACOE Europe · 20+ team · translation between client business needs and analytics delivery. <strong>A</strong>: Built use case factory · standardised intake · KPI per market. <strong>R</strong>: Unified delivery · cost-per-analytic improved &gt;50%. <strong>R</strong>: The translator-at-Region-scale function I am being asked to do here is the function I have already run.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">STAR 02 · LIFECYCLE OWNERSHIP</div>
+            <div class="ncard-title">Site ID AI · US patent</div>
+            <div class="ncard-body"><strong>S</strong>: Investigator + Site Identification was expert-judgment-bound. <strong>T</strong>: I co-owned the AI/ML solution end to end. <strong>A</strong>: Scoped need · partnered with DS team · productionised against compliance bars · drove client adoption. <strong>R</strong>: US patent · production deployment · client adoption · ongoing use. <strong>R</strong>: The "ideation through delivery, adoption, decommissioning" lifecycle is not new vocabulary — it is the patent's own arc.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">STAR 03 · DIRECTOR-SCALE DELIVERY</div>
+            <div class="ncard-title">$15M+ Org Deep Dive · OE Director</div>
+            <div class="ncard-body"><strong>S</strong>: IQVIA needed to right-size operations globally. <strong>T</strong>: I owned the Org Deep Dive methodology global delivery. <strong>A</strong>: Designed methodology · governed sponsors · ran the engagement at C-level visibility. <strong>R</strong>: $15M+ savings tracked through realisation. <strong>R</strong>: The same Director-scale governance discipline applies to portfolio-level AI Commercial delivery for a Region.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Ten trap questions specific to this role — each has a prepared frame.</h3>
+          <p class="lede">The traps are predictable. Knowing them removes the surprise.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width:50px;">#</th><th>Question</th><th>Your frame</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01</td><td><em>"Walk me through your CV."</em></td><td>Two minutes. The five-era translator arc. Land on AZ DSAI.</td></tr>
+            <tr><td class="col-key">02</td><td><em>"You're on the R&amp;D side of DS&amp;AI — why pivot to Commercial AIC?"</em></td><td>Function pivot, not TA pivot. <strong>15+ yrs pharma · 13 IMS/IQVIA commercial consulting deepest in CVRM + Respiratory</strong>. R&amp;D side adds cross-functional fluency. Roots, not adjacency.</td></tr>
+            <tr><td class="col-key">03</td><td><em>"What's the difference between an AI Business Partner and an AI Project Manager?"</em></td><td>Project = scope-time-cost. Partner = translator + portfolio + change. Frame by JD's "ideation to decommissioning."</td></tr>
+            <tr><td class="col-key">04</td><td><em>"Walk me through how you'd shape an AI use case."</em></td><td>Module V §3 worked example. Land in &lt;5 minutes.</td></tr>
+            <tr><td class="col-key">05</td><td><em>"Why Senior Director? Why not stay Director?"</em></td><td>At Director I have standardised the function. Senior Director owns the translator function for a Region. Capability built · mandate the step-up.</td></tr>
+            <tr><td class="col-key">06</td><td><em>"How would you handle a Region SVP who wants speed over governance?"</em></td><td>Reframe: governance IS speed at scale. Pilots without governance never scale. Show the math.</td></tr>
+            <tr><td class="col-key">07</td><td><em>"How would you decommission a live AI solution?"</em></td><td>Pre-defined retirement conditions at G3. Decommissioning is part of the lifecycle, not a failure. Most candidates will not have an answer.</td></tr>
+            <tr><td class="col-key">08</td><td><em>"What's your view on Agentforce vs in-house?"</em></td><td>AZ-Salesforce Dec 2025 anchors Agentforce direction. In-house (AI Gateway, Agent Mesh) for governance + orchestration. Hybrid is the answer.</td></tr>
+            <tr><td class="col-key">09</td><td><em>"Where will commercial AI be in 5 years?"</em></td><td>Agentic + specialty-deep + compliance-as-moat · translator function becomes more strategic, not less.</td></tr>
+            <tr><td class="col-key">10</td><td><em>"What's your one contrarian view?"</em></td><td>Spain + Catalan ecosystem is structurally under-leveraged in EU&amp;CA Region · defensible with 3 facts.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Senior Director offer negotiation — the levers are different from Director.</h3>
+          <p class="lede">At Senior Director, comp ranges widen and scope levers widen further. Internal-candidate-Barcelona-based makes geography a feature, not a request.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-2">
+          <div class="ncard">
+            <div class="ncard-num">LEVER 01 · COMP</div>
+            <div class="ncard-title">Senior Director band</div>
+            <div class="ncard-body">Base · STI · LTI · pension. Senior Director band typically opens substantial LTI delta vs Director — negotiate within band, sign-on for unvested if applicable.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 02 · MANDATE</div>
+            <div class="ncard-title">Portfolio scope in writing</div>
+            <div class="ncard-body">Which TAs · which existing use cases inherited · what is excluded · co-author the mandate text before signing.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 03 · GEOGRAPHY</div>
+            <div class="ncard-title">Barcelona base confirmed (JD already lists)</div>
+            <div class="ncard-body">No friction — Barcelona is JD-listed. Confirm operating rhythm with Region SVP: % time in Cambridge + EU travel.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 04 · TEAM</div>
+            <div class="ncard-title">Year-1 headcount</div>
+            <div class="ncard-body">Senior Director with Region scope typically has 2-4 direct reports. Get the headcount path in writing.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 05 · AUTHORITY</div>
+            <div class="ncard-title">Decision delegation</div>
+            <div class="ncard-body">Use case approval authority · vendor authority · budget control. Without explicit thresholds, the role becomes coordination.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 06 · SPONSOR</div>
+            <div class="ncard-title">VP AIC + Region SVP both engaged</div>
+            <div class="ncard-body">Both reporting lines locked before signing. Confirm sponsor cadence. Sponsor turnover risk is the biggest year-one variable.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Internal-candidate nuance</div>
+          <div class="takeaway-text">As internal + Director → Senior Director, comp is more constrained but scope/authority/team levers are wider. Lever 02 (mandate text) and lever 04 (headcount) compound through year one — push hardest there.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VIII — Strategic synthesis -->
+<section class="module" id="m8" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VIII<span class="roman">VIII</span></div>
+      <div>
+        <h2 class="module-title">Strategic synthesis.</h2>
+        <p class="module-lede">The single page · the structural lines · the risk register · the closing line.</p>
+        <div class="level-toggle" data-module="m8">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The single page — everything compressed to one frame.</h3>
+          <p class="lede">"Why you" in 30 seconds. Memorise it.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text">I bring three things this role structurally needs: a translator function I have been performing for twenty years, the AZ-insider context that compresses onboarding to weeks not months, and the Spanish + Catalan asymmetric advantage no external candidate carries.</div>
+        </div>
+
+        <div class="three-col">
+          <div class="pillar-card">
+            <div class="pillar-card-head"><div class="pillar-card-tag">PILLAR 01</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Twenty-year translator</h4>
+              <p class="pillar-card-claim">Bilingual is not aspirational — it is the work I do today.</p>
+              <div class="pillar-section-label">Evidence</div>
+              <ul class="pillar-evidence">
+                <li>Law + BBA + 13 yrs IMS/IQVIA + 2 yrs AZ DSAI</li>
+                <li>US patent on AI productionisation</li>
+                <li>ACOE Europe — 20+ team · 7 countries</li>
+                <li>$15M+ delivered at OE Director</li>
+              </ul>
+              <div class="pillar-bet">First Region use case shaped by day 60</div>
+            </div>
+          </div>
+          <div class="pillar-card gold">
+            <div class="pillar-card-head"><div class="pillar-card-tag">PILLAR 02</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Insider compression</h4>
+              <p class="pillar-card-claim">Month one I am operational on EAI org + governance; external month one is still onboarding.</p>
+              <div class="pillar-section-label">Evidence</div>
+              <ul class="pillar-evidence">
+                <li>2 yrs AZ DSAI Commercial</li>
+                <li>EAI engagement at N+2 leadership</li>
+                <li>Portfolio + PM practices standardised</li>
+                <li>DSAI Commercial peer network active</li>
+              </ul>
+              <div class="pillar-bet">Region SVP first review aced by day 30</div>
+            </div>
+          </div>
+          <div class="pillar-card navy">
+            <div class="pillar-card-head"><div class="pillar-card-tag">PILLAR 03</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Spanish + Catalan asymmetric advantage</h4>
+              <p class="pillar-card-claim">Region SVP gets a Senior Director who reads Spain on day one — and Spain is structurally under-leveraged.</p>
+              <div class="pillar-section-label">Evidence</div>
+              <ul class="pillar-evidence">
+                <li>Barcelona base · ES native · 4 languages</li>
+                <li>Biocat / Hospital Clínic / Vall d'Hebron context</li>
+                <li>2 years Brussels — pan-EU stakeholder fluency</li>
+                <li>JD lists Barcelona — no geography friction</li>
+              </ul>
+              <div class="pillar-bet">Spain pilot anchor by Q3 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Six structural lines for AI Commercial 2026–2028 — the longer-horizon thesis for C-level.</h3>
+          <p class="lede">Each is a direction. Combined, they define where AIC partnerships will compound.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-3">
+          <div class="ncard"><div class="ncard-num">LINE 01</div><div class="ncard-title">Agentic becomes table stakes</div><div class="ncard-body">Salesforce Agentforce-class agentic platforms move from pilot to default · the question is which use cases ride the wave first.</div></div>
+          <div class="ncard"><div class="ncard-num">LINE 02</div><div class="ncard-title">Compliance becomes the moat</div><div class="ncard-body">AI Act + EHDS + MDR reps &amp; warranties define which solutions can scale in EU. Compliance-by-design IS the differentiator.</div></div>
+          <div class="ncard"><div class="ncard-num">LINE 03</div><div class="ncard-title">Reuse becomes the lever</div><div class="ncard-body">"Build once, scale to many" becomes survival, not aspiration. Translator function is the discipline that enforces it.</div></div>
+          <div class="ncard"><div class="ncard-num">LINE 04</div><div class="ncard-title">RWE meets AI in HEOR</div><div class="ncard-body">EHDS-federated RWE + AI generation of HEOR narratives · CVRM + R&amp;I access narratives compound here.</div></div>
+          <div class="ncard"><div class="ncard-num">LINE 05</div><div class="ncard-title">Decommissioning matures</div><div class="ncard-body">Most pharmas will discover the cost of un-retired AI solutions. The Senior Directors who built decommissioning in from day one will be advantaged.</div></div>
+          <div class="ncard"><div class="ncard-num">LINE 06</div><div class="ncard-title">Translator function becomes more strategic</div><div class="ncard-body">As AI multiplies across functions, the bilingual function becomes the constraint. Talent for it remains scarce.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The closing line — last 30 seconds of the C-level round.</h3>
+          <p class="lede">Practise until natural · not rehearsed.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="quote-block" style="margin: 32px 0 24px;">
+          <div class="quote-bar"></div>
+          <div class="quote-text">My candidacy is one function · three commitments · one operating geography.</div>
+        </div>
+        <div style="margin-left: 30px;">
+          <p style="font-family: var(--font-head); font-size: 22px; color: var(--gold); margin-bottom: 12px;">A translator function I have been running for twenty years.</p>
+          <p style="font-family: var(--font-head); font-size: 18px; font-style: italic; color: var(--ink-soft); margin-bottom: 12px;">A Region portfolio shaped against the AI30 focus areas by Q4 2026.</p>
+          <p style="font-family: var(--font-head); font-size: 18px; font-style: italic; color: var(--ink-soft);">Operating from Barcelona — fluent in three EU markets day one, three more by month six.</p>
+        </div>
+
+        <div class="takeaway" style="margin-top: 36px;">
+          <div class="takeaway-label">Deployment note</div>
+          <div class="takeaway-text">Use only in C-level round, only at the end, only after credibility is established earlier. Mistimed sounds prepared; well-timed sounds inevitable.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Five risks · 30/60/90/180 cadence to surface them early.</h3>
+          <p class="lede">Naming risks unprompted in C-level rounds reads as senior. Most candidates project zero risk; few executives believe them.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width: 28%;">Risk</th><th style="width: 12%;">Likelihood</th><th style="width: 12%;">Impact</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">BBU TA gap surfaces operationally</td><td class="col-az">Medium</td><td class="col-az">Medium</td><td>90-day immersion plan executed · Brand Director shadowing · TA-by-TA absorption tracked.</td></tr>
+            <tr><td class="col-key">VP AIC ↔ Region SVP misalignment</td><td class="col-az">Medium</td><td class="col-az">High</td><td>Pre-clear the operating rhythm before signing · joint check-in at day 30 + 90.</td></tr>
+            <tr><td class="col-key">Cross-AIC peer rivalry (build-once breaks)</td><td class="col-az">Low</td><td class="col-az">Medium</td><td>Lead the AIC monthly with reuse stories from day 60. Make sharing the norm before territorialism solidifies.</td></tr>
+            <tr><td class="col-key">EAI org reorganises mid-year</td><td class="col-az">Medium</td><td class="col-az">Medium</td><td>Build relationships across all 7 acronyms · not just sponsor-proximate ones · resilience by network.</td></tr>
+            <tr><td class="col-key">"Internal candidate" bias on stretch</td><td class="col-az">Low</td><td class="col-az">Medium</td><td>Lead with quantified delivery numbers in every round · refuse to be reduced to "good operator."</td></tr>
+          </tbody>
+        </table>
+
+        <div class="card-grid cols-4">
+          <div class="ncard"><div class="ncard-num">DAY 30</div><div class="ncard-title">Map the room</div><div class="ncard-body">7 EAI acronym intros · VP AIC rhythm locked · Region SVP rhythm locked · BBU TA immersion started.</div></div>
+          <div class="ncard"><div class="ncard-num">DAY 60</div><div class="ncard-title">First use case shaped</div><div class="ncard-body">One Region use case through G1 with intake template applied · rubric published · first AIC peer call delivered with reuse content.</div></div>
+          <div class="ncard"><div class="ncard-num">DAY 90</div><div class="ncard-title">Governance handshake live</div><div class="ncard-body">EDE / AITT artefacts 01-03 codified · DPIA-by-template ready · first audit pack drafted.</div></div>
+          <div class="ncard"><div class="ncard-num">DAY 180</div><div class="ncard-title">Portfolio momentum</div><div class="ncard-body">Two use cases at G2 · one cross-archetype reuse story · first VP AIC + Region SVP joint review passed.</div></div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">A Senior Director without a risk register is a candidate; a Senior Director with one is a leader. The register IS the deliverable.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-rule"></div>
+    <h3 class="footer-title" style="color: white;">The dossier compressed to one line.</h3>
+    <p style="font-family: var(--font-head); font-size: 30px; font-style: italic; line-height: 1.4; color: white; max-width: 1000px; margin: 32px 0 16px;">"I arrive bilingual, AZ-insider, and Barcelona-anchored.</p>
+    <p style="font-family: var(--font-head); font-size: 26px; line-height: 1.4; color: #e8c470; max-width: 1000px; margin-bottom: 40px;">The translator function I have run for twenty years is the function this role pays for."</p>
+
+    <div style="height: 1px; background: rgba(255,255,255,0.15); margin: 40px 0 24px;"></div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: end;">
+      <div>
+        <div class="footer-meta">Briefing dossier · v1.0 · June 2026 · Two-tier</div>
+        <div class="footer-meta" style="margin-top: 6px;">Prepared for Joaquín · Senior Director, AIC BBU EU&amp;CA</div>
+      </div>
+      <div style="text-align: right;">
+        <div class="footer-meta">Toggle Foundations / Expert per module.</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- TOGGLE JS -->
+<script>
+  document.querySelectorAll('.level-toggle').forEach(function (toggle) {
+    var moduleId = toggle.getAttribute('data-module');
+    var moduleEl = document.getElementById(moduleId);
+    if (!moduleEl) return;
+    toggle.querySelectorAll('.level-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var lvl = btn.getAttribute('data-level');
+        toggle.querySelectorAll('.level-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        moduleEl.setAttribute('data-active-level', lvl);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuadro de Mandos FIRE y Convenio Especial (V4 Dinámico)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: center;
+            color: #1a365d;
+            margin-bottom: 30px;
+            font-size: 26px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        select, input[type="range"] {
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 15px;
+            background: #fff;
+            cursor: pointer;
+        }
+        .slider-value {
+            text-align: right;
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+        .kpi-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .kpi-card {
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .kpi-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+        .kpi-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .kpi-subtext {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 5px;
+        }
+        .kpi-azul { background: #2b6cb0; }
+        .kpi-rojo { background: #c53030; }
+        .kpi-verde { background: #2f855a; }
+        
+        .analisis-caja {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f7fafc;
+            border-left: 4px solid #2b6cb0;
+            border-radius: 0 8px 8px 0;
+        }
+        .analisis-caja h4 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+        }
+        .analisis-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #4a5568;
+        }
+        .breakeven-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: #feebc8;
+            color: #c05621;
+            font-weight: bold;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Simulador Avanzado FIRE & Convenio Especial (V4)</h1>
+    
+    <div class="grid">
+        <div class="form-group">
+            <label for="perfil">Perfil Cotitular:</label>
+            <select id="perfil" onchange="calcularTodo()">
+                <option value="el">Él (Régimen General - Historial Máximo)</option>
+                <option value="ella">Ella (Autónoma RETA - Máximos hasta cese)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="convenio">Estrategia de Convenio Especial:</label>
+            <select id="convenio" onchange="calcularTodo()">
+                <option value="nada">Sin Convenio (Dejar lagunas en blanco)</option>
+                <option value="minima">Convenio Base Mínima (~360 €/mes)</option>
+                <option value="maxima">Convenio Base Máxima (~1.300 €/mes)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="ley">Marco de Cálculo Legal:</label>
+            <select id="ley" onchange="calcularTodo()">
+                <option value="actual">Ley Actual (Últimos 25 años)</option>
+                <option value="futura">Ley Futura (Toda la vida laboral)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="hijos">Plus por 3 Hijos (Brecha de Género):</label>
+            <select id="hijos" onchange="calcularTodo()">
+                <option value="si">Aplicar Beneficios</option>
+                <option value="no">No Aplicar</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Edad de Cese (Dejar de trabajar): <span id="valCese" class="slider-value">50</span> años</label>
+            <input type="range" id="edadCese" min="45" max="65" value="50" oninput="document.getElementById('valCese').innerText=this.value; verificarEdades();">
+        </div>
+
+        <div class="form-group">
+            <label>Edad de Jubilación (Cobro Pensión): <span id="valJubilacion" class="slider-value">65</span> años</label>
+            <input type="range" id="edadJubilacion" min="63" max="67" value="65" oninput="document.getElementById('valJubilacion').innerText=this.value; verificarEdades();">
+        </div>
+    </div>
+
+    <div class="kpi-dashboard">
+        <div class="kpi-card kpi-verde">
+            <h3>KPI 1: Años Sin Trabajar</h3>
+            <div class="kpi-value" id="kpi-anos">15 Años</div>
+            <div class="kpi-subtext">Periodo puente a financiar</div>
+        </div>
+        
+        <div class="kpi-card kpi-rojo">
+            <h3>KPI 2: Coste del Convenio</h3>
+            <div class="kpi-value" id="kpi-coste">0 €</div>
+            <div class="kpi-subtext">Inversión total acumulada</div>
+        </div>
+
+        <div class="kpi-card kpi-azul">
+            <h3>KPI 3: Pensión Estimada</h3>
+            <div class="kpi-value" id="kpi-pension">0 € / año</div>
+            <div class="kpi-subtext">Ingreso bruto anual revalorizable</div>
+        </div>
+    </div>
+
+    <div class="analisis-caja">
+        <h4>Análisis Matemático de la Pensión</h4>
+        <div class="analisis-text" id="analisis-texto">Ajusta los parámetros para ver el cálculo.</div>
+    </div>
+</div>
+
+<script>
+    function verificarEdades() {
+        const cese = parseInt(document.getElementById('edadCese').value);
+        let jub = parseInt(document.getElementById('edadJubilacion').value);
+        if (jub < cese) {
+            document.getElementById('edadJubilacion').value = cese;
+            document.getElementById('valJubilacion').innerText = cese;
+        }
+        calcularTodo();
+    }
+
+    function calcularTodo() {
+        const perfil = document.getElementById('perfil').value;
+        const convenio = document.getElementById('convenio').value;
+        const ley = document.getElementById('ley').value;
+        const hijos = document.getElementById('hijos').value;
+        const edadCese = parseInt(document.getElementById('edadCese').value);
+        const edadJubilacion = parseInt(document.getElementById('edadJubilacion').value);
+
+        // KPI 1: Años Puente sin trabajar
+        let anosPuente = edadJubilacion - edadCese;
+        if (anosPuente < 0) anosPuente = 0;
+        document.getElementById('kpi-anos').innerText = anosPuente + " Años";
+
+        // KPI 2: Coste Total Convenio
+        let cuotaMensual = 0;
+        if (convenio === 'minima') cuotaMensual = 360;
+        if (convenio === 'maxima') cuotaMensual = 1300;
+        const costeTotalConvenio = cuotaMensual * 12 * anosPuente;
+        document.getElementById('kpi-coste').innerText = costeTotalConvenio.toLocaleString('es-ES') + " €";
+
+        // KPI 3: CÁLCULO PROPORCIONAL Y DINÁMICO DE LA PENSIÓN
+        const pensionMaxima = 44450; 
+        const pensionMinimaLegal = 11200;
+        let plusHijos = (hijos === 'si') ? 1550 : 0; 
+        
+        // La pensión se calcula sobre los últimos 25 años.
+        // Calculamos cuántos de esos 25 años son "años puente" (lagunas o convenio) y cuántos son años trabajados al máximo.
+        let anosVaciosEnCalculo = Math.min(anosPuente, 25);
+        let anosTrabajadosEnCalculo = 25 - anosVaciosEnCalculo;
+
+        let pesoMaximo = 1.0; // Los años cotizados antes de cesar están al 100% de la máxima
+        let pesoConvenioMinimo = 0.35; // La base mínima equivale aprox. al 35% de la máxima
+        let pesoLagunaRGeneral = 0.25; // R. General rellena vacíos con el 50% de la base mínima (~25% del tope)
+        let pesoLagunaRETA = 0.0; // Autónomos integra vacíos con CERO absoluto
+
+        let factorPonderacion = 1.0;
+        let explicacion = "";
+
+        if (perfil === 'el') { // Régimen General
+            if (convenio === 'nada') {
+                factorPonderacion = ((anosTrabajadosEnCalculo * pesoMaximo) + (anosVaciosEnCalculo * pesoLagunaRGeneral)) / 25;
+                explicacion = `Tienes ${anosVaciosEnCalculo} años de lagunas dentro del periodo de cálculo (los últimos 25 años). El Régimen General las rellena parcialmente con mínimos, dejando tu pensión en un ${(factorPonderacion*100).toFixed(0)}% del máximo.`;
+            } else if (convenio === 'minima') {
+                factorPonderacion = ((anosTrabajadosEnCalculo * pesoMaximo) + (anosVaciosEnCalculo * pesoConvenioMinimo)) / 25;
+                explicacion = `Tus ${anosTrabajadosEnCalculo} años trabajados en base máxima se promedian con ${anosVaciosEnCalculo} años pagando convenio mínimo, resultando en un ${(factorPonderacion*100).toFixed(0)}% del máximo.`;
+            } else if (convenio === 'maxima') {
+                factorPonderacion = 1.0;
+                explicacion = `El convenio máximo empalma con tu historial al máximo. No diluyes nada y mantienes el 100% de la base reguladora.`;
+            }
+
+            if (ley === 'futura') factorPonderacion *= 0.91; // Penaliza un 9% contar salarios más bajos del inicio de carrera
+
+        } else { // Autónoma RETA
+            if (convenio === 'nada') {
+                factorPonderacion = ((anosTrabajadosEnCalculo * pesoMaximo) + (anosVaciosEnCalculo * pesoLagunaRETA)) / 25;
+                explicacion = `Autónomos NO integra lagunas. Tienes ${anosVaciosEnCalculo} años computando literalmente a CERO. Tu pensión se desploma al ${(factorPonderacion*100).toFixed(0)}% de tu base histórica (topada a la pensión mínima legal si cae por debajo).`;
+            } else if (convenio === 'minima') {
+                factorPonderacion = ((anosTrabajadosEnCalculo * pesoMaximo) + (anosVaciosEnCalculo * pesoConvenioMinimo)) / 25;
+                explicacion = `Pagar la mínima salva el desastre del cero del RETA. Combinas ${anosTrabajadosEnCalculo} años trabajados a tope con ${anosVaciosEnCalculo} años al mínimo, logrando un ${(factorPonderacion*100).toFixed(0)}% del máximo.`;
+            } else if (convenio === 'maxima') {
+                factorPonderacion = 1.0;
+                explicacion = `Consolidas el tramo final con bases máximas, asegurando el 100% de la pensión permitida.`;
+            }
+
+            if (ley === 'futura') factorPonderacion *= 0.86; // Penaliza un 14% por sus primeros años de autónoma en base baja
+        }
+
+        // Aplicar la ponderación a la pensión tope
+        let pensionFinal = pensionMaxima * factorPonderacion;
+
+        // Sumar brecha de género si aplica (Normalmente para la mujer)
+        if (perfil === 'ella') pensionFinal += plusHijos;
+
+        // Penalizaciones por Jubilación Anticipada
+        if (edadJubilacion < 65) {
+            let anosAdelanto = 65 - edadJubilacion;
+            let penalizacion = anosAdelanto * 0.065; // ~6.5% por año
+            pensionFinal = pensionFinal * (1 - penalizacion);
+            explicacion += ` Se aplica una penalización del ${(penalizacion*100).toFixed(1)}% por adelantar la jubilación a los ${edadJubilacion} años.`;
+        }
+
+        // Control de límites legales (no puede cobrar menos de la mínima ni más de la máxima legal + plus hijos)
+        if (pensionFinal < pensionMinimaLegal) pensionFinal = pensionMinimaLegal;
+        if (pensionFinal > pensionMaxima + plusHijos) pensionFinal = pensionMaxima + plusHijos;
+
+        if (anosPuente === 0) {
+            explicacion = "No dejas de trabajar anticipadamente. Cobras según tu historial sin impacto de lagunas por cese voluntario.";
+        }
+
+        // Renderizar
+        document.getElementById('kpi-pension').innerText = Math.round(pensionFinal).toLocaleString('es-ES') + " € / año";
+        document.getElementById('analisis-texto').innerText = explicacion;
+    }
+
+    // Ejecutar al cargar la página
+    window.onload = calcularTodo;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cybercab · Madrid — Simulador P&L, Reparto Modal y Espacio Urbano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root{
+    --bg:#0c0f14;--bg2:#10141c;--surface:#141923;--surface2:#1a212e;
+    --line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.12);
+    --txt:#e8edf4;--muted:#8a96a8;--faint:#5d6a7d;
+    --cyan:#4cc4ff;--amber:#ffb454;--green:#3ddc84;--red:#ff5d6c;--violet:#a98bff;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;--sans:'IBM Plex Sans',system-ui,sans-serif;--disp:'Bricolage Grotesque',var(--sans);
+  }
+  *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:var(--sans);color:var(--txt);line-height:1.45;letter-spacing:.1px;
+    background:radial-gradient(900px 500px at 88% -8%,rgba(76,196,255,.10),transparent 60%),radial-gradient(800px 500px at -5% 110%,rgba(169,139,255,.08),transparent 55%),var(--bg);background-attachment:fixed;}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(circle at 50% 30%,#000,transparent 85%);}
+  .wrap{position:relative;z-index:1;max-width:1320px;margin:0 auto;padding:28px 20px 60px}
+  header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .glyph{width:46px;height:46px;border:1px solid var(--line2);border-radius:13px;display:grid;place-items:center;background:linear-gradient(150deg,rgba(76,196,255,.18),rgba(169,139,255,.08));box-shadow:inset 0 0 22px rgba(76,196,255,.12)}
+  .glyph span{font-family:var(--mono);font-weight:600;color:var(--cyan);font-size:20px}
+  h1{font-family:var(--disp);font-weight:800;font-size:clamp(24px,3.4vw,38px);margin:0;letter-spacing:-.5px;line-height:1.02}
+  h1 em{font-style:normal;color:var(--cyan)}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px;max-width:560px}
+  .hcol{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--amber);border:1px solid rgba(255,180,84,.3);padding:5px 10px;border-radius:999px;text-align:right;max-width:240px}
+  .lang{display:flex;border:1px solid var(--line2);border-radius:999px;overflow:hidden;font-family:var(--mono);font-size:12px}
+  .lang button{background:transparent;color:var(--muted);border:0;padding:6px 14px;cursor:pointer;transition:.15s;letter-spacing:1px}
+  .lang button.on{background:var(--cyan);color:#04121c;font-weight:600}
+  .scenarios{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+  .scn{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:8px 13px;border-radius:9px;cursor:pointer;transition:.18s;letter-spacing:.3px}
+  .scn:hover{color:var(--txt);border-color:var(--line2);transform:translateY(-1px)}
+  .scn.opt{color:var(--green);border-color:rgba(61,220,132,.32)}
+  .grid{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+  .card{background:linear-gradient(180deg,var(--surface),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:20px;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent)}
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+  .controls .ctl{margin-bottom:16px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--muted);margin-bottom:9px;gap:8px}
+  .ctl label b{font-family:var(--mono);font-weight:600;color:var(--txt);font-size:14px;white-space:nowrap}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--cyan) var(--fill,40%),var(--surface2) var(--fill,40%));outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--txt);border:3px solid var(--cyan);box-shadow:0 0 0 4px rgba(76,196,255,.15);transition:.15s}
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--txt);border:3px solid var(--cyan)}
+  .premises{margin-top:4px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);line-height:1.65}
+  .premises b{color:var(--muted);font-family:var(--mono);font-weight:500}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .kpi{background:linear-gradient(180deg,var(--surface),var(--bg2));border:1px solid var(--line);border-radius:14px;padding:15px 16px;position:relative;overflow:hidden}
+  .kpi .bar{position:absolute;top:0;left:0;width:100%;height:2px;background:var(--cyan)}
+  .kpi h4{margin:0 0 6px;font-family:var(--mono);font-size:10px;letter-spacing:1.1px;text-transform:uppercase;color:var(--faint)}
+  .kpi .v{font-family:var(--mono);font-weight:600;font-size:23px;letter-spacing:-.5px}
+  .kpi .u{font-size:11px;color:var(--muted);margin-top:2px}
+  .main>.card{margin-bottom:20px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .chartnote{font-size:11.5px;color:var(--faint);margin-top:10px}
+  .street{height:130px;border-radius:12px;overflow:hidden;display:flex;border:1px solid var(--line);position:relative}
+  .seg{height:100%;display:flex;align-items:center;justify-content:center;transition:width .6s cubic-bezier(.4,0,.2,1),background-color .6s;position:relative}
+  .seg span{font-family:var(--mono);font-size:10px;letter-spacing:.6px;color:rgba(255,255,255,.82);text-align:center;padding:0 4px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .acera{background:#2a313d}.park{background:#39424f}
+  .road{background:#1c222c;flex-grow:1;display:flex;flex-direction:column}
+  .lane{height:50%;display:flex;align-items:center;justify-content:center;gap:24px;border-bottom:1px dashed rgba(255,255,255,.14)}
+  .lane:last-child{border-bottom:0}.lane .car{font-size:17px;opacity:.9}
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px 18px;margin-top:14px}
+  .lg{display:flex;align-items:center;gap:8px;font-size:12px}
+  .sw{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .lg .nm{color:var(--txt);min-width:96px}
+  .lg .fl{font-family:var(--mono);color:var(--muted);font-size:11px}
+  .lg .dl{font-family:var(--mono);font-weight:600;margin-left:auto;font-size:11.5px}
+  .up{color:var(--red)}.down{color:var(--green)}.new{color:var(--cyan)}
+  .meter{margin-bottom:13px}
+  .meter-h{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-bottom:6px;gap:10px}
+  .meter-h .lb{color:var(--txt)}
+  .meter-h .vl{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .meter-h .vl b{font-weight:600}
+  .track{height:9px;border-radius:6px;background:var(--surface2);overflow:hidden;position:relative}
+  .fill{height:100%;border-radius:6px;transition:width .5s ease}
+  .stocknote{font-size:11.5px;color:var(--faint);margin-top:6px}
+  .impact{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .col h3{display:flex;align-items:center;gap:8px;padding-bottom:8px;margin-bottom:6px;border-bottom:1px solid var(--line);font-family:var(--disp);font-weight:600;font-size:15px}
+  .dot{width:8px;height:8px;border-radius:50%}.col.win .dot{background:var(--green)}.col.lose .dot{background:var(--red)}
+  .col ul{list-style:none;margin:0;padding:0}
+  .col li{font-size:12.8px;color:var(--muted);padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);line-height:1.5}
+  .col li:last-child{border-bottom:0}.col li b{color:var(--txt);font-weight:600}
+  .num{font-family:var(--mono);color:var(--cyan);font-weight:500}.col.lose .num{color:var(--amber)}
+  .caveats{border-color:rgba(255,180,84,.22)}.caveats .eyebrow{color:var(--amber)}
+  .caveats ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .caveats li{font-size:12.5px;color:var(--muted);line-height:1.55;padding-left:18px;position:relative}
+  .caveats li::before{content:"▸";position:absolute;left:0;color:var(--amber);font-size:11px}
+  .caveats li b{color:var(--txt)}
+  footer{margin-top:26px;font-size:11px;color:var(--faint);text-align:center;line-height:1.7}
+  /* Fase 2 toggle */
+  .phase{margin-bottom:20px;padding:14px 18px;border-radius:14px;
+    background:linear-gradient(135deg,rgba(76,196,255,.08),rgba(169,139,255,.06));
+    border:1px solid rgba(76,196,255,.18);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .pt-lab{font-family:var(--disp);font-weight:600;font-size:14px;color:var(--cyan);white-space:nowrap}
+  .pt-desc{font-size:11.5px;color:var(--muted);flex:1;min-width:200px;line-height:1.45}
+  .switch{position:relative;display:inline-block;width:44px;height:22px;cursor:pointer;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0}
+  .slider-bar{position:absolute;inset:0;background:var(--surface2);border:1px solid var(--line2);border-radius:22px;transition:.25s}
+  .slider-bar::before{content:"";position:absolute;height:14px;width:14px;left:3px;top:3px;background:var(--txt);border-radius:50%;transition:.25s}
+  .switch input:checked + .slider-bar{background:var(--cyan);border-color:var(--cyan)}
+  .switch input:checked + .slider-bar::before{transform:translateX(22px);background:#04121c}
+  /* Time card */
+  .time-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:10px}
+  .ti{padding:14px 16px;background:var(--bg2);border:1px solid var(--line);border-radius:11px;position:relative;overflow:hidden}
+  .ti::before{content:"";position:absolute;top:0;left:0;width:100%;height:2px;background:var(--green)}
+  .tl{font-family:var(--mono);font-size:10px;letter-spacing:1.1px;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+  .tv{font-family:var(--mono);font-weight:600;font-size:22px;color:var(--green);letter-spacing:-.5px}
+  .ts{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+  /* total transport table */
+  .totalHead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .totalHead .big{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--txt);letter-spacing:-.5px}
+  .totalHead .arrow{color:var(--faint);font-size:18px}
+  .totalHead .delta{font-family:var(--mono);font-size:14px;font-weight:600;padding:3px 9px;border-radius:6px}
+  .modetable{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}
+  .modetable th{font-family:var(--mono);font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);text-align:right;padding:8px 6px;border-bottom:1px solid var(--line);font-weight:500}
+  .modetable th:first-child,.modetable td:first-child{text-align:left}
+  .modetable td{padding:7px 6px;border-bottom:1px solid rgba(255,255,255,.03);font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right}
+  .modetable td.lbl{color:var(--txt);font-family:var(--sans)}
+  .modetable td.lbl .sw{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:7px;vertical-align:middle}
+  .modetable tr.total td{font-weight:600;color:var(--txt);border-bottom:0;border-top:1px solid var(--line2);padding-top:10px}
+  .delta-up{color:var(--red)}.delta-down{color:var(--green)}
+  /* map */
+  .mapPair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:880px){.mapPair{grid-template-columns:1fr}}
+  .mapSide{position:relative}
+  .mapLabel{position:absolute;top:10px;left:10px;z-index:500;background:rgba(12,15,20,.88);
+    border:1px solid var(--line2);padding:6px 12px;border-radius:7px;font-family:var(--mono);
+    font-size:11px;color:var(--txt);letter-spacing:1px;text-transform:uppercase;
+    backdrop-filter:blur(8px);font-weight:600}
+  .mapSide.before .mapLabel{color:var(--red);border-color:rgba(255,93,108,.4)}
+  .mapSide.after .mapLabel{color:var(--green);border-color:rgba(61,220,132,.4)}
+  .leaflet-map{height:520px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0a0d12}
+  .leaflet-container{font-family:var(--sans);background:#0a0d12}
+  .leaflet-control-attribution{background:rgba(12,15,20,.7)!important;color:var(--faint)!important;font-size:9px!important}
+  .leaflet-control-attribution a{color:var(--muted)!important}
+  .leaflet-control-zoom a{background:rgba(20,25,35,.9)!important;color:var(--txt)!important;border-color:var(--line2)!important}
+  .mapLegend{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 16px;margin-top:6px;font-size:11.5px}
+  .mle{display:flex;align-items:center;gap:8px;color:var(--muted)}
+  .mle-sw{width:14px;height:9px;border-radius:2px;flex-shrink:0}
+  .mle-line{width:14px;border-top:2px dashed var(--cyan);flex-shrink:0;margin:0 0}
+  .mle-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin:0 3px}
+  .gradient-bar{height:10px;border-radius:5px;margin:10px 0 4px;
+    background:linear-gradient(90deg,#aa8844 0%,#88aa44 35%,#3ddc84 100%)}
+  .gradient-lbl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--faint);margin-bottom:10px}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}.row2,.impact,.caveats ul{grid-template-columns:1fr}.hcol{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="glyph"><span>⌖</span></div>
+      <div><h1>Cybercab <em>Madrid</em></h1><div class="sub" id="sub"></div></div>
+    </div>
+    <div class="hcol">
+      <div class="lang"><button data-l="es" class="on">ES</button><button data-l="en">EN</button></div>
+      <div class="tag" id="tag"></div>
+    </div>
+  </header>
+
+  <div class="scenarios" id="scenarios">
+    <button class="scn" data-s="base"></button>
+    <button class="scn" data-s="sat"></button>
+    <button class="scn" data-s="price"></button>
+    <button class="scn" data-s="prot"></button>
+    <button class="scn opt" data-s="opt"></button>
+  </div>
+
+  <div class="phase">
+    <span class="pt-lab" id="ptLab"></span>
+    <label class="switch"><input type="checkbox" id="iReorg"><span class="slider-bar"></span></label>
+    <span class="pt-desc" id="ptDesc"></span>
+  </div>
+
+  <div class="grid">
+    <aside class="card controls">
+      <div class="eyebrow" id="ebControls"></div>
+      <div class="ctl"><label id="labFlota"></label><input type="range" id="iFlota" min="0" max="50000" step="1000" value="20000"></div>
+      <div class="ctl"><label id="labPrecio"></label><input type="range" id="iPrecio" min="0.5" max="4.0" step="0.1" value="1.5"></div>
+      <div class="ctl"><label id="labConsumo"></label><input type="range" id="iConsumo" min="0.08" max="0.25" step="0.01" value="0.10"></div>
+      <div class="ctl"><label id="labEnergia"></label><input type="range" id="iEnergia" min="0.05" max="0.40" step="0.01" value="0.18"></div>
+      <div class="ctl"><label id="labCaptura"></label><input type="range" id="iCaptura" min="0" max="50" step="1" value="25"></div>
+      <div class="ctl"><label id="labCannib"></label><input type="range" id="iCannib" min="0" max="25" step="1" value="8"></div>
+      <div class="ctl"><label id="labFondo"></label><input type="range" id="iFondo" min="0" max="40" step="1" value="15"></div>
+      <div class="premises" id="premises"></div>
+    </aside>
+
+    <main class="main">
+      <div class="kpis">
+        <div class="kpi"><div class="bar" style="background:var(--cyan)"></div><h4 id="tViajes"></h4><div class="v" id="kViajes">—</div><div class="u" id="kViajesU"></div></div>
+        <div class="kpi"><div class="bar" style="background:var(--violet)"></div><h4 id="tCoches"></h4><div class="v" id="kCoches" style="color:var(--violet)">—</div><div class="u" id="kCochesU"></div></div>
+        <div class="kpi"><div class="bar" style="background:var(--green)"></div><h4 id="tPlazas"></h4><div class="v" id="kPlazas" style="color:var(--green)">—</div><div class="u" id="kM2"></div></div>
+        <div class="kpi"><div class="bar" id="barEbitda" style="background:var(--green)"></div><h4 id="tEbitda"></h4><div class="v" id="kEbitda" style="color:var(--green)">—</div><div class="u" id="kRoic"></div></div>
+        <div class="kpi"><div class="bar" style="background:var(--amber)"></div><h4 id="tPayback"></h4><div class="v" id="kPayback" style="color:var(--amber)">—</div><div class="u" id="kCapex"></div></div>
+        <div class="kpi"><div class="bar" id="barM30" style="background:var(--red)"></div><h4 id="tM30"></h4><div class="v" id="kM30" style="color:var(--red)">—</div><div class="u" id="kM30U"></div></div>
+        <div class="kpi"><div class="bar" style="background:var(--green)"></div><h4 id="tSocial"></h4><div class="v" id="kSocial" style="color:var(--green)">—</div><div class="u" id="kSocialU"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" id="ebModal"></div>
+        <div id="modalBars"></div>
+        <div class="legend" id="modalLegend"></div>
+        <div class="chartnote" id="modalNote"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" id="ebStocks"></div>
+        <div id="stockList"></div>
+        <div class="stocknote" id="stockNote"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" id="ebTime"></div>
+        <div class="time-grid" id="timeGrid"></div>
+        <div class="chartnote" id="timeNote"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" id="ebTotal"></div>
+        <div class="totalHead">
+          <span class="big" id="totHoy">—</span>
+          <span class="arrow">→</span>
+          <span class="big" id="totEsc">—</span>
+          <span class="delta" id="totDelta">—</span>
+        </div>
+        <div id="totalBars"></div>
+        <table class="modetable" id="totalTable"></table>
+        <div class="chartnote" id="totalNote"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" id="ebMap"></div>
+        <div class="mapPair">
+          <div class="mapSide before">
+            <div class="mapLabel" id="mapLeftLabel">ANTES</div>
+            <div id="mapBefore" class="leaflet-map"></div>
+          </div>
+          <div class="mapSide after">
+            <div class="mapLabel" id="mapRightLabel">DESPUÉS</div>
+            <div id="mapAfter" class="leaflet-map"></div>
+          </div>
+        </div>
+        <div class="gradient-bar"></div>
+        <div class="gradient-lbl"><span id="grad0">0 min/viaje</span><span id="gradMid">— intensidad de reducción de tráfico esperada —</span><span id="grad1">+15 min/viaje</span></div>
+        <div class="mapLegend" id="mapLegend"></div>
+        <div class="chartnote" id="mapNote"></div>
+      </div>
+
+      <div class="row2">
+        <div class="card"><div class="eyebrow" id="ebWF"></div><div id="waterfall"></div><div class="chartnote" id="wfNote"></div></div>
+        <div class="card"><div class="eyebrow" id="ebCurve"></div><div id="curve"></div><div class="chartnote" id="curveNote"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" id="ebStreet"></div>
+        <div class="street">
+          <div class="seg acera" id="swL" style="width:14%"><span id="aceraL"></span></div>
+          <div class="seg park" id="park" style="width:20%"><span id="parkLbl"></span></div>
+          <div class="seg road">
+            <div class="lane"><span class="car">🚖</span><span class="car">🚗</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted)" id="agitLbl"></span></div>
+            <div class="lane"><span class="car">🚲</span><span class="car">🟦</span><span class="car">🚲</span></div>
+          </div>
+          <div class="seg acera" id="swR" style="width:14%"><span id="aceraR"></span></div>
+        </div>
+        <div class="chartnote" id="streetNote"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" id="ebImpact"></div>
+        <div class="impact">
+          <div class="col win"><h3><span class="dot"></span><span id="winTitle"></span></h3><ul id="winList"></ul></div>
+          <div class="col lose"><h3><span class="dot"></span><span id="loseTitle"></span></h3><ul id="loseList"></ul></div>
+        </div>
+      </div>
+
+      <div class="card caveats"><div class="eyebrow" id="ebCav"></div><ul id="cavList"></ul></div>
+    </main>
+  </div>
+  <footer><span id="foot1"></span><br><span id="foot2"></span></footer>
+</div>
+
+<script>
+// Constantes verificadas con fuentes oficiales + factores de vacío diferenciados
+const C={
+  PLAZAS_SER:181500, PARKING_OFF:250000, PARQUE:1500000,
+  M30_BASE:1040000, M30_SHARE:0.17,
+  DEADHEAD_ROBOT:1.30,       // robotaxi: 30% vacío por reposicionamiento (app matching)
+  DEADHEAD_TAXI:1.50,        // taxi tradicional: 50% en vacío buscando carrera
+  DEADHEAD_VTC:1.30,         // VTC con app (Uber/Cabify): similar al robotaxi
+  PRIV_CRUISE:1.25,          // privado: 25% extra buscando aparcamiento (Shoup)
+  VIAJES_COCHE_PRIV:2.5, KM_TRAYECTO:4.5,
+  MANT:1500, SEG:4000, CAPEX_VEH:30000, M2:12,
+  VIAJES_POR_COND:20, TAXIS:15639, VTC_LIC:8871,
+  TIME_PARK_MIN:8,           // min/viaje buscando aparcamiento en privado
+  TIME_PICKUP_MIN:2.5,       // min de espera al pedir robotaxi
+  CONGESTION_MIN:1,          // min ahorrados/trayecto urbano al desbloquearse espacio
+  VOT_EUR_HOUR:12,           // valor del tiempo €/hora (commuting Madrid)
+};
+// Reparto modal base (viajes/día, ciudad de Madrid, sept 2023 EDM + EMT + Metro)
+const B={
+  coche:5.77e6,    // vehículo privado (Ayto. Madrid sept 2023)
+  taxi:0.30e6,     // 15.6k licencias × ~19 viajes/día
+  vtc:0.18e6,      // 8.9k licencias × ~20 viajes/día
+  bus:1.10e6,      // EMT + interurbanos
+  metro:2.30e6,    // Metro + Cercanías + Metro Ligero
+  bici:0.15e6,     // BiciMAD + privadas + VMP
+  pie:2.78e6,      // peatones (resto de movilidad activa)
+};
+const MODES=[
+ {k:'coche',c:'#ff5d6c'},{k:'vtc',c:'#ffb454'},{k:'taxi',c:'#ffd27d'},
+ {k:'bus',c:'#a98bff'},{k:'metro',c:'#4cc4ff'},{k:'bici',c:'#3ddc84'},
+ {k:'pie',c:'#6b7890'},{k:'robotaxi',c:'#eaf2fb'}];
+
+let lang='es';
+const loc=()=>lang==='es'?'es-ES':'en-US';
+const ent=n=>new Intl.NumberFormat(loc()).format(Math.round(n));
+const d1=n=>new Intl.NumberFormat(loc(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(n);
+const d2=n=>new Intl.NumberFormat(loc(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const eurM=n=>d1(n/1e6)+(lang==='es'?' M€':' €M');
+const mils=n=>Math.abs(n)>=1e6?d1(n/1e6)+'M':ent(n);
+const signed=n=>(n>=0?'+':'')+d1(n);
+
+const T={
+ es:{
+  sub:"P&L de flota, reparto modal y stocks urbanos en un mismo modelo, con cifras verificadas de Madrid. Ajusta las palancas y observa el efecto sobre cada compartimento.",
+  tag:"Escenario prospectivo · L4 no homologado en ES (2026)",
+  scn:{base:"Despliegue base",sat:"Saturación de flota",price:"Guerra de precios",prot:"Política proteccionista",opt:"↳ Buscar flota óptima"},
+  ebControls:"Palancas del modelo",
+  labFlota:"Flota Cybercab",uUds:"uds",labPrecio:"Precio por trayecto",
+  labConsumo:"Consumo (Cybercab)",uKwhkm:"kWh/km",labEnergia:"Coste energía",uKwh:"€/kWh",
+  labCaptura:"% demanda privada capturable",labCannib:"% canibalización transp. público",labFondo:"% fondo compensación (taxi/VTC)",
+  premT:"Premisas verificadas (Madrid ciudad)",
+  premB:"Parque turismos 1,5 M · Plazas SER 181,5k (Ayto. ene 2026) · Aparcamiento fuera de calzada ~250k<br>Tráfico M-30 1,04 M veh/día (Madrid Calle 30, 2024) · Trayecto medio 4,5 km<br>Pasos/viaje: privado ×1,25 (agitación 25%, Shoup) · taxi ×1,50 · VTC ×1,30 · robotaxi ×1,30<br>Tiempo: 8 min parking eliminados − 2,5 min espera robotaxi · VOT 12 €/h<br>Licencias: 15.639 taxis + 8.871 VTC (UPM/CRTM oct 2024)",
+  tViajes:"Viajes servidos/día",sUtil:"utilización ",
+  tCoches:"Coches privados retirados",sParque:"del parque móvil",
+  tPlazas:"Plazas SER liberadas",sM2:" m² recuperados",
+  tEbitda:"EBITDA anual flota",sRoic:"ROIC ",
+  tPayback:"Payback CAPEX",sCapex:"CAPEX ",yrs:" años",inf:"∞",
+  tM30:"Tráfico M-30 (Δ veh/día)",sM30:" vs. 1,04M base",
+  tSocial:"Valor social anual",sSocial:" en tiempo ahorrado",
+  ptLab:"Fase 2 · Reorganización urbana",
+  ptDesc:"Calles de barrio peatonalizadas/bici · paradas fijas de robotaxi por manzana (recoge/deja) · arterias dedicadas al tráfico motorizado",
+  ebTime:"Balance de tiempo · de minutos a euros y vidas",
+  tiPriv:"Por viaje privado sustituido",tiPrivSub:"parking eliminado − espera robotaxi",
+  tiCong:"Por viaje urbano remanente",tiCongSub:"descongestión al liberar SER (y arterias en Fase 2)",
+  tiTot:"Min ahorrados/día",tiTotSub:"a toda la ciudad de Madrid",
+  tiFTE:"Equivalente jornadas FTE/año",tiFTESub:"≈ vidas a 40 h/semana liberadas",
+  timeNote:(m,r)=>`Suma de tiempo ahorrado: <b>${ent(m.minSavedPriv/1e3)}k min/día</b> por viaje sustituido + <b>${ent(m.minSavedCong/1e3)}k min/día</b> por descongestión → <b style="color:var(--green)">${eurM(m.valorSocialAnual)}/año</b> de valor social${r?' · <b style="color:var(--cyan)">Fase 2 activa</b>: arterias dedicadas, ×3 bici, descongestión hasta 3,5 min/viaje':''}.`,
+  ebTotal:"Tiempo total de transporte · hoy vs escenario",
+  thMode:"Modo",thMin:"min/viaje",thTot:"min totales/día",thDelta:"Δ",rowTotal:"Total ciudad",
+  totalNote:(tH,tE,d,fte)=>`Madrid dedica hoy <b>${d1(tH/1e6)} M minutos/día</b> a transporte (${d1(tH/60/1e6)} M horas, equivalente a ${ent(tH/60/24)} personas a tiempo completo). Con el escenario activo: <b>${d1(tE/1e6)} M min/día</b> (${d>=0?'+':''}${d1(d)}%). Diferencia equivalente a <b style="color:var(--green)">${ent(fte)} jornadas FTE/año</b> liberadas.`,
+  ebMap:"Mapa Madrid · M-30 y barrios · antes vs después (con datos reales sobre OpenStreetMap)",
+  mtBefore:"ANTES",mtAfter:"DESPUÉS",
+  mapBefore:"Hoy · estado actual",mapAfter:"Después · Fase 1",mapAfterR2:"Después · Fase 2 (reorganización urbana)",
+  legArt:"M-30 / arterias radiales",legBlock:"Manzana residual",legPaci:"Manzana pacificada",
+  legGreen:"Zona verde / parques",legBike:"Carril bici",legStop:"Parada robotaxi",legPark:"Aparcamiento SER",
+  legZBE:"ZBE Distrito Centro",legTaxi:"Parada taxi actual",legCyber:"Carril Cybercab+bus",
+  mapBeforeNote:"Madrid hoy: M-30 con 1,04 M veh/día (rojo), arterias radiales saturadas, 181,5k plazas SER (líneas amarillas en cada calle), tráfico de agitación 25% del tiempo buscando aparcamiento. Casa de Campo y Retiro como islas verdes excepcionales.",
+  mapAfterNote:(r)=>r?"Fase 2: la mayoría de calles de barrio se peatonalizan (verdes), las paradas de robotaxi se fijan por manzana (puntos ámbar), se libera 3M m² de calzada, se multiplica la red ciclista (cian). Solo arterias mantienen tráfico motorizado pleno.":"Fase 1: SER se libera, surgen carriles bici y paradas robotaxi (ámbar). Patrón viario heredado se mantiene; sin reorganización, el cambio es modesto.",
+  mapRealNote:(m,cells,avg)=>`<b>${cells}</b> manzanas modeladas dentro de la M-30 con reducción media de <b style="color:var(--green)">−${d1(avg)} min/viaje</b>. M-30: ${m.m30Delta>=0?'+':''}${d1(m.m30Pct)}% tráfico (${(C.M30_BASE+m.m30Delta)>=1e6?d1((C.M30_BASE+m.m30Delta)/1e6)+'M':ent(C.M30_BASE+m.m30Delta)} veh/día). Pasea por los mapas: cada uno se sincroniza con el otro al hacer zoom/pan, y cada manzana tiene tooltip con su reducción específica.`,
+  ebModal:"Reparto modal · hoy vs. escenario (viajes/día)",
+  rowHoy:"Hoy",rowEsc:"Escenario",
+  modeN:{coche:"Coche privado",vtc:"VTC",taxi:"Taxi",bus:"Bus",metro:"Metro/Cercanías",bici:"Bici",pie:"A pie",robotaxi:"Robotaxi"},
+  mNew:"nuevo",
+  modalNote:(tot,af,bg)=>`Total viajes/día Madrid ciudad: <b>${mils(tot)}</b> → <b>${mils(af)}</b> (${bg>=0?'+':''}${d1(bg)}% por demanda inducida). Contexto: interior M-30 son <b>2,45 M</b> viajes/día (Ayto. Madrid sept 2023). El robotaxi resta a taxi, VTC, coche y —si el precio es bajo— al transporte público; el espacio liberado y el menor tráfico de agitación impulsan la bici.`,
+  ebStocks:"De lo inicial a lo que queda · vaciado de stocks",
+  stSER:"Plazas SER en calzada",stPark:"Aparcamiento fuera de calzada",
+  stM30:"Tráfico M-30 (veh/día)",stParque:"Parque móvil privado",
+  stPT:"Viajes en transporte público/día",stCond:"Conductores taxi/VTC",stFuel:"Demanda de combustible (índice)",
+  stFreed:"liberadas",stRemoved:"retirados",stLost:"menos",stDrop:"caída",stMore:"más tráfico",stLess:"menos tráfico",
+  ofTxt:"de",
+  stockNote:"Las barras vacían el stock inicial real. La M-30 puede subir o bajar según el balance: cada robotaxi añade 1,30 pasos por viaje, pero retira pasos del privado (×1,25 incl. agitación) y taxi (×1,50). Con buen matching y poca canibalización del TP, el saldo puede ser negativo y la M-30 baja.",
+  ebWF:"P&L anualizado · de ingresos a EBITDA",
+  wfLabels:["Ingresos","Energía","Manten.","Seg/teleop","Fondo","EBITDA"],
+  wfNote:(m)=>`Ingresos ${eurM(m.ingresos)} · OPEX ${eurM(m.eEnergia+m.eMant+m.eSeg)} · Fondo ${eurM(m.eFondo)} → <b style="color:${m.ebitda>=0?'var(--green)':'var(--red)'}">EBITDA ${eurM(m.ebitda)}</b> (M€).`,
+  ebCurve:"EBITDA según tamaño de flota",
+  curveNote:"El óptimo aparece donde se agota la demanda direccionable: más coches solo añaden OPEX fijo y km en vacío.",
+  optLbl:"óptimo",
+  ebStreet:"Sección dinámica de una calle estándar de Madrid",
+  acera:"Acera",parkSER:"Aparcamiento SER",parkGreen:"Zona verde / bici",agit:"tráfico de agitación −",
+  streetNote:"Al retirar coches, el aparcamiento (gris) pasa a acera, zona verde o carril bici. El \"tráfico de agitación\" (vueltas buscando sitio) desaparece dentro del barrio — aunque la M-30 puede no notarlo.",
+  ebImpact:"Reparto de impacto · valores en vivo",
+  winTitle:"Ganadores",loseTitle:"Perdedores",
+  win:(m,p)=>[
+   `<b>Ciudadano.</b> Puerta a puerta por <span class="num">${d2(p.precio)}</span> €; ahorro >4.000 €/año frente a poseer coche.`,
+   `<b>La ciudad.</b> Recupera <span class="num">${ent(m.m2)}</span> m² de viario y libera <span class="num">${ent(m.serFreed)}</span> de las 181,5k plazas SER.`,
+   `<b>Bici y peatón.</b> +<span class="num">${ent(m.biciGain)}</span> viajes en bici/día por espacio recuperado y menos tráfico de agitación.`,
+   `<b>Operador.</b> Margen recurrente y posición de cuasi-monopolio tecnológico.`],
+  lose:(m)=>[
+   `<b>Taxi/VTC.</b> ~<span class="num">${ent(m.conductores)}</span> conductores desplazados (de los ~24.500 totales); <span class="num">${d1(m.eFondo/1e6)}</span> M€/año al rescate de licencias.`,
+   `<b>Aparcamientos.</b> Sobran <span class="num">${ent(m.coches)}</span> plazas entre calle y estructura.`,
+   `<b>Transporte público.</b> Pierde <span class="num">${ent(m.fromPT)}</span> viajes/día (sobre 3,4 M de base) canibalizados.`,
+   `<b>Hacienda.</b> ~<span class="num">${d1(m.fiscal/1e6)}</span> M€/año en hidrocarburos y cotizaciones (estim.).`],
+  ebCav:"La letra pequeña · por qué el modelo optimista puede fallar",
+  cav:[
+   `<b>Demanda inducida.</b> A 1 €/viaje aparecen trayectos que antes no existían. No retiran coches: <em>añaden</em> circulación.`,
+   `<b>M-30: depende del matching.</b> Robotaxi añade 1,30 pasos/viaje, taxi tradicional 1,50. Si la app matchea bien y no se canibaliza el TP, la M-30 puede bajar; con saturación e inducción, sube.`,
+   `<b>Canibalización del transporte público.</b> Si el robotaxi vacía metro y bus, sube el reparto modal motorizado y empeora la congestión.`,
+   `<b>Regulación.</b> A 2026 la conducción sin conductor (L4) no está homologada en España; FSD opera como asistencia L2 supervisada.`,
+   `<b>Agujero fiscal.</b> El Estado pierde hidrocarburos y cotizaciones antes de recaudar nada equivalente.`,
+   `<b>Monopolio.</b> Un operador único con coste marginal casi nulo puede subir precios una vez destruida la competencia.`],
+  foot1:"Modelo ilustrativo de elasticidades y supuestos editables — no es una previsión.",
+  foot2:"Fuentes: Ayto. Madrid (Estudio movilidad sept 2023, datos abiertos SER), Madrid Calle 30 (M-30 2024), CRTM/UPM (licencias taxi/VTC oct 2024), DGT, eficiencia anunciada del Cybercab."
+ },
+ en:{
+  sub:"Fleet P&L, modal split and urban stocks in one model, with verified Madrid figures. Move the levers and watch each compartment respond.",
+  tag:"Prospective scenario · L4 not homologated in ES (2026)",
+  scn:{base:"Base rollout",sat:"Fleet saturation",price:"Price war",prot:"Protectionist policy",opt:"↳ Find optimal fleet"},
+  ebControls:"Model levers",
+  labFlota:"Cybercab fleet",uUds:"units",labPrecio:"Price per trip",
+  labConsumo:"Consumption (Cybercab)",uKwhkm:"kWh/km",labEnergia:"Energy cost",uKwh:"€/kWh",
+  labCaptura:"% capturable private demand",labCannib:"% public-transport cannibalization",labFondo:"% compensation fund (taxi/PHV)",
+  premT:"Verified premises (Madrid city)",
+  premB:"Car fleet 1.5M · SER on-street 181.5k (Jan 2026) · Off-street parking ~250k<br>M-30 traffic 1.04M veh/day (Madrid Calle 30, 2024) · Avg trip 4.5 km<br>Passes/trip: private ×1.25 (25% cruising, Shoup) · taxi ×1.50 · PHV ×1.30 · robotaxi ×1.30<br>Time: 8 min parking saved − 2.5 min robotaxi wait · VOT €12/h<br>Licences: 15,639 taxis + 8,871 PHV (UPM/CRTM Oct 2024)",
+  tViajes:"Trips served/day",sUtil:"utilization ",
+  tCoches:"Private cars removed",sParque:"from private fleet",
+  tPlazas:"On-street spaces freed",sM2:" m² reclaimed",
+  tEbitda:"Annual fleet EBITDA",sRoic:"ROIC ",
+  tPayback:"CAPEX payback",sCapex:"CAPEX ",yrs:" yrs",inf:"∞",
+  tM30:"M-30 traffic (Δ veh/day)",sM30:" vs. 1.04M base",
+  tSocial:"Annual social value",sSocial:" of time saved",
+  ptLab:"Phase 2 · Urban reorganization",
+  ptDesc:"Neighborhood streets pedestrian/bike · fixed robotaxi pickup-dropoff stops per block · arterials reserved for motor traffic",
+  ebTime:"Time balance · from minutes to euros and lives",
+  tiPriv:"Per substituted private trip",tiPrivSub:"parking removed − robotaxi wait",
+  tiCong:"Per remaining urban trip",tiCongSub:"decongestion from freed SER (and arterials in Phase 2)",
+  tiTot:"Min saved/day",tiTotSub:"across all of Madrid",
+  tiFTE:"FTE-equivalent jobs/year",tiFTESub:"≈ full-time lives liberated (40 h/wk)",
+  timeNote:(m,r)=>`Time saved: <b>${ent(m.minSavedPriv/1e3)}k min/day</b> from substituted trips + <b>${ent(m.minSavedCong/1e3)}k min/day</b> from decongestion → <b style="color:var(--green)">${eurM(m.valorSocialAnual)}/yr</b> of social value${r?' · <b style="color:var(--cyan)">Phase 2 active</b>: dedicated arterials, ×3 bike, decongestion up to 3.5 min/trip':''}.`,
+  ebTotal:"Total transport time · today vs scenario",
+  thMode:"Mode",thMin:"min/trip",thTot:"total min/day",thDelta:"Δ",rowTotal:"City total",
+  totalNote:(tH,tE,d,fte)=>`Madrid spends <b>${d1(tH/1e6)}M minutes/day</b> in transport today (${d1(tH/60/1e6)}M hours, equivalent to ${ent(tH/60/24)} full-time persons). With the scenario active: <b>${d1(tE/1e6)}M min/day</b> (${d>=0?'+':''}${d1(d)}%). Difference equivalent to <b style="color:var(--green)">${ent(fte)} FTE-jobs/yr</b> liberated.`,
+  ebMap:"Madrid map · M-30 and central districts · before vs after (real data on OpenStreetMap)",
+  mtBefore:"BEFORE",mtAfter:"AFTER",
+  mapBefore:"Today · current state",mapAfter:"After · Phase 1",mapAfterR2:"After · Phase 2 (urban reorganization)",
+  legArt:"M-30 / radial arterials",legBlock:"Residual block",legPaci:"Pacified block",
+  legGreen:"Green / parks",legBike:"Bike lane",legStop:"Robotaxi pickup",legPark:"On-street SER parking",
+  legZBE:"Madrid Central LEZ",legTaxi:"Existing taxi stand",legCyber:"Cybercab+bus lane",
+  mapBeforeNote:"Madrid today: M-30 with 1.04M veh/day (red), saturated radial arterials, 181.5k SER spaces (yellow lines), cruising traffic ~25% of time looking for parking. Casa de Campo and Retiro as exceptional green islands.",
+  mapAfterNote:(r)=>r?"Phase 2: most neighborhood streets pedestrianized (green), robotaxi pickup zones fixed per block (amber dots), 3M m² of roadway released, bike network multiplied (cyan). Only arterials keep full motor traffic.":"Phase 1: SER spaces freed, bike lanes and robotaxi stops emerge (amber). Inherited street layout preserved; without reorganization, change is modest.",
+  mapRealNote:(m,cells,avg)=>`<b>${cells}</b> blocks modeled inside the M-30 with average reduction of <b style="color:var(--green)">−${d1(avg)} min/trip</b>. M-30: ${m.m30Delta>=0?'+':''}${d1(m.m30Pct)}% traffic (${(C.M30_BASE+m.m30Delta)>=1e6?d1((C.M30_BASE+m.m30Delta)/1e6)+'M':ent(C.M30_BASE+m.m30Delta)} veh/day). Pan/zoom one map and the other follows; hover any block for its specific reduction.`,
+  ebModal:"Modal split · today vs. scenario (trips/day)",
+  rowHoy:"Today",rowEsc:"Scenario",
+  modeN:{coche:"Private car",vtc:"PHV/VTC",taxi:"Taxi",bus:"Bus",metro:"Metro/rail",bici:"Bike",pie:"Walking",robotaxi:"Robotaxi"},
+  mNew:"new",
+  modalNote:(tot,af,bg)=>`Total trips/day Madrid city: <b>${mils(tot)}</b> → <b>${mils(af)}</b> (${bg>=0?'+':''}${d1(bg)}% from induced demand). Context: trips inside the M-30 ring are <b>2.45M</b>/day (Madrid City Council, Sept 2023). Robotaxi takes from taxi, PHV, car and —if cheap— public transport; reclaimed space and less cruising boost cycling.`,
+  ebStocks:"From baseline to remainder · stock drain",
+  stSER:"On-street SER spaces",stPark:"Off-street parking",
+  stM30:"M-30 traffic (veh/day)",stParque:"Private vehicle fleet",
+  stPT:"Public-transport trips/day",stCond:"Taxi/PHV drivers",stFuel:"Fuel demand (index)",
+  stFreed:"freed",stRemoved:"removed",stLost:"fewer",stDrop:"drop",stMore:"more traffic",stLess:"less traffic",
+  ofTxt:"of",
+  stockNote:"Bars drain the real baseline stock. M-30 can rise OR fall depending on the balance: each robotaxi adds 1.30 passes/trip but removes private-car passes (×1.25 incl. cruising) and taxi (×1.50). With good matching and low PT cannibalization, the net effect can be negative and M-30 falls.",
+  ebWF:"Annualized P&L · revenue to EBITDA",
+  wfLabels:["Revenue","Energy","Maint.","Ins/teleop","Fund","EBITDA"],
+  wfNote:(m)=>`Revenue ${eurM(m.ingresos)} · OPEX ${eurM(m.eEnergia+m.eMant+m.eSeg)} · Fund ${eurM(m.eFondo)} → <b style="color:${m.ebitda>=0?'var(--green)':'var(--red)'}">EBITDA ${eurM(m.ebitda)}</b> (€M).`,
+  ebCurve:"EBITDA by fleet size",
+  curveNote:"The optimum sits where addressable demand runs out: extra cars only add fixed OPEX and empty km.",
+  optLbl:"optimum",
+  ebStreet:"Dynamic cross-section of a standard Madrid street",
+  acera:"Sidewalk",parkSER:"On-street parking",parkGreen:"Green / bike",agit:"cruising traffic −",
+  streetNote:"As cars are removed, parking (grey) becomes sidewalk, green or bike lane. \"Cruising traffic\" disappears within the neighbourhood — but the M-30 may not notice.",
+  ebImpact:"Impact split · live values",
+  winTitle:"Winners",loseTitle:"Losers",
+  win:(m,p)=>[
+   `<b>Citizens.</b> Door-to-door for €<span class="num">${d2(p.precio)}</span>; >€4,000/yr saving vs car ownership.`,
+   `<b>The city.</b> Reclaims <span class="num">${ent(m.m2)}</span> m² of roadway and frees <span class="num">${ent(m.serFreed)}</span> of the 181.5k SER spaces.`,
+   `<b>Cyclists & pedestrians.</b> +<span class="num">${ent(m.biciGain)}</span> bike trips/day from reclaimed space and less cruising.`,
+   `<b>Operator.</b> Recurring margin and a near-monopoly tech position.`],
+  lose:(m)=>[
+   `<b>Taxi/PHV.</b> ~<span class="num">${ent(m.conductores)}</span> drivers displaced (of ~24,500 total); <span class="num">${d1(m.eFondo/1e6)}</span> €M/yr into licence buyback.`,
+   `<b>Car parks.</b> <span class="num">${ent(m.coches)}</span> spaces become surplus on- and off-street.`,
+   `<b>Public transport.</b> Loses <span class="num">${ent(m.fromPT)}</span> trips/day (out of 3.4M baseline) to cannibalization.`,
+   `<b>Treasury.</b> ~<span class="num">${d1(m.fiscal/1e6)}</span> €M/yr in fuel duty and contributions (est.).`],
+  ebCav:"The fine print · why the optimistic model can fail",
+  cav:[
+   `<b>Induced demand.</b> At €1/trip, journeys appear that didn't exist before. They don't remove cars — they <em>add</em> traffic.`,
+   `<b>M-30: depends on matching.</b> Robotaxi adds 1.30 passes/trip; traditional taxi 1.50. With good app matching and low PT cannibalization, M-30 can fall; with saturation and induction, it rises.`,
+   `<b>Public-transport cannibalization.</b> If robotaxis drain metro and bus, motorized share rises and congestion worsens.`,
+   `<b>Regulation.</b> As of 2026, driverless (L4) isn't homologated in Spain; FSD runs as supervised L2 assistance.`,
+   `<b>Fiscal hole.</b> The state loses fuel duty and contributions before collecting anything equivalent.`,
+   `<b>Monopoly.</b> A single operator with near-zero marginal cost can raise prices once competition is gone.`],
+  foot1:"Illustrative model of editable elasticities and assumptions — not a forecast.",
+  foot2:"Sources: Madrid City Council (Mobility study Sept 2023, SER open data), Madrid Calle 30 (M-30 2024), CRTM/UPM (taxi/PHV licences Oct 2024), DGT, Cybercab's announced efficiency."
+ }
+};
+
+function modelo(p){
+  const {flota,precio,energia,consumo,captura,cannib,fondo,reorg}=p;
+  // Fase 2: parámetros que cambian con reorganización urbana
+  const r_dh=reorg?1.15:C.DEADHEAD_ROBOT;        // matching mejor + paradas fijas
+  const r_pickup=reorg?1.5:C.TIME_PICKUP_MIN;    // espera menor en parada fija
+  const r_cong=reorg?3.5:C.CONGESTION_MIN;       // descongestión mayor: arterias dedicadas
+  const r_biciMult=reorg?3.0:0.8;                // bici se multiplica por reorganización
+  const r_extraDrop=reorg?0.15:0;                // 15% más usuarios privados abandonan
+  const r_extraM2=reorg?3000000:0;               // 3M m² extra de calles pacificadas
+
+  const factorEf=1+(flota/50000)*0.4;
+  const capacidad=flota*50*factorEf;
+  const priceFactor=Math.min(1.6,Math.max(0.3,1+0.45*(2.0-precio)/2.0));
+  const sustituible=(B.taxi+B.vtc)+captura*B.coche;
+  const direccionable=sustituible*priceFactor;
+  const viajes=Math.min(capacidad,direccionable);
+  const util=capacidad>0?viajes/capacidad:0;
+  const inducidos=Math.max(0,viajes-sustituible);
+
+  const fromTaxi=Math.min(viajes,B.taxi);
+  const fromVTC=Math.min(Math.max(0,viajes-B.taxi),B.vtc);
+  const Vr=Math.max(0,viajes-B.taxi-B.vtc);
+  const fromInduced=Math.min(inducidos,Vr);
+  const nonInduced=Vr-fromInduced;
+  const fromPT=cannib*nonInduced;
+  const fromPrivate=(1-cannib)*nonInduced;
+  const ptTot=B.bus+B.metro;
+  const fromBus=fromPT*B.bus/ptTot, fromMetro=fromPT*B.metro/ptTot;
+
+  // Fase 2: salida latente adicional de coche → bici/pie
+  const latentCarDrop=r_extraDrop*B.coche;
+  const latentToBici=latentCarDrop*0.35, latentToPie=latentCarDrop*0.55;
+  const latentVanish=latentCarDrop*0.10;
+
+  const coches=fromPrivate/C.VIAJES_COCHE_PRIV;
+  const serFreed=Math.min(coches,C.PLAZAS_SER);
+  const parkFreed=Math.min(Math.max(0,coches-C.PLAZAS_SER),C.PARKING_OFF);
+  const m2=serFreed*C.M2+r_extraM2, agit=Math.min(30,(serFreed/C.PLAZAS_SER)*30);
+
+  const freeFracSER=Math.min(1,coches/C.PLAZAS_SER);
+  const biciGain=B.bici*freeFracSER*r_biciMult+latentToBici;
+  const biciFromCar=Math.min(biciGain*0.5,B.coche*0.05);
+
+  const after={
+    coche:Math.max(0,B.coche-fromPrivate-biciFromCar-latentCarDrop),
+    vtc:Math.max(0,B.vtc-fromVTC),
+    taxi:Math.max(0,B.taxi-fromTaxi),
+    bus:Math.max(0,B.bus-fromBus),
+    metro:Math.max(0,B.metro-fromMetro),
+    bici:B.bici+biciGain,
+    pie:B.pie+latentToPie,
+    robotaxi:viajes};
+
+  const kmServ=viajes*C.KM_TRAYECTO, kmTot=kmServ*r_dh, kmVacio=kmTot-kmServ;
+  const ingresos=viajes*precio*365;
+  const eEnergia=kmTot*365*consumo*energia, eMant=flota*C.MANT, eSeg=flota*C.SEG, eFondo=ingresos*fondo;
+  const ebitda=ingresos-eEnergia-eMant-eSeg-eFondo;
+  const capex=flota*C.CAPEX_VEH, payback=ebitda>0?capex/ebitda:Infinity, roic=capex>0?ebitda/capex:0;
+
+  const conductores=(fromTaxi/C.VIAJES_POR_COND)+(fromVTC/C.VIAJES_POR_COND);
+  const vehKmFuera=(fromTaxi+fromVTC+fromPrivate+biciFromCar+latentCarDrop)*C.KM_TRAYECTO;
+  const vehKmBase=(B.coche+B.taxi+B.vtc)*C.KM_TRAYECTO;
+  const fuelDrop=Math.min(1,vehKmFuera/vehKmBase);
+  const litros=vehKmFuera*0.06*365;
+  const fiscal=litros*0.5 + conductores*6500;
+
+  // M-30: factores de vacío diferenciados (incluye drop latente con reorg)
+  const passesRemoved=fromTaxi*C.DEADHEAD_TAXI + fromVTC*C.DEADHEAD_VTC + (fromPrivate+latentCarDrop)*C.PRIV_CRUISE;
+  const passesAdded=viajes*r_dh;
+  const m30Delta=C.M30_SHARE*(passesAdded-passesRemoved);
+  const m30After=C.M30_BASE+m30Delta;
+  const m30Pct=m30Delta/C.M30_BASE*100;
+
+  // Tiempo ahorrado
+  const congEase=Math.min(1,freeFracSER*0.7);
+  const tMinPriv=C.TIME_PARK_MIN-r_pickup;            // 5,5 std / 6,5 reorg
+  const tMinCong=r_cong*congEase;                     // hasta 1 std / 3,5 reorg
+  const motoriRem=after.coche+after.taxi+after.vtc+after.bus;
+  const minSavedPriv=fromPrivate*tMinPriv;
+  const minSavedCong=motoriRem*tMinCong;
+  const minSavedDia=minSavedPriv+minSavedCong;
+  const valorSocialAnual=minSavedDia*365*(C.VOT_EUR_HOUR/60);
+  // Equivalente vidas a tiempo completo: minutos/año ÷ (52*40h*60min)
+  const fteEq=(minSavedDia*365)/(52*40*60);
+
+  return {flota,viajes,util,inducidos,coches,serFreed,parkFreed,m2,agit,kmVacio,
+    fromTaxi,fromVTC,fromPrivate,fromPT,fromBus,fromMetro,biciGain,latentCarDrop,after,
+    ingresos,eEnergia,eMant,eSeg,eFondo,ebitda,capex,payback,roic,conductores,fuelDrop,fiscal,
+    m30Delta,m30After,m30Pct,
+    tMinPriv,tMinCong,minSavedPriv,minSavedCong,minSavedDia,valorSocialAnual,fteEq,reorg:!!reorg};
+}
+function flotaOptima(p){let best=0,bv=-Infinity;for(let f=1000;f<=50000;f+=1000){const e=modelo({...p,flota:f}).ebitda;if(e>bv){bv=e;best=f;}}return best;}
+
+function modalChart(m,t){
+  const today={coche:B.coche,vtc:B.vtc,taxi:B.taxi,bus:B.bus,metro:B.metro,bici:B.bici,pie:B.pie,robotaxi:0};
+  const af=m.after;
+  const sum=o=>MODES.reduce((s,md)=>s+(o[md.k]||0),0);
+  const totT=sum(today),totA=sum(af),maxT=Math.max(totT,totA);
+  const W=1000,lx=66,rx=8,bw=W-lx-rx;
+  function row(o,y,label){
+    let x=lx,s=`<text x='${lx-8}' y='${y+16}' fill='var(--muted)' font-size='12' font-family='var(--mono)' text-anchor='end'>${label}</text>`;
+    MODES.forEach(md=>{const v=o[md.k]||0;if(v<=0)return;const w=(v/maxT)*bw;
+      s+=`<rect x='${x.toFixed(1)}' y='${y}' width='${Math.max(0,w).toFixed(1)}' height='24' fill='${md.c}' opacity='.92'><title>${t.modeN[md.k]}: ${ent(v)}</title></rect>`;x+=w;});
+    return s;
+  }
+  document.getElementById('modalBars').innerHTML=`<svg viewBox="0 0 ${W} 92">${row(today,8,t.rowHoy)}${row(af,50,t.rowEsc)}</svg>`;
+  let lg="";
+  MODES.forEach(md=>{const tv=today[md.k]||0, av=af[md.k]||0;
+    let dl;
+    if(tv<=0&&av>0)dl=`<span class="dl new">${t.mNew} ${mils(av)}</span>`;
+    else{const pc=tv>0?(av-tv)/tv*100:0;const cls=pc>0.5?'down':(pc<-0.5?'up':'');dl=`<span class="dl ${cls}">${pc>0?'+':''}${d1(pc)}%</span>`;}
+    lg+=`<div class="lg"><span class="sw" style="background:${md.c}"></span><span class="nm">${t.modeN[md.k]}</span><span class="fl">${mils(tv)}→${mils(av)}</span>${dl}</div>`;});
+  document.getElementById('modalLegend').innerHTML=lg;
+  const grow=totT>0?(totA-totT)/totT*100:0;
+  document.getElementById('modalNote').innerHTML=t.modalNote(totT,totA,grow);
+}
+
+function stocks(m,t){
+  // M-30 puede subir o bajar; los demás son monodireccionales
+  const m30Up=m.m30Delta>0;
+  const rows=[
+    {l:t.stSER,base:C.PLAZAS_SER,used:m.serFreed,c:'var(--green)',k:t.stFreed},
+    {l:t.stPark,base:C.PARKING_OFF,used:m.parkFreed,c:'var(--green)',k:t.stFreed},
+    {l:t.stM30,base:C.M30_BASE,used:Math.abs(m.m30Delta),c:m30Up?'var(--red)':'var(--green)',k:m30Up?t.stMore:t.stLess,bidir:true,delta:m.m30Delta,after:m.m30After},
+    {l:t.stParque,base:C.PARQUE,used:m.coches,c:'var(--cyan)',k:t.stRemoved},
+    {l:t.stPT,base:B.bus+B.metro,used:m.fromPT,c:'var(--red)',k:t.stLost},
+    {l:t.stCond,base:(C.TAXIS+C.VTC_LIC),used:m.conductores,c:'var(--red)',k:t.stLost},
+    {l:t.stFuel,base:100,used:m.fuelDrop*100,c:'var(--amber)',k:t.stDrop,idx:true},
+  ];
+  let h="";
+  rows.forEach(r=>{
+    const pct=r.base>0?Math.min(100,r.used/r.base*100):0;
+    let baseTxt,remTxt,signTxt;
+    if(r.bidir){
+      baseTxt=ent(r.base);
+      remTxt=ent(r.after);
+      signTxt=`<b style="color:${r.c}">${r.delta>=0?'+':'−'}${d1(Math.abs(r.delta)/r.base*100)}%</b> ${r.k}`;
+    } else if(r.idx){
+      baseTxt='100'; remTxt=d1(r.base-r.used);
+      signTxt=`<b style="color:${r.c}">−${d1(pct)}%</b> ${r.k}`;
+    } else {
+      baseTxt=ent(r.base); remTxt=ent(r.base-r.used);
+      signTxt=`<b style="color:${r.c}">−${d1(pct)}%</b> ${r.k}`;
+    }
+    h+=`<div class="meter"><div class="meter-h"><span class="lb">${r.l}</span>
+      <span class="vl">${baseTxt} ${t.ofTxt} → <b>${remTxt}</b> · ${signTxt}</span></div>
+      <div class="track"><div class="fill" style="width:${pct}%;background:${r.c}"></div></div></div>`;
+  });
+  document.getElementById('stockList').innerHTML=h;
+  document.getElementById('stockNote').textContent=t.stockNote;
+}
+
+function waterfall(m,t){
+  const W=440,H=200,padB=26,padT=10,padR=8;
+  const items=[{v:m.ingresos,c:"var(--cyan)",sign:1},{v:-m.eEnergia,c:"var(--red)",sign:-1},{v:-m.eMant,c:"var(--red)",sign:-1},{v:-m.eSeg,c:"var(--red)",sign:-1},{v:-m.eFondo,c:"var(--amber)",sign:-1},{v:m.ebitda,c:m.ebitda>=0?"var(--green)":"var(--red)",total:true}];
+  const peak=Math.max(m.ingresos,1),y=v=>padT+(1-v/peak)*(H-padT-padB);
+  const n=items.length,gap=10,bw=(W-padR-gap*(n-1))/n;let run=0,bars="",x=0;
+  items.forEach((it,i)=>{let top,h;
+    if(it.total){top=Math.min(y(Math.max(it.v,0)),y(0));h=Math.abs(y(it.v)-y(0));}
+    else if(it.sign>0){top=y(it.v);h=y(0)-y(it.v);run=it.v;}
+    else{const s=run;run+=it.v;top=y(s);h=y(run)-y(s);}
+    bars+=`<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1,h).toFixed(1)}" rx="3" fill="${it.c}" opacity="${it.total?1:.85}"/>`;
+    bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${(H-padB+15).toFixed(1)}" fill="var(--faint)" font-size="9" font-family="var(--mono)" text-anchor="middle">${t.wfLabels[i]}</text>`;
+    bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${(Math.min(top,y(0))-5).toFixed(1)}" fill="var(--muted)" font-size="9" font-family="var(--mono)" text-anchor="middle">${(it.v/1e6).toFixed(0)}</text>`;
+    x+=bw+gap;});
+  document.getElementById('waterfall').innerHTML=`<svg viewBox="0 0 ${W} ${H}"><line x1="0" y1="${y(0).toFixed(1)}" x2="${W}" y2="${y(0).toFixed(1)}" stroke="var(--line2)" stroke-dasharray="3 4"/>${bars}</svg>`;
+}
+function curve(p,t){
+  const W=440,H=200,padL=8,padR=8,padT=12,padB=22;
+  const pts=[];for(let f=0;f<=50000;f+=2000)pts.push([f,modelo({...p,flota:f}).ebitda]);
+  const opt=flotaOptima(p),vals=pts.map(d=>d[1]);
+  let mn=Math.min(0,...vals),mx=Math.max(0,...vals);if(mx===mn)mx=mn+1;
+  const X=f=>padL+(f/50000)*(W-padL-padR),Y=v=>padT+(1-(v-mn)/(mx-mn))*(H-padT-padB);
+  const line=pts.map((d,i)=>(i?"L":"M")+X(d[0]).toFixed(1)+" "+Y(d[1]).toFixed(1)).join(" ");
+  const area=`M${X(0).toFixed(1)} ${Y(0).toFixed(1)} `+pts.map(d=>"L"+X(d[0]).toFixed(1)+" "+Y(d[1]).toFixed(1)).join(" ")+` L${X(50000).toFixed(1)} ${Y(0).toFixed(1)} Z`;
+  const cur=modelo(p);
+  document.getElementById('curve').innerHTML=`<svg viewBox="0 0 ${W} ${H}">
+   <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--cyan)" stop-opacity=".28"/><stop offset="1" stop-color="var(--cyan)" stop-opacity="0"/></linearGradient></defs>
+   <line x1="${padL}" y1="${Y(0).toFixed(1)}" x2="${W-padR}" y2="${Y(0).toFixed(1)}" stroke="var(--line2)" stroke-dasharray="3 4"/>
+   <path d="${area}" fill="url(#g)"/><path d="${line}" fill="none" stroke="var(--cyan)" stroke-width="2.2"/>
+   <line x1="${X(opt).toFixed(1)}" y1="${padT}" x2="${X(opt).toFixed(1)}" y2="${H-padB}" stroke="var(--green)" stroke-dasharray="2 3" stroke-width="1"/>
+   <text x="${X(opt).toFixed(1)}" y="${padT-2}" fill="var(--green)" font-size="9" font-family="var(--mono)" text-anchor="middle">${t.optLbl} ${ent(opt/1000)}k</text>
+   <circle cx="${X(cur.flota).toFixed(1)}" cy="${Y(cur.ebitda).toFixed(1)}" r="5" fill="var(--amber)" stroke="var(--bg)" stroke-width="2"/>
+   <text x="${padL}" y="${H-6}" fill="var(--faint)" font-size="9" font-family="var(--mono)">0</text>
+   <text x="${W-padR}" y="${H-6}" fill="var(--faint)" font-size="9" font-family="var(--mono)" text-anchor="end">50k</text></svg>`;
+}
+function street(m,t){
+  const lib=m.serFreed/C.PLAZAS_SER;
+  const swL=document.getElementById('swL'),swR=document.getElementById('swR'),park=document.getElementById('park');
+  let pw,sw,col,txt;
+  if(lib>0.95){pw=0;sw=37;col="var(--green)";txt="";}
+  else if(lib>0.5){pw=10;sw=29;col="#2e8b57";txt=t.parkGreen;}
+  else{pw=20-lib*10;sw=14+lib*10;col="#39424f";txt=t.parkSER;}
+  park.style.width=pw+"%";park.style.background=col;document.getElementById('parkLbl').textContent=txt;
+  swL.style.width=sw+"%";swR.style.width=sw+"%";
+  document.getElementById('agitLbl').textContent=t.agit+d1(m.agit)+"%";
+}
+
+// Tiempo medio puerta-a-puerta por viaje, en minutos (hoy / esc Fase 1 / esc Fase 2)
+const $=id=>document.getElementById(id);
+const TT={
+  coche:{hoy:25,std:23,r2:20},
+  vtc:{hoy:19,std:17,r2:14},
+  taxi:{hoy:17,std:16,r2:15},
+  bus:{hoy:27,std:25,r2:22},
+  metro:{hoy:22,std:21,r2:21},
+  bici:{hoy:18,std:17,r2:14},
+  pie:{hoy:13,std:13,r2:11},
+  robotaxi:{hoy:0,std:16,r2:14},
+};
+function tt(k,when,r){return when==='hoy'?TT[k].hoy:(r?TT[k].r2:TT[k].std);}
+
+function totalTransport(m,t){
+  const today={coche:B.coche,vtc:B.vtc,taxi:B.taxi,bus:B.bus,metro:B.metro,bici:B.bici,pie:B.pie,robotaxi:0};
+  const af=m.after;
+  let totH=0,totE=0;
+  const rows=MODES.map(md=>{
+    const vH=today[md.k]||0, vE=af[md.k]||0;
+    const mH=tt(md.k,'hoy',m.reorg), mE=tt(md.k,'esc',m.reorg);
+    const totHm=vH*mH, totEm=vE*mE;
+    totH+=totHm; totE+=totEm;
+    return {k:md.k,c:md.c,vH,vE,mH,mE,totH:totHm,totE:totEm};
+  });
+  const delta=totH>0?(totE-totH)/totH*100:0;
+  const fte=(totH-totE)*365/(52*40*60);
+  // headline
+  $("totHoy").textContent=d1(totH/1e6)+' M min';
+  $("totEsc").textContent=d1(totE/1e6)+' M min';
+  $("totDelta").innerHTML=`<span style="color:${delta<=0?'var(--green)':'var(--red)'}">${delta>0?'+':''}${d1(delta)}%</span>`;
+  $("totDelta").style.background=delta<=0?'rgba(61,220,132,.12)':'rgba(255,93,108,.12)';
+  // bars
+  const W=1000,lx=66,rx=8,bw=W-lx-rx;
+  const mx=Math.max(totH,totE);
+  function row(getter,y,label){
+    let x=lx,s=`<text x='${lx-8}' y='${y+16}' fill='var(--muted)' font-size='12' font-family='var(--mono)' text-anchor='end'>${label}</text>`;
+    rows.forEach(r=>{const v=getter(r);if(v<=0)return;const w=(v/mx)*bw;
+      s+=`<rect x='${x.toFixed(1)}' y='${y}' width='${w.toFixed(1)}' height='24' fill='${r.c}' opacity='.92'><title>${t.modeN[r.k]}: ${d1(v/1e6)}M min</title></rect>`;x+=w;});
+    return s;
+  }
+  $("totalBars").innerHTML=`<svg viewBox="0 0 ${W} 92">${row(r=>r.totH,8,t.rowHoy)}${row(r=>r.totE,50,t.rowEsc)}</svg>`;
+  // table
+  let html=`<thead><tr><th>${t.thMode}</th><th>${t.thMin}</th><th>${t.thTot}</th><th>${t.thDelta}</th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    if(r.vH<=0&&r.vE<=0)return;
+    const isNew=r.vH<=0&&r.vE>0;
+    const dl=isNew?100:(r.totH>0?(r.totE-r.totH)/r.totH*100:0);
+    const dCls=isNew?'delta-up':(dl<0?'delta-down':(dl>0?'delta-up':''));
+    const dTxt=isNew?(lang==='es'?'nuevo':'new'):(dl>0?'+':'')+d1(dl)+'%';
+    const minCell=r.mH>0?`${r.mH}→${r.mE}`:`—→${r.mE}`;
+    html+=`<tr><td class="lbl"><span class="sw" style="background:${r.c}"></span>${t.modeN[r.k]}</td>
+      <td>${minCell}</td>
+      <td>${d1(r.totH/1e6)}M → ${d1(r.totE/1e6)}M</td>
+      <td><span class="${dCls}">${dTxt}</span></td></tr>`;
+  });
+  html+=`<tr class="total"><td class="lbl">${t.rowTotal}</td><td>—</td>
+    <td>${d1(totH/1e6)}M → ${d1(totE/1e6)}M</td>
+    <td><span class="${delta<=0?'delta-down':'delta-up'}">${delta>0?'+':''}${d1(delta)}%</span></td></tr></tbody>`;
+  $("totalTable").innerHTML=html;
+  $("totalNote").innerHTML=t.totalNote(totH,totE,delta,fte);
+}
+
+// ---------- Madrid map · Leaflet (real) ----------
+// M-30 trazado aproximado (cierra polígono para detectar interior)
+const M30_COORDS=[
+  [40.4775,-3.6915],[40.4750,-3.6810],[40.4690,-3.6705],[40.4590,-3.6620],[40.4480,-3.6580],
+  [40.4370,-3.6595],[40.4260,-3.6615],[40.4160,-3.6640],[40.4070,-3.6680],[40.3985,-3.6750],
+  [40.3920,-3.6855],[40.3870,-3.6970],[40.3870,-3.7080],[40.3920,-3.7180],[40.4020,-3.7250],
+  [40.4130,-3.7300],[40.4240,-3.7315],[40.4350,-3.7295],[40.4460,-3.7250],[40.4565,-3.7180],
+  [40.4655,-3.7080],[40.4720,-3.6995],[40.4775,-3.6915]
+];
+// ZBE Madrid Central / Distrito Centro (aprox)
+const ZBE_COORDS=[
+  [40.4267,-3.7150],[40.4280,-3.7035],[40.4280,-3.6960],[40.4255,-3.6905],[40.4220,-3.6880],
+  [40.4170,-3.6880],[40.4135,-3.6900],[40.4080,-3.6905],[40.4055,-3.6925],[40.4055,-3.7015],
+  [40.4075,-3.7095],[40.4115,-3.7160],[40.4170,-3.7180],[40.4220,-3.7175],[40.4267,-3.7150]
+];
+// Paradas de taxi destacadas
+const TAXI_STANDS=[
+  [40.4078,-3.6905,'Atocha'],[40.4168,-3.7038,'Sol'],[40.4194,-3.6927,'Cibeles'],
+  [40.4155,-3.7074,'Pza Mayor'],[40.4203,-3.7059,'Callao'],[40.4202,-3.7203,'Príncipe Pío'],
+  [40.4232,-3.7124,'Pza España'],[40.4670,-3.6890,'Pza Castilla'],[40.4471,-3.7027,'Cuatro Caminos'],
+  [40.4459,-3.6916,'Nvos Ministerios'],[40.4391,-3.6924,'AZCA'],[40.4243,-3.6790,'Goya'],
+  [40.4031,-3.6759,'Conde Casal'],[40.4173,-3.6680,"O'Donnell"],[40.4275,-3.7000,'Bilbao'],
+  [40.4351,-3.6800,'Diego de León'],[40.4471,-3.6770,'Avda. América'],[40.4307,-3.7170,'Argüelles'],
+  [40.4286,-3.6720,'M. Becerra'],[40.4250,-3.6925,'A. Martínez']
+];
+// Arterias radiales principales
+const ARTERIES=[
+  [[40.4775,-3.6900],[40.4500,-3.6920],[40.4280,-3.6920],[40.4145,-3.6900]],
+  [[40.4205,-3.7130],[40.4205,-3.7050],[40.4200,-3.6985],[40.4198,-3.6955]],
+  [[40.4145,-3.6900],[40.4185,-3.6800],[40.4235,-3.6650],[40.4275,-3.6555]],
+  [[40.4267,-3.7150],[40.4310,-3.7180],[40.4400,-3.7220],[40.4500,-3.7250]],
+  [[40.4275,-3.7000],[40.4400,-3.7020],[40.4471,-3.7027]],
+  [[40.4078,-3.6905],[40.4060,-3.6920],[40.3985,-3.6960]],
+  [[40.4275,-3.7000],[40.4360,-3.6970],[40.4445,-3.6950],[40.4471,-3.6770]]
+];
+
+function pointInPoly(pt,vs){
+  let inside=false;
+  for(let i=0,j=vs.length-1;i<vs.length;j=i++){
+    const xi=vs[i][0],yi=vs[i][1],xj=vs[j][0],yj=vs[j][1];
+    const hit=((yi>pt[1])!=(yj>pt[1]))&&(pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi);
+    if(hit) inside=!inside;
+  } return inside;
+}
+function distToSeg(p,a,b){
+  const A=p[0]-a[0],B=p[1]-a[1],C=b[0]-a[0],D=b[1]-a[1];
+  const dot=A*C+B*D, len=C*C+D*D;
+  const t=len?Math.max(0,Math.min(1,dot/len)):0;
+  const x=a[0]+t*C, y=a[1]+t*D;
+  return Math.hypot(p[0]-x,p[1]-y);
+}
+function nearArtery(pt,th){
+  for(const a of ARTERIES) for(let i=0;i<a.length-1;i++) if(distToSeg(pt,a[i],a[i+1])<th) return true;
+  return false;
+}
+
+let mapBefore=null,mapAfter=null,mapInit=false,syncing=false;
+let layersB=[],layersA=[];
+function clearLayers(){
+  layersB.forEach(l=>mapBefore.removeLayer(l)); layersB=[];
+  layersA.forEach(l=>mapAfter.removeLayer(l)); layersA=[];
+}
+function initMaps(){
+  if(mapInit) return;
+  const center=[40.4250,-3.6950], zoom=13;
+  mapBefore=L.map('mapBefore',{zoomControl:true,attributionControl:true,preferCanvas:true}).setView(center,zoom);
+  mapAfter =L.map('mapAfter', {zoomControl:false,attributionControl:true,preferCanvas:true}).setView(center,zoom);
+  const tileUrl='https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  const attr='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+  L.tileLayer(tileUrl,{attribution:attr,subdomains:'abcd',maxZoom:18}).addTo(mapBefore);
+  L.tileLayer(tileUrl,{attribution:attr,subdomains:'abcd',maxZoom:18}).addTo(mapAfter);
+  function sync(src,tgt){ if(syncing)return; syncing=true; tgt.setView(src.getCenter(),src.getZoom(),{animate:false}); syncing=false; }
+  mapBefore.on('move zoom',()=>sync(mapBefore,mapAfter));
+  mapAfter .on('move zoom',()=>sync(mapAfter ,mapBefore));
+  mapInit=true;
+}
+
+function cellReductionMin(center,m){
+  const inZBE=pointInPoly(center,ZBE_COORDS);
+  const nA=nearArtery(center,0.004);
+  let base;
+  if(inZBE && !nA) base=m.reorg?14:8;
+  else if(inZBE && nA) base=m.reorg?7:3;
+  else if(!inZBE && !nA) base=m.reorg?9:5;
+  else base=m.reorg?3:1.5;
+  const realized=Math.min(1, m.coches/C.PLAZAS_SER);
+  return base*realized;
+}
+function redColor(min){
+  const n=Math.max(0,Math.min(1,min/12));
+  const r=Math.round(170-110*n), g=Math.round(140+95*n), b=Math.round(60+70*n);
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawMadridMaps(t,m){
+  if(typeof L==='undefined'){
+    const msg=lang==='es'
+      ?'No se ha podido cargar Leaflet (cdnjs.cloudflare.com). Necesita conexión a internet para mostrar los mapas. Abre la consola del navegador (F12) para ver el error de red.'
+      :'Leaflet (cdnjs.cloudflare.com) failed to load. Internet connection required for the maps. Open the browser console (F12) to see the network error.';
+    ['mapBefore','mapAfter'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=`<div style="padding:24px;color:var(--amber);font-size:12.5px;line-height:1.5;font-family:var(--mono)">${msg}</div>`;});
+    return;
+  }
+  try{
+    initMaps();
+    clearLayers();
+
+  // ANTES
+  const zbeB=L.polygon(ZBE_COORDS,{color:'#a98bff',weight:1.5,fillColor:'#a98bff',fillOpacity:0.12,dashArray:'4 3'}).addTo(mapBefore);
+  zbeB.bindTooltip('ZBE Distrito Centro',{sticky:true}); layersB.push(zbeB);
+  const m30B=L.polyline(M30_COORDS,{color:'#dd4040',weight:5,opacity:0.85}).addTo(mapBefore);
+  m30B.bindTooltip('M-30 · 1,04M veh/día',{sticky:true}); layersB.push(m30B);
+  TAXI_STANDS.forEach(s=>{
+    const mk=L.circleMarker([s[0],s[1]],{radius:5,color:'#ffd27d',fillColor:'#ffd27d',fillOpacity:0.85,weight:1.5}).addTo(mapBefore);
+    mk.bindTooltip('Parada taxi · '+s[2],{sticky:true}); layersB.push(mk);
+  });
+
+  // DESPUÉS
+  const zbeA=L.polygon(ZBE_COORDS,{color:'#3ddc84',weight:2,fillColor:'#3ddc84',fillOpacity:0.18}).addTo(mapAfter);
+  zbeA.bindTooltip('Zona pacificada Distrito Centro',{sticky:true}); layersA.push(zbeA);
+  const m30A=L.polyline(M30_COORDS,{color:m.reorg?'#cc8855':'#dd6655',weight:m.reorg?3:4,opacity:0.80}).addTo(mapAfter);
+  const m30Veh=C.M30_BASE+m.m30Delta;
+  m30A.bindTooltip(`M-30 · ${m30Veh>=1e6?d1(m30Veh/1e6)+'M':ent(m30Veh)} veh/día (${m.m30Delta>=0?'+':''}${d1(m.m30Pct)}%)`,{sticky:true});
+  layersA.push(m30A);
+  ARTERIES.forEach(a=>{
+    const lane=L.polyline(a,{color:'#4cc4ff',weight:3.5,opacity:0.55,dashArray:'8 4'}).addTo(mapAfter);
+    lane.bindTooltip('Carril Cybercab + bus dedicado',{sticky:true}); layersA.push(lane);
+  });
+  const bounds={s:40.388,n:40.477,w:-3.733,e:-3.658};
+  const dLat=0.0045, dLng=0.006;
+  let cells=0, totRed=0;
+  for(let lat=bounds.s; lat<bounds.n; lat+=dLat){
+    for(let lng=bounds.w; lng<bounds.e; lng+=dLng){
+      const ctr=[lat+dLat/2, lng+dLng/2];
+      if(!pointInPoly(ctr,M30_COORDS)) continue;
+      const red=cellReductionMin(ctr,m);
+      const col=redColor(red);
+      const inZBE=pointInPoly(ctr,ZBE_COORDS);
+      const nA=nearArtery(ctr,0.004);
+      const rect=L.rectangle([[lat,lng],[lat+dLat,lng+dLng]],{
+        color:col,weight:0.3,fillColor:col,fillOpacity:0.45,interactive:true
+      }).addTo(mapAfter);
+      rect.bindTooltip(`Manzana · −${d1(red)} min/viaje<br>${inZBE?'Zona Centro pacificada':(nA?'Adyacente a arteria':'Residencial')}`,{sticky:true});
+      layersA.push(rect); cells++; totRed+=red;
+    }
+  }
+  if(m.reorg){
+    for(let lat=bounds.s+dLat*0.5; lat<bounds.n; lat+=dLat*1.5){
+      for(let lng=bounds.w+dLng*0.5; lng<bounds.e; lng+=dLng*1.5){
+        const ctr=[lat,lng];
+        if(!pointInPoly(ctr,M30_COORDS)) continue;
+        const mk=L.circleMarker(ctr,{radius:2.5,color:'#ffb454',fillColor:'#ffb454',fillOpacity:0.95,weight:0}).addTo(mapAfter);
+        mk.bindTooltip('Parada robotaxi (Fase 2)',{sticky:true}); layersA.push(mk);
+      }
+    }
+  } else {
+    TAXI_STANDS.forEach(s=>{
+      const mk=L.circleMarker([s[0],s[1]],{radius:4,color:'#ffb454',fillColor:'#ffb454',fillOpacity:0.9,weight:1}).addTo(mapAfter);
+      mk.bindTooltip('Parada robotaxi (reusa taxi)',{sticky:true}); layersA.push(mk);
+    });
+  }
+
+  $("mapLeftLabel").textContent=t.mtBefore;
+  $("mapRightLabel").textContent=t.mtAfter+(m.reorg?' · '+t.mapAfterR2:' · '+t.mapAfter);
+  $("ebMap").textContent=t.ebMap;
+  const legendItems=[
+    {kind:'sw',color:'#dd4040',label:t.legArt},
+    {kind:'sw',color:'#a98bff',label:t.legZBE},
+    {kind:'dot',color:'#ffd27d',label:t.legTaxi},
+    {kind:'sw',color:redColor(8),label:t.legPaci+' (≥6 min/viaje)'},
+    {kind:'sw',color:redColor(3),label:t.legBlock+' (3 min/viaje)'},
+    {kind:'line',color:'#4cc4ff',label:t.legCyber},
+    {kind:'dot',color:'#ffb454',label:t.legStop},
+  ];
+  $("mapLegend").innerHTML=legendItems.map(l=>{
+    const sw=l.kind==='sw'?`<span class="mle-sw" style="background:${l.color}"></span>`
+            :l.kind==='dot'?`<span class="mle-dot" style="background:${l.color}"></span>`
+            :`<span class="mle-line" style="border-top-color:${l.color}"></span>`;
+    return `<div class="mle">${sw}${l.label}</div>`;
+  }).join('');
+  const avgRed=cells>0?totRed/cells:0;
+  $("mapNote").innerHTML=t.mapRealNote(m,cells,avgRed);
+  setTimeout(()=>{mapBefore.invalidateSize();mapAfter.invalidateSize();},80);
+  }catch(err){
+    console.error('Map render error:',err);
+    const msg=(lang==='es'?'Error renderizando los mapas: ':'Map render error: ')+err.message;
+    ['mapBefore','mapAfter'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=`<div style="padding:24px;color:var(--red);font-size:12.5px;line-height:1.5;font-family:var(--mono)">${msg}</div>`;});
+  }
+}
+
+const I={flota:$("iFlota"),precio:$("iPrecio"),consumo:$("iConsumo"),energia:$("iEnergia"),captura:$("iCaptura"),cannib:$("iCannib"),fondo:$("iFondo")};
+const Ireorg=$("iReorg");
+function fill(el){el.style.setProperty('--fill',((el.value-el.min)/(el.max-el.min)*100)+"%");}
+
+function timeCard(m,t){
+  const items=[
+    {l:t.tiPriv,v:'−'+d1(m.tMinPriv)+' min',s:t.tiPrivSub},
+    {l:t.tiCong,v:'−'+d1(m.tMinCong)+' min',s:t.tiCongSub},
+    {l:t.tiTot,v:ent(m.minSavedDia/1e3)+'k',s:t.tiTotSub},
+    {l:t.tiFTE,v:ent(m.fteEq),s:t.tiFTESub},
+  ];
+  $("timeGrid").innerHTML=items.map(it=>`<div class="ti"><div class="tl">${it.l}</div><div class="tv">${it.v}</div><div class="ts">${it.s}</div></div>`).join("");
+  $("timeNote").innerHTML=t.timeNote(m,m.reorg);
+}
+
+function draw(){
+  const t=T[lang];
+  const p={flota:+I.flota.value,precio:+I.precio.value,consumo:+I.consumo.value,energia:+I.energia.value,
+           captura:+I.captura.value/100,cannib:+I.cannib.value/100,fondo:+I.fondo.value/100,reorg:Ireorg.checked};
+  Object.values(I).forEach(fill);
+  $("sub").textContent=t.sub;$("tag").textContent=t.tag;
+  $("ptLab").textContent=t.ptLab;$("ptDesc").textContent=t.ptDesc;
+  document.querySelectorAll('.scn').forEach(b=>b.textContent=t.scn[b.dataset.s]);
+  $("ebControls").textContent=t.ebControls;
+  $("labFlota").innerHTML=`${t.labFlota} <b>${ent(p.flota)} ${t.uUds}</b>`;
+  $("labPrecio").innerHTML=`${t.labPrecio} <b>${d2(p.precio)} €</b>`;
+  $("labConsumo").innerHTML=`${t.labConsumo} <b>${d2(p.consumo)} ${t.uKwhkm}</b>`;
+  $("labEnergia").innerHTML=`${t.labEnergia} <b>${d2(p.energia)} ${t.uKwh}</b>`;
+  $("labCaptura").innerHTML=`${t.labCaptura} <b>${I.captura.value} %</b>`;
+  $("labCannib").innerHTML=`${t.labCannib} <b>${I.cannib.value} %</b>`;
+  $("labFondo").innerHTML=`${t.labFondo} <b>${I.fondo.value} %</b>`;
+  $("premises").innerHTML=`<b>${t.premT}</b><br>${t.premB}`;
+
+  const m=modelo(p);
+  $("tViajes").textContent=t.tViajes;$("kViajes").textContent=ent(m.viajes);$("kViajesU").textContent=t.sUtil+d1(m.util*100)+"%";
+  $("tCoches").textContent=t.tCoches;$("kCoches").textContent=ent(m.coches+m.latentCarDrop/C.VIAJES_COCHE_PRIV);$("kCochesU").textContent=t.sParque;
+  $("tPlazas").textContent=t.tPlazas;$("kPlazas").textContent=ent(m.serFreed);$("kM2").textContent=ent(m.m2)+t.sM2;
+  $("tEbitda").textContent=t.tEbitda;$("kEbitda").textContent=eurM(m.ebitda);
+  const eg=m.ebitda>=0?"var(--green)":"var(--red)";$("kEbitda").style.color=eg;$("barEbitda").style.background=eg;
+  $("kRoic").textContent=t.sRoic+d1(m.roic*100)+"%";
+  $("tPayback").textContent=t.tPayback;$("kPayback").textContent=isFinite(m.payback)?d1(m.payback)+t.yrs:t.inf;$("kCapex").textContent=t.sCapex+eurM(m.capex);
+  $("tM30").textContent=t.tM30;
+  const m30col=m.m30Delta>0?"var(--red)":"var(--green)";
+  $("kM30").textContent=signed(m.m30Delta/1000)+"k";$("kM30").style.color=m30col;$("barM30").style.background=m30col;
+  $("kM30U").textContent=signed(m.m30Pct)+"%"+t.sM30;
+  $("tSocial").textContent=t.tSocial;
+  $("kSocial").textContent=eurM(m.valorSocialAnual);
+  $("kSocialU").textContent=ent(m.minSavedDia/1e3)+"k min/día"+t.sSocial;
+
+  modalChart(m,t);stocks(m,t);timeCard(m,t);totalTransport(m,t);drawMadridMaps(t,m);
+  $("ebModal").textContent=t.ebModal;$("ebStocks").textContent=t.ebStocks;$("ebTime").textContent=t.ebTime;
+  $("ebWF").textContent=t.ebWF;$("wfNote").innerHTML=t.wfNote(m);
+  $("ebCurve").textContent=t.ebCurve;$("curveNote").textContent=t.curveNote;
+  $("ebStreet").textContent=t.ebStreet;$("aceraL").textContent=t.acera;$("aceraR").textContent=t.acera;$("streetNote").textContent=t.streetNote;
+  $("ebImpact").textContent=t.ebImpact;$("winTitle").textContent=t.winTitle;$("loseTitle").textContent=t.loseTitle;
+  $("winList").innerHTML=t.win(m,p).map(s=>`<li>${s}</li>`).join("");
+  $("loseList").innerHTML=t.lose(m).map(s=>`<li>${s}</li>`).join("");
+  $("ebCav").textContent=t.ebCav;$("cavList").innerHTML=t.cav.map(s=>`<li>${s}</li>`).join("");
+  $("foot1").textContent=t.foot1;$("foot2").textContent=t.foot2;
+
+  waterfall(m,t);curve(p,t);street(m,t);
+}
+
+const presets={
+  base:{flota:20000,precio:1.5,consumo:0.10,energia:0.18,captura:25,cannib:8,fondo:15},
+  sat:{flota:50000,precio:1.0,consumo:0.10,energia:0.18,captura:40,cannib:15,fondo:15},
+  price:{flota:30000,precio:0.7,consumo:0.10,energia:0.18,captura:35,cannib:18,fondo:5},
+  prot:{flota:18000,precio:1.8,consumo:0.10,energia:0.18,captura:15,cannib:3,fondo:35},
+};
+document.getElementById('scenarios').addEventListener('click',e=>{
+  const b=e.target.closest('.scn');if(!b)return;const s=b.dataset.s;
+  if(s==='opt'){const p={flota:+I.flota.value,precio:+I.precio.value,consumo:+I.consumo.value,energia:+I.energia.value,captura:+I.captura.value/100,cannib:+I.cannib.value/100,fondo:+I.fondo.value/100,reorg:Ireorg.checked};I.flota.value=flotaOptima(p);draw();return;}
+  const c=presets[s];I.flota.value=c.flota;I.precio.value=c.precio;I.consumo.value=c.consumo;I.energia.value=c.energia;I.captura.value=c.captura;I.cannib.value=c.cannib;I.fondo.value=c.fondo;draw();
+});
+Ireorg.addEventListener('change',draw);
+document.querySelector('.lang').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;lang=b.dataset.l;document.documentElement.lang=lang;
+  document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x.dataset.l===lang));draw();
+});
+Object.values(I).forEach(el=>el.addEventListener('input',draw));
+draw();
+</script>
+</body>
+</html>

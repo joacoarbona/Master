@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Briefing Dossier · Director, Data Project Leadership · v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #1b1f2a; --ink-soft: #3f4756; --slate: #6b7280; --faint: #9ca3af;
+  --paper: #fbf9f4; --surface: #ffffff; --cream: #f8f6f1; --cream-deep: #f1ede2;
+  --rule: #e5e1d8; --rule-soft: #f1efe7;
+  --crimson: #9e2a2b; --crimson-soft: #c84b4d; --crimson-pale: #f7e2e3; --crimson-bg: #fbeded;
+  --gold: #b68b3f; --gold-soft: #d9b870; --gold-pale: #f5ecd8; --gold-bg: #faf3e1; --gold-dk: #8c6a2c;
+  --navy: #21304d; --navy-soft: #3a4d70; --teal: #2c6e7b; --sage: #748a6d;
+  --font-head: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+#top, #candidate, #m1, #m2, #m3, #m4, #m5, #m6, #m7, #m8 { scroll-margin-top: 80px; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 15.5px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(158, 42, 43, 0.025) 0, transparent 50%), radial-gradient(circle at 80% 70%, rgba(182, 139, 63, 0.020) 0, transparent 50%); }
+
+/* Topbar */
+.topbar { position: sticky; top: 0; z-index: 100; background: rgba(251, 249, 244, 0.92); backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%); border-bottom: 1px solid var(--rule); }
+.topbar-inner { max-width: 1380px; margin: 0 auto; padding: 14px 36px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); }
+.brand-mark { width: 32px; height: 32px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-family: var(--font-head); font-weight: 600; font-size: 16px; }
+.brand-text { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); }
+.brand-text strong { color: var(--ink); }
+.module-nav { display: flex; gap: 4px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+.module-nav a { display: grid; place-items: center; width: 32px; height: 32px; color: var(--slate); text-decoration: none; border: 1px solid transparent; transition: all 0.18s ease; }
+.module-nav a:hover { color: var(--crimson); border-color: var(--rule); background: var(--surface); }
+.topbar-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); letter-spacing: 0.10em; text-transform: uppercase; text-align: right; }
+
+/* Layout */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 48px; position: relative; z-index: 1; }
+.module { padding: 88px 0 56px; position: relative; }
+.module + .module { border-top: 1px solid var(--rule); }
+.module-head { display: grid; grid-template-columns: 220px 1fr; gap: 40px; margin-bottom: 56px; align-items: start; }
+.module-tag { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--crimson); border-top: 2px solid var(--crimson); padding-top: 14px; position: sticky; top: 88px; transition: color 0.2s ease, border-color 0.2s ease; }
+.module-tag .roman { display: block; font-family: var(--font-head); font-size: 64px; font-weight: 300; color: var(--ink); margin-top: 8px; line-height: 1; font-style: italic; }
+.module-title { font-family: var(--font-head); font-size: 56px; font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; }
+.module-lede { font-family: var(--font-head); font-size: 21px; font-weight: 300; font-style: italic; color: var(--ink-soft); line-height: 1.45; max-width: 720px; margin-bottom: 24px; }
+
+/* Level toggle */
+.level-toggle { display: inline-flex; background: var(--cream-deep); border: 1px solid var(--rule); padding: 4px; gap: 2px; }
+.level-btn { padding: 10px 18px; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); background: transparent; border: none; cursor: pointer; transition: all 0.18s ease; display: flex; align-items: center; gap: 8px; }
+.level-btn:hover { color: var(--ink); background: rgba(255, 255, 255, 0.5); }
+.level-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); transition: background 0.18s ease; }
+.level-btn[data-level="foundations"] .dot { background: var(--crimson-soft); }
+.level-btn[data-level="expert"] .dot { background: var(--gold-soft); }
+.level-btn[data-level="foundations"].active { background: var(--crimson); color: white; }
+.level-btn[data-level="expert"].active { background: var(--gold); color: white; }
+.level-btn.active .dot { background: white; }
+.module[data-active-level="expert"] .module-tag { color: var(--gold); border-top-color: var(--gold); }
+
+/* Subsection */
+.subsection { padding: 36px 0; border-top: 1px solid var(--rule-soft); }
+.subsection:first-of-type { border-top: none; }
+.subsection[data-level="expert"] { display: none; }
+.module[data-active-level="expert"] .subsection[data-level="foundations"] { display: none; }
+.module[data-active-level="expert"] .subsection[data-level="expert"] { display: block; }
+.module[data-active-level="expert"] .subsection[data-level="expert"]:first-of-type { border-top: none; }
+.subsection[data-level="expert"] .subsection-number, .subsection[data-level="expert"] .subsection-number strong { color: var(--gold); }
+.subsection-meta { display: grid; grid-template-columns: 220px 1fr; gap: 40px; margin-bottom: 28px; align-items: start; }
+.subsection-number { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); }
+.subsection-number strong { display: block; font-family: var(--font-head); font-size: 32px; font-weight: 300; font-style: italic; color: var(--ink); margin-top: 6px; line-height: 1; }
+.level-badge { display: inline-block; margin-top: 8px; padding: 2px 8px; font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--crimson); color: var(--crimson); }
+.subsection[data-level="expert"] .level-badge { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+.action-title { font-family: var(--font-head); font-size: 30px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 12px; }
+.lede { font-family: var(--font-head); font-size: 16px; font-style: italic; color: var(--ink-soft); line-height: 1.55; max-width: 760px; }
+.subsection-body { margin-left: 260px; max-width: 980px; }
+@media (max-width: 1100px) { .subsection-meta { grid-template-columns: 1fr; } .subsection-body { margin-left: 0; } .module-head { grid-template-columns: 1fr; } .module-tag { position: static; } }
+
+/* Takeaway */
+.takeaway { background: var(--cream); border-left: 4px solid var(--crimson); padding: 18px 24px; margin: 28px 0; display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
+.subsection[data-level="expert"] .takeaway { border-left-color: var(--gold); }
+.takeaway-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--crimson); }
+.subsection[data-level="expert"] .takeaway-label { color: var(--gold-dk); }
+.takeaway-text { font-family: var(--font-head); font-size: 15px; font-style: italic; line-height: 1.55; color: var(--ink-soft); }
+
+/* Quote */
+.quote-block { display: grid; grid-template-columns: 6px 1fr; gap: 24px; margin: 32px 0; align-items: start; }
+.quote-bar { background: var(--crimson); height: 100%; }
+.subsection[data-level="expert"] .quote-bar { background: var(--gold); }
+.quote-text { font-family: var(--font-head); font-size: 28px; font-weight: 300; font-style: italic; line-height: 1.35; letter-spacing: -0.01em; color: var(--ink); }
+.quote-text.small { font-size: 22px; }
+
+/* Cards */
+.card-grid { display: grid; gap: 16px; margin: 24px 0; }
+.card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 880px) { .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .card-grid.cols-2, .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: 1fr; } }
+.ncard { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--crimson); padding: 18px 20px; }
+.ncard.gold { border-left-color: var(--gold); }
+.ncard.navy { border-left-color: var(--navy); }
+.ncard.teal { border-left-color: var(--teal); }
+.ncard.sage { border-left-color: var(--sage); }
+.subsection[data-level="expert"] .ncard:not(.gold):not(.navy):not(.teal):not(.sage) { border-left-color: var(--gold); }
+.ncard-num { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--crimson); letter-spacing: 0.12em; margin-bottom: 8px; }
+.ncard.gold .ncard-num { color: var(--gold); }
+.ncard.navy .ncard-num { color: var(--navy); }
+.ncard.teal .ncard-num { color: var(--teal); }
+.subsection[data-level="expert"] .ncard:not(.gold):not(.navy):not(.teal):not(.sage) .ncard-num { color: var(--gold); }
+.ncard-title { font-family: var(--font-head); font-size: 17px; font-weight: 500; line-height: 1.25; margin-bottom: 8px; color: var(--ink); }
+.ncard-body { font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); }
+.ncard-body em { font-family: var(--font-head); font-style: italic; }
+
+/* Stats */
+.stat-grid { display: grid; gap: 12px; margin: 24px 0; }
+.stat-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 880px) { .stat-grid.cols-3 { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { background: var(--cream); border: 1px solid var(--rule); padding: 24px 20px; }
+.stat-card-number { font-family: var(--font-head); font-size: 44px; font-weight: 400; line-height: 1; color: var(--crimson); letter-spacing: -0.02em; margin-bottom: 10px; }
+.stat-card.gold .stat-card-number { color: var(--gold); }
+.stat-card.navy .stat-card-number { color: var(--navy); }
+.stat-card-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--slate); margin-bottom: 6px; }
+.stat-card-detail { font-family: var(--font-head); font-size: 13.5px; font-style: italic; color: var(--ink-soft); line-height: 1.5; }
+
+/* Table */
+.ctable { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 24px 0; }
+.ctable thead { background: var(--ink); color: var(--paper); }
+.ctable thead th { padding: 12px 14px; text-align: left; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.ctable tbody tr { background: var(--surface); border-bottom: 1px solid var(--rule-soft); }
+.ctable tbody tr:nth-child(even) { background: var(--rule-soft); }
+.ctable tbody td { padding: 12px 14px; vertical-align: top; color: var(--ink-soft); }
+.ctable tbody td.col-key { font-family: var(--font-head); font-weight: 500; color: var(--ink); font-size: 14.5px; }
+.ctable tbody td.col-az { color: var(--crimson); font-weight: 500; }
+.subsection[data-level="expert"] .ctable tbody td.col-az { color: var(--gold); }
+.ctable tbody td.muted { color: var(--slate); font-style: italic; }
+
+/* Chart */
+.chart { background: var(--surface); border: 1px solid var(--rule); padding: 24px; margin: 24px 0; }
+.chart-title { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--crimson); margin-bottom: 4px; }
+.subsection[data-level="expert"] .chart-title { color: var(--gold); }
+.chart-subtitle { font-family: var(--font-head); font-size: 16px; color: var(--ink); margin-bottom: 16px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart-source { font-family: var(--font-mono); font-size: 9.5px; color: var(--faint); margin-top: 8px; letter-spacing: 0.06em; }
+
+/* Flow */
+.flow-grid { display: grid; gap: 8px; margin: 24px 0; grid-template-columns: repeat(5, 1fr); }
+@media (max-width: 880px) { .flow-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 540px) { .flow-grid { grid-template-columns: repeat(2, 1fr); } }
+.flow-cell { background: var(--surface); border: 1px solid var(--rule); border-top: 3px solid var(--crimson); padding: 14px 14px 16px; }
+.subsection[data-level="expert"] .flow-cell { border-top-color: var(--gold); }
+.flow-cell-num { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--crimson); letter-spacing: 0.12em; margin-bottom: 8px; }
+.subsection[data-level="expert"] .flow-cell-num { color: var(--gold); }
+.flow-cell-title { font-family: var(--font-head); font-size: 14.5px; font-weight: 500; line-height: 1.2; margin-bottom: 8px; color: var(--ink); }
+.flow-cell-detail { font-family: var(--font-mono); font-size: 9.5px; font-weight: 500; color: var(--slate); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 4px; }
+.flow-cell-body { font-size: 12px; color: var(--ink-soft); font-style: italic; line-height: 1.4; }
+
+/* Three-col */
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+@media (max-width: 880px) { .three-col { grid-template-columns: 1fr; } }
+.tc-card { background: var(--surface); border: 1px solid var(--rule); display: flex; flex-direction: column; }
+.tc-card-head { background: var(--crimson); color: white; padding: 14px 18px; }
+.tc-card.gold .tc-card-head { background: var(--gold); }
+.tc-card.navy .tc-card-head { background: var(--navy); }
+.subsection[data-level="expert"] .tc-card:not(.gold):not(.navy):not(.teal):not(.muted) .tc-card-head { background: var(--gold); }
+.tc-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.9; margin-bottom: 4px; }
+.tc-head-title { font-family: var(--font-head); font-size: 18px; font-weight: 500; line-height: 1.2; }
+.tc-card-body { padding: 18px 20px 22px; flex: 1; }
+.tc-section { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); margin: 12px 0 6px; }
+.tc-section:first-child { margin-top: 0; }
+.tc-list { list-style: none; padding: 0; }
+.tc-list li { padding-left: 16px; position: relative; font-size: 13px; line-height: 1.5; color: var(--ink-soft); margin-bottom: 6px; }
+.tc-list li::before { content: ""; position: absolute; left: 0; top: 0.65em; width: 6px; height: 6px; border-radius: 50%; background: var(--crimson); }
+.tc-card.gold .tc-list li::before { background: var(--gold); }
+.tc-card.navy .tc-list li::before { background: var(--navy); }
+.subsection[data-level="expert"] .tc-card:not(.gold):not(.navy):not(.teal):not(.muted) .tc-list li::before { background: var(--gold); }
+.tc-body-text { font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 8px; }
+.tc-body-text em { font-family: var(--font-head); font-style: italic; }
+
+/* Pillar */
+.pillar-card { background: var(--surface); border: 1px solid var(--rule); overflow: hidden; display: flex; flex-direction: column; }
+.pillar-card-head { background: var(--crimson); color: white; padding: 12px 20px; }
+.pillar-card.gold .pillar-card-head { background: var(--gold); }
+.pillar-card.navy .pillar-card-head { background: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-card-head { background: var(--gold); }
+.pillar-card-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.9; }
+.pillar-card-body { padding: 22px 24px; flex: 1; display: flex; flex-direction: column; }
+.pillar-card-title { font-family: var(--font-head); font-size: 22px; font-weight: 500; line-height: 1.2; margin-bottom: 12px; color: var(--ink); }
+.pillar-card-claim { font-family: var(--font-head); font-size: 14px; font-style: italic; color: var(--crimson); line-height: 1.5; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+.pillar-card.gold .pillar-card-claim { color: var(--gold); }
+.pillar-card.navy .pillar-card-claim { color: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-card-claim { color: var(--gold); }
+.pillar-section-label { font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--slate); margin-bottom: 6px; }
+.pillar-evidence { list-style: none; padding: 0; margin-bottom: 18px; }
+.pillar-evidence li { padding-left: 14px; position: relative; font-size: 12.5px; line-height: 1.45; color: var(--ink-soft); margin-bottom: 4px; }
+.pillar-evidence li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 5px; height: 5px; border-radius: 50%; background: var(--crimson); }
+.pillar-card.gold .pillar-evidence li::before { background: var(--gold); }
+.pillar-card.navy .pillar-evidence li::before { background: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-evidence li::before { background: var(--gold); }
+.pillar-bet { font-family: var(--font-head); font-size: 14px; font-weight: 500; color: var(--crimson); margin-top: auto; padding-top: 12px; border-top: 1px solid var(--rule); }
+.pillar-card.gold .pillar-bet { color: var(--gold); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-bet { color: var(--gold); }
+
+/* Hero */
+.hero { background: var(--ink); color: var(--paper); padding: 88px 0 96px; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(182, 139, 63, 0.10) 0, transparent 50%), radial-gradient(circle at 15% 80%, rgba(158, 42, 43, 0.12) 0, transparent 50%); pointer-events: none; }
+.hero-inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; position: relative; }
+.hero-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-soft); margin-bottom: 20px; }
+.hero-title { font-family: var(--font-head); font-size: clamp(48px, 7vw, 96px); font-weight: 300; line-height: 0.96; letter-spacing: -0.025em; margin-bottom: 32px; max-width: 1100px; }
+.hero-title em { font-style: italic; font-weight: 300; color: var(--gold-soft); }
+.hero-dek { font-family: var(--font-head); font-size: clamp(18px, 1.8vw, 22px); font-style: italic; color: #c7ccd6; max-width: 720px; margin-bottom: 40px; line-height: 1.45; }
+.hero-meta { display: grid; grid-template-columns: auto auto auto auto; gap: 64px; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 32px; max-width: 1100px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; color: #a8b0bd; }
+.hero-meta strong { display: block; color: var(--gold-soft); font-size: 22px; font-weight: 400; font-family: var(--font-head); margin-top: 6px; text-transform: none; letter-spacing: 0; font-style: italic; }
+@media (max-width: 880px) { .hero-meta { grid-template-columns: 1fr 1fr; gap: 24px; } }
+
+/* Footer */
+.footer { background: var(--ink); color: var(--paper); padding: 64px 0 48px; margin-top: 80px; }
+.footer-inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+.footer-rule { height: 1px; background: var(--gold-soft); width: 120px; margin-bottom: 24px; }
+.footer-title { font-family: var(--font-head); font-size: 28px; font-weight: 400; margin-bottom: 12px; }
+.footer-meta { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #a8b0bd; }
+
+/* Candidate prologue */
+.candidate-section { background: linear-gradient(180deg, #f4eee0 0%, #f8f3e7 60%, var(--paper) 100%); padding: 96px 0 88px; position: relative; border-bottom: 1px solid var(--rule); overflow: hidden; }
+.candidate-section::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--gold) 0%, var(--crimson) 50%, var(--navy) 100%); }
+.candidate-head { max-width: 1100px; margin-bottom: 56px; position: relative; z-index: 1; }
+.candidate-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+.candidate-eyebrow::before { content: ""; width: 36px; height: 1px; background: var(--gold); }
+.candidate-title { font-family: var(--font-head); font-size: clamp(48px, 6.5vw, 84px); font-weight: 300; line-height: 0.98; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 32px; }
+.candidate-title em { font-style: italic; font-weight: 400; color: var(--crimson); }
+.candidate-dek { font-family: var(--font-head); font-size: clamp(18px, 1.7vw, 21px); font-style: italic; line-height: 1.6; color: var(--ink-soft); max-width: 920px; }
+.candidate-dek strong { font-style: normal; font-weight: 500; color: var(--ink); background: linear-gradient(180deg, transparent 60%, var(--gold-pale) 60%); padding: 0 2px; }
+.candidate-sub { margin: 64px 0; position: relative; z-index: 1; }
+.candidate-sub-head { display: grid; grid-template-columns: 80px 1fr; gap: 28px; margin-bottom: 28px; align-items: baseline; }
+.candidate-sub-num { font-family: var(--font-head); font-size: 36px; font-weight: 300; font-style: italic; color: var(--crimson); line-height: 1; text-align: right; border-right: 2px solid var(--crimson); padding-right: 16px; }
+.candidate-sub-title { font-family: var(--font-head); font-size: clamp(24px, 2.4vw, 32px); font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); }
+.candidate-sub-lede { font-family: var(--font-head); font-size: 16px; font-style: italic; color: var(--ink-soft); margin: 8px 0 0 108px; max-width: 820px; }
+.candidate-sub-body { margin-left: 108px; margin-top: 28px; }
+@media (max-width: 1100px) {
+  .candidate-sub-head { grid-template-columns: 1fr; }
+  .candidate-sub-num { text-align: left; border-right: none; border-bottom: 2px solid var(--crimson); padding-right: 0; padding-bottom: 4px; display: inline-block; }
+  .candidate-sub-lede, .candidate-sub-body { margin-left: 0; }
+}
+.career-tl { background: white; border: 1px solid var(--rule); padding: 28px 24px; margin: 24px 0; }
+.career-tl svg { display: block; width: 100%; height: auto; }
+
+.combo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 24px 0; }
+@media (max-width: 980px) { .combo-grid { grid-template-columns: 1fr; } }
+.combo-card { background: white; border: 1px solid var(--rule); padding: 28px 26px 30px; position: relative; display: flex; flex-direction: column; }
+.combo-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--crimson); }
+.combo-card.gold::before { background: var(--gold); }
+.combo-card.navy::before { background: var(--navy); }
+.combo-num { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; color: var(--crimson); margin: 6px 0 14px; }
+.combo-card.gold .combo-num { color: var(--gold); }
+.combo-card.navy .combo-num { color: var(--navy); }
+.combo-title { font-family: var(--font-head); font-size: 22px; font-weight: 500; line-height: 1.22; margin-bottom: 16px; color: var(--ink); }
+.combo-formula { font-family: var(--font-head); font-size: 17px; font-style: italic; font-weight: 400; color: var(--crimson); margin: 14px 0; padding: 14px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); text-align: center; }
+.combo-card.gold .combo-formula { color: var(--gold); }
+.combo-card.navy .combo-formula { color: var(--navy); }
+.combo-body { font-size: 13.5px; line-height: 1.62; color: var(--ink-soft); margin-top: 4px; }
+.combo-body strong { color: var(--ink); font-weight: 600; }
+
+.both-sides { background: white; border: 1px solid var(--rule); padding: 32px 28px; margin: 24px 0; display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; align-items: stretch; }
+@media (max-width: 880px) { .both-sides { grid-template-columns: 1fr; padding: 24px; gap: 24px; } }
+.bs-col { padding: 4px 24px; }
+.bs-col.left { border-right: 1px dashed var(--rule); }
+@media (max-width: 880px) { .bs-col.left { border-right: none; border-bottom: 1px dashed var(--rule); padding-bottom: 24px; } }
+.bs-bridge { display: grid; place-items: center; position: relative; }
+.bs-bridge-circle { width: 64px; height: 64px; border-radius: 50%; background: var(--ink); color: white; display: grid; place-items: center; font-family: var(--font-head); font-size: 30px; font-style: italic; }
+.bs-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.16em; color: var(--crimson); margin-bottom: 10px; }
+.bs-col.right .bs-tag { color: var(--gold); }
+.bs-title { font-family: var(--font-head); font-size: 20px; font-weight: 500; line-height: 1.2; margin-bottom: 8px; color: var(--ink); }
+.bs-years { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--slate); letter-spacing: 0.08em; margin-bottom: 16px; }
+.bs-list { list-style: none; padding: 0; }
+.bs-list li { padding-left: 18px; position: relative; font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 8px; }
+.bs-list li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 10px; height: 1.5px; background: var(--crimson); }
+.bs-col.right .bs-list li::before { background: var(--gold); }
+.bs-list li strong { color: var(--ink); font-weight: 600; }
+.bs-quote { font-family: var(--font-head); font-size: 19px; font-style: italic; line-height: 1.4; color: var(--crimson); text-align: center; grid-column: 1 / -1; margin: 32px 8px 8px; padding-top: 24px; border-top: 1px solid var(--rule); }
+
+.fit-map .ctable td.col-key { font-size: 14px; }
+.fit-map .ctable td.col-az { font-style: italic; }
+
+/* Geography callout */
+.geo-callout { background: linear-gradient(135deg, var(--gold-bg) 0%, var(--cream) 100%); border: 1px solid var(--gold-soft); padding: 32px 36px; margin: 24px 0; }
+.geo-callout-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dk); margin-bottom: 12px; }
+.geo-callout-title { font-family: var(--font-head); font-size: 24px; font-weight: 500; line-height: 1.25; color: var(--ink); margin-bottom: 14px; }
+.geo-callout-body { font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+.geo-callout-body strong { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark">J</span>
+      <span class="brand-text">Data Project Leadership · <strong>v1.0</strong></span>
+    </a>
+    <div class="module-nav">
+      <a href="#candidate" style="color: var(--gold); border-color: var(--gold-pale); background: var(--gold-pale);">§</a>
+      <a href="#m1">I</a><a href="#m2">II</a><a href="#m3">III</a><a href="#m4">IV</a>
+      <a href="#m5">V</a><a href="#m6">VI</a><a href="#m7">VII</a><a href="#m8">VIII</a>
+    </div>
+    <div class="topbar-meta">Director · Data Project Leadership<br/>Two-tier · Foundations · Expert</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Briefing dossier · v1.0 · June 2026 · Two-tier</div>
+    <h1 class="hero-title">The case for <em>delivery.</em></h1>
+    <p class="hero-dek">Eight modules · two depth levels each. The role is internal, audit-ready, benefits-led. The candidacy reads as if the JD was written from the CV.</p>
+    <div class="hero-meta">
+      <div>Role<strong>Director, Data Project Leadership</strong></div>
+      <div>Function<strong>Enterprise Data Programmes</strong></div>
+      <div>Base<strong>Barcelona · hub-based</strong></div>
+      <div>Prepared for<strong>Joaquín</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- CANDIDATE PROLOGUE -->
+<section class="candidate-section" id="candidate">
+  <div class="container">
+
+    <header class="candidate-head">
+      <div class="candidate-eyebrow">Prologue · the candidate</div>
+      <h1 class="candidate-title">A career engineered <em>for</em><br/>this delivery role.</h1>
+      <p class="candidate-dek">If the Partnership Director role asked Joaquín to lean on his consulting arc, this role asks him to lean on his <strong>delivery arc</strong>. Thirteen years at IQVIA delivering programmes to time, cost and quality. <strong>$15M+ savings</strong> at Director level. A <strong>20-consultant team across 7 countries</strong>. A US patent on AI delivered at clinical scale. Two years standardising PM and portfolio practices inside AZ DS&amp;AI. This is the role where every line of the CV becomes a load-bearing piece of evidence.</p>
+    </header>
+
+    <!-- 01 · Career arc -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">01</div>
+        <h2 class="candidate-sub-title">Twenty years of delivery — five eras, each adding a layer the role explicitly asks for.</h2>
+      </div>
+      <p class="candidate-sub-lede">Read forward: legal training → strategy consulting → P&amp;L ownership → analytics delivery → AI delivery → enterprise data leadership.</p>
+
+      <div class="candidate-sub-body">
+        <div class="career-tl">
+          <svg viewBox="0 0 1240 480" xmlns="http://www.w3.org/2000/svg">
+            <line x1="80" y1="280" x2="1180" y2="280" stroke="#1b1f2a" stroke-width="2"/>
+            <g>
+              <line x1="80" y1="275" x2="80" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="80" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2005</text>
+              <line x1="330" y1="275" x2="330" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="330" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2010</text>
+              <line x1="580" y1="275" x2="580" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="580" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2015</text>
+              <line x1="830" y1="275" x2="830" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="830" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2020</text>
+              <line x1="1080" y1="275" x2="1080" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="1080" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2025</text>
+            </g>
+            <rect x="80" y="252" width="50" height="22" fill="#b68b3f"/>
+            <rect x="130" y="252" width="150" height="22" fill="#c84b4d"/>
+            <rect x="280" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="430" y="252" width="150" height="22" fill="#21304d"/>
+            <rect x="580" y="252" width="100" height="22" fill="#c84b4d"/>
+            <rect x="680" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="780" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="880" y="252" width="150" height="22" fill="#6d1a1b"/>
+            <rect x="1030" y="252" width="100" height="22" fill="#1b1f2a"/>
+
+            <line x1="105" y1="252" x2="105" y2="220" stroke="#b68b3f" stroke-width="0.8"/>
+            <text x="105" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">Garrigues</text>
+            <text x="105" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Seville · Law</text>
+
+            <line x1="505" y1="252" x2="505" y2="220" stroke="#21304d" stroke-width="0.8"/>
+            <text x="505" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">L'Oréal · Head of BI</text>
+            <text x="505" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">€90M P&amp;L</text>
+
+            <line x1="730" y1="252" x2="730" y2="220" stroke="#9e2a2b" stroke-width="0.8"/>
+            <text x="730" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">Spain ACOE Lead</text>
+            <text x="730" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">US patent · AI delivery</text>
+
+            <line x1="955" y1="252" x2="955" y2="220" stroke="#6d1a1b" stroke-width="0.8"/>
+            <text x="955" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">OE Director</text>
+            <text x="955" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">$15M+ saved</text>
+
+            <line x1="205" y1="252" x2="205" y2="148" stroke="#c84b4d" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="205" y="138" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">IMS · Junior</text>
+            <text x="205" y="124" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Madrid · SFE</text>
+
+            <line x1="330" y1="252" x2="330" y2="100" stroke="#9e2a2b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="330" y="90" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">IMS · Senior</text>
+            <text x="330" y="76" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Brussels · €350K/yr</text>
+
+            <line x1="630" y1="252" x2="630" y2="148" stroke="#c84b4d" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="630" y="138" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">IQVIA SDM</text>
+            <text x="630" y="124" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Service Delivery</text>
+
+            <line x1="830" y1="252" x2="830" y2="148" stroke="#9e2a2b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="830" y="138" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">Europe ACOE Lead</text>
+            <text x="830" y="124" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">20+ team · 7 countries</text>
+
+            <line x1="1080" y1="252" x2="1080" y2="80" stroke="#1b1f2a" stroke-width="1.2"/>
+            <rect x="1000" y="48" width="160" height="36" fill="#1b1f2a"/>
+            <text x="1080" y="66" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="15" font-weight="600" fill="#b68b3f">AstraZeneca</text>
+            <text x="1080" y="78" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="500" fill="white" letter-spacing="1.2">PM &amp; PORTFOLIO · NOW</text>
+
+            <g transform="translate(0, 340)">
+              <line x1="80" y1="0" x2="380" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="230" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#9e2a2b">ERA I · LEGAL + STRATEGY</text>
+              <text x="230" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">Audit-ready by training</text>
+
+              <line x1="430" y1="0" x2="580" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="505" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#21304d">ERA II · COMMERCIAL P&amp;L</text>
+              <text x="505" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">Benefits-led discipline</text>
+
+              <line x1="580" y1="0" x2="880" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="730" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#9e2a2b">ERA III · ANALYTICS DELIVERY</text>
+              <text x="730" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">7-country matrix · AI at scale</text>
+
+              <line x1="880" y1="0" x2="1030" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="955" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#6d1a1b">ERA IV · DIRECTOR · $15M+</text>
+              <text x="955" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">Programme scale + savings</text>
+
+              <line x1="1030" y1="56" x2="1130" y2="56" stroke="#1b1f2a" stroke-width="2"/>
+              <text x="1080" y="78" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#1b1f2a">ERA V · AZ INSIDER</text>
+              <text x="1080" y="92" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#1b1f2a">PM + portfolio standardised</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The arc reads forward</div>
+          <div class="takeaway-text">For this role the centre of gravity is Era III + IV (analytics delivery scale, $15M+ savings, 7-country matrix). Era I (Law + Strategy) gives the audit posture; Era V gives the AZ context. Every era pulls weight.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 · Numbers -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">02</div>
+        <h2 class="candidate-sub-title">Six delivery outcomes — verifiable, audit-ready, scaled.</h2>
+      </div>
+      <p class="candidate-sub-lede">Every number from the public CV. Each maps to an accountability the JD names explicitly.</p>
+
+      <div class="candidate-sub-body">
+        <div class="stat-grid cols-3">
+          <div class="stat-card">
+            <div class="stat-card-label">Savings delivered</div>
+            <div class="stat-card-number">$15M+</div>
+            <div class="stat-card-detail">Operational Effectiveness · IQVIA Director · Org Deep Dive methodology applied to global redesign, automation and offshoring. Delivered to time and cost.</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-card-label">Cross-country team</div>
+            <div class="stat-card-number">20+</div>
+            <div class="stat-card-detail">International consultants led across <strong>7 countries</strong> · Europe ACOE expansion · matrixed delivery against KPIs and SLAs.</div>
+          </div>
+          <div class="stat-card navy">
+            <div class="stat-card-label">P&amp;L delivered</div>
+            <div class="stat-card-number">€90M</div>
+            <div class="stat-card-detail">L'Oréal Pharma Beauty · Head of BI · brand-level forecasting, finance partnership, benefits tracking discipline learned client-side.</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">AI at clinical scale</div>
+            <div class="stat-card-number" style="font-size: 38px;">US patent</div>
+            <div class="stat-card-detail">Investigator and Site Identification platform · co-inventor · AI/ML productionised against compliance + privacy bars.</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-card-label">Deal motion delivered</div>
+            <div class="stat-card-number">€350K<span style="font-size: 24px;">/yr</span></div>
+            <div class="stat-card-detail">Strategy consulting programmes designed, sold, and delivered to pharma clients · Brussels · multi-account, multi-year delivery.</div>
+          </div>
+          <div class="stat-card navy">
+            <div class="stat-card-label">IQVIA tenure</div>
+            <div class="stat-card-number">13</div>
+            <div class="stat-card-detail">Junior Consultant → Operational Effectiveness Director. Continuous delivery experience across analytics, AI, governance and ops.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 · Three combinations -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">03</div>
+        <h2 class="candidate-sub-title">Three combinations the JD asks for — separately common, together rare.</h2>
+      </div>
+      <p class="candidate-sub-lede">The structural argument for the candidacy: each combination unlocks something a single-track delivery CV does not.</p>
+
+      <div class="candidate-sub-body">
+        <div class="combo-grid">
+          <div class="combo-card">
+            <div class="combo-num">COMBINATION 01</div>
+            <h3 class="combo-title">Audit-ready by training</h3>
+            <div class="combo-formula">Law × Business × Lean</div>
+            <p class="combo-body"><strong>Dual BBA + Law degree</strong> · Corporate Practice trainee at <strong>Garrigues</strong> (Spain's leading firm) · <strong>Advanced Lean certified</strong>. The legal foundation means "compliance-by-design" is not retrofitted into deliverables — it is the starting posture. Critical for a role where GxP, privacy and audit-ready artefacts are non-negotiable.</p>
+          </div>
+          <div class="combo-card gold">
+            <div class="combo-num">COMBINATION 02</div>
+            <h3 class="combo-title">Vendor delivery × Client governance</h3>
+            <div class="combo-formula">IQVIA OE → AZ portfolio</div>
+            <p class="combo-body"><strong>13 years</strong> delivering programmes <em>into</em> pharma at IQVIA — knows what audit-ready vendor delivery looks like. <strong>2 years</strong> running portfolio + PM standards inside AZ DS&amp;AI — knows what client-side governance demands. The seam is the asset: a Director who reads both stakeholder dialects fluently.</p>
+          </div>
+          <div class="combo-card navy">
+            <div class="combo-num">COMBINATION 03</div>
+            <h3 class="combo-title">Full-stack delivery operator</h3>
+            <div class="combo-formula">PM × Portfolio × AI</div>
+            <p class="combo-body">Programme management depth (PMBOK study tool · PMI Madrid Chapter active) · Portfolio practice standardised at AZ DS&amp;AI · AI delivery experience (US patent on AI at scale + current EAI engagement). <strong>Three competencies the JD asks for in one operator</strong>, with measurable evidence under each.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Why these specifically</div>
+          <div class="takeaway-text">The JD lists "programme governance discipline," "benefits-led delivery," and "AI-enabled delivery and compliance" as separate requirements. Most candidates have one. Joaquín has all three, layered, with verifiable outcomes.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 · Both sides -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">04</div>
+        <h2 class="candidate-sub-title">Thirteen years delivering into pharma. Two years governing for pharma. The seam is the asset.</h2>
+      </div>
+      <p class="candidate-sub-lede">Most delivery candidates have been on one side. You have run vendor programmes to time-and-quality bars, then crossed to set the bars from the client seat.</p>
+
+      <div class="candidate-sub-body">
+        <div class="both-sides">
+          <div class="bs-col left">
+            <div class="bs-tag">VENDOR DELIVERY SIDE</div>
+            <div class="bs-title">IMS Consulting · IQVIA</div>
+            <div class="bs-years">2006 — 2024 · 13 years · Madrid + Brussels</div>
+            <ul class="bs-list">
+              <li><strong>Delivered</strong> €350K/yr programmes to top pharma clients</li>
+              <li><strong>Led</strong> ACOE Spain → Europe · 7-country matrix · 20+ team</li>
+              <li><strong>Achieved</strong> $15M+ savings as OE Director via Org Deep Dive</li>
+              <li><strong>Productionised</strong> AI/ML at clinical scale (US patent)</li>
+              <li><strong>Managed</strong> against SLA, KPI, audit and quality gates</li>
+            </ul>
+          </div>
+          <div class="bs-bridge">
+            <div class="bs-bridge-circle">↔</div>
+          </div>
+          <div class="bs-col right">
+            <div class="bs-tag">CLIENT GOVERNANCE SIDE</div>
+            <div class="bs-title">AstraZeneca</div>
+            <div class="bs-years">2024 — NOW · 2 years · Barcelona</div>
+            <ul class="bs-list">
+              <li>Director · Business Planning &amp; Operations, <strong>DS&amp;AI</strong></li>
+              <li><strong>Standardised</strong> project management practices across the function</li>
+              <li><strong>Standardised</strong> portfolio practices for transparent decision-making</li>
+              <li><strong>Streamlined</strong> operational practices to strategy alignment</li>
+              <li>Presented at <strong>N+2 leadership</strong> on EAI agenda</li>
+            </ul>
+          </div>
+          <div class="bs-quote">Same artefact, opposite end of the audit chain. The delivery reflexes carry across the seam.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The interview answer to "why you"</div>
+          <div class="takeaway-text">"When a vendor presents you a delivery plan, I have written that exact plan thirteen years from the other side. I read the missing risks before they surface — and I have already governed the same plan from your seat for two years."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 · Fit map -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">05</div>
+        <h2 class="candidate-sub-title">Every JD requirement to specific career evidence — no gaps in the trace.</h2>
+      </div>
+      <p class="candidate-sub-lede">Eight JD lines · eight verifiable proof points. This is fit by accumulation, not by paper match.</p>
+
+      <div class="candidate-sub-body fit-map">
+        <table class="ctable">
+          <thead>
+            <tr><th style="width: 36%;">JD requirement</th><th>Career evidence</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="col-key">Lead complex data/tech programmes in global matrixed environment</td><td class="col-az">Europe ACOE Lead · 20+ team · 7 countries · matrixed delivery against agreed KPI and SLA targets</td></tr>
+            <tr><td class="col-key">Deliver to time, cost and quality</td><td class="col-az">$15M+ savings as IQVIA OE Director · Org Deep Dive methodology · benefits-tracked through to realisation</td></tr>
+            <tr><td class="col-key">Strong governance discipline (gates, RAID, change control, audit artefacts)</td><td class="col-az">Portfolio practices standardised at AZ DS&amp;AI · PMBOK study tool built · PMI Madrid Chapter active</td></tr>
+            <tr><td class="col-key">Benefits-led delivery from pilot through scale</td><td class="col-az">€90M P&amp;L at L'Oréal · BI forecasting · benefits tracking discipline learned from client-finance partnership</td></tr>
+            <tr><td class="col-key">Translate between technical and business outcomes</td><td class="col-az">DS&amp;AI Business Planning &amp; Operations · 4 languages · N+2 leadership presentations in EAI context</td></tr>
+            <tr><td class="col-key">Stakeholder management at senior governance level</td><td class="col-az">Sold and presented up to VP / President at IQVIA · global C-level Lean initiative · cross-functional EAI engagement</td></tr>
+            <tr><td class="col-key">Vendor and cross-functional team coordination</td><td class="col-az">7-country team management · vendor performance management at OE Director level · contractual partnership history</td></tr>
+            <tr><td class="col-key">AI-enabled delivery + compliance (privacy, security, GxP)</td><td class="col-az">US patent on Site ID AI · GDPR/EHDS fluency · current AZ DS&amp;AI compliance context · law degree foundation</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The compact case</div>
+          <div class="takeaway-text">There is no row in this table that requires a stretch. Each JD line item has been lived and measured — and many at Director scale. The candidacy is fit by accumulation.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 · Geography (Barcelona-based) -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">06</div>
+        <h2 class="candidate-sub-title">Geography — Barcelona-based, hub-anchored, Cambridge-engaged.</h2>
+      </div>
+      <p class="candidate-sub-lede">The JD anchors in Cambridge; the role can operate from Barcelona with a structured Cambridge cadence. The proposal is explicit, not implicit.</p>
+
+      <div class="candidate-sub-body">
+
+        <div class="geo-callout">
+          <div class="geo-callout-tag">THE PROPOSAL</div>
+          <h3 class="geo-callout-title">Barcelona primary base · Cambridge ~1 week per month · pan-EU travel as required</h3>
+          <p class="geo-callout-body">Joaquín is established at the <strong>AstraZeneca Barcelona hub</strong> within DS&amp;AI. The Barcelona campus already operates as an AZ data &amp; analytics node integrated with the global Enterprise Data function. The proposal: <strong>Barcelona-primary delivery</strong> with a recurring <strong>Cambridge week</strong> for in-person governance, sponsor reviews and team rituals; pan-EU travel for stakeholder and vendor engagements as the portfolio requires. The 3-day in-office expectation is met as <strong>hub-presence + scheduled Cambridge time</strong>, the operating model many AZ Directors with global mandates already follow.</p>
+        </div>
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">REASON 01</div>
+            <div class="ncard-title">AZ Barcelona is real infrastructure</div>
+            <div class="ncard-body">Barcelona is an AZ growth hub. DS&amp;AI commercial colleagues, EAI engagement, and existing collaborator network are all here. Delivery does not start from zero — it starts with established context.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">REASON 02</div>
+            <div class="ncard-title">Cambridge cadence is the trade</div>
+            <div class="ncard-body">A predictable monthly Cambridge week creates structured in-person time for governance forums, peer pillar coordination, and sponsor rhythm — often more concentrated than 3 distributed days locally.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">REASON 03</div>
+            <div class="ncard-title">The data delivery world is distributed</div>
+            <div class="ncard-body">Enterprise data programmes are inherently multi-geography. Vendors, domain teams, and platform owners sit across hubs. A Director who reads multiple geographies natively is an asset, not a friction.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The framing for HR + hiring manager</div>
+          <div class="takeaway-text">Present the Barcelona base as a feature, not a request — proven AZ infrastructure, established collaborator density, and a structured Cambridge cadence that meets the in-person spirit of the policy. Raise it explicitly in round 1, not at offer.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE I — Decoding the role -->
+<section class="module" id="m1" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · I<span class="roman">I</span></div>
+      <div>
+        <h2 class="module-title">Decoding the role.</h2>
+        <p class="module-lede">Four accountabilities define what AZ is buying — and the title "Project Leadership" softens what is actually a portfolio leadership mandate.</p>
+        <div class="level-toggle" data-module="m1">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 1.1 Four pillars · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Four pillars in the JD — read them as accountabilities, not as a list of tasks.</h3>
+          <p class="lede">Each pillar maps to a different stakeholder cluster and a different artefact set.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-4">
+          <div class="ncard">
+            <div class="ncard-num">PILLAR 01</div>
+            <div class="ncard-title">Portfolio delivery</div>
+            <div class="ncard-body">Plan and execute enterprise data projects pilot → scale · scope/schedule/budget discipline · value at the centre.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">PILLAR 02</div>
+            <div class="ncard-title">Governance &amp; compliance-by-design</div>
+            <div class="ncard-body">Portfolio governance, transparent decisions, GxP / privacy / quality embedded · audit-ready by default.</div>
+          </div>
+          <div class="ncard navy">
+            <div class="ncard-num">PILLAR 03</div>
+            <div class="ncard-title">Benefits realisation</div>
+            <div class="ncard-body">Success metrics defined from pilot → scale · benefits tracked with Finance · course corrections triggered.</div>
+          </div>
+          <div class="ncard teal">
+            <div class="ncard-num">PILLAR 04</div>
+            <div class="ncard-title">Cross-pillar integration</div>
+            <div class="ncard-body">Tight coordination with Data Change Mgmt + Data Automation · enterprise platform + domain product team alignment.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"Project Leadership" understates the role. The reality is a portfolio Director with governance, benefits and cross-pillar responsibility — closer to a programme office leader than a project manager.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The framing discipline</div>
+          <div class="takeaway-text">In every round answer the four pillars as accountabilities; never describe the role as "project work." The title invites the mistake; the JD itself does not.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1.2 Funnel · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three pillars in Enterprise Data Programmes — Project Leadership is the conversion engine.</h3>
+          <p class="lede">Change Management mobilises adoption · Automation accelerates assurance · Project Leadership delivers and integrates both.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="chart">
+          <div class="chart-title">The three pillars · Enterprise Data Programmes</div>
+          <div class="chart-subtitle">Where Project Leadership plugs in.</div>
+          <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg">
+            <rect x="60" y="30" width="240" height="220" fill="#21304d"/>
+            <text x="180" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="white" letter-spacing="2.5">PILLAR A</text>
+            <text x="180" y="100" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" font-weight="500" fill="white">Data Change</text>
+            <text x="180" y="122" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" font-weight="500" fill="white">Management</text>
+            <text x="180" y="160" text-anchor="middle" font-size="11" fill="#a8b0bd" font-style="italic">Adoption · readiness</text>
+            <text x="180" y="180" text-anchor="middle" font-size="11" fill="#a8b0bd" font-style="italic">Behavioural change</text>
+            <text x="180" y="200" text-anchor="middle" font-size="11" fill="#a8b0bd" font-style="italic">Prosci / ADKAR</text>
+
+            <rect x="320" y="30" width="240" height="220" fill="#9e2a2b"/>
+            <text x="440" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="white" letter-spacing="2.5">PILLAR B — THIS ROLE</text>
+            <text x="440" y="100" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" font-weight="500" fill="white">Data Project</text>
+            <text x="440" y="122" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" font-weight="500" fill="white">Leadership</text>
+            <text x="440" y="160" text-anchor="middle" font-size="11" fill="#f5ecd8" font-style="italic">Delivery · governance</text>
+            <text x="440" y="180" text-anchor="middle" font-size="11" fill="#f5ecd8" font-style="italic">Benefits realisation</text>
+            <text x="440" y="200" text-anchor="middle" font-size="11" fill="#f5ecd8" font-style="italic">Integration owner</text>
+
+            <rect x="580" y="30" width="240" height="220" fill="#b68b3f"/>
+            <text x="700" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="white" letter-spacing="2.5">PILLAR C</text>
+            <text x="700" y="100" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" font-weight="500" fill="white">Data</text>
+            <text x="700" y="122" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="18" font-weight="500" fill="white">Automation</text>
+            <text x="700" y="160" text-anchor="middle" font-size="11" fill="white" font-style="italic">Policy-as-code</text>
+            <text x="700" y="180" text-anchor="middle" font-size="11" fill="white" font-style="italic">Continuous assurance</text>
+            <text x="700" y="200" text-anchor="middle" font-size="11" fill="white" font-style="italic">DataOps patterns</text>
+
+            <text x="440" y="290" text-anchor="middle" font-size="12" fill="#6b7280" font-style="italic">Project Leadership is the seam — the role that converts Change readiness + Automation capability into measurable portfolio outcomes.</text>
+          </svg>
+          <div class="chart-source">Source: JD structure · Enterprise Data Programmes pillar architecture</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">How to frame the role</div>
+          <div class="takeaway-text">Position yourself as the seam between Change and Automation — not as a third silo. The hire is about closing a delivery flow that already exists conceptually.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1.3 NEW EXPERT · Governance topology -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The governance topology — six escalation paths the Director navigates, each with its own forum and its own cadence.</h3>
+          <p class="lede">Misreading the escalation path is the most common year-one mistake. Naming the path in week one IS the seniority signal.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead>
+            <tr>
+              <th style="width: 22%;">Decision type</th>
+              <th style="width: 22%;">Escalation path</th>
+              <th style="width: 16%;">Forum</th>
+              <th>What you bring</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="col-key">Portfolio-level prioritisation</td><td class="col-az">Senior Director</td><td>Portfolio review</td><td>Trade-off paper · benefits delta · risk view</td></tr>
+            <tr><td class="col-key">Stage-gate approval</td><td class="col-az">Governance forum (chair)</td><td>Stage-gate</td><td>Artefact pack · DD evidence · sign-off recommendation</td></tr>
+            <tr><td class="col-key">Cross-platform dependency</td><td class="col-az">Platform domain lead</td><td>Dependency review</td><td>Dependency log · resolution path · escalation criteria</td></tr>
+            <tr><td class="col-key">Compliance / GxP exception</td><td class="col-az">Compliance + Quality</td><td>Compliance review</td><td>Risk register · mitigation plan · audit posture</td></tr>
+            <tr><td class="col-key">Material commercial change</td><td class="col-az">Senior Director + Finance</td><td>Change control board</td><td>Variance analysis · recovery plan · revised baseline</td></tr>
+            <tr><td class="col-key">Vendor performance issue</td><td class="col-az">Procurement + sponsor</td><td>Vendor governance</td><td>SLA evidence · remediation case · contract triggers</td></tr>
+          </tbody>
+        </table>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">Director-level delivery is 40% chairing forums, 30% preparing senior governance content, 30% running the actual programme. Most candidates assume the inverse.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The week-one move</div>
+          <div class="takeaway-text">Map all six paths against your specific portfolio in week one. Confirm forum cadences, RACI for each, and your specific seat at each. A Director who arrives with this map already drafted is operational on day 30, not day 90.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE II — Enterprise data at pharma scale -->
+<section class="module" id="m2" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · II<span class="roman">II</span></div>
+      <div>
+        <h2 class="module-title">Enterprise data at pharma scale.</h2>
+        <p class="module-lede">The portfolio is not "data projects" — it is a layered system of domains, platforms and products. Knowing the architecture IS the entry ticket.</p>
+        <div class="level-toggle" data-module="m2">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2.1 Data domains · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Eight pharma data domains — each with a different owner, a different governance bar, a different stakeholder dialect.</h3>
+          <p class="lede">Project portfolios cut across domains. Knowing the boundaries prevents the most common cross-domain delivery collisions.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-4">
+          <div class="ncard"><div class="ncard-num">DOMAIN 01</div><div class="ncard-title">Clinical / R&amp;D</div><div class="ncard-body">Trial data · ELN · IND/NDA submissions · GxP-bound · clinical informatics owners.</div></div>
+          <div class="ncard"><div class="ncard-num">DOMAIN 02</div><div class="ncard-title">Commercial</div><div class="ncard-body">Sales · marketing · field · CRM · BI · finance integration.</div></div>
+          <div class="ncard"><div class="ncard-num">DOMAIN 03</div><div class="ncard-title">Manufacturing</div><div class="ncard-body">MES · process control · batch records · GxP-bound · plant operations.</div></div>
+          <div class="ncard gold"><div class="ncard-num">DOMAIN 04</div><div class="ncard-title">Medical / RWE</div><div class="ncard-body">Real-world evidence · HEOR · access · post-launch surveillance.</div></div>
+          <div class="ncard gold"><div class="ncard-num">DOMAIN 05</div><div class="ncard-title">Patient</div><div class="ncard-body">DCT · patient platforms · digital therapeutics · privacy-intensive.</div></div>
+          <div class="ncard navy"><div class="ncard-num">DOMAIN 06</div><div class="ncard-title">Supply chain</div><div class="ncard-body">Track &amp; trace · cold-chain · serialisation · distributor integration.</div></div>
+          <div class="ncard navy"><div class="ncard-num">DOMAIN 07</div><div class="ncard-title">Regulatory</div><div class="ncard-body">Submission management · pharmacovigilance · labelling · health authority interfaces.</div></div>
+          <div class="ncard teal"><div class="ncard-num">DOMAIN 08</div><div class="ncard-title">Enterprise / corporate</div><div class="ncard-body">HR · finance · legal · master data · ERP-anchored.</div></div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Operating rule</div>
+          <div class="takeaway-text">Identify the primary domain for each programme on day one. Anchor sponsorship, governance and quality bar to that domain. Cross-domain programmes (clinical + commercial RWE, for instance) need explicit dual-domain governance from week one — never improvised later.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.2 Pilot to scale · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">From pilot to scale — five stages, each with a stop-go decision and a benefits checkpoint.</h3>
+          <p class="lede">The JD names "pilot through scale" explicitly. Most programmes die between stage 3 and 4 — where adoption costs surface for the first time.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="flow-grid">
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 01</div><div class="flow-cell-title">Discovery</div><div class="flow-cell-detail">Hypothesis</div><div class="flow-cell-body">Frame value, scope, sponsor.</div></div>
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 02</div><div class="flow-cell-title">Pilot</div><div class="flow-cell-detail">Constrained scope</div><div class="flow-cell-body">Prove benefits in 1 domain / 1 country.</div></div>
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 03</div><div class="flow-cell-title">MVP scale</div><div class="flow-cell-detail">Multi-country</div><div class="flow-cell-body">Expand within domain · validate adoption.</div></div>
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 04</div><div class="flow-cell-title">Enterprise scale</div><div class="flow-cell-detail">Cross-domain</div><div class="flow-cell-body">Operational + audit-ready everywhere.</div></div>
+          <div class="flow-cell"><div class="flow-cell-num">STAGE 05</div><div class="flow-cell-title">Steady state</div><div class="flow-cell-detail">BAU + continuous</div><div class="flow-cell-body">Transition to operations · monitor benefits.</div></div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The discipline</div>
+          <div class="takeaway-text">Every stage has a stop-go gate. Most failed programmes did not skip stages — they failed to convert a passing gate into the next stage's funding case. The Director's job is the conversion, not the gate itself.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.3 R&D + GxP · E -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">R&amp;D data is a different country — GxP applicability, validation lifecycle, and inspection readiness change the delivery model entirely.</h3>
+          <p class="lede">A Director who treats R&amp;D programmes as "ordinary IT projects" creates audit liabilities the function will spend years unwinding.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <table class="ctable">
+          <thead>
+            <tr><th style="width: 22%;">Aspect</th><th>Standard programme</th><th>GxP-bound programme</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="col-key">Validation</td><td>Functional testing</td><td class="col-az">CSV / GAMP 5 lifecycle · IQ/OQ/PQ · traceability matrix</td></tr>
+            <tr><td class="col-key">Documentation</td><td>Standard project artefacts</td><td class="col-az">URS · FS · DS · validation plan · validation report · all signed and audit-ready</td></tr>
+            <tr><td class="col-key">Change control</td><td>Standard CR process</td><td class="col-az">Formal change control board · impact assessment · re-validation criteria</td></tr>
+            <tr><td class="col-key">Data integrity</td><td>Quality checks</td><td class="col-az">ALCOA+ principles · audit trails · electronic signatures · retention</td></tr>
+            <tr><td class="col-key">Vendor management</td><td>SoW + SLA</td><td class="col-az">Vendor qualification · supplier audit · quality agreement · SOC 2 evidence</td></tr>
+            <tr><td class="col-key">Release</td><td>Go-live cutover</td><td class="col-az">Validation summary report · release-for-use authorisation · post-release verification</td></tr>
+          </tbody>
+        </table>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"Compliance by design" is the JD phrase — and in R&amp;D context it specifically means the validation lifecycle is part of the delivery plan, not bolted on at UAT.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The Director-grade move</div>
+          <div class="takeaway-text">For any portfolio that touches R&amp;D, demand the validation strategy as a stage-1 artefact alongside the delivery plan. Co-author it with Quality. Programmes where validation is an afterthought slip by 30–50% on average — and risk regulatory non-compliance findings.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.4 NEW EXPERT · Federated vs centralised -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Federated vs centralised data architecture — pharma is consolidating around a hybrid model, and the Director's plans live or die by which mode the portfolio assumes.</h3>
+          <p class="lede">Mismatching the delivery plan to the architecture mode is the #1 cause of cross-domain programme drift.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="three-col" style="grid-template-columns: 1fr 1fr;">
+          <div class="pillar-card">
+            <div class="pillar-card-head"><div class="pillar-card-tag">MODEL A · CENTRALISED</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Single warehouse · platform-led</h4>
+              <p class="pillar-card-claim">Data physically moves to a central platform · global standards enforced top-down.</p>
+              <div class="pillar-section-label">Advantages</div>
+              <ul class="pillar-evidence">
+                <li>Single source of truth · easier reporting</li>
+                <li>Standardised tooling and access</li>
+                <li>Predictable cost per consumer</li>
+              </ul>
+              <div class="pillar-section-label">Director-level risks</div>
+              <ul class="pillar-evidence">
+                <li>Slow to onboard new domains</li>
+                <li>Local domain owners feel disempowered</li>
+                <li>Privacy / residency complexity at EU scale</li>
+              </ul>
+            </div>
+          </div>
+          <div class="pillar-card gold">
+            <div class="pillar-card-head"><div class="pillar-card-tag">MODEL B · FEDERATED / MESH</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Data products · domain-led</h4>
+              <p class="pillar-card-claim">Domains own their data as products · governance is federated · platform provides interoperability standards.</p>
+              <div class="pillar-section-label">Advantages</div>
+              <ul class="pillar-evidence">
+                <li>Closer to domain reality · faster adoption</li>
+                <li>Privacy / residency naturally accommodated</li>
+                <li>Aligns with EHDS posture (Module IV)</li>
+              </ul>
+              <div class="pillar-section-label">Director-level risks</div>
+              <ul class="pillar-evidence">
+                <li>Higher coordination cost across products</li>
+                <li>Quality drift if standards not enforced</li>
+                <li>Demands strong product ownership culture</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"Federate the data, centralise the standards" is the operating compromise most large pharmas are now arriving at. The Director's job is to deliver programmes that honour both at once.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Diagnostic question</div>
+          <div class="takeaway-text">In your first review of any portfolio item, ask: "Is this delivered in a centralised, federated, or hybrid mode — and does the operating model match?" Misalignment surfaces as scope drift in stage 3 and adoption failure in stage 4.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE III — Governance + audit-ready -->
+<section class="module" id="m3" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · III<span class="roman">III</span></div>
+      <div>
+        <h2 class="module-title">Programme governance, audit-ready by design.</h2>
+        <p class="module-lede">The JD names "audit-ready artefacts" explicitly. This is not a stretch competency — it is a hard requirement.</p>
+        <div class="level-toggle" data-module="m3">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 3.1 Stage gates · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Six stage gates · each with an owner, an artefact pack, and a decision authority.</h3>
+          <p class="lede">No stage skipped, no artefact improvised. The discipline IS the audit posture.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <table class="ctable">
+          <thead><tr><th style="width:90px;">Gate</th><th>Stage transition</th><th>Artefact pack</th><th>Decision authority</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">G0</td><td>Idea → Discovery</td><td>One-pager · benefits hypothesis</td><td class="col-az">Senior Director</td></tr>
+            <tr><td class="col-key">G1</td><td>Discovery → Pilot</td><td>Business case · risk register · resourcing plan</td><td class="col-az">Governance forum</td></tr>
+            <tr><td class="col-key">G2</td><td>Pilot → MVP</td><td>Pilot evaluation · benefits evidence · adoption signals</td><td class="col-az">Governance forum + sponsor</td></tr>
+            <tr><td class="col-key">G3</td><td>MVP → Enterprise scale</td><td>Operating model · change plan · finance commitment</td><td class="col-az">Senior Director + Finance</td></tr>
+            <tr><td class="col-key">G4</td><td>Enterprise scale → Steady state</td><td>Validation report · transition plan · ops handover</td><td class="col-az">Senior Director + ops</td></tr>
+            <tr><td class="col-key">G5</td><td>Steady state → Sunset</td><td>Benefits realisation report · lessons learned</td><td class="col-az">Senior Director</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3.2 RAID · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">RAID logs are the spine of audit-ready governance — alive, dated, owned.</h3>
+          <p class="lede">Dead RAID logs are a worse audit signal than no log at all. Cadence and ownership are the entire game.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-4">
+          <div class="ncard"><div class="ncard-num">RISKS</div><div class="ncard-title">Anticipated</div><div class="ncard-body">Probability × impact · owner · mitigation · review weekly.</div></div>
+          <div class="ncard"><div class="ncard-num">ASSUMPTIONS</div><div class="ncard-title">Stated</div><div class="ncard-body">What must be true for the plan to hold · validation date.</div></div>
+          <div class="ncard"><div class="ncard-num">ISSUES</div><div class="ncard-title">Materialised</div><div class="ncard-body">Active impact · owner · resolution path · escalation criteria.</div></div>
+          <div class="ncard"><div class="ncard-num">DEPENDENCIES</div><div class="ncard-title">External</div><div class="ncard-body">Inbound · outbound · platform · vendor · cross-portfolio.</div></div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The audit signal</div>
+          <div class="takeaway-text">An auditor will not read your delivery plan first. They will read your RAID log. A current, owned, decisioned RAID is the single fastest evidence of mature governance.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3.3 NEW EXPERT · Audit-ready artefact pack -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The ten-artefact audit pack — what should be in your portfolio's evidence room before any inspection notice arrives.</h3>
+          <p class="lede">The Director who can produce these ten within 24 hours of a regulator's request is the Director the function trusts with the next portfolio.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-2">
+          <div class="ncard"><div class="ncard-num">ARTEFACT 01</div><div class="ncard-title">Portfolio charter</div><div class="ncard-body">Scope, governance, sponsors, RACI, delivery model declared upfront. Signed.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 02</div><div class="ncard-title">Stage-gate decision log</div><div class="ncard-body">Every gate · decision · attendees · evidence reviewed · sign-off. Dated and immutable.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 03</div><div class="ncard-title">RAID log (live)</div><div class="ncard-body">Current state · owners · escalations · resolutions. Weekly cadence.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 04</div><div class="ncard-title">Change control log</div><div class="ncard-body">All approved changes · impact assessments · re-baselining decisions. Tied to G2 / G3 evidence.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 05</div><div class="ncard-title">Risk register (programme + portfolio)</div><div class="ncard-body">Probabilistic view · mitigations live · linked to RAID issues that materialised.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 06</div><div class="ncard-title">Vendor qualification + SLA pack</div><div class="ncard-body">Per active vendor · qualification evidence · SLA performance reports · remediation history.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 07</div><div class="ncard-title">Validation evidence (where GxP)</div><div class="ncard-body">URS · FS · DS · validation plan + report · traceability matrix. Per GxP system.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 08</div><div class="ncard-title">Benefits realisation tracker</div><div class="ncard-body">Baseline · actual · variance · explanation · re-forecast. Finance-co-signed.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 09</div><div class="ncard-title">Post-implementation evaluation</div><div class="ncard-body">Per scaled programme · objective vs outcome · lessons learned · feeds next portfolio.</div></div>
+          <div class="ncard"><div class="ncard-num">ARTEFACT 10</div><div class="ncard-title">Compliance assertion log</div><div class="ncard-body">Privacy DPIA · security review · GxP impact assessment · per programme. Compliance-co-signed.</div></div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">A pack like this is not built at audit time. It is built incrementally — one artefact at each stage gate — and the discipline IS the deliverable.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Day-90 commitment</div>
+          <div class="takeaway-text">Day-90 deliverable: artefacts 01, 02, 03, 04, 05 fully populated for at least one programme in the portfolio. Treat that programme as the audit-readiness reference for the rest of the portfolio to adopt.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE IV — Benefits-led delivery -->
+<section class="module" id="m4" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · IV<span class="roman">IV</span></div>
+      <div>
+        <h2 class="module-title">Benefits-led delivery.</h2>
+        <p class="module-lede">"Value at the centre" is the JD's anchor phrase. The Director who can prove benefits — not just deliver scope — is the Director who renews their mandate.</p>
+        <div class="level-toggle" data-module="m4">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 4.1 KPI framework · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Five KPI families — the JD names four explicitly; the fifth is implicit.</h3>
+          <p class="lede">Adoption · cycle time · quality · compliance · cost. Every portfolio item should declare benefits in at least two of these families.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-3">
+          <div class="ncard"><div class="ncard-num">FAMILY 01</div><div class="ncard-title">Adoption</div><div class="ncard-body">Active users · % of target population · sustained use over time · NPS / stakeholder satisfaction.</div></div>
+          <div class="ncard"><div class="ncard-num">FAMILY 02</div><div class="ncard-title">Cycle time</div><div class="ncard-body">Time-to-decision · time-to-insight · time-to-onboard · workflow latency reduction.</div></div>
+          <div class="ncard"><div class="ncard-num">FAMILY 03</div><div class="ncard-title">Quality</div><div class="ncard-body">Error rate · accuracy · completeness · timeliness · data quality dimensions.</div></div>
+          <div class="ncard gold"><div class="ncard-num">FAMILY 04</div><div class="ncard-title">Compliance</div><div class="ncard-body">Audit findings · DPIA closure · GxP defects · privacy incidents.</div></div>
+          <div class="ncard navy"><div class="ncard-num">FAMILY 05</div><div class="ncard-title">Cost (productivity + avoidance)</div><div class="ncard-body">FTE freed · cost-per-output · vendor spend reduced · cost avoided (the implicit fifth).</div></div>
+          <div class="ncard teal"><div class="ncard-num">RULE</div><div class="ncard-title">Two-family minimum</div><div class="ncard-body">No portfolio item should claim benefits in only one family — single-family cases collapse at G3.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.2 Realisation curve · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Benefits do not realise on go-live — they realise over a curve. Plan the curve, not the cliff.</h3>
+          <p class="lede">Stage-4 programmes underperform when sponsors expected day-1 benefits and the curve takes 6–9 months to mature.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="chart">
+          <div class="chart-title">Stylised benefits-realisation curve</div>
+          <div class="chart-subtitle">From go-live · cumulative benefits over time</div>
+          <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="#f1efe7" stroke-width="1">
+              <line x1="80" y1="60" x2="820" y2="60"/>
+              <line x1="80" y1="120" x2="820" y2="120"/>
+              <line x1="80" y1="180" x2="820" y2="180"/>
+              <line x1="80" y1="240" x2="820" y2="240"/>
+            </g>
+            <line x1="80" y1="280" x2="820" y2="280" stroke="#1b1f2a" stroke-width="1.2"/>
+            <line x1="80" y1="40" x2="80" y2="280" stroke="#1b1f2a" stroke-width="1.2"/>
+
+            <text x="65" y="65" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">100%</text>
+            <text x="65" y="125" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">75%</text>
+            <text x="65" y="185" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">50%</text>
+            <text x="65" y="245" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">25%</text>
+            <text x="65" y="285" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">0%</text>
+
+            <text x="120" y="300" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">Go-live</text>
+            <text x="280" y="300" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">Month 3</text>
+            <text x="440" y="300" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">Month 6</text>
+            <text x="600" y="300" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">Month 9</text>
+            <text x="760" y="300" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b7280">Month 12</text>
+
+            <!-- naive expectation -->
+            <path d="M 120 280 L 130 80" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+            <text x="155" y="80" font-family="JetBrains Mono, monospace" font-size="10" fill="#9ca3af" font-style="italic">Sponsor expectation</text>
+
+            <!-- realistic S-curve -->
+            <path d="M 120 280 Q 280 260 440 180 T 760 70" stroke="#9e2a2b" stroke-width="3" fill="none"/>
+            <text x="660" y="120" font-family="Fraunces, Georgia, serif" font-size="13" fill="#9e2a2b" font-style="italic" font-weight="500">Realistic S-curve</text>
+
+            <!-- J-curve -->
+            <path d="M 120 280 Q 200 300 280 290 T 440 200 T 760 90" stroke="#b68b3f" stroke-width="3" fill="none" stroke-dasharray="6 3"/>
+            <text x="200" y="270" font-family="Fraunces, Georgia, serif" font-size="12" fill="#b68b3f" font-style="italic">J-curve (productivity dip)</text>
+          </svg>
+          <div class="chart-source">Source: standard benefits-realisation curves · Prosci adoption research · synthesised</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Sponsor-management discipline</div>
+          <div class="takeaway-text">Set sponsor expectations against the curve, not the cliff. Build the curve assumption into the business case at G1. Mid-curve quarters are the most vulnerable politically — schedule benefits reviews to bracket the dip, not coincide with it.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.3 Business case · E -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">A Director-grade business case has eight sections — most rejected cases are missing three of them.</h3>
+          <p class="lede">Format discipline IS the seniority signal. A governance forum approves a structure first, an idea second.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <table class="ctable">
+          <thead><tr><th style="width:60px;">#</th><th>Section</th><th>What it answers</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01</td><td>Executive summary</td><td>What, why, ask, expected return — one page max.</td></tr>
+            <tr><td class="col-key">02</td><td>Strategic alignment</td><td>Ladders to which AZ strategic anchor · which data strategy pillar.</td></tr>
+            <tr><td class="col-key">03</td><td>Benefits hypothesis</td><td>Quantified per KPI family · with assumptions · with sensitivity range.</td></tr>
+            <tr><td class="col-key">04</td><td>Investment ask</td><td>CapEx · OpEx · run-rate · breakdown by quarter.</td></tr>
+            <tr><td class="col-key">05</td><td>Delivery approach</td><td>Stage plan · resourcing · vendor strategy · key dependencies.</td></tr>
+            <tr><td class="col-key">06</td><td>Risk &amp; compliance posture</td><td>Top 5 risks · mitigation · GxP / privacy / security stance.</td></tr>
+            <tr><td class="col-key">07</td><td>Governance &amp; sponsor</td><td>Sponsor · steering · stage-gate forum · escalation path.</td></tr>
+            <tr><td class="col-key">08</td><td>Decision asks</td><td>Approval to proceed · investment decision · sponsor commitment.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The seniority test</div>
+          <div class="takeaway-text">Most rejected business cases skip sections 02, 06, or 07. They are interpreted as "smart idea, no governance imagination." A Director who arrives with all eight signals operating maturity before the idea is even discussed.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.4 NEW EXPERT · Finance partnership rhythm -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Finance is the second sponsor — and a Director who treats Finance as a quarterly audience loses Finance as an ally.</h3>
+          <p class="lede">The cadence with Finance shapes the year-one credibility envelope more than the cadence with any internal partner except the direct sponsor.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-4">
+          <div class="ncard"><div class="ncard-num">CADENCE 01</div><div class="ncard-title">Monthly · variance review</div><div class="ncard-body">Budget vs actual · per programme · variance explanation · forward forecast. Owner: Director.</div></div>
+          <div class="ncard"><div class="ncard-num">CADENCE 02</div><div class="ncard-title">Quarterly · benefits true-up</div><div class="ncard-body">Tracked benefits vs G1 baseline · attribution evidence · re-forecast. Co-signed with Finance.</div></div>
+          <div class="ncard"><div class="ncard-num">CADENCE 03</div><div class="ncard-title">Annual · planning cycle</div><div class="ncard-body">Portfolio investment ask · benefits committed · run-rate commitments. Finance partnership rhythm.</div></div>
+          <div class="ncard"><div class="ncard-num">CADENCE 04</div><div class="ncard-title">Event-driven · re-baselining</div><div class="ncard-body">Material variance · scope change · sponsor change · all trigger a formal Finance review.</div></div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"Finance partners want predictability more than performance. Surprise them on the upside; never on the downside; always on the same day of the month."</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Week-one move</div>
+          <div class="takeaway-text">Identify your assigned Finance partner in week one. Schedule the monthly cadence on a fixed day. Co-design the variance template before the first month closes — the joint template IS the partnership.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE V — Cross-pillar -->
+<section class="module" id="m5" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · V<span class="roman">V</span></div>
+      <div>
+        <h2 class="module-title">The cross-pillar interface — Change + Automation.</h2>
+        <p class="module-lede">The JD names the two peer pillars explicitly. The Director who treats them as enablers, not as interfaces, leaves benefit on the table.</p>
+        <div class="level-toggle" data-module="m5">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 5.1 Change · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Data Change Management — ADKAR / Prosci is the JD's named framework.</h3>
+          <p class="lede">A Director who can talk ADKAR fluently treats the Change pillar as a peer; one who cannot treats it as an afterthought.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-5">
+          <div class="ncard"><div class="ncard-num">A</div><div class="ncard-title">Awareness</div><div class="ncard-body">Why is this change happening? Sponsor messaging.</div></div>
+          <div class="ncard"><div class="ncard-num">D</div><div class="ncard-title">Desire</div><div class="ncard-body">Why should I support it? WIIFM clear.</div></div>
+          <div class="ncard"><div class="ncard-num">K</div><div class="ncard-title">Knowledge</div><div class="ncard-body">How do I change? Training, enablement.</div></div>
+          <div class="ncard"><div class="ncard-num">A</div><div class="ncard-title">Ability</div><div class="ncard-body">Can I do it? Practice, support, tools.</div></div>
+          <div class="ncard"><div class="ncard-num">R</div><div class="ncard-title">Reinforcement</div><div class="ncard-body">Will it stick? Recognition, metrics, embedment.</div></div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway-label">The cross-pillar handshake</div>
+          <div class="takeaway-text">For every programme, ask the Change peer: "Where are we in ADKAR for each stakeholder cluster?" That single question converts Change from a support function into a delivery partner.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5.2 Automation · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Data Automation — three integration points the Director must engineer into delivery plans, not bolt on later.</h3>
+          <p class="lede">Policy-as-code · continuous assurance · DataOps. Each one is a specific delivery pattern, not a slogan.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="three-col">
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 01</div><div class="tc-head-title">Policy-as-code</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text">Compliance rules expressed as machine-checkable code · run continuously against data assets · violations flagged before they reach production.</p>
+              <p class="tc-body-text"><em>Director job: get policy-as-code into the delivery plan at G1, not at G3.</em></p>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 02</div><div class="tc-head-title">Continuous assurance</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text">Quality, lineage, drift monitored continuously rather than at sample audit · monitoring dashboards co-owned by Automation and the programme.</p>
+              <p class="tc-body-text"><em>Director job: define the assurance KPIs at G1 alongside benefits KPIs.</em></p>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 03</div><div class="tc-head-title">DataOps</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text">CI/CD applied to data pipelines · version control · test automation · environment promotion · roll-back discipline.</p>
+              <p class="tc-body-text"><em>Director job: insist on DataOps maturity in the platform delivery plan — refuse delivery without it.</em></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5.3 NEW EXPERT · The integration playbook -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Six integration moves that turn Change and Automation from peer pillars into delivery accelerators.</h3>
+          <p class="lede">Each move costs almost nothing operationally; together they compound into a different class of delivery posture.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">MOVE 01 · CHANGE</div>
+            <div class="ncard-title">ADKAR readiness as G2 gate criterion</div>
+            <div class="ncard-body">Make pilot → MVP transition contingent on Awareness + Desire signals being green. Forces Change in at G1, not G4.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">MOVE 02 · CHANGE</div>
+            <div class="ncard-title">Joint sponsor briefing pack</div>
+            <div class="ncard-body">Project Leadership + Change co-author sponsor updates — one voice, two perspectives. Stops contradictory sponsor messages.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">MOVE 03 · CHANGE</div>
+            <div class="ncard-title">Post-launch reinforcement plan</div>
+            <div class="ncard-body">90-day reinforcement schedule at go-live · co-owned · benefits-tracked. Prevents J-curve from becoming permanent dip.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">MOVE 04 · AUTOMATION</div>
+            <div class="ncard-title">Compliance controls as code at G1</div>
+            <div class="ncard-body">Policy-as-code in scope from business case onward. Re-test at every gate · evidence stored in audit pack.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">MOVE 05 · AUTOMATION</div>
+            <div class="ncard-title">Steady-state monitoring before G4</div>
+            <div class="ncard-body">Continuous assurance dashboards in production before enterprise-scale go-live — not bolted on post-go-live.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">MOVE 06 · BOTH</div>
+            <div class="ncard-title">Joint quarterly review</div>
+            <div class="ncard-body">Project Leadership + Change + Automation review portfolio quarterly. One agenda. Surfaces cross-pillar trade-offs early.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The seam IS the value</div>
+          <div class="takeaway-text">Change and Automation are not delivery accessories — they are the multipliers that turn the same delivery plan into 2x adoption and 3x audit confidence. A Director who designs for the seam is the Director the function will fund first next year.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VI — AZ enterprise data intel -->
+<section class="module" id="m6" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VI<span class="roman">VI</span></div>
+      <div>
+        <h2 class="module-title">AstraZeneca enterprise data intelligence.</h2>
+        <p class="module-lede">The org, the platforms, the recent plays — the inside view you walk in carrying.</p>
+        <div class="level-toggle" data-module="m6">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 6.1 Posture · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">AZ's data posture in 2026 — four anchors that any enterprise data portfolio ladders to.</h3>
+          <p class="lede">Every business case should connect to at least one of these explicitly.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-4">
+          <div class="ncard">
+            <div class="ncard-num">ANCHOR 01</div>
+            <div class="ncard-title">$80B revenue by 2030</div>
+            <div class="ncard-body">Data + AI infrastructure required to support the revenue ambition · acceleration via productivity + decision quality.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">ANCHOR 02</div>
+            <div class="ncard-title">Enterprise AI under Hoots</div>
+            <div class="ncard-body">#EAI mandate as platform · Microsoft Fabric adoption · cross-functional consolidation.</div>
+          </div>
+          <div class="ncard navy">
+            <div class="ncard-num">ANCHOR 03</div>
+            <div class="ncard-title">R&amp;D productivity</div>
+            <div class="ncard-body">Data assets supporting pipeline acceleration · trial efficiency · evidence generation.</div>
+          </div>
+          <div class="ncard teal">
+            <div class="ncard-num">ANCHOR 04</div>
+            <div class="ncard-title">Compliance + privacy by design</div>
+            <div class="ncard-body">EU AI Act · EHDS · GDPR · GxP. Compliance becomes the moat, not the friction.</div>
+          </div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway-label">The elevator line</div>
+          <div class="takeaway-text">"AZ's 2026 data agenda is enterprise platform consolidation + R&amp;D productivity + compliance-by-design — all in service of the $80B revenue ambition. My role delivers programmes that ladder to all four."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6.2 Insider · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three insider assets — onboarding compression is the single biggest internal-candidacy lever.</h3>
+          <p class="lede">External candidates spend 90 days getting the context you walk in with. That delta is real and you should price it.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-3">
+          <div class="ncard" style="background: var(--gold-bg); border-color: var(--gold);">
+            <div class="ncard-num">ASSET 01</div>
+            <div class="ncard-title">AZ DS&amp;AI context</div>
+            <div class="ncard-body">2 years inside DSAI Business Planning &amp; Operations · standardised PM + portfolio practices · operational fluency with the function's rhythms.</div>
+          </div>
+          <div class="ncard" style="background: var(--gold-bg); border-color: var(--gold);">
+            <div class="ncard-num">ASSET 02</div>
+            <div class="ncard-title">N+2 visibility</div>
+            <div class="ncard-body">EAI presentations at N+2 leadership level · existing sponsor familiarity · known quantity to senior governance.</div>
+          </div>
+          <div class="ncard" style="background: var(--gold-bg); border-color: var(--gold);">
+            <div class="ncard-num">ASSET 03</div>
+            <div class="ncard-title">Barcelona hub network</div>
+            <div class="ncard-body">DSAI commercial colleagues (Vincenzo, Erik) · A.Catalyst Spain familiarity · cross-functional collaborators already established.</div>
+          </div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway-label">The framing</div>
+          <div class="takeaway-text">"Month one I am operational on governance and stakeholder rhythm; external hire month one is still building their map. The compression is the cost saved — quietly the largest variable in year-one return."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6.3 NEW EXPERT · The enterprise data org -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Six C-level reference points to name fluently — knowing the org IS the credibility test.</h3>
+          <p class="lede">An internal Director who cannot place the org map fluently signals lower-than-expected awareness; one who can places the candidacy above paper-strong externals.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <table class="ctable">
+          <thead><tr><th style="width: 22%;">Role</th><th style="width: 22%;">Name</th><th>Why they matter to this role</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">CDTO</td><td class="col-az">Cindy Hoots</td><td>Ultimate sponsor of the Enterprise Data Programmes mandate. Microsoft Fabric · cross-functional AI consolidation.</td></tr>
+            <tr><td class="col-key">CEO</td><td class="col-az">Pascal Soriot</td><td>$80B revenue · data + AI as moat infrastructure · Cambridge anchoring.</td></tr>
+            <tr><td class="col-key">EVP Oncology R&amp;D</td><td class="col-az">Susan Galbraith</td><td>Primary R&amp;D data consumer · AI-discovered targets · multimodal endpoints.</td></tr>
+            <tr><td class="col-key">CFO</td><td class="col-az">Aradhana Sarin</td><td>Finance partnership at portfolio level · benefits tracking ultimate beneficiary.</td></tr>
+            <tr><td class="col-key">Chief Data Officer / equivalent</td><td class="col-az">(within CDTO org)</td><td>Direct N+1 likely · or N+2 depending on org line · primary sponsor for portfolio decisions.</td></tr>
+            <tr><td class="col-key">Senior Director, Project Leadership</td><td class="col-az">(direct manager · JD-named)</td><td>Day-to-day reporting · portfolio prioritisation · cross-platform trade-offs.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The C-level talking point</div>
+          <div class="takeaway-text">In the C-level round, ladder concrete portfolio examples to specific anchors: an R&amp;D data programme connects to Galbraith's pipeline acceleration; a commercial AI programme connects to Hoots' #EAI; both connect to Soriot's $80B. Specific naming IS the seniority signal.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VII — Interview mechanics -->
+<section class="module" id="m7" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VII<span class="roman">VII</span></div>
+      <div>
+        <h2 class="module-title">Interview mechanics.</h2>
+        <p class="module-lede">Five rounds · five different conversations · five distinct postures. The room is a system that can be prepared for.</p>
+        <div class="level-toggle" data-module="m7">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 7.1 Rounds · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Five rounds — each tests a different delivery competency cluster.</h3>
+          <p class="lede">Posture mismatched to round is the most common preparation failure.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <table class="ctable">
+          <thead><tr><th style="width:90px;">Round</th><th>Who</th><th>What's tested</th><th>Your posture</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01 · HR</td><td class="muted">Recruiter</td><td>Motivation · fit · band · Barcelona angle (raise here)</td><td class="col-az">Concise · raise geography openly</td></tr>
+            <tr><td class="col-key">02 · Hiring manager</td><td class="muted">Senior Director</td><td>Delivery competence · governance discipline · style fit</td><td class="col-az">Operating instincts · 2-3 STARs with $15M / 20+ / 7-country</td></tr>
+            <tr><td class="col-key">03 · Panel</td><td class="muted">Peer pillars + domain leads</td><td>Cross-functional · stakeholder mapping</td><td class="col-az">Translates across audiences · cross-pillar fluency (Module V)</td></tr>
+            <tr><td class="col-key">04 · C-level</td><td class="muted">N+2 / N+3</td><td>Strategic vision · benefits hypothesis · narrative</td><td class="col-az">Conviction · brevity · ladder to AZ anchors</td></tr>
+            <tr><td class="col-key">05 · Informal</td><td class="muted">Future peers</td><td>Cultural feel · operating tempo · long-game fit</td><td class="col-az">Authentic · warm · close on questions</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7.2 STAR for delivery · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">STAR for delivery — the variants that matter for this role.</h3>
+          <p class="lede">Pre-stage three STARs from the CV. Each ~2 minutes. Land on Reflection — the seniority signal.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">STAR 01 · DELIVERY AT SCALE</div>
+            <div class="ncard-title">$15M+ savings · OE Director</div>
+            <div class="ncard-body"><strong>S</strong>: IQVIA needed to right-size operational cost base globally. <strong>T</strong>: I owned the Org Deep Dive methodology delivery across global ops. <strong>A</strong>: Designed and ran the methodology, governance, stakeholder map, and execution sequence. <strong>R</strong>: $15M+ in identified and tracked savings · global C-level visibility. <strong>R</strong>: The discipline carries — for AZ, the same methodology applies to enterprise data portfolio sizing.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">STAR 02 · MATRIX LEAD</div>
+            <div class="ncard-title">7-country ACOE Europe</div>
+            <div class="ncard-body"><strong>S</strong>: IQVIA had inconsistent analytics delivery across European markets. <strong>T</strong>: I owned ACOE Europe build-out · 20+ consultants across 7 countries. <strong>A</strong>: Standardised methodology, KPIs, governance, and recruiting. Built a cost-per-analytic KPI that improved &gt;50%. <strong>R</strong>: Unified European delivery. <strong>R</strong>: Multi-geography matrix is the AZ Enterprise Data Programmes operating reality — I have already lived it.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">STAR 03 · AI DELIVERY</div>
+            <div class="ncard-title">Site ID AI · US patent</div>
+            <div class="ncard-body"><strong>S</strong>: Trial site identification was expert-judgment-bound, slow, and inconsistent. <strong>T</strong>: I co-led the AI/ML platform productionisation. <strong>A</strong>: Worked across data science, ops, compliance, IT and clients to deliver a production system. <strong>R</strong>: US patent · production deployment · client adoption. <strong>R</strong>: AI delivery against compliance + governance bars is exactly the AZ EAI ask.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7.3 Trap questions · E -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Ten trap questions specific to this role — each has a prepared frame.</h3>
+          <p class="lede">The traps are predictable. Knowing them removes the surprise — and the over-reaction.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <table class="ctable">
+          <thead><tr><th style="width:50px;">#</th><th>Question</th><th>Your frame</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01</td><td><em>"Walk me through your CV."</em></td><td>Two minutes. The five-era arc (prologue §1). Land on AZ.</td></tr>
+            <tr><td class="col-key">02</td><td><em>"Why this role over your current one?"</em></td><td>Forward-facing growth. Enterprise scale > function-scale.</td></tr>
+            <tr><td class="col-key">03</td><td><em>"You're in Barcelona — how will Cambridge work?"</em></td><td>Module IV §6 frame: hub-based, monthly Cambridge cadence. Confident, not defensive.</td></tr>
+            <tr><td class="col-key">04</td><td><em>"Tell me about a delivery failure."</em></td><td>One prepared STAR · clean reflection. Failure → learning → application.</td></tr>
+            <tr><td class="col-key">05</td><td><em>"Why you over external?"</em></td><td>Three insider assets · onboarding compression as quantifiable cost saved.</td></tr>
+            <tr><td class="col-key">06</td><td><em>"How do you handle a slipping programme?"</em></td><td>Re-baseline discipline. Variance analysis · recovery plan · sponsor escalation rhythm.</td></tr>
+            <tr><td class="col-key">07</td><td><em>"How do you balance governance burden with delivery speed?"</em></td><td>Stage-appropriate governance. G0 = light · G3 = full. Audit-ready does not mean audit-heavy.</td></tr>
+            <tr><td class="col-key">08</td><td><em>"GxP programme experience?"</em></td><td>Honest: limited direct GxP ownership, deep adjacent (Law foundation + IQVIA compliance work + AZ context). Open to learn fast.</td></tr>
+            <tr><td class="col-key">09</td><td><em>"How would you partner with the Change pillar?"</em></td><td>Six integration moves (Module V §3). ADKAR fluently.</td></tr>
+            <tr><td class="col-key">10</td><td><em>"Where will enterprise data be in 5 years?"</em></td><td>Federated mesh · compliance-as-moat · benefits-led culture · Director's role as integrator.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7.4 NEW EXPERT · Offer negotiation -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">After "you're hired" the second negotiation begins — and the Barcelona base is a lever, not a request.</h3>
+          <p class="lede">For an internal-candidacy + geography-specific situation, the offer phase has six levers that compound differently than for a typical external Director.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-2">
+          <div class="ncard">
+            <div class="ncard-num">LEVER 01 · GEOGRAPHY (LEAD WITH THIS)</div>
+            <div class="ncard-title">Barcelona base + Cambridge cadence in writing</div>
+            <div class="ncard-body">Get the operating model documented in the offer. "Barcelona primary · monthly Cambridge week" — explicit, not implied. Without it, the policy reverts unpredictably.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 02 · COMP</div>
+            <div class="ncard-title">Total comp, not base</div>
+            <div class="ncard-body">Base · STI · LTI · pension · travel allowance (this is real for Barcelona-Cambridge cadence). Sign-on for unvested if applicable.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 03 · SCOPE</div>
+            <div class="ncard-title">Portfolio-list in writing</div>
+            <div class="ncard-body">Which programmes you own at day-1 · what is explicitly excluded · what you inherit vs what you build.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 04 · SPONSOR</div>
+            <div class="ncard-title">Senior Director confirmed</div>
+            <div class="ncard-body">Confirm by name · schedule 30-day check-in before signing · sponsor turnover is the biggest year-one delivery risk.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 05 · AUTHORITY</div>
+            <div class="ncard-title">Decision delegation thresholds</div>
+            <div class="ncard-body">Approval limits · vendor sign-off authority · budget control. Without these the role becomes meeting-attendance.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 06 · TEAM</div>
+            <div class="ncard-title">Year-1 headcount commitment</div>
+            <div class="ncard-body">Get the headcount in writing · two reports minimum for an EU + global mandate. Promised verbally → forgotten by Q2.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Internal-candidate nuance</div>
+          <div class="takeaway-text">As internal + Barcelona-based, comp ranges are more constrained but scope/geography/authority levers are more open. Trade hard on lever 01 (geography in writing) — it is the lever the function has most flexibility on, and the one with highest year-one value to you.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VIII — Strategic synthesis -->
+<section class="module" id="m8" data-active-level="foundations">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VIII<span class="roman">VIII</span></div>
+      <div>
+        <h2 class="module-title">Strategic synthesis.</h2>
+        <p class="module-lede">The single page · the structural lines · the risk register. The whole dossier compressed.</p>
+        <div class="level-toggle" data-module="m8">
+          <button class="level-btn active" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 8.1 Single page · F -->
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The single page — everything compressed to one frame.</h3>
+          <p class="lede">"Why you" in 30 seconds. Memorise it.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text">I bring three things AZ structurally needs: audit-ready delivery discipline built into my training, a $15M+ scaled track record across 7 countries, and the insider's onboarding compression from two years inside DSAI — all from a Barcelona base that fits the existing operating model.</div>
+        </div>
+
+        <div class="three-col">
+          <div class="pillar-card">
+            <div class="pillar-card-head"><div class="pillar-card-tag">PILLAR 01</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Audit-ready by training</h4>
+              <p class="pillar-card-claim">Compliance-by-design is the starting posture, not a retrofit.</p>
+              <div class="pillar-section-label">Evidence</div>
+              <ul class="pillar-evidence">
+                <li>Law degree + Garrigues</li>
+                <li>Advanced Lean certified</li>
+                <li>PMBOK study tool built</li>
+                <li>PMI Madrid Chapter active</li>
+              </ul>
+              <div class="pillar-bet">Day-90 audit pack live for one programme</div>
+            </div>
+          </div>
+          <div class="pillar-card gold">
+            <div class="pillar-card-head"><div class="pillar-card-tag">PILLAR 02</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Scaled delivery track record</h4>
+              <p class="pillar-card-claim">$15M+ savings · 7 countries · US patent. Verifiable.</p>
+              <div class="pillar-section-label">Evidence</div>
+              <ul class="pillar-evidence">
+                <li>IQVIA OE Director outcomes</li>
+                <li>20+ team across 7 countries</li>
+                <li>US patent on AI at scale</li>
+                <li>€90M P&amp;L L'Oréal</li>
+              </ul>
+              <div class="pillar-bet">First portfolio re-baseline by day 60</div>
+            </div>
+          </div>
+          <div class="pillar-card navy">
+            <div class="pillar-card-head"><div class="pillar-card-tag">PILLAR 03</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Insider compression · Barcelona-based</h4>
+              <p class="pillar-card-claim">Operational on day 1 · the cost saved is real.</p>
+              <div class="pillar-section-label">Evidence</div>
+              <ul class="pillar-evidence">
+                <li>2 years AZ DS&amp;AI · PM + portfolio standardised</li>
+                <li>N+2 leadership visibility</li>
+                <li>Barcelona hub network active</li>
+                <li>Cambridge cadence operationally feasible</li>
+              </ul>
+              <div class="pillar-bet">First Senior Director review aced by day 30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8.2 Closing line · E -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The closing line — last 30 seconds of every C-level round.</h3>
+          <p class="lede">Practise until natural · not rehearsed.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="quote-block" style="margin: 32px 0 24px;">
+          <div class="quote-bar"></div>
+          <div class="quote-text">My candidacy is one discipline · three outcomes · one operating model.</div>
+        </div>
+        <div style="margin-left: 30px;">
+          <p style="font-family: var(--font-head); font-size: 22px; color: var(--gold); margin-bottom: 12px;">Audit-ready portfolio delivery, every artefact in the room before it's asked for.</p>
+          <p style="font-family: var(--font-head); font-size: 18px; font-style: italic; color: var(--ink-soft); margin-bottom: 12px;">Benefits-led from G1 through steady state · with Finance as second sponsor.</p>
+          <p style="font-family: var(--font-head); font-size: 18px; font-style: italic; color: var(--ink-soft);">Barcelona-based · Cambridge-engaged · operational from day one.</p>
+        </div>
+
+        <div class="takeaway" style="margin-top: 36px;">
+          <div class="takeaway-label">Deployment note</div>
+          <div class="takeaway-text">Use only in C-level rounds, only at the end, only after credibility is established. Mistimed it sounds rehearsed; well-timed it sounds inevitable.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8.3 Risk register · E -->
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Five risks that could break the year-one plan — and the 30/60/90/180 cadence that surfaces them early.</h3>
+          <p class="lede">A Director who names risks unprompted in C-level rounds reads as senior. Most candidates project zero risk; few executives believe them.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width: 26%;">Risk</th><th style="width: 12%;">Likelihood</th><th style="width: 12%;">Impact</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">Senior Director turnover</td><td class="col-az">Medium</td><td class="col-az">High</td><td>Diversify sponsor base in first 60 days · build standing support across peer pillars.</td></tr>
+            <tr><td class="col-key">Barcelona–Cambridge friction in practice</td><td class="col-az">Medium</td><td class="col-az">Medium</td><td>Lock operating model in offer letter · over-perform in first 90 days to neutralise scrutiny.</td></tr>
+            <tr><td class="col-key">Portfolio inherits hidden non-compliance</td><td class="col-az">Low</td><td class="col-az">High</td><td>Day-30 audit-pack stocktake. Surface gaps proactively · build remediation into the plan, not hide them.</td></tr>
+            <tr><td class="col-key">Cross-pillar tension (Change / Automation)</td><td class="col-az">Medium</td><td class="col-az">Medium</td><td>Six integration moves (Module V §3) embedded in first portfolio cycle.</td></tr>
+            <tr><td class="col-key">Internal-candidate "known-quantity" bias</td><td class="col-az">Low</td><td class="col-az">Medium</td><td>Lead with quantified delivery numbers in every round · refuse to be reduced to "good operator."</td></tr>
+          </tbody>
+        </table>
+
+        <div class="card-grid cols-4">
+          <div class="ncard"><div class="ncard-num">DAY 30</div><div class="ncard-title">Map the room</div><div class="ncard-body">Six escalation paths confirmed · sponsor rhythm locked · portfolio inherited audited.</div></div>
+          <div class="ncard"><div class="ncard-num">DAY 60</div><div class="ncard-title">First re-baseline</div><div class="ncard-body">One programme re-baselined with cleaner benefits hypothesis. Quick win delivered.</div></div>
+          <div class="ncard"><div class="ncard-num">DAY 90</div><div class="ncard-title">Audit pack live</div><div class="ncard-body">Ten-artefact pack populated for at least one programme. Reference instance for portfolio adoption.</div></div>
+          <div class="ncard"><div class="ncard-num">DAY 180</div><div class="ncard-title">Portfolio coherence</div><div class="ncard-body">Cross-pillar integration moves embedded. First Finance true-up successful. Sponsor formal review passed.</div></div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">A Director without a risk register is a candidate; a Director with one is a leader. The risk register IS the deliverable — not the absence of risk.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-rule"></div>
+    <h3 class="footer-title" style="color: white;">The dossier compressed to one line.</h3>
+    <p style="font-family: var(--font-head); font-size: 30px; font-style: italic; line-height: 1.4; color: white; max-width: 1000px; margin: 32px 0 16px;">"I arrive audit-ready, benefits-led, and operational from day one.</p>
+    <p style="font-family: var(--font-head); font-size: 26px; line-height: 1.4; color: #e8c470; max-width: 1000px; margin-bottom: 40px;">Barcelona-based · Cambridge-engaged · $15M+ scaled · the JD reads from the CV."</p>
+
+    <div style="height: 1px; background: rgba(255,255,255,0.15); margin: 40px 0 24px;"></div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: end;">
+      <div>
+        <div class="footer-meta">Briefing dossier · v1.0 · June 2026 · Two-tier</div>
+        <div class="footer-meta" style="margin-top: 6px;">Prepared for Joaquín · AstraZeneca · Director, Data Project Leadership</div>
+      </div>
+      <div style="text-align: right;">
+        <div class="footer-meta">Toggle Foundations / Expert per module.</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- TOGGLE JS -->
+<script>
+  document.querySelectorAll('.level-toggle').forEach(function (toggle) {
+    var moduleId = toggle.getAttribute('data-module');
+    var moduleEl = document.getElementById(moduleId);
+    if (!moduleEl) return;
+    toggle.querySelectorAll('.level-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var lvl = btn.getAttribute('data-level');
+        toggle.querySelectorAll('.level-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        moduleEl.setAttribute('data-active-level', lvl);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

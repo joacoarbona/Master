@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wayra Portfolio Explorer — Telefónica CVC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2EEE4;
+    --paper-2:#EAE4D6;
+    --ink:#16181C;
+    --ink-soft:#4A4E57;
+    --line:#D7CFBE;
+    --blue:#0A33D6;
+    --blue-deep:#06205C;
+    --violet:#6B2BD6;
+    --green:#127A4B;
+    --amber:#B5650E;
+    --teal:#0E6E78;
+    --card:#FBF8F1;
+    --shadow:0 1px 0 rgba(20,24,28,.04),0 18px 40px -28px rgba(6,32,92,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Archivo',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+    background-image:
+      radial-gradient(circle at 12% -10%,rgba(10,51,214,.06),transparent 40%),
+      radial-gradient(circle at 100% 0%,rgba(107,43,214,.05),transparent 45%);
+    min-height:100vh;
+  }
+  /* subtle grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.4;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+    mix-blend-mode:multiply;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+
+  /* ---------- HEADER ---------- */
+  header.top{padding:38px 0 10px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:'Archivo Narrow';text-transform:uppercase;letter-spacing:.28em;font-size:12px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:10px}
+  .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px rgba(10,51,214,.15)}
+  h1{font-family:'Fraunces';font-weight:900;font-size:clamp(38px,6vw,72px);line-height:.96;letter-spacing:-.02em;margin:14px 0 8px}
+  h1 em{font-style:italic;font-weight:400;color:var(--blue-deep)}
+  .sub{max-width:680px;color:var(--ink-soft);font-size:16px}
+  .sub b{color:var(--ink);font-weight:600}
+
+  /* KPI strip */
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin:30px 0 6px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+  .kpi{padding:18px 16px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:none}
+  .kpi .n{font-family:'Fraunces';font-weight:700;font-size:30px;line-height:1;letter-spacing:-.02em}
+  .kpi .l{font-family:'Archivo Narrow';text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--ink-soft);margin-top:7px;font-weight:600}
+  @media(max-width:880px){.kpis{grid-template-columns:repeat(3,1fr)}.kpi:nth-child(3){border-right:none}.kpi:nth-child(1),.kpi:nth-child(2),.kpi:nth-child(3){border-bottom:1px solid var(--line)}}
+  @media(max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---------- CONTROLS ---------- */
+  .controls{position:sticky;top:0;z-index:30;background:rgba(242,238,228,.92);backdrop-filter:blur(10px);padding:18px 0 16px;border-bottom:1px solid var(--line);margin-top:4px}
+  .searchbar{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--ink);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+  .searchbar svg{flex:none}
+  .searchbar input{border:none;background:none;outline:none;font-family:'Archivo';font-size:17px;width:100%;color:var(--ink)}
+  .searchbar input::placeholder{color:#8C8576}
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+  select,.btn{
+    font-family:'Archivo Narrow';font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;
+    background:var(--paper-2);border:1px solid var(--line);color:var(--ink);
+    padding:9px 14px;border-radius:999px;cursor:pointer;transition:.15s;
+  }
+  select:hover,.btn:hover{border-color:var(--ink)}
+  select{appearance:none;padding-right:30px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%2316181C' stroke-width='2'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+  .btn-reset{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .meta{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .count{font-family:'Fraunces';font-style:italic;font-size:17px;color:var(--ink-soft)}
+  .count b{font-style:normal;font-weight:700;color:var(--ink)}
+
+  /* ---------- GRID ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;padding:26px 0 60px}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 20px 18px;
+    box-shadow:var(--shadow);cursor:pointer;position:relative;overflow:hidden;
+    transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s,border-color .18s;
+    opacity:0;transform:translateY(14px);animation:rise .5s forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:none}}
+  .card:hover{transform:translateY(-4px);box-shadow:0 28px 50px -26px rgba(6,32,92,.55);border-color:var(--ink)}
+  .card .topline{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .card h3{font-family:'Fraunces';font-weight:700;font-size:23px;letter-spacing:-.01em;line-height:1.05}
+  .pill{font-family:'Archivo Narrow';font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;padding:4px 9px;border-radius:999px;white-space:nowrap;border:1px solid}
+  .st-Active{color:var(--blue);border-color:rgba(10,51,214,.35);background:rgba(10,51,214,.07)}
+  .st-Unicorn{color:var(--violet);border-color:rgba(107,43,214,.4);background:rgba(107,43,214,.08)}
+  .st-IPO{color:var(--green);border-color:rgba(18,122,75,.4);background:rgba(18,122,75,.08)}
+  .st-Acquired{color:var(--amber);border-color:rgba(181,101,14,.4);background:rgba(181,101,14,.09)}
+  .st-Exit{color:var(--teal);border-color:rgba(14,110,120,.4);background:rgba(14,110,120,.09)}
+  .vp{color:var(--ink-soft);font-size:14.5px;margin:12px 0 16px;min-height:42px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tag{font-family:'Archivo Narrow';font-weight:600;font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:var(--paper-2);color:var(--ink-soft);border:1px solid var(--line)}
+  .cardfoot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px;font-size:12.5px;color:var(--ink-soft)}
+  .cardfoot .loc{font-weight:600;color:var(--ink)}
+  .cardfoot .yr{font-family:'Archivo Narrow';letter-spacing:.06em}
+  .accent{position:absolute;top:0;left:0;width:4px;height:100%;background:var(--blue)}
+  .card.s-Unicorn .accent{background:var(--violet)}
+  .card.s-IPO .accent{background:var(--green)}
+  .card.s-Acquired .accent{background:var(--amber)}
+  .card.s-Exit .accent{background:var(--teal)}
+  .infochip{display:inline-flex;align-items:center;gap:5px;font-family:'Archivo Narrow';font-weight:700;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid}
+  .infochip .ld{width:7px;height:7px;border-radius:50%}
+  .info-A{color:var(--green);border-color:rgba(18,122,75,.35);background:rgba(18,122,75,.06)}
+  .info-A .ld{background:var(--green)}
+  .info-B{color:var(--blue);border-color:rgba(10,51,214,.3);background:rgba(10,51,214,.05)}
+  .info-B .ld{background:var(--blue)}
+  .info-C{color:var(--amber);border-color:rgba(181,101,14,.35);background:rgba(181,101,14,.07)}
+  .info-C .ld{background:var(--amber)}
+
+  .empty{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--ink-soft)}
+  .empty h3{font-family:'Fraunces';font-size:26px;color:var(--ink);margin-bottom:8px}
+
+  /* ---------- MODAL ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(6,32,92,.32);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .overlay.open{display:flex;animation:fade .2s}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{background:var(--card);border:1px solid var(--ink);border-radius:18px;max-width:560px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 40px 80px -20px rgba(6,32,92,.6);animation:pop .25s cubic-bezier(.2,.8,.3,1)}
+  @keyframes pop{from{transform:translateY(20px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+  .modal .mhead{padding:26px 28px 18px;border-bottom:1px solid var(--line);position:relative}
+  .modal h2{font-family:'Fraunces';font-weight:900;font-size:34px;letter-spacing:-.02em;line-height:1;padding-right:40px}
+  .closeb{position:absolute;top:22px;right:22px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--paper-2);cursor:pointer;font-size:18px;line-height:1;color:var(--ink)}
+  .closeb:hover{background:var(--ink);color:var(--paper)}
+  .mbody{padding:22px 28px 28px}
+  .mrow{display:flex;gap:14px;padding:12px 0;border-bottom:1px dashed var(--line)}
+  .mrow:last-child{border-bottom:none}
+  .mrow .k{font-family:'Archivo Narrow';text-transform:uppercase;letter-spacing:.1em;font-size:11px;font-weight:700;color:var(--blue);width:120px;flex:none;padding-top:2px}
+  .mrow .v{font-size:15px;color:var(--ink)}
+  .mrow .v small{color:var(--ink-soft)}
+
+  /* ---------- FOOTER ---------- */
+  footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--ink-soft);font-size:13.5px}
+  footer h4{font-family:'Archivo Narrow';text-transform:uppercase;letter-spacing:.16em;font-size:12px;color:var(--ink);margin-bottom:10px;font-weight:700}
+  footer p{max-width:760px;margin-bottom:10px}
+  footer a{color:var(--blue)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+  .legend .pill{cursor:default}
+  .note{background:var(--paper-2);border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:8px;padding:14px 16px;margin-top:16px;font-size:13px;color:var(--ink-soft)}
+
+  /* ---------- ANALYTICS ---------- */
+  .analytics{display:none;margin-top:22px;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden;box-shadow:var(--shadow)}
+  .analytics.open{display:block;animation:fade .25s}
+  .an-head{display:flex;justify-content:space-between;align-items:baseline;padding:18px 22px 4px}
+  .an-head h2{font-family:'Fraunces';font-weight:700;font-size:22px;letter-spacing:-.01em}
+  .an-head .scope{font-family:'Fraunces';font-style:italic;font-size:14px;color:var(--ink-soft)}
+  .an-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:0}
+  @media(max-width:820px){.an-grid{grid-template-columns:1fr}}
+  .an-col{padding:18px 22px 22px}
+  .an-col+.an-col{border-left:1px solid var(--line)}
+  @media(max-width:820px){.an-col+.an-col{border-left:none;border-top:1px solid var(--line)}}
+  .an-sub{font-family:'Archivo Narrow';text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:700;color:var(--blue);margin:14px 0 10px}
+  .an-sub:first-child{margin-top:0}
+  .bar-row{display:grid;grid-template-columns:118px 1fr 42px;align-items:center;gap:10px;margin-bottom:7px;font-size:13px}
+  .bar-row .lab{color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-track{height:14px;background:var(--paper-2);border-radius:7px;overflow:hidden;border:1px solid var(--line)}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),#3F62E8);border-radius:7px 0 0 7px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+  .bar-row .pct{text-align:right;font-family:'Archivo Narrow';font-weight:700;color:var(--ink-soft);font-size:12.5px}
+  /* outcome scorecard */
+  .score{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .score .box{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:var(--paper)}
+  .score .box .big{font-family:'Fraunces';font-weight:700;font-size:27px;line-height:1}
+  .score .box .cap{font-family:'Archivo Narrow';text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;color:var(--ink-soft);margin-top:5px;font-weight:600}
+  .box.b-out .big{color:var(--green)}
+  .box.b-uni .big{color:var(--violet)}
+  .donut-wrap{display:flex;align-items:center;gap:16px;margin:6px 0 12px}
+  .donut{flex:none}
+  .donut-leg{font-size:12.5px}
+  .donut-leg div{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+  .donut-leg .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .ticket{font-size:12.5px;color:var(--ink-soft);line-height:1.55;border-top:1px dashed var(--line);padding-top:10px;margin-top:6px}
+  .ticket b{color:var(--ink)}
+  .an-caveat{font-size:11.5px;color:var(--ink-soft);background:var(--paper-2);border-left:3px solid var(--amber);padding:9px 12px;border-radius:6px;margin-top:12px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow"><span class="dot"></span>Telefónica · Corporate Venture Capital · est. 2011</div>
+    <h1>Wayra <em>Portfolio</em> Explorer</h1>
+    <p class="sub">A searchable map of <b>Wayra's investments, acquisitions & exits</b> — by industry, value proposition, founders, country and lifecycle stage. This is a <b>curated, source-verified sample</b> of notable companies across all hubs, not the full 1,200+ portfolio.</p>
+
+    <div class="kpis">
+      <div class="kpi"><div class="n">1,200+</div><div class="l">Startups backed since 2011</div></div>
+      <div class="kpi"><div class="n">€245M+</div><div class="l">Wayra direct invested</div></div>
+      <div class="kpi"><div class="n">530+</div><div class="l">Active portfolio</div></div>
+      <div class="kpi"><div class="n">200+</div><div class="l">Collaborate w/ Telefónica</div></div>
+      <div class="kpi"><div class="n">7 / 9</div><div class="l">Hubs / countries</div></div>
+      <div class="kpi"><div class="n">4 · 3 · 50+</div><div class="l">Unicorns · IPOs · Exits</div></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="searchbar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16181C" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="Search company, founder, sector, country, value proposition…" autocomplete="off">
+    </div>
+    <div class="filters">
+      <select id="f-hub"></select>
+      <select id="f-country"></select>
+      <select id="f-sector"></select>
+      <select id="f-stage"></select>
+      <select id="f-status"></select>
+      <select id="f-info">
+        <option value="">Info level: All</option>
+        <option value="A">A — Full profile</option>
+        <option value="B">B — Partial</option>
+        <option value="C">C — Name + minimal</option>
+      </select>
+      <select id="f-sort">
+        <option value="name">Sort: A–Z</option>
+        <option value="year">Sort: Newest first</option>
+        <option value="status">Sort: Lifecycle</option>
+      </select>
+      <button class="btn btn-reset" id="reset">Reset</button>
+    </div>
+    <div class="meta">
+      <div class="count"><b id="count">0</b> companies shown</div>
+      <button class="btn" id="toggleAn">▤ Show % breakdown & returns</button>
+    </div>
+  </div>
+
+  <section class="analytics" id="analytics">
+    <div class="an-head">
+      <h2>Portfolio analytics</h2>
+      <span class="scope" id="anScope">based on all shown companies</span>
+    </div>
+    <div class="an-grid">
+      <div class="an-col">
+        <div class="an-sub">% of investments by industry</div>
+        <div id="bars-sector"></div>
+        <div class="an-sub">% by Wayra hub</div>
+        <div id="bars-hub"></div>
+        <div class="an-sub">% by region</div>
+        <div id="bars-region"></div>
+        <div class="an-sub">% by data-completeness tier</div>
+        <div id="bars-info"></div>
+      </div>
+      <div class="an-col">
+        <div class="an-sub">Outcomes & returns</div>
+        <div class="score">
+          <div class="box b-out"><div class="big" id="sc-outrate">0%</div><div class="cap">Reached an outcome*</div></div>
+          <div class="box b-uni"><div class="big" id="sc-uni">0</div><div class="cap">Unicorns in view</div></div>
+        </div>
+        <div class="donut-wrap">
+          <svg class="donut" id="donut" width="120" height="120" viewBox="0 0 42 42"></svg>
+          <div class="donut-leg" id="donut-leg"></div>
+        </div>
+        <div class="ticket">
+          <b>Disclosed ticket ranges</b> (Wayra/Telefónica, public): Spain accelerator up to <b>€250k</b> per company; Germany <b>€150k–€5M</b>; growth deals at pre-money valuations up to <b>€250M</b>.
+        </div>
+        <div class="an-caveat">*"Outcome" = unicorn, IPO, acquisition or Wayra exit. Wayra does <b>not</b> publicly disclose per-deal amounts, ownership %, IRR/MOIC or exit values, so true financial returns can't be shown here — these are composition and outcome rates only.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    <h4>Lifecycle legend</h4>
+    <div class="legend">
+      <span class="pill st-Active">Active</span>
+      <span class="pill st-Unicorn">Unicorn (≥$1B)</span>
+      <span class="pill st-IPO">IPO / Public</span>
+      <span class="pill st-Acquired">Acquired</span>
+      <span class="pill st-Exit">Exit (Wayra divested)</span>
+    </div>
+    <h4>Data-completeness tiers</h4>
+    <div class="legend">
+      <span class="infochip info-A"><span class="ld"></span>A · Full profile</span>
+      <span class="infochip info-B"><span class="ld"></span>B · Partial</span>
+      <span class="infochip info-C"><span class="ld"></span>C · Name + minimal</span>
+    </div>
+    <p>Each company is auto-graded by how much is publicly verifiable: <b>A — Full profile</b> = named founders <i>or</i> a named acquirer, plus a specific value proposition and confirmed lifecycle; <b>B — Partial</b> = sector and value proposition are confirmed but founders / financials aren't public; <b>C — Name + minimal</b> = essentially name + cohort, with descriptions limited in the sources reviewed. The grade is computed by rule from the fields present, so it updates automatically if you enrich a record.</p>
+
+    <h4>Methodology & sources</h4>
+    <p>Macro figures are drawn from Wayra / Telefónica official communications and corporate profiles (Wayra.com, Telefónica press room, Crunchbase, PitchBook, Tracxn, CB Insights). Aggregate counts vary by source and date: Telefónica/Wayra cite €245M+ direct investment (plus &gt;€1.9B from third parties) across 1,200+ startups with a ~530-company active portfolio; PitchBook tracks ~1,096 investments and 629 exits across the broader group; Tracxn records 4 unicorns (Airalo, Perplexity, Devo + 1), 3 IPOs (incl. Flywire) and 17 acquisitions on its tracked subset.</p>
+    <p>Company-level entries (value proposition, founders, country, stage, status) are compiled from public sources. Founders and exit details should be re-verified before any external citation.</p>
+    <p><b>On returns:</b> the only portfolio-level performance figures Wayra has stated publicly are directional — e.g. at its 2021 ten-year milestone Wayra reported its CVC investments had appreciated <b>~70%+</b> in value with <b>75+</b> successful exits, and Wayra Brasil/Vivo Ventures report startups generating hundreds of millions of reais in contracts with Vivo. Per-deal returns (IRR/MOIC/exit values) remain undisclosed.</p>
+    <div class="note"><b>Scope note:</b> No public source publishes the complete deal-by-deal Wayra ledger with full attributes. This explorer holds a representative, fact-checked subset spanning every hub (Spain, UK, Germany, Brazil, Wayra Hispam, Wayra X, Wayra Ventures) and every lifecycle stage. The data array at the top of this file is easy to extend with new rows.</p>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+/* ===========================================================
+   WAYRA PORTFOLIO DATASET  (curated, source-verified sample)
+   Edit / extend this array to add companies.
+   status: Active | Unicorn | IPO | Acquired | Exit
+   =========================================================== */
+const DATA = [
+  {name:"Airalo", hub:"Wayra Ventures", country:"United States", region:"US / Global", sector:"Travel Tech", subsector:"Connectivity / eSIM",
+   vp:"World's first eSIM marketplace — instant global mobile data without a physical SIM card.",
+   founders:"Abraham Burak, Bahadir Ozdemir", year:2022, stage:"Growth", status:"Unicorn",
+   note:"Became a unicorn in 2025. Co-investors incl. Rakuten Ventures, Sequoia Surge, Antler, Singtel Innov8."},
+
+  {name:"Perplexity", hub:"Wayra Ventures", country:"United States", region:"US / Global", sector:"Artificial Intelligence", subsector:"Search / GenAI",
+   vp:"AI 'answer engine' that uses NLP to return real-time, sourced answers instead of a list of links.",
+   founders:"Aravind Srinivas, Denis Yarats, Johnny Ho, Andy Konwinski", year:2024, stage:"Growth", status:"Unicorn",
+   note:"Undisclosed investment + global commercial deal to offer benefits to Telefónica customers in Spain, Brazil & UK. Co-investors incl. Nvidia, Databricks, Jeff Bezos, IVP, NEA."},
+
+  {name:"Devo", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Cybersecurity", subsector:"Security Data Analytics / SIEM",
+   vp:"Cloud-native security data analytics and next-gen SIEM platform for real-time threat detection.",
+   founders:"Pedro Castillo (founded as Logtrust)", year:2014, stage:"Growth", status:"Unicorn",
+   note:"One of Wayra's flagship unicorns; scaled from Madrid to a US-headquartered enterprise security leader."},
+
+  {name:"Flywire", hub:"Wayra Spain", country:"United States", region:"US / Global", sector:"Fintech", subsector:"Cross-border Payments",
+   vp:"Global payments platform (originally tuition/education payments) — formerly peerTransfer.",
+   founders:"Iker Marcaide", year:2012, stage:"Series A", status:"IPO",
+   note:"Listed on NASDAQ in September 2016. Spanish-founded, US-scaled."},
+
+  {name:"CounterCraft", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Cybersecurity", subsector:"Cyber Deception",
+   vp:"Cyber deception and counter-intelligence products that detect targeted attacks before damage.",
+   founders:"David Barroso (co-founder)", year:2020, stage:"Series A", status:"Active",
+   note:"San Sebastián. Long-standing Telefónica relationship; signed agreement with the US Dept. of Defense. In Telefónica Tech Ventures portfolio."},
+
+  {name:"Payflow", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Fintech", subsector:"Earned Wage Access",
+   vp:"Lets employees draw the salary they've already earned on demand, instead of waiting for payday.",
+   founders:"Avinash Sukhwani, Benoît Menardo", year:2020, stage:"Seed", status:"Active",
+   note:"Founded in Barcelona during the COVID-19 crisis; one of Wayra's noted Spanish portfolio companies."},
+
+  {name:"Alias Robotics", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Robotics", subsector:"Robot Cybersecurity",
+   vp:"Cybersecurity solutions purpose-built for industrial robots and robotic systems.",
+   founders:"Víctor Mayoral Vilches", year:2020, stage:"Seed", status:"Active",
+   note:"Vitoria-based; part of Telefónica Tech Ventures portfolio."},
+
+  {name:"Galgus", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Connectivity", subsector:"WiFi Optimisation",
+   vp:"AI-driven WiFi optimisation technology for high-density and challenging network environments.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active",
+   note:"Seville-based connectivity startup in the 2020 Wayra Spain cohort."},
+
+  {name:"Ludus", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Virtual Reality", subsector:"EdTech / Safety Training",
+   vp:"Immersive VR platform for occupational-risk prevention and emergency-response training.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active",
+   note:"Originally a Bilbao video-game studio that pivoted to enterprise VR training."},
+
+  {name:"Kymatio", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Cybersecurity", subsector:"People-centric Risk",
+   vp:"People-centric cyber-risk analytics — insider-threat detection and security awareness.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"2020 Wayra Spain cohort."},
+
+  {name:"Proppos", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Retail Tech", subsector:"Computer Vision",
+   vp:"AI visual-recognition for instant, frictionless checkout in food retail and canteens.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"2020 Wayra Spain cohort."},
+
+  {name:"Humanox", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Sports Tech", subsector:"Wearables",
+   vp:"Smart sensors and wearables for sports performance monitoring and injury prevention.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"2020 Wayra Spain cohort."},
+
+  {name:"YBVR", hub:"Wayra Spain", country:"United States", region:"US / Global", sector:"Virtual Reality", subsector:"Live Media",
+   vp:"Immersive VR live experiences; monetises 'virtual tickets' that put fans front-row at sports events.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Series A", status:"Active",
+   note:"Silicon Valley-based with operations in four countries; repeat Wayra investment."},
+
+  {name:"Govertis", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Cybersecurity", subsector:"GRC / Compliance",
+   vp:"Governance, risk & compliance and managed cybersecurity advisory services.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Acquired", status:"Acquired",
+   note:"Acquired by Telefónica Tech in 2020 to strengthen its cybersecurity capabilities (Wayra was part-owner)."},
+
+  {name:"iHackLabs", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Cybersecurity", subsector:"Cyber-range / Training",
+   vp:"Cyber-range and ethical-hacking training platforms for security teams.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Acquired", status:"Acquired",
+   note:"Acquired by Telefónica Tech in 2020 alongside Govertis (Wayra was part-owner)."},
+
+  {name:"Marfeel", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"AdTech", subsector:"Publisher Monetisation",
+   vp:"Audience-engagement and ad-monetisation platform for digital publishers.",
+   founders:"Juan Margenat, Xavi Beumala", year:2011, stage:"Exit", status:"Exit",
+   note:"Barcelona-based; counted as Wayra's 6th global exit (2015 secondary on a funding round led by Nauta, Elaia, BDMI)."},
+
+  {name:"Ezzing Solar", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"CleanTech", subsector:"Energy SaaS",
+   vp:"SaaS platform that digitises the sales and installation journey for residential solar PV.",
+   founders:"Not disclosed in sources reviewed", year:2021, stage:"Series A", status:"Active",
+   note:"Presented at Wayra Investors Day."},
+
+  {name:"Kubbo", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Logistics", subsector:"E-commerce Fulfilment",
+   vp:"E-commerce fulfilment and logistics-as-a-service for online retailers.",
+   founders:"Not disclosed in sources reviewed", year:2021, stage:"Seed", status:"Active",
+   note:"Presented at Wayra Investors Day."},
+
+  {name:"Crossmint", hub:"Wayra Ventures", country:"United States", region:"US / Global", sector:"Web3", subsector:"Blockchain Infrastructure",
+   vp:"Enterprise infrastructure for NFTs, wallets and digital assets — without crypto complexity.",
+   founders:"Not disclosed in sources reviewed", year:2022, stage:"Seed", status:"Active",
+   note:"Presented at Wayra Investors Day."},
+
+  {name:"Peoople", hub:"Wayra X", country:"Spain", region:"Europe", sector:"Consumer", subsector:"Social Commerce",
+   vp:"Social app for discovering product recommendations from creators and trusted people.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"Wayra X (digital hub) investment."},
+
+  {name:"Nannyfy", hub:"Wayra X", country:"Spain", region:"Europe", sector:"Marketplace", subsector:"Care / Childcare",
+   vp:"On-demand marketplace connecting families with vetted babysitters and childcare.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"Wayra X (digital hub) investment."},
+
+  {name:"Suscrip", hub:"Wayra X", country:"Spain", region:"Europe", sector:"Fintech", subsector:"Subscriptions",
+   vp:"App to track and manage personal subscriptions and recurring payments.",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"Wayra X (digital hub) investment."},
+
+  {name:"Blabla", hub:"Wayra X", country:"Spain", region:"Europe", sector:"Consumer", subsector:"Social / Content",
+   vp:"Consumer social/content app (public details limited in sources reviewed).",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"Wayra X (digital hub) investment."},
+
+  {name:"Pridatec", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Software", subsector:"n/d",
+   vp:"Technology startup in the 2020 Wayra Spain cohort (public details limited in sources reviewed).",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"2020 Wayra Spain cohort."},
+
+  {name:"Kenmei", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Software", subsector:"n/d",
+   vp:"Software startup in the 2020 Wayra Spain cohort (public details limited in sources reviewed).",
+   founders:"Not disclosed in sources reviewed", year:2020, stage:"Seed", status:"Active", note:"2020 Wayra Spain cohort."},
+
+  {name:"tubics", hub:"Wayra Germany", country:"Germany", region:"Europe", sector:"MarTech", subsector:"Video / YouTube SaaS",
+   vp:"Data-driven video and YouTube SEO marketing platform for brands.",
+   founders:"Not disclosed in sources reviewed", year:2019, stage:"Seed", status:"Acquired",
+   note:"Munich-based; reported acquired by vidIQ (2022). Wayra Germany portfolio."},
+
+  {name:"BoxyHQ", hub:"Wayra UK", country:"United Kingdom", region:"Europe", sector:"Cybersecurity", subsector:"Enterprise Dev Tools",
+   vp:"Open-source enterprise SSO and security building blocks that developers drop into their apps.",
+   founders:"Not disclosed in sources reviewed", year:2022, stage:"Seed", status:"Acquired",
+   note:"Acquired by ORY in May 2025 — Wayra's most recent tracked acquisition (Tracxn)."},
+
+  {name:"Wise CX", hub:"Wayra Hispam", country:"Argentina", region:"Latin America", sector:"SaaS", subsector:"Customer Experience",
+   vp:"Omnichannel customer-service platform for large and mid-sized enterprises.",
+   founders:"Not disclosed in sources reviewed", year:2019, stage:"Growth", status:"Active",
+   note:"Repeat Wayra investment (2025) to expand in Spain & Brazil; acquired a Brazilian AI contact-centre firm."},
+
+  {name:"Chaindots", hub:"Wayra Hispam", country:"Argentina", region:"Latin America", sector:"RegTech", subsector:"Risk / Supply Chain",
+   vp:"Collaborative risk ecosystem that streamlines third-party and business risk for large companies.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active",
+   note:"Founded 2021; operates across 8 Latin American countries."},
+
+  {name:"Erudit", hub:"Wayra Hispam", country:"United States", region:"US / Global", sector:"Artificial Intelligence", subsector:"People Analytics",
+   vp:"AI people-analytics that measures burnout, engagement and attrition risk from workplace signals.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"Added to Wayra Hispam portfolio in 2023."},
+
+  {name:"Glim", hub:"Wayra Hispam", country:"Latin America", region:"Latin America", sector:"Artificial Intelligence", subsector:"n/d",
+   vp:"AI-driven solution added to Wayra Hispam's 2023 cohort (public details limited in sources reviewed).",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"2023 Wayra Hispam AI/Fintech/RegTech cohort."},
+
+  {name:"Autofact", hub:"Wayra Hispam", country:"Chile", region:"Latin America", sector:"AutoTech", subsector:"Data / Reports",
+   vp:"Vehicle history and ownership reports for the used-car market.",
+   founders:"Not disclosed in sources reviewed", year:2013, stage:"Acquired", status:"Acquired",
+   note:"Listed among Wayra Hispam's key acquisitions (Tracxn)."},
+
+  {name:"Postcron", hub:"Wayra Hispam", country:"Argentina", region:"Latin America", sector:"MarTech", subsector:"Social Media SaaS",
+   vp:"Social-media scheduling and bulk-publishing tool for marketers and agencies.",
+   founders:"Not disclosed in sources reviewed", year:2014, stage:"Acquired", status:"Acquired",
+   note:"Listed among Wayra Hispam's key acquisitions (Tracxn)."},
+
+  {name:"Joinnus", hub:"Wayra Hispam", country:"Peru", region:"Latin America", sector:"Events", subsector:"Ticketing",
+   vp:"Online event discovery and ticketing platform for Latin American audiences.",
+   founders:"Not disclosed in sources reviewed", year:2014, stage:"Acquired", status:"Acquired",
+   note:"Listed among Wayra Hispam's key acquisitions (Tracxn)."},
+
+  /* ---- Spain 2023 cohort (Wayra Spain / Íope Ventures) ---- */
+  {name:"Bcas", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Fintech", subsector:"EdTech / Income-share",
+   vp:"Funds students' studies, repaid only once they find a job; backed by the European Investment Fund.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"2023 Wayra Spain cohort (AI-in-fintech focus)."},
+
+  {name:"Depasify", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Fintech", subsector:"Wealth / Digital Assets",
+   vp:"Platform that unifies traditional finances and digital assets in one place.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"2023 Wayra Spain cohort."},
+
+  {name:"Uelz Pay", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Fintech", subsector:"Payments / Collections",
+   vp:"Automates recurring-payment and collections management with AI, adapting to each company's needs.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"2023 Wayra Spain cohort; cited as a key AI investment."},
+
+  {name:"Invopop", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"B2B SaaS", subsector:"E-invoicing API",
+   vp:"API that helps global companies automate the issuance of electronic invoices.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"2023 Wayra Spain B2B SaaS cohort."},
+
+  {name:"Remuner", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"B2B SaaS", subsector:"HR / Sales Comp",
+   vp:"AI-driven sales-commission platform that automates variable compensation to align incentives.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"2023 Wayra Spain B2B SaaS cohort."},
+
+  {name:"Haddock", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"B2B SaaS", subsector:"Restaurant Tech",
+   vp:"AI platform that digitises restaurants' financial and operational management to lift profitability.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"Investment renewed in 2023."},
+
+  {name:"Shakers", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Marketplace", subsector:"Future of Work",
+   vp:"Connects companies with vetted digital specialists to staff technology projects faster and securely.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Series A", status:"Active", note:"Highlighted AI-era portfolio company."},
+
+  {name:"Bdeo", hub:"Íope Ventures", country:"Spain", region:"Europe", sector:"Insurtech", subsector:"Computer Vision AI",
+   vp:"Visual-intelligence AI that assesses auto and home insurance damage to speed claims and underwriting.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Series A", status:"Active", note:"Invested via Íope Ventures (Wayra x Telefónica Seguros)."},
+
+  {name:"Cafler", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Mobility", subsector:"Vehicle Services",
+   vp:"One-click platform for any vehicle-related task, from maintenance services to insurance.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Seed", status:"Active", note:"2023 mobility-sector investment."},
+
+  /* ---- Spain Investors Day 2024 cohort ---- */
+  {name:"Mitiga Solutions", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"ClimateTech", subsector:"Climate Risk AI",
+   vp:"Combines climate science, AI and high-performance computing to model clients' exposure to climate risk.",
+   founders:"Not disclosed in sources reviewed", year:2024, stage:"Series A", status:"Active", note:"Presented at Wayra Investors Day 2024."},
+
+  {name:"Omniloy", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Artificial Intelligence", subsector:"Data Analytics",
+   vp:"Lets non-technical employees query and analyse business data through natural language.",
+   founders:"Not disclosed in sources reviewed", year:2024, stage:"Seed", status:"Active", note:"Presented at Wayra Investors Day 2024."},
+
+  {name:"Ciudadela", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"PropTech", subsector:"Property Management",
+   vp:"Digital property-management platform focused on transparency, speed and security.",
+   founders:"Not disclosed in sources reviewed", year:2024, stage:"Seed", status:"Active", note:"Founded 2022; presented at Investors Day 2024."},
+
+  {name:"Honei", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Fintech", subsector:"Restaurant Payments",
+   vp:"In-restaurant payment solution that streamlines checkout for diners and venues.",
+   founders:"Not disclosed in sources reviewed", year:2024, stage:"Seed", status:"Active", note:"Presented at Wayra Investors Day 2024."},
+
+  {name:"GrabrFi", hub:"Wayra Ventures", country:"United States", region:"US / Global", sector:"Fintech", subsector:"Cross-border Banking",
+   vp:"Lets non-residents access the US banking system remotely, with only an ID.",
+   founders:"Not disclosed in sources reviewed", year:2024, stage:"Seed", status:"Active", note:"Presented at Wayra Investors Day 2024."},
+
+  {name:"Internxt", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"Cybersecurity", subsector:"Encrypted Cloud",
+   vp:"Zero-knowledge, end-to-end encrypted cloud storage as a privacy-first alternative to Big Tech.",
+   founders:"Not disclosed in sources reviewed", year:2024, stage:"Series A", status:"Active", note:"Highlighted AI-era / secure-storage portfolio company."},
+
+  {name:"LuxQuanta", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"DeepTech", subsector:"Quantum Security",
+   vp:"Quantum Key Distribution (QKD) technology for next-generation network cybersecurity.",
+   founders:"Not disclosed in sources reviewed", year:2025, stage:"Series A", status:"Active", note:"Most recent tracked Wayra round per Tracxn (Series A)."},
+
+  {name:"Cobrainer", hub:"Wayra Germany", country:"Germany", region:"Europe", sector:"HR Tech", subsector:"Skills / Talent AI",
+   vp:"AI skills-and-talent matching platform that maps workforce capabilities to needs.",
+   founders:"Not disclosed in sources reviewed", year:2022, stage:"Series A", status:"Active", note:"Cited among Wayra's most notable investments (Tracxn)."},
+
+  /* ---- Brazil — Wayra Brasil / Vivo Ventures ---- */
+  {name:"Klavi", hub:"Vivo Ventures", country:"Brazil", region:"Latin America", sector:"Fintech", subsector:"Open Finance",
+   vp:"Open Finance infrastructure combining credit intelligence and collections with open-banking data.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Growth", status:"Active", note:"Vivo Ventures (Wayra Brasil) portfolio."},
+
+  {name:"Klubi", hub:"Vivo Ventures", country:"Brazil", region:"Latin America", sector:"Fintech", subsector:"Consortium / Credit",
+   vp:"Consortium fintech; reported as the only one authorised by the Central Bank to operate in that market.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Growth", status:"Active", note:"Flagship Vivo Ventures round."},
+
+  {name:"Digibee", hub:"Vivo Ventures", country:"Brazil", region:"Latin America", sector:"B2B SaaS", subsector:"Integration (iPaaS)",
+   vp:"Enterprise integration platform that connects systems, apps and data across an organisation.",
+   founders:"Not disclosed in sources reviewed", year:2024, stage:"Growth", status:"Active", note:"Wayra Brasil / Vivo Ventures portfolio."},
+
+  {name:"Conexa", hub:"Vivo Ventures", country:"Brazil", region:"Latin America", sector:"HealthTech", subsector:"Telemedicine",
+   vp:"Telehealth platform connecting patients and clinicians for remote consultations.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Growth", status:"Active", note:"Wayra Brasil / Vivo Ventures portfolio."},
+
+  {name:"CRMBonus", hub:"Vivo Ventures", country:"Brazil", region:"Latin America", sector:"MarTech", subsector:"Retail Loyalty",
+   vp:"Customer-loyalty and retention platform for retailers.",
+   founders:"Not disclosed in sources reviewed", year:2023, stage:"Growth", status:"Active", note:"Wayra Brasil / Vivo Ventures portfolio."},
+
+  {name:"Agrolend", hub:"Vivo Ventures", country:"Brazil", region:"Latin America", sector:"Fintech", subsector:"AgTech Lending",
+   vp:"Agricultural credit platform providing financing to farmers and the rural supply chain.",
+   founders:"Not disclosed in sources reviewed", year:2024, stage:"Growth", status:"Active", note:"Vivo Ventures investment (Oct 2024)."},
+
+  {name:"Asaas", hub:"Vivo Ventures", country:"Brazil", region:"Latin America", sector:"Fintech", subsector:"Payments / SCD",
+   vp:"Payments and financial-automation platform; licensed payment institution and Direct Credit Society.",
+   founders:"Not disclosed in sources reviewed", year:2025, stage:"Growth", status:"Active", note:"Vivo Ventures became strategic investor in a ~€5.5M transaction."},
+
+  /* ---- AstraZeneca x Wayra x Kunsen — 'ACCIÓN' digital-health accelerator ---- */
+  {name:"Synthetrial", hub:"Wayra Spain", country:"Spain", region:"Europe", sector:"HealthTech", subsector:"Clinical Data AI",
+   vp:"Generates synthetic patient data with AI to optimise clinical trials and patient datasets.",
+   founders:"Not disclosed in sources reviewed", year:2026, stage:"Accelerator", status:"Active", note:"Pitch Day winner of ACCIÓN, the AstraZeneca España x Wayra x Kunsen digital-health accelerator (selection, not confirmed equity)."}
+];
+
+/* ---------- data-completeness auto-grader ---------- */
+const INFO={A:{label:'A · Full profile'},B:{label:'B · Partial'},C:{label:'C · Name + minimal'}};
+function infoTier(d){
+  if(/details limited/i.test(d.vp) || d.subsector==='n/d') return 'C';
+  const hasFounders=d.founders && !/not disclosed/i.test(d.founders);
+  const namedAcquirer=/acquired by [a-z]/i.test(d.note||'') && !/reported/i.test(d.note||'');
+  if(hasFounders || namedAcquirer) return 'A';
+  return 'B';
+}
+DATA.forEach(d=>{d.info=infoTier(d);d.infoLabel=INFO[d.info].label;});
+
+/* ---------- build filters ---------- */
+const uniq = (k) => [...new Set(DATA.map(d=>d[k]))].sort();
+function fill(id,label,key){
+  const sel=document.getElementById(id);
+  sel.innerHTML=`<option value="">${label}: All</option>`+uniq(key).map(v=>`<option>${v}</option>`).join('');
+}
+fill('f-hub','Hub','hub');
+fill('f-country','Country','country');
+fill('f-sector','Industry','sector');
+fill('f-stage','Stage','stage');
+fill('f-status','Lifecycle','status');
+
+const grid=document.getElementById('grid');
+const count=document.getElementById('count');
+const els={search:document.getElementById('search'),hub:document.getElementById('f-hub'),country:document.getElementById('f-country'),sector:document.getElementById('f-sector'),stage:document.getElementById('f-stage'),status:document.getElementById('f-status'),info:document.getElementById('f-info'),sort:document.getElementById('f-sort')};
+
+function render(){
+  const q=els.search.value.trim().toLowerCase();
+  let rows=DATA.filter(d=>{
+    if(els.hub.value && d.hub!==els.hub.value)return false;
+    if(els.country.value && d.country!==els.country.value)return false;
+    if(els.sector.value && d.sector!==els.sector.value)return false;
+    if(els.stage.value && d.stage!==els.stage.value)return false;
+    if(els.status.value && d.status!==els.status.value)return false;
+    if(els.info.value && d.info!==els.info.value)return false;
+    if(q){
+      const blob=(d.name+' '+d.sector+' '+d.subsector+' '+d.vp+' '+d.founders+' '+d.country+' '+d.hub+' '+d.status+' '+d.stage).toLowerCase();
+      if(!blob.includes(q))return false;
+    }
+    return true;
+  });
+  const order={Unicorn:0,IPO:1,Exit:2,Acquired:3,Active:4};
+  rows.sort((a,b)=>{
+    if(els.sort.value==='name')return a.name.localeCompare(b.name);
+    if(els.sort.value==='year')return b.year-a.year || a.name.localeCompare(b.name);
+    return (order[a.status]-order[b.status]) || a.name.localeCompare(b.name);
+  });
+  count.textContent=rows.length;
+  document.getElementById('anScope').textContent = rows.length===DATA.length
+    ? `based on all ${DATA.length} tracked companies`
+    : `based on ${rows.length} filtered ${rows.length===1?'company':'companies'}`;
+  renderAnalytics(rows);
+  if(!rows.length){grid.innerHTML='<div class="empty"><h3>No matches</h3><p>Try clearing a filter or searching a different term.</p></div>';return;}
+  grid.innerHTML=rows.map((d,i)=>`
+    <article class="card s-${d.status}" style="animation-delay:${Math.min(i*35,500)}ms" data-i="${DATA.indexOf(d)}">
+      <span class="accent"></span>
+      <div class="topline">
+        <h3>${d.name}</h3>
+        <span class="pill st-${d.status}">${d.status}</span>
+      </div>
+      <p class="vp">${d.vp}</p>
+      <div class="tags">
+        <span class="infochip info-${d.info}" title="${d.infoLabel}"><span class="ld"></span>${d.info}</span>
+        <span class="tag">${d.sector}</span>
+        <span class="tag">${d.subsector}</span>
+        <span class="tag">${d.stage}</span>
+      </div>
+      <div class="cardfoot">
+        <span class="loc">${d.country}</span>
+        <span class="yr">${d.hub} · ${d.year}</span>
+      </div>
+    </article>`).join('');
+}
+
+/* ---------- modal ---------- */
+const overlay=document.getElementById('overlay');
+const modal=document.getElementById('modal');
+grid.addEventListener('click',e=>{
+  const card=e.target.closest('.card');if(!card)return;
+  const d=DATA[card.dataset.i];
+  modal.innerHTML=`
+    <div class="mhead">
+      <button class="closeb" id="cb">×</button>
+      <span class="pill st-${d.status}" style="margin-bottom:12px;display:inline-block">${d.status}</span>
+      <h2>${d.name}</h2>
+    </div>
+    <div class="mbody">
+      <div class="mrow"><div class="k">Value prop</div><div class="v">${d.vp}</div></div>
+      <div class="mrow"><div class="k">Industry</div><div class="v">${d.sector} <small>— ${d.subsector}</small></div></div>
+      <div class="mrow"><div class="k">Founders</div><div class="v">${d.founders}</div></div>
+      <div class="mrow"><div class="k">Country</div><div class="v">${d.country} <small>(${d.region})</small></div></div>
+      <div class="mrow"><div class="k">Wayra hub</div><div class="v">${d.hub}</div></div>
+      <div class="mrow"><div class="k">Stage</div><div class="v">${d.stage} · first tracked ${d.year}</div></div>
+      <div class="mrow"><div class="k">Lifecycle</div><div class="v">${d.status}</div></div>
+      <div class="mrow"><div class="k">Info level</div><div class="v"><span class="infochip info-${d.info}"><span class="ld"></span>${d.infoLabel}</span></div></div>
+      ${d.note?`<div class="mrow"><div class="k">Notes</div><div class="v"><small>${d.note}</small></div></div>`:''}
+    </div>`;
+  overlay.classList.add('open');
+  document.getElementById('cb').onclick=close;
+});
+function close(){overlay.classList.remove('open')}
+overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+
+/* ---------- analytics ---------- */
+const ST_COLORS={Active:'#0A33D6',Unicorn:'#6B2BD6',IPO:'#127A4B',Acquired:'#B5650E',Exit:'#0E6E78'};
+const pctRound=(n,t)=>t?Math.round(n/t*100):0;
+function distBars(containerId,rows,key,max=7){
+  const t=rows.length,m={};
+  rows.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});
+  let arr=Object.entries(m).map(([label,n])=>({label,n,pct:t?n/t*100:0})).sort((a,b)=>b.n-a.n);
+  if(arr.length>max){const rest=arr.slice(max),sum=rest.reduce((s,x)=>s+x.n,0);arr=arr.slice(0,max);arr.push({label:'Other',n:sum,pct:t?sum/t*100:0});}
+  document.getElementById(containerId).innerHTML = arr.length ? arr.map(x=>`
+    <div class="bar-row"><span class="lab" title="${x.label} — ${x.n} co.">${x.label}</span>
+    <span class="bar-track"><span class="bar-fill" style="width:${x.pct.toFixed(1)}%"></span></span>
+    <span class="pct">${Math.round(x.pct)}%</span></div>`).join('') : '<div class="pct" style="text-align:left">—</div>';
+}
+function renderAnalytics(rows){
+  distBars('bars-sector',rows,'sector');
+  distBars('bars-hub',rows,'hub');
+  distBars('bars-region',rows,'region');
+  distBars('bars-info',rows,'infoLabel',3);
+  const t=rows.length, statuses=['Active','Unicorn','IPO','Acquired','Exit'], cnt={};
+  statuses.forEach(s=>cnt[s]=0);
+  rows.forEach(r=>{cnt[r.status]=(cnt[r.status]||0)+1;});
+  document.getElementById('sc-outrate').textContent=pctRound(t-cnt.Active,t)+'%';
+  document.getElementById('sc-uni').textContent=cnt.Unicorn||0;
+  let off=25,segs='';
+  statuses.forEach(s=>{const pct=t?cnt[s]/t*100:0;if(pct>0){segs+=`<circle cx="21" cy="21" r="15.915" fill="none" stroke="${ST_COLORS[s]}" stroke-width="6" stroke-dasharray="${pct.toFixed(2)} ${(100-pct).toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"/>`;off-=pct;}});
+  document.getElementById('donut').innerHTML=`<circle cx="21" cy="21" r="15.915" fill="none" stroke="#EAE4D6" stroke-width="6"/>${segs}`;
+  document.getElementById('donut-leg').innerHTML=statuses.filter(s=>cnt[s]>0).map(s=>`<div><span class="sw" style="background:${ST_COLORS[s]}"></span>${s} — <b>${cnt[s]}</b> (${pctRound(cnt[s],t)}%)</div>`).join('') || '—';
+}
+document.getElementById('toggleAn').addEventListener('click',function(){
+  const open=document.getElementById('analytics').classList.toggle('open');
+  this.textContent=open?'▤ Hide % breakdown & returns':'▤ Show % breakdown & returns';
+});
+
+/* ---------- wire up ---------- */
+Object.values(els).forEach(el=>el.addEventListener('input',render));
+document.getElementById('reset').addEventListener('click',()=>{
+  els.search.value='';['hub','country','sector','stage','status','info'].forEach(k=>els[k].value='');els.sort.value='name';render();
+});
+render();
+</script>
+</body>
+</html>
