@@ -1,6 +1,6 @@
 import React, { useReducer, useEffect, useState, useRef, useMemo } from "react";
 
-/* AI PRODUCT TYCOON v2.0 "Imperio Agéntico" - Jefe DSAI + PMO Lead */
+/* AI PRODUCT TYCOON v3.0 "Rivalidad" - Jefe DSAI + PMO vs Helios Bio */
 
 const C = {
   bg: "#0c0a08", panel: "#1a1612", panel2: "#231c16", panel3: "#2b2218",
@@ -11,7 +11,7 @@ const C = {
   steel: "#7a8499", bronze: "#9c6b2a", jade: "#3d8b6e",
   blue: "#3a5e8c", green: "#4a6e3d", purple: "#5d3a6e", red: "#8b3a3a",
 };
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=VT323&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');`;
 
 const ERAS = [
   { id: 1, name: "Era I · Reportes", short: "Reportes", desc: "Excel, dashboards, BI.", color: C.steel, banner: "I", advanceCost: { budget: 0, knowledge: 0, vision: 0 } },
@@ -24,7 +24,7 @@ const ROLES = {
   data_scientist: { label: "Data Scientist", short: "DS", color: C.purple, salary: 10, minEra: 1, desc: "+15% velocidad analytics/predictive.", sprite: "scholar", contrib: { projectSpeed: 0.15, types: ["analytics", "predictive"] } },
   ml_engineer: { label: "ML Engineer", short: "MLE", color: C.jade, salary: 12, minEra: 2, desc: "Despliegue prod. -20% riesgo ML.", sprite: "engineer", contrib: { projectSpeed: 0.1, types: ["predictive", "genai"], risk: -0.2 } },
   product_manager: { label: "Product Manager", short: "PM", color: C.gold, salary: 11, minEra: 1, desc: "+1 confianza a los 3 más débiles.", sprite: "captain", contrib: { trustPerTurn: 1 } },
-  domain_expert: { label: "Experto Dominio", short: "DOM", color: C.ember, salary: 9, minEra: 1, desc: "+1 conocimiento/turno.", sprite: "sage", contrib: { knowledge: 1, quality: 0.1 } },
+  domain_expert: { label: "Experto Dominio", short: "DOM", color: C.ember, salary: 9, minEra: 1, desc: "+1 conocimiento/turno.", sprite: "sage", contrib: { knowledge: 1 } },
   ai_engineer: { label: "AI Engineer", short: "AIE", color: C.crimson, salary: 14, minEra: 3, desc: "+20% velocidad GenAI/Agéntico.", sprite: "mage", contrib: { projectSpeed: 0.2, types: ["genai", "agentic"] } },
 };
 const BUILDINGS = {
@@ -86,24 +86,42 @@ const RISK_TEMPLATES = [
   { id: "key_person", label: "Dependencia persona clave", impact: "Si se va pierdes 1 turno", mitigationCost: { budget: 60 }, affects: {} },
   { id: "regulatory_drift", label: "Cambio regulatorio", impact: "+20% riesgo GenAI", mitigationCost: { budget: 70 }, affects: { types: ["genai", "agentic"], risk: 0.2 } },
   { id: "exec_distraction", label: "Atención ejecutiva dispersa", impact: "-1 Exec/turno", mitigationCost: { budget: 50 }, affects: { execDecay: 1 } },
-  { id: "competitor_launch", label: "Competidor lanza primero", impact: "-1 Comercial/turno", mitigationCost: { budget: 60 }, affects: { commercialDecay: 1 } },
+  { id: "competitor_launch", label: "Helios gana titulares", impact: "-1 Comercial/turno", mitigationCost: { budget: 60 }, affects: { commercialDecay: 1 } },
   { id: "shadow_it_drift", label: "Shadow IT externo", impact: "-1 IT/turno", mitigationCost: { budget: 45 }, affects: { itDecay: 1 } },
 ];
 const DECISION_EVENTS = [
   { id: "nba_express", title: "NBA Express", minEra: 2, text: "Comercial quiere NBA en 2 sem sin validación.", options: [{ label: "Lanzar ya.", effects: { trust: { commercial: 18, medical: -16, regulatory: -14 }, budget: 60 } }, { label: "Bloquear hasta validación.", effects: { trust: { commercial: -12, medical: 12, regulatory: 14 } } }, { label: "Pilot 1 región.", effects: { trust: { commercial: 8, medical: 6, regulatory: 4 }, budget: 20, vision: 2 } }] },
   { id: "offshore_ml", title: "Offshoring ML", minEra: 2, text: "CFO propone offshoring para ahorrar 35%.", options: [{ label: "Aceptar.", effects: { trust: { cfo: 20, executive: -10 }, budget: 140, fireRole: "ml_engineer" } }, { label: "Rechazar y comprometer productividad.", effects: { trust: { cfo: -10, commercial: 6 }, vision: 3 } }, { label: "Híbrido.", effects: { trust: { cfo: 10, executive: 4 }, budget: 60, vision: 1 } }] },
   { id: "shadow_it", title: "Shadow IT en Comercial", minEra: 3, text: "Comercial usa ChatGPT con datos de pacientes.", options: [{ label: "Reportar a IT.", effects: { trust: { it: 18, regulatory: 16, commercial: -22 } } }, { label: "Bloquear y formar.", effects: { trust: { it: 8, commercial: 4, regulatory: -4 }, knowledge: 10 } }, { label: "Acelerar Copiloto interno.", effects: { trust: { it: 10, commercial: 12, regulatory: 6 }, budget: -50, vision: 4 } }] },
-  { id: "data_rd", title: "R&D pide plataforma", minEra: 2, text: "I+D quiere usar Insight Explorer (30% bandwidth).", options: [{ label: "Colaborar.", effects: { trust: { executive: 14, medical: 10, commercial: -8 }, knowledge: 25, vision: 5 } }, { label: "Declinar.", effects: { trust: { executive: -10, commercial: 8 } } }, { label: "Slot semanal.", effects: { trust: { executive: 6, medical: 4, commercial: -2 }, knowledge: 10, vision: 2 } }] },
   { id: "build_buy", title: "Build vs Buy", minEra: 3, text: "Sales pide agéntico YA. Vendor 600k€ vs build 6 meses.", options: [{ label: "Comprar.", effects: { trust: { commercial: 18, cfo: -16, executive: -4 }, budget: -180 } }, { label: "Build interno.", effects: { trust: { commercial: -10, cfo: 12, executive: 10 }, knowledge: 30, vision: 6 } }, { label: "Híbrido.", effects: { trust: { commercial: 8, cfo: 4, executive: 8 }, budget: -80, vision: 3 } }] },
   { id: "eu_ai_act", title: "EU AI Act", minEra: 2, text: "Clasifica modelos. KOLs en zona gris.", options: [{ label: "Bajo riesgo y seguir.", effects: { trust: { regulatory: -22, commercial: 6 } } }, { label: "Pausar y documentar.", effects: { trust: { regulatory: 18, medical: 8, commercial: -8 }, pauseTurns: 2, vision: 2 } }, { label: "Consultoría regulatoria.", effects: { trust: { regulatory: 14, cfo: -8 }, budget: -90 } }] },
-  { id: "talento_fuga", title: "Oferta FAANG", minEra: 1, text: "Tu mejor DS pide +40% o se va.", options: [{ label: "Igualar.", effects: { trust: { cfo: -10, executive: 4 }, budget: -100 } }, { label: "Dejarle ir.", effects: { trust: { cfo: 6, commercial: -8 }, fireRole: "data_scientist" } }, { label: "Contraoferta + proyecto estrella.", effects: { trust: { executive: 8, cfo: -4 }, budget: -50, knowledge: 10, vision: 3 } }] },
-  { id: "board_demo", title: "Demo en el Board", minEra: 3, text: "CEO pide demo agéntica en 3 sem.", options: [{ label: "Mockup convincente.", effects: { trust: { executive: 22, commercial: 10, it: -8, regulatory: -6 } } }, { label: "Demo honesta.", effects: { trust: { executive: 4, it: 10, regulatory: 8 }, vision: 4 } }, { label: "Componente + roadmap.", effects: { trust: { executive: 14, it: 6, regulatory: 4 }, knowledge: 8, vision: 6 } }] },
+  { id: "talento_fuga", title: "Helios ofrece +40%", minEra: 1, text: "Helios Bio intenta fichar a tu mejor DS.", options: [{ label: "Igualar.", effects: { trust: { cfo: -10, executive: 4 }, budget: -100 } }, { label: "Dejarle ir.", effects: { trust: { cfo: 6, commercial: -8 }, fireRole: "data_scientist" } }, { label: "Contraoferta + proyecto estrella.", effects: { trust: { executive: 8, cfo: -4 }, budget: -50, knowledge: 10, vision: 3 } }] },
+  { id: "board_demo", title: "Demo en el Board", minEra: 3, text: "CEO pide demo agéntica en 3 sem para responder a Helios.", options: [{ label: "Mockup convincente.", effects: { trust: { executive: 22, commercial: 10, it: -8, regulatory: -6 } } }, { label: "Demo honesta.", effects: { trust: { executive: 4, it: 10, regulatory: 8 }, vision: 4 } }, { label: "Componente + roadmap.", effects: { trust: { executive: 14, it: 6, regulatory: 4 }, knowledge: 8, vision: 6 } }] },
   { id: "headcount_freeze", title: "Freeze Headcount", minEra: 1, text: "Corporativo congela contrataciones.", options: [{ label: "Aceptar.", effects: { trust: { cfo: 14, executive: 8 }, vision: 2 } }, { label: "Escalar al board.", effects: { trust: { cfo: -12, executive: 6 }, budget: 80 } }, { label: "Contractors.", effects: { trust: { cfo: -6, commercial: 8 }, budget: -120 } }] },
-  { id: "audit", title: "Auditoría sorpresa", minEra: 2, text: "IT audita en 48h.", options: [{ label: "Cooperar al 100%.", effects: { trust: { it: 20, regulatory: 14 }, pauseTurns: 1 } }, { label: "Mínimo y seguir.", effects: { trust: { it: -10, regulatory: -8 } } }, { label: "Consultoría externa.", effects: { trust: { it: 12, regulatory: 10 }, budget: -60 } }] },
+  { id: "fuga_datos", title: "Fuga de datos", minEra: 2, text: "Un export con IDs de pacientes acabó en un buzón personal. Nadie lo sabe... aún.", options: [
+    { label: "Taparlo y borrar rastros.", effects: { trust: { it: 4 }, followUp: { id: "prensa_fuga", inTurns: 6 } } },
+    { label: "Notificar a DPO y regulador.", effects: { trust: { regulatory: 16, it: 12, executive: -8 }, budget: -80, pauseTurns: 1 } },
+    { label: "Investigación interna discreta.", effects: { trust: { it: 8 }, budget: -40, followUp: { id: "prensa_fuga", inTurns: 10 } } },
+  ] },
+  { id: "vendor_caida", title: "Vendor crítico colapsa", minEra: 2, text: "Tu proveedor de datos HCP entra en concurso de acreedores.", options: [
+    { label: "Esperar a que se resuelva.", effects: { trust: { commercial: -6 }, followUp: { id: "migracion", inTurns: 5 } } },
+    { label: "Migración de emergencia ya.", effects: { budget: -110, trust: { it: 8, cfo: -6 }, knowledge: 12 } },
+    { label: "Contrato puente con competidor.", effects: { budget: -60, trust: { cfo: -4 }, followUp: { id: "migracion", inTurns: 9 } } },
+  ] },
 ];
+const HIDDEN_EVENTS = {
+  prensa_fuga: { id: "prensa_fuga", title: "⛓ La prensa lo sabe", text: "Un medio publica la fuga de datos que no notificaste. El daño es mayor por el silencio.", options: [
+    { label: "Asumir responsabilidad pública.", effects: { trust: { regulatory: -18, it: -12, executive: -14 }, budget: -120, vision: 3 } },
+    { label: "Culpar al vendor.", effects: { trust: { regulatory: -24, it: -16, executive: -8 }, budget: -60 } },
+  ] },
+  migracion: { id: "migracion", title: "⛓ Migración forzosa", text: "El vendor cierra definitivamente. Toca migrar bajo presión y a precio de pánico.", options: [
+    { label: "Pagar la migración exprés.", effects: { budget: -150, trust: { commercial: -6 } } },
+    { label: "Reconstruir pipeline interno (-2 turnos).", effects: { budget: -70, pauseTurns: 2, knowledge: 20 } },
+  ] },
+};
 const RANDOM_EVENTS = [
   { text: "Partnership con hyperscaler. +40 cómputo.", apply: { compute: 40 } },
-  { text: "Competidor lanzó GenAI antes.", apply: { trustAll: -6 } },
+  { text: "Helios acapara titulares en Fierce Pharma.", apply: { trustAll: -6 } },
   { text: "Premio interno de innovación.", apply: { trust: { executive: 12 }, vision: 3 } },
   { text: "Recorte presupuestario.", apply: { budget: -50 } },
   { text: "Congreso oncológico inspira.", apply: { knowledge: 15 } },
@@ -112,28 +130,106 @@ const RANDOM_EVENTS = [
   { text: "Newsletter de IA viral.", apply: { vision: 5 } },
   { text: "Colaboración académica.", apply: { knowledge: 20 } },
 ];
+const RIVAL_FLAVOR = [
+  "Helios presume de su nuevo copiloto médico en LinkedIn.",
+  "Helios ficha a un VP de IA de una big tech.",
+  "Rumor: Helios prepara un agente NBA para Q próximo.",
+  "Helios publica un paper con su feature store federado.",
+  "Un analista pone a Helios como referente de IA en pharma.",
+];
+const NAMES = ["Lucía", "Martín", "Carmen", "Álvaro", "Inés", "Pablo", "Nuria", "Diego", "Elena", "Sergio", "Marta", "Javier", "Claudia", "Hugo", "Irene", "Gonzalo", "Beatriz", "Adrián", "Rocío", "Tomás", "Olivia", "Bruno", "Silvia", "Marcos"];
+const TRAITS = {
+  veloz: { label: "Veloz", icon: "⚡", desc: "+15% velocidad personal" },
+  frugal: { label: "Frugal", icon: "🪙", desc: "-20% salario" },
+  erudito: { label: "Erudito", icon: "📜", desc: "+1 conocimiento/turno" },
+  mercenario: { label: "Mercenario", icon: "🗡", desc: "+25% velocidad, lealtad cae cada turno" },
+  negociador: { label: "Negociador", icon: "🤝", desc: "+1 negociación máx/turno" },
+  resiliente: { label: "Resiliente", icon: "🛡", desc: "-8% riesgo en su proyecto" },
+  carismatico: { label: "Carismático", icon: "✨", desc: "+0.5 confianza/turno al más débil" },
+  estrella: { label: "Estrella", icon: "⭐", desc: "+3 Exec al completar proyecto" },
+  mentor: { label: "Mentor", icon: "🎓", desc: "Upskill del resto 1 turno más rápido" },
+};
+const TECHS = {
+  automl: { label: "AutoML", minEra: 2, cost: { budget: 80, knowledge: 60 }, turns: 6, desc: "+15% velocidad predictive", fx: { speedType: { predictive: 0.15 } } },
+  data_contracts: { label: "Data Contracts", minEra: 1, cost: { budget: 60, knowledge: 50 }, turns: 5, desc: "-8% riesgo global", fx: { risk: -0.08 } },
+  finops: { label: "FinOps", minEra: 1, cost: { budget: 90, knowledge: 40 }, turns: 5, desc: "-15% nómina", fx: { payrollMult: 0.85 } },
+  agile_scale: { label: "Agile at Scale", minEra: 2, cost: { budget: 70, knowledge: 70 }, turns: 6, desc: "+0.1 velocidad base en todo", fx: { baseSpeed: 0.1 } },
+  exec_story: { label: "Storytelling Ejecutivo", minEra: 1, cost: { budget: 60, knowledge: 60 }, turns: 5, desc: "+8 efecto en negociaciones", fx: { negBonus: 8 } },
+  prompt_guild: { label: "Prompt Guild", minEra: 3, cost: { budget: 100, knowledge: 80 }, turns: 6, desc: "+15% velocidad GenAI", fx: { speedType: { genai: 0.15 } } },
+  rag_avanzado: { label: "RAG Avanzado", minEra: 4, cost: { budget: 140, knowledge: 110 }, turns: 7, desc: "+15% velocidad agéntica", fx: { speedType: { agentic: 0.15 } } },
+};
+const ACHIEVEMENTS = [
+  { id: "primera_sangre", label: "Primera Sangre", desc: "Completa tu primer proyecto", check: (s) => s.completedProjects.length >= 1 },
+  { id: "programa", label: "Estratega", desc: "Completa un programa", check: (s) => s.completedPrograms.length >= 1 },
+  { id: "pleno_qbr", label: "Pleno al Board", desc: "QBR con 3/3 OKRs", check: (s) => s.flags.qbr3 },
+  { id: "genai_era", label: "Susurrador de LLMs", desc: "Alcanza la Era GenAI", check: (s) => s.era >= 3 },
+  { id: "agentico", label: "Señor de Agentes", desc: "Alcanza la Era Agéntica", check: (s) => s.era >= 4 },
+  { id: "decena", label: "Cadena de Montaje", desc: "10 proyectos completados", check: (s) => s.completedProjects.length >= 10 },
+  { id: "corte_dorada", label: "Corte Dorada", desc: "Todos los stakeholders ≥70", check: (s) => Object.values(s.stakeholders).every((x) => x.trust >= 70) },
+  { id: "caballeria", label: "Caballería", desc: "Promociona a alguien a Lead", check: (s) => s.team.some((u) => u.level === 3) },
+  { id: "imparable", label: "Imparable", desc: "Era IV antes que Helios", check: (s) => s.era === 4 && s.rival.era < 4 },
+];
+const DIFFICULTIES = {
+  aprendiz: { label: "Aprendiz", color: C.jade, budget: 380, rival: 1.0, decay: 0.8, desc: "Helios va lento. Más caja inicial. Para aprender las mecánicas." },
+  veterano: { label: "Veterano", color: C.gold, budget: 300, rival: 1.5, decay: 1.0, desc: "Carrera ajustada. La experiencia pensada." },
+  leyenda: { label: "Leyenda", color: C.crimson, budget: 250, rival: 2.0, decay: 1.25, desc: "Helios corre. La confianza se desangra. Solo para PMOs de hierro." },
+};
+const SEASONS = [
+  { n: "Primavera", c: "#4a8e3d" }, { n: "Verano", c: "#c89b3c" }, { n: "Otoño", c: "#d2693e" }, { n: "Invierno", c: "#3a5e8c" },
+];
 const TURNS_PER_QUARTER = 12;
+
+function genCandidates(era) {
+  const avail = Object.keys(ROLES).filter((r) => ROLES[r].minEra <= era);
+  const traitKeys = Object.keys(TRAITS);
+  return [0, 1, 2].map(() => {
+    const role = avail[Math.floor(Math.random() * avail.length)];
+    const trait = Math.random() < 0.6 ? traitKeys[Math.floor(Math.random() * traitKeys.length)] : null;
+    const level = Math.random() < 0.25 ? 2 : 1;
+    return { id: "c" + Math.random().toString(36).slice(2, 8), name: NAMES[Math.floor(Math.random() * NAMES.length)], role, trait, level };
+  });
+}
+function hireCost(c) { return 80 + (c.level === 2 ? 60 : 0) + (c.trait ? 30 : 0); }
+
 const initialState = {
+  gameStarted: false, difficulty: null, sound: true,
+  mods: { rival: 1.5, decay: 1.0 },
   turn: 1, quarter: 1, year: 1, era: 1, paused: true, speed: 1,
   resources: { budget: 300, compute: 30, knowledge: 0, vision: 0 }, capacity: 6,
   team: [
-    { id: "u1", role: "data_engineer", level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 },
-    { id: "u2", role: "data_scientist", level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 },
-    { id: "u3", role: "product_manager", level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 },
-    { id: "u4", role: "domain_expert", level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 },
+    { id: "u1", name: "Lucía", role: "data_engineer", trait: null, level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 },
+    { id: "u2", name: "Martín", role: "data_scientist", trait: null, level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 },
+    { id: "u3", name: "Carmen", role: "product_manager", trait: null, level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 },
+    { id: "u4", name: "Álvaro", role: "domain_expert", trait: null, level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 },
   ],
+  market: [],
   buildings: [], activeProjects: [], completedProjects: [], completedPrograms: [],
   stakeholders: { commercial: { trust: 55 }, medical: { trust: 55 }, cfo: { trust: 55 }, it: { trust: 55 }, executive: { trust: 60 }, regulatory: { trust: 55 } },
   okrs: OKR_TEMPLATES[1].map((t) => ({ ...t, status: "open" })),
-  pastOKRs: [], risks: [], pendingEvent: null, pendingQBR: null, pendingReviews: null,
+  pastOKRs: [], risks: [], negotiationsThisTurn: 0, pendingEvent: null, pendingQBR: null, pendingReviews: null,
+  techs: { researched: [], current: null, progress: 0, turns: 0 },
+  achievements: [], followUps: [], flags: { qbr3: false },
+  rival: { era: 1, progress: 0 },
   log: [{ turn: 0, text: "Aterrizas como Jefe de DSAI Comercial de la OBU." }],
-  pauseTurns: 0, gameOver: null, gameOverReason: "", uidCounter: 5, negotiationsThisTurn: 0,
+  pauseTurns: 0, gameOver: null, gameOverReason: "",
 };
 
 const clamp = (n, mn, mx) => Math.max(mn, Math.min(mx, n));
 const fmt = (n) => Math.round(n).toLocaleString("es-ES");
 const riceScore = (rc) => Math.round((rc.r * rc.i * (rc.c / 10)) / Math.max(1, rc.e) * 10) / 10;
 
+function computeTechFx(state) {
+  let fx = { speedType: {}, baseSpeed: 0, risk: 0, payrollMult: 1, negBonus: 0 };
+  for (const id of state.techs.researched) {
+    const t = TECHS[id]; if (!t) continue;
+    if (t.fx.speedType) for (const k in t.fx.speedType) fx.speedType[k] = (fx.speedType[k] || 0) + t.fx.speedType[k];
+    if (t.fx.baseSpeed) fx.baseSpeed += t.fx.baseSpeed;
+    if (t.fx.risk) fx.risk += t.fx.risk;
+    if (t.fx.payrollMult) fx.payrollMult *= t.fx.payrollMult;
+    if (t.fx.negBonus) fx.negBonus += t.fx.negBonus;
+  }
+  return fx;
+}
 function activeRiskEffects(state) {
   let extraRisk = {}, extraDecay = { executive: 0, commercial: 0, it: 0 };
   for (const r of state.risks) {
@@ -161,6 +257,10 @@ function computeBuildingEffects(state) {
   }
   return { passive, projSpeed, negotiationsPerTurn, productivityMult, gatesGenAI, gatesAgentic, reworkDiscount, riskMod };
 }
+function maxNeg(state) {
+  const eff = computeBuildingEffects(state);
+  return 1 + eff.negotiationsPerTurn + state.team.filter((t) => t.trait === "negociador").length;
+}
 function computeTeamContrib(state) {
   let compute = 0, knowledge = 0, trustPerTurn = 0;
   for (const u of state.team) {
@@ -169,25 +269,36 @@ function computeTeamContrib(state) {
     if (r.contrib.compute) compute += r.contrib.compute * u.level * alloc;
     if (r.contrib.knowledge) knowledge += r.contrib.knowledge * u.level * alloc;
     if (r.contrib.trustPerTurn) trustPerTurn += r.contrib.trustPerTurn * u.level * alloc;
+    if (u.trait === "erudito") knowledge += 1 * alloc;
+    if (u.trait === "carismatico") trustPerTurn += 0.5;
   }
   return { compute, knowledge, trustPerTurn };
 }
 function payroll(state) {
   let s = 0;
-  for (const u of state.team) s += ROLES[u.role].salary * u.level * ((u.allocation || 100) / 100) * (u.loyalty > 80 ? 1.1 : 1);
-  return s;
+  const fx = computeTechFx(state);
+  for (const u of state.team) {
+    let base = ROLES[u.role].salary * u.level * ((u.allocation || 100) / 100) * (u.loyalty > 80 ? 1.1 : 1);
+    if (u.trait === "frugal") base *= 0.8;
+    s += base;
+  }
+  return s * fx.payrollMult;
 }
 function computeProjectSpeed(state, project, eff, ap) {
-  let base = 0.4;
+  const fx = computeTechFx(state);
+  let base = 0.4 + fx.baseSpeed;
   const assigned = state.team.filter((u) => u.projectId === project.id);
   for (const u of assigned) {
     const r = ROLES[u.role], alloc = (u.allocation || 100) / 100;
     let contrib = 0.5 * alloc;
     if (r.contrib.projectSpeed && (!r.contrib.types || r.contrib.types.includes(project.type))) contrib += r.contrib.projectSpeed * u.level * alloc;
     if (u.level === 3) contrib += 0.15;
+    if (u.trait === "veloz") contrib *= 1.15;
+    if (u.trait === "mercenario") contrib *= 1.25;
     base += contrib;
   }
   if (eff.projSpeed[project.type]) base += eff.projSpeed[project.type];
+  if (fx.speedType[project.type]) base += fx.speedType[project.type];
   base *= eff.productivityMult;
   if (project.stageGate && ap.progress >= project.stageGate.atProgress && !ap.gateApproved) base = 0;
   return base;
@@ -225,7 +336,7 @@ function okrProgress(okr, state) {
   }
 }
 function generateOKRs(q) { return (OKR_TEMPLATES[q] || OKR_TEMPLATES[7]).map((x) => ({ ...x, status: "open" })); }
-function prepend(log, turn, text) { return [{ turn, text }, ...log].slice(0, 80); }
+function prepend(log, turn, text) { return [{ turn, text }, ...log].slice(0, 90); }
 function logIt(state, text) { return { ...state, log: prepend(state.log, state.turn, text) }; }
 function applyEffects(state, effects) {
   let s = { ...state };
@@ -237,30 +348,53 @@ function applyEffects(state, effects) {
   if (effects.trustAll) { const sh = { ...s.stakeholders }; for (const k in sh) sh[k] = { ...sh[k], trust: clamp(sh[k].trust + effects.trustAll, 0, 100) }; s.stakeholders = sh; }
   if (effects.pauseTurns) s.pauseTurns += effects.pauseTurns;
   if (effects.stallTurns) s.pauseTurns += effects.stallTurns;
-  if (effects.fireRole) { const idx = s.team.findIndex((u) => u.role === effects.fireRole); if (idx >= 0) s.team = s.team.filter((u) => u.id !== s.team[idx].id); }
+  if (effects.fireRole) { const idx = s.team.findIndex((u) => u.role === effects.fireRole); if (idx >= 0) { const gone = s.team[idx]; s.team = s.team.filter((u) => u.id !== gone.id); s = logIt(s, `${gone.name} deja el equipo.`); } }
+  if (effects.followUp) s.followUps = [...s.followUps, { ...effects.followUp }];
   return s;
 }
 
 function reducer(state, action) {
   if (state.gameOver && action.type !== "RESET") return state;
   switch (action.type) {
+    case "START_GAME": {
+      const d = DIFFICULTIES[action.difficulty];
+      return {
+        ...initialState, gameStarted: true, difficulty: action.difficulty,
+        mods: { rival: d.rival, decay: d.decay },
+        resources: { ...initialState.resources, budget: d.budget },
+        market: genCandidates(1),
+        log: [{ turn: 0, text: `Partida en modo ${d.label}. Helios Bio acecha al otro lado del mercado.` }],
+      };
+    }
     case "TOGGLE_PAUSE": return { ...state, paused: !state.paused };
     case "SET_SPEED": return { ...state, speed: action.speed };
-    case "HIRE": {
-      const r = ROLES[action.role]; if (!r) return state;
-      if (state.era < r.minEra) return logIt(state, "Era insuficiente.");
+    case "TOGGLE_SOUND": return { ...state, sound: !state.sound };
+
+    case "HIRE_CANDIDATE": {
+      const c = state.market.find((x) => x.id === action.id); if (!c) return state;
+      const cost = hireCost(c);
       if (state.team.length >= state.capacity) return logIt(state, "Sin capacidad. Construye War Room.");
-      if (state.resources.budget < 80) return logIt(state, "Sin presupuesto (€80).");
-      const id = "u" + state.uidCounter;
-      return { ...state, uidCounter: state.uidCounter + 1, resources: { ...state.resources, budget: state.resources.budget - 80 }, team: [...state.team, { id, role: action.role, level: 1, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 }], log: prepend(state.log, state.turn, `Contratado ${r.label} (€80).`) };
+      if (state.resources.budget < cost) return logIt(state, `Sin presupuesto (€${cost}).`);
+      return {
+        ...state,
+        resources: { ...state.resources, budget: state.resources.budget - cost },
+        market: state.market.filter((x) => x.id !== c.id),
+        team: [...state.team, { id: c.id, name: c.name, role: c.role, trait: c.trait, level: c.level, status: "idle", projectId: null, trainingTurns: 0, allocation: 100, performance: 60, loyalty: 70 }],
+        log: prepend(state.log, state.turn, `Fichaje: ${c.name} (${ROLES[c.role].label}${c.trait ? " · " + TRAITS[c.trait].label : ""}).`),
+      };
     }
-    case "FIRE": { const u = state.team.find((x) => x.id === action.id); if (!u) return state; return { ...state, team: state.team.filter((x) => x.id !== action.id), log: prepend(state.log, state.turn, `Sale ${ROLES[u.role].label}.`) }; }
+    case "REFRESH_MARKET": {
+      if (state.resources.budget < 25) return logIt(state, "Sin presupuesto (€25).");
+      return { ...state, resources: { ...state.resources, budget: state.resources.budget - 25 }, market: genCandidates(state.era), log: prepend(state.log, state.turn, "Headhunter trae nuevos candidatos.") };
+    }
+    case "FIRE": { const u = state.team.find((x) => x.id === action.id); if (!u) return state; return { ...state, team: state.team.filter((x) => x.id !== action.id), log: prepend(state.log, state.turn, `${u.name} sale del equipo.`) }; }
     case "TRAIN": {
       const u = state.team.find((x) => x.id === action.id); if (!u) return state;
       if (u.status !== "idle") return logIt(state, "Libéralo primero.");
       if (u.level >= 3) return logIt(state, "Ya es Lead.");
       if (state.resources.budget < 50) return logIt(state, "Sin presupuesto.");
-      return { ...state, resources: { ...state.resources, budget: state.resources.budget - 50 }, team: state.team.map((x) => x.id === action.id ? { ...x, status: "training", trainingTurns: 4 } : x), log: prepend(state.log, state.turn, `Upskill: ${ROLES[u.role].label}.`) };
+      const hasMentor = state.team.some((t) => t.trait === "mentor" && t.id !== u.id);
+      return { ...state, resources: { ...state.resources, budget: state.resources.budget - 50 }, team: state.team.map((x) => x.id === action.id ? { ...x, status: "training", trainingTurns: hasMentor ? 3 : 4 } : x), log: prepend(state.log, state.turn, `Upskill: ${u.name}${hasMentor ? " (acelerado por Mentor)" : ""}.`) };
     }
     case "SET_ALLOCATION": return { ...state, team: state.team.map((x) => x.id === action.id ? { ...x, allocation: clamp(action.value, 25, 100) } : x) };
     case "BUILD": {
@@ -286,8 +420,7 @@ function reducer(state, action) {
       return { ...state, team: state.team.map((x) => x.id === action.userId ? { ...x, status: action.projectId ? "on_project" : "idle", projectId: action.projectId } : x) };
     }
     case "REQUEST_GATE": {
-      const eff = computeBuildingEffects(state);
-      if (state.negotiationsThisTurn >= 1 + eff.negotiationsPerTurn) return logIt(state, "Sin negociaciones.");
+      if (state.negotiationsThisTurn >= maxNeg(state)) return logIt(state, "Sin negociaciones.");
       if (!state.buildings.includes("war_room")) return logIt(state, "Necesitas War Room.");
       const ap = state.activeProjects.find((x) => x.id === action.projectId);
       const p = PROJECTS.find((x) => x.id === action.projectId);
@@ -306,11 +439,19 @@ function reducer(state, action) {
       return { ...state, era: next.id, capacity: state.capacity + 2, resources: { ...state.resources, budget: state.resources.budget - c.budget, knowledge: state.resources.knowledge - c.knowledge, vision: state.resources.vision - (c.vision || 0) }, log: prepend(state.log, state.turn, `▲ ${next.name}.`) };
     }
     case "NEGOTIATE": {
-      const eff = computeBuildingEffects(state);
-      if (state.negotiationsThisTurn >= 1 + eff.negotiationsPerTurn) return logIt(state, "Sin negociaciones.");
+      if (state.negotiationsThisTurn >= maxNeg(state)) return logIt(state, "Sin negociaciones.");
       const sh = state.stakeholders[action.id]; if (!sh || state.resources.budget < 35) return logIt(state, "Sin presupuesto.");
-      const gain = 12 + Math.floor(Math.random() * 8);
+      const fx = computeTechFx(state);
+      const gain = 12 + Math.floor(Math.random() * 8) + fx.negBonus;
       return { ...state, negotiationsThisTurn: state.negotiationsThisTurn + 1, resources: { ...state.resources, budget: state.resources.budget - 35 }, stakeholders: { ...state.stakeholders, [action.id]: { ...sh, trust: clamp(sh.trust + gain, 0, 100) } }, log: prepend(state.log, state.turn, `Negociación ${STAKEHOLDERS[action.id].label}: +${gain}.`) };
+    }
+    case "START_TECH": {
+      const t = TECHS[action.id]; if (!t) return state;
+      if (state.techs.researched.includes(action.id)) return logIt(state, "Ya investigada.");
+      if (state.techs.current) return logIt(state, "Ya hay una investigación en curso.");
+      if (state.era < t.minEra) return logIt(state, "Era insuficiente.");
+      if (state.resources.budget < t.cost.budget || state.resources.knowledge < t.cost.knowledge) return logIt(state, "Recursos insuficientes.");
+      return { ...state, resources: { ...state.resources, budget: state.resources.budget - t.cost.budget, knowledge: state.resources.knowledge - t.cost.knowledge }, techs: { ...state.techs, current: action.id, progress: 0, turns: t.turns }, log: prepend(state.log, state.turn, `🔬 Investigación iniciada: ${t.label}.`) };
     }
     case "MITIGATE_RISK": {
       const r = state.risks.find((x) => x.id === action.id); if (!r || r.mitigated) return state;
@@ -335,28 +476,56 @@ function reducer(state, action) {
       return logIt(s, "Revisión de desempeño completada.");
     }
     case "TICK": return tick(state);
-    case "RESET": return { ...initialState, log: [{ turn: 0, text: "Nueva partida." }] };
+    case "RESET": return { ...initialState };
     default: return state;
   }
 }
 
 function tick(state) {
-  let s = { ...state }; const eff = computeBuildingEffects(s), riskEff = activeRiskEffects(s);
+  if (!state.gameStarted) return state;
+  let s = { ...state }; const eff = computeBuildingEffects(s), riskEff = activeRiskEffects(s), fx = computeTechFx(s);
   s.negotiationsThisTurn = 0;
+
   s.team = s.team.map((u) => {
-    if (u.status === "training") { const t = u.trainingTurns - 1; if (t <= 0) return { ...u, status: "idle", trainingTurns: 0, level: Math.min(3, u.level + 1) }; return { ...u, trainingTurns: t }; }
-    return u;
+    let nu = u;
+    if (nu.status === "training") {
+      const t = nu.trainingTurns - 1;
+      nu = t <= 0 ? { ...nu, status: "idle", trainingTurns: 0, level: Math.min(3, nu.level + 1) } : { ...nu, trainingTurns: t };
+    }
+    if (nu.trait === "mercenario") nu = { ...nu, loyalty: clamp(nu.loyalty - 1, 0, 100) };
+    return nu;
   });
+
   const stalled = s.pauseTurns > 0; if (stalled) s.pauseTurns -= 1;
   const teamC = computeTeamContrib(s); const pr = payroll(s);
   s.resources = { ...s.resources, budget: s.resources.budget - pr, compute: s.resources.compute + teamC.compute + eff.passive.compute, knowledge: s.resources.knowledge + teamC.knowledge + eff.passive.knowledge };
-  if (teamC.trustPerTurn > 0) { const sh = { ...s.stakeholders }; const list = Object.entries(sh).sort((a, b) => a[1].trust - b[1].trust).slice(0, 3); for (const [k] of list) sh[k] = { ...sh[k], trust: clamp(sh[k].trust + teamC.trustPerTurn, 0, 100) }; s.stakeholders = sh; }
+
+  if (teamC.trustPerTurn > 0) {
+    const sh = { ...s.stakeholders };
+    const list = Object.entries(sh).sort((a, b) => a[1].trust - b[1].trust).slice(0, 3);
+    for (const [k] of list) sh[k] = { ...sh[k], trust: clamp(sh[k].trust + teamC.trustPerTurn, 0, 100) };
+    s.stakeholders = sh;
+  }
+
+  // research progress
+  if (s.techs.current) {
+    const prog = s.techs.progress + 1;
+    if (prog >= s.techs.turns) {
+      const done = s.techs.current;
+      s.techs = { ...s.techs, researched: [...s.techs.researched, done], current: null, progress: 0, turns: 0 };
+      s = logIt(s, `🔬 Investigación completada: ${TECHS[done].label}.`);
+    } else s.techs = { ...s.techs, progress: prog };
+  }
+
+  // projects
   if (!stalled) {
     const stillActive = [];
     for (const ap of s.activeProjects) {
       const p = PROJECTS.find((x) => x.id === ap.id); const speed = computeProjectSpeed(s, p, eff, ap); const newProgress = ap.progress + speed;
       if (newProgress >= p.duration) {
-        const totalRisk = Math.max(0, p.risk + eff.riskMod + (riskEff.extraRisk[p.type] || 0));
+        const assigned = s.team.filter((u) => u.projectId === p.id);
+        const traitRisk = -0.08 * assigned.filter((u) => u.trait === "resiliente").length;
+        const totalRisk = Math.max(0, p.risk + eff.riskMod + fx.risk + traitRisk + (riskEff.extraRisk[p.type] || 0));
         if (Math.random() < totalRisk) { s = logIt(s, `❌ ${p.name} falló.`); s.resources = { ...s.resources, budget: s.resources.budget - Math.floor(p.cost.budget * (1 - eff.reworkDiscount) * 0.4) }; }
         else {
           s = logIt(s, `✅ ${p.name} completado.`);
@@ -365,6 +534,8 @@ function tick(state) {
           if (p.reward.vision) s.resources = { ...s.resources, vision: s.resources.vision + p.reward.vision };
           if (p.reward.trust) { const sh = { ...s.stakeholders }; for (const k in p.reward.trust) sh[k] = { ...sh[k], trust: clamp(sh[k].trust + p.reward.trust[k], 0, 100) }; s.stakeholders = sh; }
           if (p.sideEffect?.trust) { const sh = { ...s.stakeholders }; for (const k in p.sideEffect.trust) sh[k] = { ...sh[k], trust: clamp(sh[k].trust + p.sideEffect.trust[k], 0, 100) }; s.stakeholders = sh; }
+          const stars = assigned.filter((u) => u.trait === "estrella").length;
+          if (stars) { const sh = { ...s.stakeholders }; sh.executive = { ...sh.executive, trust: clamp(sh.executive.trust + 3 * stars, 0, 100) }; s.stakeholders = sh; }
           s.completedProjects = [...s.completedProjects, p.id];
           for (const prog of PROGRAMS) { if (s.completedPrograms.includes(prog.id)) continue; if (prog.required.every((r) => s.completedProjects.includes(r))) { s.completedPrograms = [...s.completedPrograms, prog.id]; s = logIt(s, `🏆 PROGRAMA: ${prog.name}!`); s = applyEffects(s, prog.reward); } }
         }
@@ -373,9 +544,11 @@ function tick(state) {
     }
     s.activeProjects = stillActive;
   }
+
+  // trust decay
   const sh = { ...s.stakeholders };
   for (const k in sh) {
-    let drop = 1;
+    let drop = 1 * s.mods.decay;
     if (k === "executive") drop += riskEff.extraDecay.executive;
     if (k === "commercial") drop += riskEff.extraDecay.commercial;
     if (k === "it") drop += riskEff.extraDecay.it;
@@ -383,15 +556,58 @@ function tick(state) {
     if (sh[k].trust < 25 && Math.random() < 0.28) { s = applyAttack(s, k); sh[k] = { ...sh[k], trust: 30 }; }
   }
   s.stakeholders = sh;
+
+  // RIVAL
+  let rv = { ...s.rival };
+  rv.progress += s.mods.rival * (0.85 + Math.random() * 0.3);
+  if (Math.random() < 0.04) s = logIt(s, `🏰 ${RIVAL_FLAVOR[Math.floor(Math.random() * RIVAL_FLAVOR.length)]}`);
+  if (rv.progress >= 60) {
+    rv.era += 1; rv.progress = 0;
+    if (rv.era > 4) { s.gameOver = "lose"; s.gameOverReason = "Helios Bio domina la categoría agéntica antes que tú. El board mira hacia otro lado cuando pasas."; }
+    else {
+      s = logIt(s, `🏰 Helios Bio alcanza la ${ERAS[rv.era - 1].name}. El board lo nota.`);
+      s = applyEffects(s, { trust: { executive: -6, commercial: -4 } });
+    }
+  }
+  s.rival = rv;
+  // talent theft
+  if (Math.random() < 0.03 * s.mods.rival) {
+    const vulnerable = s.team.filter((u) => u.loyalty < 40 && u.status !== "training");
+    if (vulnerable.length) {
+      const gone = vulnerable[Math.floor(Math.random() * vulnerable.length)];
+      s.team = s.team.filter((u) => u.id !== gone.id);
+      s = logIt(s, `🏴 Helios ficha a ${gone.name}. La lealtad baja se paga.`);
+    }
+  }
+
+  // risks
   if (s.risks.length < 4 && Math.random() < 0.06) { const pool = RISK_TEMPLATES.filter((r) => !s.risks.find((x) => x.id === r.id)); if (pool.length) { const r = pool[Math.floor(Math.random() * pool.length)]; s.risks = [...s.risks, { ...r, mitigated: false }]; s = logIt(s, `⚠ Riesgo: ${r.label}.`); } }
+
+  // follow-up crisis chains
+  if (s.followUps.length) {
+    s.followUps = s.followUps.map((f) => ({ ...f, inTurns: f.inTurns - 1 }));
+    const due = s.followUps.find((f) => f.inTurns <= 0);
+    if (due && !s.pendingEvent && !s.pendingQBR && !s.pendingReviews) {
+      s.followUps = s.followUps.filter((f) => f !== due);
+      s.pendingEvent = HIDDEN_EVENTS[due.id];
+      s.paused = true;
+      s = logIt(s, `⛓ Las consecuencias te alcanzan.`);
+    }
+  }
+
+  // random + decision events
   if (Math.random() < 0.1 && !s.pendingEvent) { const re = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)]; s = logIt(s, `📰 ${re.text}`); s = applyEffects(s, re.apply); }
   if (Math.random() < 0.09 && !s.pendingEvent && !s.pendingQBR && !s.pendingReviews) { const pool = DECISION_EVENTS.filter((e) => s.era >= e.minEra); if (pool.length) { s.pendingEvent = pool[Math.floor(Math.random() * pool.length)]; s.paused = true; s = logIt(s, `⚡ ${s.pendingEvent.title}.`); } }
+
   s.turn += 1;
+
+  // quarter rollover
   if (s.turn % TURNS_PER_QUARTER === 1 && s.turn > 1) {
     const newQuarter = s.quarter + 1;
     const evaluated = s.okrs.map((okr) => ({ ...okr, status: isOKRMet(okr, s) ? "met" : "missed" }));
     const metCount = evaluated.filter((o) => o.status === "met").length;
     const missedCount = evaluated.filter((o) => o.status === "missed").length;
+    if (metCount === 3) s.flags = { ...s.flags, qbr3: true };
     const sh2 = { ...s.stakeholders };
     sh2.executive = { ...sh2.executive, trust: clamp(sh2.executive.trust + (metCount - missedCount) * 4, 0, 100) };
     sh2.cfo = { ...sh2.cfo, trust: clamp(sh2.cfo.trust + (metCount - missedCount) * 2, 0, 100) };
@@ -402,14 +618,30 @@ function tick(state) {
     s.okrs = generateOKRs(newQuarter);
     s.quarter = newQuarter;
     if (newQuarter > 4 && newQuarter % 4 === 1) s.year += 1;
+    s.market = genCandidates(s.era);
     s.pendingQBR = { metCount, missedCount, oldOKRs: evaluated };
     s.pendingReviews = s.team.map((u) => u.id);
     s.paused = true;
   }
-  if (s.resources.budget < -250) { s.gameOver = "lose"; s.gameOverReason = "Quiebra del equipo."; }
-  else if (s.stakeholders.executive.trust < 20) { s.gameOver = "lose"; s.gameOverReason = "Comité Ejecutivo te ha cesado."; }
-  const agenticDone = s.completedProjects.filter((id) => PROJECTS.find((p) => p.id === id)?.type === "agentic").length;
-  if (s.era === 4 && agenticDone >= 2 && s.completedPrograms.length >= 3 && s.stakeholders.executive.trust >= 70) { s.gameOver = "win"; s.gameOverReason = "Operación agéntica consolidada."; }
+
+  // achievements
+  for (const a of ACHIEVEMENTS) {
+    if (!s.achievements.includes(a.id) && a.check(s)) {
+      s.achievements = [...s.achievements, a.id];
+      s = logIt(s, `🎖 Logro desbloqueado: ${a.label}. +2 visión.`);
+      s.resources = { ...s.resources, vision: s.resources.vision + 2 };
+    }
+  }
+
+  // win / lose
+  if (!s.gameOver) {
+    if (s.resources.budget < -250) { s.gameOver = "lose"; s.gameOverReason = "Quiebra del equipo."; }
+    else if (s.stakeholders.executive.trust < 20) { s.gameOver = "lose"; s.gameOverReason = "El Comité Ejecutivo te ha cesado."; }
+    else {
+      const agenticDone = s.completedProjects.filter((id) => PROJECTS.find((p) => p.id === id)?.type === "agentic").length;
+      if (s.era === 4 && agenticDone >= 2 && s.completedPrograms.length >= 3 && s.stakeholders.executive.trust >= 70) { s.gameOver = "win"; s.gameOverReason = "Operación agéntica consolidada antes que Helios. Eres referencia en pharma."; }
+    }
+  }
   return s;
 }
 function applyAttack(s, key) {
@@ -423,7 +655,6 @@ function applyAttack(s, key) {
   }
   return logIt(s, msg);
 }
-
 /* ============ SPRITES ============ */
 
 function Sprite({ type, color = C.steel, size = 44, level = 1, animate = true }) {
@@ -652,256 +883,6 @@ function MicroBar({ label, value, color }) {
       <div className="mono" style={{ fontSize: 8, color: C.muted, marginBottom: 1 }}>{label} {Math.round(value)}</div>
       <div style={{ height: 3, background: C.bg, borderRadius: 1, overflow: "hidden" }}>
         <div style={{ width: clamp(value, 0, 100) + "%", height: "100%", background: color }} />
-      </div>
-    </div>
-  );
-}
-
-/* ---------- KINGDOM MAP ---------- */
-function KingdomMap({ state }) {
-  const slots = {
-    war_room: { x: 50, y: 60 },
-    data_lake: { x: 80, y: 32 },
-    feature_store: { x: 22, y: 32 },
-    model_registry: { x: 78, y: 70 },
-    ai_gateway: { x: 22, y: 70 },
-    agent_mesh: { x: 50, y: 30 },
-  };
-  const idle = state.team.filter((u) => u.status === "idle");
-  const training = state.team.filter((u) => u.status === "training");
-  const era = ERAS[state.era - 1];
-
-  return (
-    <div style={{
-      position: "relative", width: "100%", height: 340,
-      background: `radial-gradient(ellipse at 50% 30%, #2a2218 0%, transparent 60%), linear-gradient(180deg, #1a1612 0%, #0c0a08 100%)`,
-      border: `1px solid ${C.border}`, borderRadius: 4, overflow: "hidden",
-    }}>
-      <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.18 }}>
-        <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke={C.bronze} strokeWidth="0.5" /></pattern></defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
-      <div style={{
-        position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)",
-        background: `linear-gradient(180deg, ${era.color}33, ${era.color}11)`, border: `1px solid ${era.color}`,
-        padding: "4px 14px", borderRadius: 2, zIndex: 10,
-      }}>
-        <span className="cinzel" style={{ color: era.color, fontSize: 13, fontWeight: 700, letterSpacing: 2 }}>
-          {era.banner} · {era.short.toUpperCase()}
-        </span>
-      </div>
-
-      {/* edificios construidos */}
-      {state.buildings.map((bid) => {
-        const slot = slots[bid]; const b = BUILDINGS[bid]; if (!slot) return null;
-        return (
-          <div key={bid} style={{ position: "absolute", left: `${slot.x}%`, top: `${slot.y}%`, transform: "translate(-50%, -50%)", textAlign: "center" }} title={b.label}>
-            <BuildingSvg type={b.building} size={64} />
-            <div className="cinzel" style={{ fontSize: 8, color: C.parchment, marginTop: -2, letterSpacing: 1 }}>{b.label.slice(0, 16)}</div>
-          </div>
-        );
-      })}
-      {/* placeholders */}
-      {Object.entries(slots).map(([bid, slot]) => {
-        if (state.buildings.includes(bid)) return null;
-        const b = BUILDINGS[bid]; if (state.era < b.minEra) return null;
-        return (
-          <div key={"ph_" + bid} style={{ position: "absolute", left: `${slot.x}%`, top: `${slot.y}%`, transform: "translate(-50%, -50%)", opacity: 0.18 }}>
-            <BuildingSvg type={b.building} size={50} active={false} />
-          </div>
-        );
-      })}
-
-      {/* idle soldiers */}
-      <div style={{ position: "absolute", bottom: 18, left: 8, display: "flex", gap: 1, flexWrap: "wrap", maxWidth: 230 }}>
-        {idle.map((u) => (
-          <div key={u.id} title={`${ROLES[u.role].label} · ${["Jr", "Sr", "Lead"][u.level - 1]}`}>
-            <Sprite type={ROLES[u.role].sprite} color={ROLES[u.role].color} size={30} level={u.level} />
-          </div>
-        ))}
-      </div>
-      {idle.length > 0 && <div className="cinzel" style={{ position: "absolute", bottom: 2, left: 8, fontSize: 9, color: C.muted, letterSpacing: 1 }}>⚔ BARRACÓN</div>}
-
-      {/* training */}
-      <div style={{ position: "absolute", bottom: 18, right: 8, display: "flex", gap: 1, flexWrap: "wrap", maxWidth: 180 }}>
-        {training.map((u) => (
-          <div key={u.id} style={{ position: "relative" }} title="Upskill">
-            <Sprite type={ROLES[u.role].sprite} color={ROLES[u.role].color} size={30} level={u.level} />
-            <div style={{ position: "absolute", top: -2, right: -2, background: C.gold, color: C.bg, borderRadius: "50%", width: 13, height: 13, fontSize: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>{u.trainingTurns}</div>
-          </div>
-        ))}
-      </div>
-      {training.length > 0 && <div className="cinzel" style={{ position: "absolute", bottom: 2, right: 8, fontSize: 9, color: C.muted, letterSpacing: 1 }}>📜 ACADEMIA</div>}
-
-      {/* active project banners */}
-      <div style={{
-        position: "absolute", top: 130, left: "50%", transform: "translateX(-50%)",
-        display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", maxWidth: "60%",
-      }}>
-        {state.activeProjects.slice(0, 5).map((ap) => {
-          const p = PROJECTS.find((x) => x.id === ap.id); const pct = (ap.progress / p.duration) * 100;
-          const c = projectTypeColor(p.type);
-          const team = state.team.filter((u) => u.projectId === p.id);
-          return (
-            <div key={ap.id} style={{ textAlign: "center" }}>
-              <div style={{ position: "relative", display: "inline-block" }}>
-                <svg width="50" height="56" viewBox="0 0 50 60">
-                  <rect x="24" y="0" width="2" height="60" fill="#3a2818" />
-                  <path d="M 26 4 L 46 8 L 46 32 L 26 28 Z" fill={c} stroke={C.goldLight} strokeWidth="0.8">
-                    <animate attributeName="d" values="M 26 4 L 46 8 L 46 32 L 26 28 Z;M 26 4 L 44 10 L 44 30 L 26 28 Z;M 26 4 L 46 8 L 46 32 L 26 28 Z" dur="2.5s" repeatCount="indefinite" />
-                  </path>
-                  <text x="36" y="22" fontSize="10" fill={C.bg} textAnchor="middle" fontWeight="700">{p.type[0].toUpperCase()}</text>
-                </svg>
-                <div style={{ display: "flex", justifyContent: "center", marginTop: -6 }}>
-                  {team.slice(0, 3).map((u, i) => (
-                    <div key={u.id} style={{ marginLeft: i === 0 ? 0 : -10 }}>
-                      <Sprite type={ROLES[u.role].sprite} color={ROLES[u.role].color} size={22} level={u.level} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div style={{ width: 80, height: 4, background: C.panel2, borderRadius: 2, marginTop: 2, overflow: "hidden" }}>
-                <div style={{ width: pct + "%", height: "100%", background: c }} />
-              </div>
-              <div className="cinzel" style={{ fontSize: 8, color: C.parchment, marginTop: 2, maxWidth: 88, lineHeight: 1.2, letterSpacing: 0.5 }}>
-                {p.name.slice(0, 22)}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {state.buildings.length === 0 && (
-        <div style={{ position: "absolute", left: "50%", top: "55%", transform: "translate(-50%, -50%)", opacity: 0.5 }}>
-          <BuildingSvg type="hut" size={58} active={false} />
-          <div className="cinzel" style={{ fontSize: 9, color: C.muted, textAlign: "center", marginTop: -4 }}>Aldea inicial</div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ---------- HEADER ---------- */
-function Header({ state, dispatch }) {
-  const eff = computeBuildingEffects(state); const teamC = computeTeamContrib(state); const pr = payroll(state);
-  const inQ = ((state.quarter - 1) % 4) + 1;
-  return (
-    <div style={{ borderBottom: `2px solid ${C.border}`, background: "rgba(26,22,18,0.95)", backdropFilter: "blur(8px)", padding: "10px 18px", position: "sticky", top: 0, zIndex: 50 }}>
-      <div style={{ maxWidth: 1600, margin: "0 auto", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-        <span className="cinzel" style={{ fontSize: 22, color: C.gold, letterSpacing: 3, fontWeight: 700 }}>⚔ IMPERIO · AGÉNTICO ⚔</span>
-        <span className="mono" style={{ color: C.muted, fontSize: 10 }}>v2.0 OBU</span>
-        <div style={{ padding: "5px 12px", background: C.panel2, border: `1px solid ${C.gold}`, borderRadius: 2 }}>
-          <div className="cinzel" style={{ fontSize: 11, color: C.gold, letterSpacing: 1.5 }}>Q{inQ} · AÑO {state.year} · TURNO {state.turn}</div>
-        </div>
-        <div style={{ flex: 1 }} />
-        <Resource label="Presupuesto" value={"€" + fmt(state.resources.budget)} icon="◈" color={C.gold} warn={state.resources.budget < 100} />
-        <Resource label="Cómputo" value={fmt(state.resources.compute)} icon="⚡" color={C.purple} sub={`+${Math.round(teamC.compute + eff.passive.compute)}/t`} />
-        <Resource label="Conocimiento" value={fmt(state.resources.knowledge)} icon="📜" color={C.jade} sub={`+${Math.round(teamC.knowledge + eff.passive.knowledge)}/t`} />
-        <Resource label="Visión" value={fmt(state.resources.vision)} icon="✦" color={C.crimson} sub="estratégica" />
-        <Resource label="Nómina/t" value={"-" + fmt(pr)} icon="◔" color={C.ember} mono />
-        <div style={{ display: "flex", gap: 5 }}>
-          <CtrlBtn onClick={() => dispatch({ type: "TOGGLE_PAUSE" })} active={!state.paused}>{state.paused ? "▶" : "❚❚"}</CtrlBtn>
-          {[1, 2, 3].map((s) => <CtrlBtn key={s} onClick={() => dispatch({ type: "SET_SPEED", speed: s })} active={state.speed === s}>{s}x</CtrlBtn>)}
-        </div>
-      </div>
-      {state.pauseTurns > 0 && (
-        <div style={{ maxWidth: 1600, margin: "8px auto 0", padding: "5px 10px", background: "rgba(139,21,56,0.15)", border: `1px solid ${C.crimson}`, borderRadius: 2, fontSize: 11, color: C.crimson }}>
-          ⚠ Operativa pausada · {state.pauseTurns} turnos
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ---------- TABS ---------- */
-function Tabs({ tab, setTab, state }) {
-  const tabs = [
-    { id: "portfolio", label: "Portfolio", count: state.activeProjects.length },
-    { id: "okrs", label: "OKRs/QBR", count: state.okrs.filter((o) => isOKRMet(o, state)).length + "/" + state.okrs.length },
-    { id: "risks", label: "Riesgos", count: state.risks.filter((r) => !r.mitigated).length },
-    { id: "build", label: "Infraestructura", count: state.buildings.length },
-    { id: "era", label: "Roadmap", count: null },
-    { id: "log", label: "Registro", count: null },
-  ];
-  return (
-    <div style={{ display: "flex", gap: 4, borderBottom: `1px solid ${C.border}` }}>
-      {tabs.map((t) => (
-        <button key={t.id} onClick={() => setTab(t.id)} style={{
-          background: tab === t.id ? C.panel2 : "transparent", border: "none",
-          borderBottom: tab === t.id ? `2px solid ${C.gold}` : "2px solid transparent",
-          color: tab === t.id ? C.gold : C.muted, padding: "7px 12px", fontSize: 12, fontWeight: 600,
-          fontFamily: "'Cinzel', serif", letterSpacing: 0.3, cursor: "pointer",
-        }}>
-          {t.label}{t.count != null && <span className="mono" style={{ marginLeft: 5, opacity: 0.7, fontSize: 10 }}>·{t.count}</span>}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-/* ---------- TEAM PANEL ---------- */
-function TeamPanel({ state, dispatch, assigning, setAssigning }) {
-  const [showHire, setShowHire] = useState(false);
-  return (
-    <Panel title="Equipo" subtitle={`${state.team.length}/${state.capacity} miembros`} accent={C.steel}>
-      <div className="scrolly" style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 8, maxHeight: 480, overflowY: "auto" }}>
-        {state.team.map((u) => (<TeamCard key={u.id} u={u} state={state} dispatch={dispatch} assigning={assigning === u.id} setAssigning={setAssigning} />))}
-      </div>
-      <button onClick={() => setShowHire(!showHire)} style={primaryBtn(C.steel)}>{showHire ? "▾" : "▸"} Contratar (€80)</button>
-      {showHire && (
-        <div style={{ marginTop: 7, display: "flex", flexDirection: "column", gap: 5 }}>
-          {Object.entries(ROLES).map(([id, r]) => {
-            const locked = state.era < r.minEra, noCap = state.team.length >= state.capacity, noBudget = state.resources.budget < 80;
-            return (
-              <button key={id} disabled={locked || noCap || noBudget} onClick={() => { dispatch({ type: "HIRE", role: id }); setShowHire(false); }}
-                style={{ background: locked ? C.panel : C.panel2, border: `1px solid ${locked ? C.border : r.color}`, color: C.text, textAlign: "left", padding: 7, borderRadius: 2 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontWeight: 700, color: locked ? C.muted : r.color, fontFamily: "'Cinzel', serif", fontSize: 12 }}>{r.label}</span>
-                  <span className="mono" style={{ fontSize: 10, color: C.muted }}>{locked ? `Era ${r.minEra}+` : `€${r.salary}/t`}</span>
-                </div>
-                <div style={{ fontSize: 10, color: C.muted, marginTop: 2, lineHeight: 1.3 }}>{r.desc}</div>
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </Panel>
-  );
-}
-
-function TeamCard({ u, state, dispatch, assigning, setAssigning }) {
-  const r = ROLES[u.role];
-  const projDef = u.projectId ? PROJECTS.find((p) => p.id === u.projectId) : null;
-  const isTraining = u.status === "training";
-  return (
-    <div style={{ background: C.panel2, border: `1px solid ${assigning ? C.gold : C.border}`, borderLeft: `3px solid ${r.color}`, borderRadius: 2, padding: 7 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-        <Sprite type={r.sprite} color={r.color} size={32} level={u.level} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 11, fontWeight: 700, color: r.color }}>{r.label}</div>
-          <div className="mono" style={{ fontSize: 9, color: C.muted }}>
-            <span style={{ color: u.level === 3 ? C.goldLight : C.muted }}>{["Jr", "Sr", "Lead"][u.level - 1]}</span> · <span style={{ color: isTraining ? C.purple : projDef ? C.gold : C.jade }}>{isTraining ? `Upskill ${u.trainingTurns}t` : projDef ? "Asignado" : "Idle"}</span> · {u.allocation}%
-          </div>
-        </div>
-      </div>
-      {projDef && <div style={{ marginTop: 4, padding: "3px 5px", background: C.bg, borderRadius: 2, fontSize: 9, color: C.gold, lineHeight: 1.3 }}>→ {projDef.name.slice(0, 32)}</div>}
-      <div style={{ marginTop: 5, display: "flex", alignItems: "center", gap: 5 }}>
-        <span className="mono" style={{ fontSize: 9, color: C.muted, minWidth: 28 }}>Alloc</span>
-        <input type="range" min={25} max={100} step={25} value={u.allocation} onChange={(e) => dispatch({ type: "SET_ALLOCATION", id: u.id, value: parseInt(e.target.value) })} style={{ flex: 1, accentColor: r.color }} />
-        <span className="mono" style={{ fontSize: 9, color: r.color, minWidth: 30 }}>{u.allocation}%</span>
-      </div>
-      <div style={{ marginTop: 4, display: "flex", gap: 6 }}>
-        <MicroBar label="Perf" value={u.performance} color={C.jade} />
-        <MicroBar label="Loy" value={u.loyalty} color={C.gold} />
-      </div>
-      <div style={{ display: "flex", gap: 3, marginTop: 6 }}>
-        <button onClick={() => setAssigning(assigning ? null : u.id)} disabled={isTraining} style={miniBtn(assigning ? C.gold : C.border, assigning ? C.gold : C.text)}>{assigning ? "Cancel" : "Asignar"}</button>
-        {u.status === "on_project" ? (
-          <button onClick={() => dispatch({ type: "ASSIGN", userId: u.id, projectId: null })} style={miniBtn(C.border, C.gold)}>Liberar</button>
-        ) : (
-          <button onClick={() => dispatch({ type: "TRAIN", id: u.id })} disabled={isTraining || u.level >= 3} style={miniBtn(C.border)}>Upskill</button>
-        )}
-        <button onClick={() => dispatch({ type: "FIRE", id: u.id })} style={miniBtn(C.border, C.crimson)}>✕</button>
       </div>
     </div>
   );
@@ -1167,7 +1148,7 @@ function LogPanel({ state }) {
 
 /* ---------- STAKEHOLDERS ---------- */
 function StakeholdersPanel({ state, dispatch }) {
-  const eff = computeBuildingEffects(state); const max = 1 + eff.negotiationsPerTurn;
+  const eff = computeBuildingEffects(state); const max = maxNeg(state);
   return (
     <Panel title="Stakeholders" subtitle={`Negociaciones ${state.negotiationsThisTurn}/${max} · €35`} accent={C.crimson}>
       <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
@@ -1264,58 +1245,6 @@ function QBRModal({ qbr, dispatch, state }) {
   );
 }
 
-function ReviewModal({ state, dispatch }) {
-  const [decisions, setDecisions] = useState({});
-  const setD = (uid, val) => setDecisions((d) => ({ ...d, [uid]: val }));
-  const allDecided = state.team.every((u) => decisions[u.id]);
-
-  return (
-    <Overlay>
-      <div style={modalStyle(720)}>
-        <div className="cinzel" style={{ color: C.gold, fontSize: 14, letterSpacing: 3, fontWeight: 700 }}>👤 PERFORMANCE REVIEWS</div>
-        <div className="cinzel" style={{ fontSize: 22, fontWeight: 700, marginTop: 6, color: C.parchment }}>Calibración trimestral</div>
-        <div style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>Decide acción para cada persona. Esto afecta nómina, lealtad y stakeholders.</div>
-
-        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
-          {state.team.map((u) => {
-            const r = ROLES[u.role];
-            const opts = [
-              { id: "promote", label: "Promover", color: C.gold, desc: "+nivel, +loyalty, salario sube", disabled: u.level >= 3 },
-              { id: "raise", label: "Subida (€40)", color: C.jade, desc: "+loyalty alto, cuesta €40" },
-              { id: "keep", label: "Mantener", color: C.steel, desc: "Sin cambio" },
-              { id: "pip", label: "PIP", color: C.ember, desc: "-loyalty, +trust Exec" },
-              { id: "fire", label: "Despedir", color: C.crimson, desc: "Fuera. +trust CFO" },
-            ];
-            return (
-              <div key={u.id} style={{ background: C.panel2, border: `1px solid ${C.border}`, borderLeft: `3px solid ${r.color}`, borderRadius: 2, padding: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <Sprite type={r.sprite} color={r.color} size={36} level={u.level} animate={false} />
-                  <div style={{ flex: 1 }}>
-                    <div className="cinzel" style={{ fontSize: 12, fontWeight: 700, color: r.color }}>{r.label}</div>
-                    <div className="mono" style={{ fontSize: 10, color: C.muted }}>{["Jr", "Sr", "Lead"][u.level - 1]} · Perf {Math.round(u.performance)} · Loy {Math.round(u.loyalty)}</div>
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 4, marginTop: 8, flexWrap: "wrap" }}>
-                  {opts.map((opt) => (
-                    <button key={opt.id} disabled={opt.disabled} onClick={() => setD(u.id, opt.id)} title={opt.desc}
-                      style={{ background: decisions[u.id] === opt.id ? opt.color : C.panel, border: `1px solid ${opt.color}`, color: decisions[u.id] === opt.id ? C.bg : opt.color, padding: "4px 8px", borderRadius: 2, fontSize: 11, fontWeight: 600, cursor: opt.disabled ? "not-allowed" : "pointer", opacity: opt.disabled ? 0.4 : 1 }}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <button onClick={() => dispatch({ type: "RESOLVE_REVIEWS", decisions })} disabled={!allDecided} style={{ ...primaryBtn(C.gold), marginTop: 14, padding: "10px", fontSize: 13 }}>
-          {allDecided ? "Aplicar decisiones" : `Decide ${state.team.length - Object.keys(decisions).length} pendientes`}
-        </button>
-      </div>
-    </Overlay>
-  );
-}
-
 function GameOverModal({ state, dispatch }) {
   const win = state.gameOver === "win";
   return (
@@ -1363,27 +1292,514 @@ function GlobalStyles() {
   );
 }
 
-/* ---------- MAIN APP ---------- */
+/* ============ v3 NUEVA UI ============ */
+
+/* sonido WebAudio minimal */
+let AC = null, SOUND_ON = true;
+function beep(seq) {
+  if (!SOUND_ON) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    let t = AC.currentTime;
+    for (const [f, d] of seq) {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = "square"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.035, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + d);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t); o.stop(t + d);
+      t += d * 0.85;
+    }
+  } catch (e) { /* sin audio */ }
+}
+
+function TraitChip({ trait, size = 9 }) {
+  if (!trait) return null;
+  const t = TRAITS[trait];
+  return (
+    <span title={t.desc} style={{ fontSize: size, padding: "1px 5px", background: C.gold + "22", color: C.goldLight, border: `1px solid ${C.gold}55`, borderRadius: 2, whiteSpace: "nowrap" }}>
+      {t.icon} {t.label}
+    </span>
+  );
+}
+
+/* ---------- START SCREEN ---------- */
+function StartScreen({ dispatch }) {
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, background: `radial-gradient(ellipse at 50% 20%, #2a2218 0%, ${C.bg} 70%)` }}>
+      <div className="cinzel" style={{ fontSize: 44, color: C.gold, letterSpacing: 6, fontWeight: 900, textAlign: "center", textShadow: "0 4px 30px rgba(200,155,60,0.3)" }}>⚔ IMPERIO AGÉNTICO ⚔</div>
+      <div className="cinzel" style={{ fontSize: 14, color: C.crimson, letterSpacing: 4, marginTop: 6 }}>v3.0 · RIVALIDAD</div>
+      <div style={{ maxWidth: 560, textAlign: "center", color: C.parchment, fontSize: 15, lineHeight: 1.6, marginTop: 20, fontStyle: "italic" }}>
+        Lideras el departamento de DSAI Comercial de una gran farma oncológica.
+        Al otro lado del mercado, <span style={{ color: C.crimson, fontWeight: 700 }}>Helios Bio</span> corre hacia la misma meta:
+        la primera operación agéntica de la categoría. Solo uno llegará primero.
+      </div>
+      <div style={{ display: "flex", gap: 14, marginTop: 32, flexWrap: "wrap", justifyContent: "center" }}>
+        {Object.entries(DIFFICULTIES).map(([id, d]) => (
+          <button key={id} onClick={() => { beep([[440, 0.08], [660, 0.12]]); dispatch({ type: "START_GAME", difficulty: id }); }}
+            style={{ background: C.panel, border: `2px solid ${d.color}`, borderRadius: 4, padding: 18, width: 230, textAlign: "left", cursor: "pointer", color: C.text }}>
+            <div className="cinzel" style={{ fontSize: 18, fontWeight: 700, color: d.color, letterSpacing: 1.5 }}>{d.label}</div>
+            <div style={{ fontSize: 11.5, color: C.parchment, marginTop: 8, lineHeight: 1.45, minHeight: 50 }}>{d.desc}</div>
+            <div className="mono" style={{ fontSize: 10, color: C.muted, marginTop: 10, lineHeight: 1.6 }}>
+              Caja inicial: €{d.budget}<br />Velocidad Helios: ×{d.rival}<br />Desgaste confianza: ×{d.decay}
+            </div>
+          </button>
+        ))}
+      </div>
+      <div className="mono" style={{ fontSize: 10, color: C.muted, marginTop: 28 }}>Elige dificultad para comenzar</div>
+    </div>
+  );
+}
+
+/* ---------- HEADER ---------- */
+function Header({ state, dispatch }) {
+  const eff = computeBuildingEffects(state); const teamC = computeTeamContrib(state); const pr = payroll(state);
+  const inQ = ((state.quarter - 1) % 4) + 1;
+  const d = DIFFICULTIES[state.difficulty];
+  return (
+    <div style={{ borderBottom: `2px solid ${C.border}`, background: "rgba(26,22,18,0.95)", backdropFilter: "blur(8px)", padding: "10px 18px", position: "sticky", top: 0, zIndex: 50 }}>
+      <div style={{ maxWidth: 1600, margin: "0 auto", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <span className="cinzel" style={{ fontSize: 20, color: C.gold, letterSpacing: 2.5, fontWeight: 700 }}>⚔ IMPERIO AGÉNTICO</span>
+        {d && <span className="cinzel" style={{ fontSize: 10, color: d.color, border: `1px solid ${d.color}`, padding: "2px 8px", borderRadius: 2, letterSpacing: 1 }}>{d.label.toUpperCase()}</span>}
+        <div style={{ padding: "5px 12px", background: C.panel2, border: `1px solid ${C.gold}`, borderRadius: 2 }}>
+          <div className="cinzel" style={{ fontSize: 11, color: C.gold, letterSpacing: 1.5 }}>Q{inQ} · AÑO {state.year} · T{state.turn} · {SEASONS[(state.quarter - 1) % 4].n}</div>
+        </div>
+        <div style={{ flex: 1 }} />
+        <Resource label="Presupuesto" value={"€" + fmt(state.resources.budget)} icon="◈" color={C.gold} warn={state.resources.budget < 100} />
+        <Resource label="Cómputo" value={fmt(state.resources.compute)} icon="⚡" color={C.purple} sub={`+${Math.round(teamC.compute + eff.passive.compute)}/t`} />
+        <Resource label="Conocimiento" value={fmt(state.resources.knowledge)} icon="📜" color={C.jade} sub={`+${Math.round(teamC.knowledge + eff.passive.knowledge)}/t`} />
+        <Resource label="Visión" value={fmt(state.resources.vision)} icon="✦" color={C.crimson} sub="estratégica" />
+        <Resource label="Nómina/t" value={"-" + fmt(pr)} icon="◔" color={C.ember} mono />
+        <div style={{ display: "flex", gap: 5 }}>
+          <CtrlBtn onClick={() => dispatch({ type: "TOGGLE_SOUND" })} active={state.sound} title="sonido">{state.sound ? "🔊" : "🔇"}</CtrlBtn>
+          <CtrlBtn onClick={() => dispatch({ type: "TOGGLE_PAUSE" })} active={!state.paused}>{state.paused ? "▶" : "❚❚"}</CtrlBtn>
+          {[1, 2, 3].map((s) => <CtrlBtn key={s} onClick={() => dispatch({ type: "SET_SPEED", speed: s })} active={state.speed === s}>{s}x</CtrlBtn>)}
+        </div>
+      </div>
+      {state.pauseTurns > 0 && (
+        <div style={{ maxWidth: 1600, margin: "8px auto 0", padding: "5px 10px", background: "rgba(139,21,56,0.15)", border: `1px solid ${C.crimson}`, borderRadius: 2, fontSize: 11, color: C.crimson }}>
+          ⚠ Operativa pausada · {state.pauseTurns} turnos
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- TABS ---------- */
+function Tabs({ tab, setTab, state }) {
+  const tabs = [
+    { id: "portfolio", label: "Portfolio", count: state.activeProjects.length },
+    { id: "okrs", label: "OKRs", count: state.okrs.filter((o) => isOKRMet(o, state)).length + "/" + state.okrs.length },
+    { id: "tech", label: "Investigación", count: state.techs.researched.length },
+    { id: "risks", label: "Riesgos", count: state.risks.filter((r) => !r.mitigated).length },
+    { id: "build", label: "Infra", count: state.buildings.length },
+    { id: "era", label: "Roadmap", count: null },
+    { id: "logros", label: "Logros", count: state.achievements.length },
+    { id: "log", label: "Registro", count: null },
+  ];
+  return (
+    <div style={{ display: "flex", gap: 2, borderBottom: `1px solid ${C.border}`, flexWrap: "wrap" }}>
+      {tabs.map((t) => (
+        <button key={t.id} onClick={() => setTab(t.id)} style={{
+          background: tab === t.id ? C.panel2 : "transparent", border: "none",
+          borderBottom: tab === t.id ? `2px solid ${C.gold}` : "2px solid transparent",
+          color: tab === t.id ? C.gold : C.muted, padding: "7px 10px", fontSize: 11.5, fontWeight: 600,
+          fontFamily: "'Cinzel', serif", letterSpacing: 0.3, cursor: "pointer",
+        }}>
+          {t.label}{t.count != null && <span className="mono" style={{ marginLeft: 4, opacity: 0.7, fontSize: 10 }}>·{t.count}</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- KINGDOM MAP (unidades que caminan) ---------- */
+const BUILD_SLOTS = {
+  feature_store: { x: 18, y: 26 }, agent_mesh: { x: 50, y: 20 }, data_lake: { x: 82, y: 26 },
+  ai_gateway: { x: 13, y: 60 }, model_registry: { x: 87, y: 60 }, war_room: { x: 50, y: 70 },
+};
+const PROJ_SLOTS = [{ x: 34, y: 42 }, { x: 50, y: 45 }, { x: 66, y: 42 }, { x: 27, y: 55 }, { x: 73, y: 55 }, { x: 50, y: 57 }];
+
+function unitTarget(state, u) {
+  if (u.status === "on_project" && u.projectId) {
+    const apIdx = state.activeProjects.findIndex((ap) => ap.id === u.projectId);
+    if (apIdx >= 0) {
+      const slot = PROJ_SLOTS[apIdx % PROJ_SLOTS.length];
+      const mates = state.team.filter((t) => t.projectId === u.projectId);
+      const myIdx = mates.findIndex((t) => t.id === u.id);
+      return { x: slot.x - 5 + myIdx * 4.5, y: slot.y + 8 };
+    }
+  }
+  if (u.status === "training") {
+    const ts = state.team.filter((t) => t.status === "training");
+    const i = ts.findIndex((t) => t.id === u.id);
+    return { x: 80 + (i % 3) * 5.5, y: 84 };
+  }
+  const idles = state.team.filter((t) => t.status === "idle");
+  const i = idles.findIndex((t) => t.id === u.id);
+  return { x: 5 + (i % 7) * 4.8, y: 84 - Math.floor(i / 7) * 9 };
+}
+
+function KingdomMap({ state }) {
+  const era = ERAS[state.era - 1];
+  const season = SEASONS[(state.quarter - 1) % 4];
+  return (
+    <div style={{
+      position: "relative", width: "100%", height: 360,
+      background: `radial-gradient(ellipse at 50% 30%, #2a2218 0%, transparent 60%), linear-gradient(180deg, #1a1612 0%, #0c0a08 100%)`,
+      border: `1px solid ${C.border}`, borderRadius: 4, overflow: "hidden",
+    }}>
+      <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.18 }}>
+        <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke={C.bronze} strokeWidth="0.5" /></pattern></defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+      </svg>
+      {/* tinte estacional */}
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 0%, ${season.c}14 0%, transparent 65%)`, pointerEvents: "none" }} />
+
+      {/* badge era */}
+      <div style={{ position: "absolute", top: 10, left: 12, background: `linear-gradient(180deg, ${era.color}33, ${era.color}11)`, border: `1px solid ${era.color}`, padding: "3px 12px", borderRadius: 2, zIndex: 10 }}>
+        <span className="cinzel" style={{ color: era.color, fontSize: 12, fontWeight: 700, letterSpacing: 2 }}>{era.banner} · {era.short.toUpperCase()}</span>
+      </div>
+
+      {/* fortaleza rival */}
+      <div style={{ position: "absolute", top: 6, right: 10, textAlign: "center", zIndex: 10, filter: "hue-rotate(-30deg) saturate(1.4)" }} title="Helios Bio">
+        <BuildingSvg type="castle" size={46} />
+        <div className="cinzel" style={{ fontSize: 8, color: C.crimson, letterSpacing: 1, marginTop: -4 }}>HELIOS · {ERAS[state.rival.era - 1].banner}</div>
+        <div style={{ width: 50, height: 3, background: C.panel2, borderRadius: 2, margin: "2px auto 0", overflow: "hidden" }}>
+          <div style={{ width: (state.rival.progress / 60) * 100 + "%", height: "100%", background: C.crimson }} />
+        </div>
+      </div>
+
+      {/* edificios */}
+      {state.buildings.map((bid) => {
+        const slot = BUILD_SLOTS[bid]; const b = BUILDINGS[bid]; if (!slot) return null;
+        return (
+          <div key={bid} style={{ position: "absolute", left: `${slot.x}%`, top: `${slot.y}%`, transform: "translate(-50%, -50%)", textAlign: "center" }} title={b.label}>
+            <BuildingSvg type={b.building} size={60} />
+            <div className="cinzel" style={{ fontSize: 8, color: C.parchment, marginTop: -2, letterSpacing: 1 }}>{b.label.slice(0, 16)}</div>
+          </div>
+        );
+      })}
+      {Object.entries(BUILD_SLOTS).map(([bid, slot]) => {
+        if (state.buildings.includes(bid)) return null;
+        const b = BUILDINGS[bid]; if (state.era < b.minEra) return null;
+        return (
+          <div key={"ph_" + bid} style={{ position: "absolute", left: `${slot.x}%`, top: `${slot.y}%`, transform: "translate(-50%, -50%)", opacity: 0.16 }}>
+            <BuildingSvg type={b.building} size={46} active={false} />
+          </div>
+        );
+      })}
+
+      {/* estandartes de proyectos */}
+      {state.activeProjects.slice(0, 6).map((ap, i) => {
+        const p = PROJECTS.find((x) => x.id === ap.id); const slot = PROJ_SLOTS[i % PROJ_SLOTS.length];
+        const pct = (ap.progress / p.duration) * 100; const c = projectTypeColor(p.type);
+        return (
+          <div key={ap.id} style={{ position: "absolute", left: `${slot.x}%`, top: `${slot.y}%`, transform: "translate(-50%, -50%)", textAlign: "center", zIndex: 5 }}>
+            <svg width="44" height="46" viewBox="0 0 50 60">
+              <rect x="24" y="0" width="2" height="58" fill="#3a2818" />
+              <path d="M 26 4 L 46 8 L 46 30 L 26 26 Z" fill={c} stroke={C.goldLight} strokeWidth="0.8">
+                <animate attributeName="d" values="M 26 4 L 46 8 L 46 30 L 26 26 Z;M 26 4 L 44 10 L 44 28 L 26 26 Z;M 26 4 L 46 8 L 46 30 L 26 26 Z" dur="2.5s" repeatCount="indefinite" />
+              </path>
+              <text x="36" y="20" fontSize="10" fill={C.bg} textAnchor="middle" fontWeight="700">{p.type[0].toUpperCase()}</text>
+            </svg>
+            <div style={{ width: 64, height: 3.5, background: C.panel2, borderRadius: 2, margin: "0 auto", overflow: "hidden" }}>
+              <div style={{ width: pct + "%", height: "100%", background: c }} />
+            </div>
+            <div className="cinzel" style={{ fontSize: 7.5, color: C.parchment, marginTop: 1, maxWidth: 76, lineHeight: 1.15 }}>{p.name.slice(0, 20)}</div>
+          </div>
+        );
+      })}
+
+      {/* unidades caminando: posición absoluta con transición */}
+      {state.team.map((u) => {
+        const t = unitTarget(state, u); const r = ROLES[u.role];
+        return (
+          <div key={u.id} title={`${u.name} · ${r.label} · ${["Jr", "Sr", "Lead"][u.level - 1]}${u.trait ? " · " + TRAITS[u.trait].label : ""}`}
+            style={{ position: "absolute", left: `${t.x}%`, top: `${t.y}%`, transform: "translate(-50%, -100%)", transition: "left 1.4s ease-in-out, top 1.4s ease-in-out", zIndex: 6 }}>
+            <Sprite type={r.sprite} color={r.color} size={28} level={u.level} />
+            {u.status === "training" && (
+              <div style={{ position: "absolute", top: -3, right: -5, background: C.gold, color: C.bg, borderRadius: "50%", width: 12, height: 12, fontSize: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>{u.trainingTurns}</div>
+            )}
+            <div className="mono" style={{ fontSize: 7, color: C.muted, textAlign: "center", marginTop: -3 }}>{u.name.slice(0, 7)}</div>
+          </div>
+        );
+      })}
+
+      {/* etiquetas de zona */}
+      <div className="cinzel" style={{ position: "absolute", bottom: 3, left: 8, fontSize: 8, color: C.muted, letterSpacing: 1 }}>⚔ BARRACÓN</div>
+      <div className="cinzel" style={{ position: "absolute", bottom: 3, right: 8, fontSize: 8, color: C.muted, letterSpacing: 1 }}>📜 ACADEMIA</div>
+      <div className="cinzel" style={{ position: "absolute", bottom: 3, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: season.c, letterSpacing: 2 }}>{season.n.toUpperCase()}</div>
+    </div>
+  );
+}
+
+/* ---------- TEAM PANEL + MERCADO ---------- */
+function TeamPanel({ state, dispatch, assigning, setAssigning }) {
+  return (
+    <Panel title="Equipo" subtitle={`${state.team.length}/${state.capacity} miembros`} accent={C.steel}>
+      <div className="scrolly" style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 10, maxHeight: 380, overflowY: "auto" }}>
+        {state.team.map((u) => (<TeamCard key={u.id} u={u} state={state} dispatch={dispatch} assigning={assigning === u.id} setAssigning={setAssigning} />))}
+      </div>
+      <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+          <span className="cinzel" style={{ fontSize: 11, color: C.gold, letterSpacing: 1.5 }}>MERCADO DE TALENTO</span>
+          <button onClick={() => dispatch({ type: "REFRESH_MARKET" })} disabled={state.resources.budget < 25}
+            style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, padding: "2px 7px", borderRadius: 2, fontSize: 9, cursor: "pointer" }}>↻ €25</button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          {state.market.map((c) => {
+            const r = ROLES[c.role]; const cost = hireCost(c);
+            const locked = state.era < r.minEra;
+            const cant = locked || state.team.length >= state.capacity || state.resources.budget < cost;
+            return (
+              <div key={c.id} style={{ background: C.panel2, border: `1px solid ${C.border}`, borderLeft: `3px solid ${r.color}`, borderRadius: 2, padding: 7 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <Sprite type={r.sprite} color={r.color} size={26} level={c.level} animate={false} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", gap: 5, alignItems: "baseline", flexWrap: "wrap" }}>
+                      <span className="cinzel" style={{ fontSize: 11.5, fontWeight: 700, color: C.parchment }}>{c.name}</span>
+                      <span className="mono" style={{ fontSize: 9, color: r.color }}>{r.label} · {["Jr", "Sr"][c.level - 1]}</span>
+                    </div>
+                    <div style={{ marginTop: 3, display: "flex", gap: 4, alignItems: "center", flexWrap: "wrap" }}>
+                      <TraitChip trait={c.trait} />
+                      <span className="mono" style={{ fontSize: 9, color: C.muted }}>€{cost} + €{r.salary * c.level}/t</span>
+                    </div>
+                  </div>
+                  <button onClick={() => { beep([[520, 0.07], [700, 0.09]]); dispatch({ type: "HIRE_CANDIDATE", id: c.id }); }} disabled={cant}
+                    style={{ background: cant ? C.panel : r.color, color: cant ? C.muted : C.bg, border: "none", padding: "5px 9px", borderRadius: 2, fontSize: 10, fontWeight: 700, fontFamily: "'Cinzel', serif", cursor: cant ? "not-allowed" : "pointer" }}>
+                    Fichar
+                  </button>
+                </div>
+                {locked && <div style={{ fontSize: 9, color: C.crimson, marginTop: 3 }}>Requiere Era {r.minEra}</div>}
+              </div>
+            );
+          })}
+          {state.market.length === 0 && <Empty text="Mercado vacío. Refresca o espera al trimestre." />}
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+function TeamCard({ u, state, dispatch, assigning, setAssigning }) {
+  const r = ROLES[u.role];
+  const projDef = u.projectId ? PROJECTS.find((p) => p.id === u.projectId) : null;
+  const isTraining = u.status === "training";
+  return (
+    <div style={{ background: C.panel2, border: `1px solid ${assigning ? C.gold : C.border}`, borderLeft: `3px solid ${r.color}`, borderRadius: 2, padding: 7 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+        <Sprite type={r.sprite} color={r.color} size={30} level={u.level} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", gap: 5, alignItems: "baseline", flexWrap: "wrap" }}>
+            <span className="cinzel" style={{ fontSize: 12, fontWeight: 700, color: C.parchment }}>{u.name}</span>
+            <span className="mono" style={{ fontSize: 9, color: r.color }}>{r.short}</span>
+            <span className="mono" style={{ fontSize: 9, color: u.level === 3 ? C.goldLight : C.muted }}>{["Jr", "Sr", "Lead"][u.level - 1]}</span>
+          </div>
+          <div style={{ display: "flex", gap: 4, alignItems: "center", marginTop: 2, flexWrap: "wrap" }}>
+            <TraitChip trait={u.trait} size={8} />
+            <span className="mono" style={{ fontSize: 8.5, color: isTraining ? C.purple : projDef ? C.gold : C.jade }}>
+              {isTraining ? `Upskill ${u.trainingTurns}t` : projDef ? "Asignado" : "Idle"}
+            </span>
+          </div>
+        </div>
+      </div>
+      {projDef && <div style={{ marginTop: 4, padding: "3px 5px", background: C.bg, borderRadius: 2, fontSize: 9, color: C.gold }}>→ {projDef.name.slice(0, 30)}</div>}
+      <div style={{ marginTop: 5, display: "flex", alignItems: "center", gap: 5 }}>
+        <span className="mono" style={{ fontSize: 9, color: C.muted, minWidth: 26 }}>Alloc</span>
+        <input type="range" min={25} max={100} step={25} value={u.allocation} onChange={(e) => dispatch({ type: "SET_ALLOCATION", id: u.id, value: parseInt(e.target.value) })} style={{ flex: 1, accentColor: r.color }} />
+        <span className="mono" style={{ fontSize: 9, color: r.color, minWidth: 28 }}>{u.allocation}%</span>
+      </div>
+      <div style={{ marginTop: 4, display: "flex", gap: 6 }}>
+        <MicroBar label="Perf" value={u.performance} color={C.jade} />
+        <MicroBar label="Loy" value={u.loyalty} color={u.loyalty < 40 ? C.crimson : C.gold} />
+      </div>
+      {u.loyalty < 40 && <div style={{ fontSize: 8.5, color: C.crimson, marginTop: 3 }}>⚠ Helios podría ficharle</div>}
+      <div style={{ display: "flex", gap: 3, marginTop: 6 }}>
+        <button onClick={() => setAssigning(assigning ? null : u.id)} disabled={isTraining} style={miniBtn(assigning ? C.gold : C.border, assigning ? C.gold : C.text)}>{assigning ? "Cancel" : "Asignar"}</button>
+        {u.status === "on_project" ? (
+          <button onClick={() => dispatch({ type: "ASSIGN", userId: u.id, projectId: null })} style={miniBtn(C.border, C.gold)}>Liberar</button>
+        ) : (
+          <button onClick={() => dispatch({ type: "TRAIN", id: u.id })} disabled={isTraining || u.level >= 3} style={miniBtn(C.border)}>Upskill</button>
+        )}
+        <button onClick={() => dispatch({ type: "FIRE", id: u.id })} style={miniBtn(C.border, C.crimson)}>✕</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- TECH PANEL ---------- */
+function TechPanel({ state, dispatch }) {
+  const cur = state.techs.current ? TECHS[state.techs.current] : null;
+  return (
+    <Panel title="Investigación" subtitle="Una tecnología a la vez · beneficios permanentes" accent={C.purple}>
+      {cur && (
+        <div style={{ marginBottom: 12, padding: 10, background: `linear-gradient(135deg, ${C.purple}22, ${C.panel2})`, border: `1px solid ${C.purple}`, borderRadius: 2 }}>
+          <div className="cinzel" style={{ fontSize: 12, color: C.purple, fontWeight: 700 }}>🔬 Investigando: {cur.label}</div>
+          <div style={{ marginTop: 6, height: 6, background: C.bg, borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ width: (state.techs.progress / state.techs.turns) * 100 + "%", height: "100%", background: C.purple, transition: "width 0.4s" }} />
+          </div>
+          <div className="mono" style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>{state.techs.progress}/{state.techs.turns} turnos</div>
+        </div>
+      )}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 8 }}>
+        {Object.entries(TECHS).map(([id, t]) => {
+          const done = state.techs.researched.includes(id);
+          const locked = state.era < t.minEra;
+          const busy = !!state.techs.current;
+          const can = !done && !locked && !busy && state.resources.budget >= t.cost.budget && state.resources.knowledge >= t.cost.knowledge;
+          return (
+            <div key={id} style={{ background: done ? `linear-gradient(135deg, ${C.purple}22, ${C.panel2})` : C.panel2, border: `1px solid ${done ? C.purple : C.border}`, borderRadius: 2, padding: 10, opacity: locked ? 0.5 : 1 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <span className="cinzel" style={{ fontSize: 12, fontWeight: 700, color: done ? C.purple : C.gold }}>{t.label}</span>
+                {done && <span className="mono" style={{ fontSize: 9, color: C.purple }}>★</span>}
+                {locked && <span className="mono" style={{ fontSize: 9, color: C.muted }}>Era {t.minEra}+</span>}
+              </div>
+              <div style={{ fontSize: 11, color: C.parchment, marginTop: 4 }}>{t.desc}</div>
+              <div className="mono" style={{ fontSize: 9, color: C.muted, marginTop: 4 }}>€{t.cost.budget} · 📜{t.cost.knowledge} · ⌛{t.turns}t</div>
+              {!done && <button onClick={() => dispatch({ type: "START_TECH", id })} disabled={!can} style={{ ...primaryBtn(C.purple), marginTop: 6, padding: "4px 8px", fontSize: 11 }}>Investigar</button>}
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+}
+
+/* ---------- RIVAL PANEL ---------- */
+function RivalPanel({ state }) {
+  const rv = state.rival;
+  const gap = state.era - rv.era;
+  const threat = gap >= 1 ? { t: "Vas por delante. No te duermas.", c: C.jade } : gap === 0 ? { t: "Empate técnico. Cada turno cuenta.", c: C.gold } : { t: "¡Helios va por delante! El board lo comenta.", c: C.crimson };
+  return (
+    <Panel title="Helios Bio" subtitle="Tu rival en la carrera agéntica" accent={C.crimson}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ filter: "hue-rotate(-30deg) saturate(1.4)" }}><BuildingSvg type="castle" size={52} /></div>
+        <div style={{ flex: 1 }}>
+          <div className="cinzel" style={{ fontSize: 13, fontWeight: 700, color: C.crimson }}>{ERAS[rv.era - 1].name}</div>
+          <div style={{ marginTop: 5, height: 6, background: C.bg, borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ width: (rv.progress / 60) * 100 + "%", height: "100%", background: C.crimson, transition: "width 0.4s" }} />
+          </div>
+          <div className="mono" style={{ fontSize: 9, color: C.muted, marginTop: 3 }}>{Math.round((rv.progress / 60) * 100)}% hacia la siguiente era</div>
+        </div>
+      </div>
+      <div style={{ marginTop: 8, padding: "6px 9px", background: C.panel2, borderLeft: `3px solid ${threat.c}`, borderRadius: 2, fontSize: 11, color: threat.c }}>{threat.t}</div>
+      <div style={{ fontSize: 10, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>
+        Si Helios completa la Era Agéntica antes que tú, pierdes. Ficha a tu gente desleal (lealtad &lt;40) y resta confianza al avanzar de era.
+      </div>
+    </Panel>
+  );
+}
+
+/* ---------- ACHIEVEMENTS ---------- */
+function AchievementsPanel({ state }) {
+  return (
+    <Panel title="Logros" subtitle={`${state.achievements.length}/${ACHIEVEMENTS.length} desbloqueados · +2 visión cada uno`} accent={C.gold}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8 }}>
+        {ACHIEVEMENTS.map((a) => {
+          const got = state.achievements.includes(a.id);
+          return (
+            <div key={a.id} style={{ background: got ? `linear-gradient(135deg, ${C.goldLight}22, ${C.panel2})` : C.panel2, border: `1px solid ${got ? C.gold : C.border}`, borderRadius: 2, padding: 10, opacity: got ? 1 : 0.55 }}>
+              <div className="cinzel" style={{ fontSize: 12, fontWeight: 700, color: got ? C.goldLight : C.muted }}>{got ? "🎖 " : "🔒 "}{a.label}</div>
+              <div style={{ fontSize: 10.5, color: got ? C.parchment : C.muted, marginTop: 3 }}>{a.desc}</div>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+}
+
+/* ---------- REVIEW MODAL ---------- */
+function ReviewModal({ state, dispatch }) {
+  const [decisions, setDecisions] = useState({});
+  const setD = (uid, val) => setDecisions((d) => ({ ...d, [uid]: val }));
+  const allDecided = state.team.every((u) => decisions[u.id]);
+  return (
+    <Overlay>
+      <div style={modalStyle(720)}>
+        <div className="cinzel" style={{ color: C.gold, fontSize: 14, letterSpacing: 3, fontWeight: 700 }}>👤 PERFORMANCE REVIEWS</div>
+        <div className="cinzel" style={{ fontSize: 22, fontWeight: 700, marginTop: 6, color: C.parchment }}>Calibración trimestral</div>
+        <div style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>Decide acción por persona. La lealtad baja invita a Helios.</div>
+        <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+          {state.team.map((u) => {
+            const r = ROLES[u.role];
+            const opts = [
+              { id: "promote", label: "Promover", color: C.gold, disabled: u.level >= 3 },
+              { id: "raise", label: "Subida (€40)", color: C.jade },
+              { id: "keep", label: "Mantener", color: C.steel },
+              { id: "pip", label: "PIP", color: C.ember },
+              { id: "fire", label: "Despedir", color: C.crimson },
+            ];
+            return (
+              <div key={u.id} style={{ background: C.panel2, border: `1px solid ${C.border}`, borderLeft: `3px solid ${r.color}`, borderRadius: 2, padding: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Sprite type={r.sprite} color={r.color} size={34} level={u.level} animate={false} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", gap: 6, alignItems: "baseline" }}>
+                      <span className="cinzel" style={{ fontSize: 13, fontWeight: 700, color: C.parchment }}>{u.name}</span>
+                      <span className="mono" style={{ fontSize: 10, color: r.color }}>{r.label}</span>
+                      <TraitChip trait={u.trait} size={8} />
+                    </div>
+                    <div className="mono" style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{["Jr", "Sr", "Lead"][u.level - 1]} · Perf {Math.round(u.performance)} · Loy {Math.round(u.loyalty)}{u.loyalty < 40 ? " ⚠" : ""}</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 4, marginTop: 8, flexWrap: "wrap" }}>
+                  {opts.map((opt) => (
+                    <button key={opt.id} disabled={opt.disabled} onClick={() => setD(u.id, opt.id)}
+                      style={{ background: decisions[u.id] === opt.id ? opt.color : C.panel, border: `1px solid ${opt.color}`, color: decisions[u.id] === opt.id ? C.bg : opt.color, padding: "4px 8px", borderRadius: 2, fontSize: 11, fontWeight: 600, cursor: opt.disabled ? "not-allowed" : "pointer", opacity: opt.disabled ? 0.4 : 1 }}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <button onClick={() => dispatch({ type: "RESOLVE_REVIEWS", decisions })} disabled={!allDecided} style={{ ...primaryBtn(C.gold), marginTop: 14, padding: "10px", fontSize: 13 }}>
+          {allDecided ? "Aplicar decisiones" : `Decide ${state.team.length - Object.keys(decisions).length} pendientes`}
+        </button>
+      </div>
+    </Overlay>
+  );
+}
+
+/* ---------- APP ---------- */
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, initialState, (init) => {
-    try {
-      const saved = localStorage.getItem("joaco-tycoon-v1");
-      return saved ? { ...init, ...JSON.parse(saved) } : init;
-    } catch { return init; }
-  });
-  useEffect(() => {
-    try { localStorage.setItem("joaco-tycoon-v1", JSON.stringify(state)); } catch {}
-  }, [state]);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [tab, setTab] = useState("portfolio");
   const [assigning, setAssigning] = useState(null);
   const intervalRef = useRef(null);
 
+  useEffect(() => { SOUND_ON = state.sound; }, [state.sound]);
+
+  // sonidos por eventos del log
+  const lastLog = state.log[0]?.text || "";
   useEffect(() => {
-    if (state.paused || state.gameOver || state.pendingEvent || state.pendingQBR || state.pendingReviews) return;
+    if (!state.gameStarted) return;
+    if (lastLog.includes("✅")) beep([[660, 0.08], [880, 0.12]]);
+    else if (lastLog.includes("❌") || lastLog.includes("🔥")) beep([[220, 0.13], [160, 0.18]]);
+    else if (lastLog.includes("🏆") || lastLog.includes("🎖")) beep([[523, 0.09], [659, 0.09], [784, 0.16]]);
+    else if (lastLog.includes("⚡") || lastLog.includes("⛓")) beep([[440, 0.07], [440, 0.07]]);
+    else if (lastLog.includes("🏰")) beep([[330, 0.1], [277, 0.14]]);
+  }, [lastLog]); // eslint-disable-line
+
+  useEffect(() => {
+    if (!state.gameStarted || state.paused || state.gameOver || state.pendingEvent || state.pendingQBR || state.pendingReviews) return;
     const ms = state.speed === 1 ? 2500 : state.speed === 2 ? 1500 : 800;
     intervalRef.current = setInterval(() => dispatch({ type: "TICK" }), ms);
     return () => clearInterval(intervalRef.current);
-  }, [state.paused, state.speed, state.gameOver, state.pendingEvent, state.pendingQBR, state.pendingReviews]);
+  }, [state.gameStarted, state.paused, state.speed, state.gameOver, state.pendingEvent, state.pendingQBR, state.pendingReviews]);
+
+  if (!state.gameStarted) {
+    return (
+      <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Crimson Text', 'Cinzel', serif" }}>
+        <style>{FONTS}</style>
+        <GlobalStyles />
+        <StartScreen dispatch={dispatch} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: `radial-gradient(ellipse at top, #2a2218 0%, ${C.bg} 65%)`, color: C.text, fontFamily: "'Crimson Text', 'Cinzel', serif", paddingBottom: 30 }}>
@@ -1397,12 +1813,17 @@ export default function App() {
           <Tabs tab={tab} setTab={setTab} state={state} />
           {tab === "portfolio" && <PortfolioPanel state={state} dispatch={dispatch} assigning={assigning} setAssigning={setAssigning} />}
           {tab === "okrs" && <OKRPanel state={state} />}
+          {tab === "tech" && <TechPanel state={state} dispatch={dispatch} />}
           {tab === "build" && <BuildPanel state={state} dispatch={dispatch} />}
           {tab === "risks" && <RisksPanel state={state} dispatch={dispatch} />}
           {tab === "era" && <EraPanel state={state} dispatch={dispatch} />}
+          {tab === "logros" && <AchievementsPanel state={state} />}
           {tab === "log" && <LogPanel state={state} />}
         </div>
-        <StakeholdersPanel state={state} dispatch={dispatch} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <RivalPanel state={state} />
+          <StakeholdersPanel state={state} dispatch={dispatch} />
+        </div>
       </div>
       {state.pendingEvent && <EventModal event={state.pendingEvent} dispatch={dispatch} />}
       {state.pendingQBR && !state.pendingEvent && <QBRModal qbr={state.pendingQBR} dispatch={dispatch} state={state} />}

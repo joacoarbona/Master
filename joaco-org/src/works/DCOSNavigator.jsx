@@ -1265,6 +1265,27 @@ const TPL = [
   { id: "T17", name: "Closure & Handover Pack", fam: "Value", sor: "Confluence + PPT", owner: "PM", cad: "Once, at G4", fields: ["Outcomes vs charter — no laundering", "Value handover with signatures", "Risk & run transfer", "Lessons + team release & recognition"], good: "Business owner can run the next value review alone", bad: "Projects that fade instead of closing" },
 ];
 const FAM_COLOR = { Govern: C.mul, Deliver: C.navy, Change: "#8A6200", Value: C.lime };
+/* In-app implementation status per template: live (working now) · data (entry point) · plan (planned builder) */
+const TPL_IMPL = {
+  T01: [["live", "PPT \u2713 in Studio"], ["data", "Delivery Canvas \u2192 charter"]],
+  T02: [["live", "Builder \u2713 in Studio"], ["live", "PPT \u2713"]],
+  T03: [["data", "Project Data \u2192 Risks"], ["live", "RAID CSV export \u2713"]],
+  T04: [["live", "PPT \u2713 in Studio"], ["data", "Portfolio RAG + Project Data"]],
+  T05: [["live", "PPT \u2713 5-slide pack"]],
+  T06: [["data", "Workspace Plan + Gantt"], ["live", "Smartsheet CSV \u2713"]],
+  T07: [["data", "Workspace Board"], ["live", "JIRA CSV both ways \u2713"]],
+  T08: [["data", "Project Data \u2192 Decisions"], ["live", "Confluence export \u2713"]],
+  T09: [["live", "Grid builder \u2713 in Studio"], ["live", "PPT \u2713"]],
+  T10: [["live", "Form \u2713 in Studio"], ["live", "PPT \u2713"]],
+  T11: [["file", "Master in Template Pack"]],
+  T12: [["data", "Adoption RAG on Portfolio"]],
+  T13: [["data", "Project Data \u2192 Benefits"], ["live", "T05 value slide \u2713"]],
+  T14: [["live", "Day-30 retro radar \u2713"]],
+  T15: [["live", "Builder \u2713 in Studio"], ["live", "JIRA export carries it \u2713"]],
+  T16: [["file", "Master in Template Pack"]],
+  T17: [["live", "Generator \u2713 in Studio"], ["live", "PPT \u2713 3 slides"]],
+};
+const IMPL_STYLE = { live: [C.limeLt, C.lime], data: [C.navyLt, C.navy], plan: [C.goldLt, "#8A6200"], file: [C.soft, C.mid] };
 
 /* ================= RESOURCES HUB ================= */
 const RES_INIT = { sub: "templates" };
@@ -1311,6 +1332,11 @@ function TemplatesCat() {
               <div style={{ display: "flex", gap: 6, margin: "7px 0", flexWrap: "wrap" }}>
                 <Chip>{t.sor}</Chip><Chip>{t.cad}</Chip><Chip>{t.owner}</Chip>
               </div>
+              <div style={{ display: "flex", gap: 6, marginBottom: 4, flexWrap: "wrap" }}>
+                {(TPL_IMPL[t.id] || [["file", "Master in Template Pack"]]).map(([k2, l2], i2) => (
+                  <Chip key={i2} bg={IMPL_STYLE[k2][0]} color={IMPL_STYLE[k2][1]}>{l2}</Chip>
+                ))}
+              </div>
               {isOpen && (
                 <div onClick={e => e.stopPropagation()}>
                   <ul style={{ margin: "8px 0 10px 18px", fontSize: 12.5 }}>{t.fields.map((f, i) => <li key={i} style={{ marginBottom: 3 }}>{f}</li>)}</ul>
@@ -1324,7 +1350,21 @@ function TemplatesCat() {
           );
         })}
       </div>
-      <div style={{ fontSize: 11.5, color: C.faint, marginTop: 12 }}>Full field-by-field masters with worked examples live in the Template Pack (Library & Links). T01 and T04/T05 can be generated as branded PPT from your project data in the PPT Studio.</div>
+      <Card style={{ marginTop: 16, borderLeft: `4px solid ${C.gold}`, background: C.goldLt }}>
+        <SectionLabel color={"#8A6200"}>Template coverage — where we are, what's next in-app</SectionLabel>
+        <div style={{ fontSize: 12.5, color: C.ink, marginBottom: 8 }}>
+          All 17 have full field-by-field masters in the <b>Template Pack</b> (Library & Links). Inside the Navigator today: <b>12 live</b> (builders, generation or export) and <b>the rest with structured data entry</b>. The production order below has been delivered — remaining candidates route through the Framework Council intake:
+        </div>
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", fontSize: 12 }}>
+          {[["\u2713", "T17 Closure generator", "live — Studio \u203a T17 Closure"], ["\u2713", "T02 Business case builder", "live — Studio \u203a T02"], ["\u2713", "T15 One-pager builder", "live — Studio \u203a T15, rides the JIRA export"], ["\u2713", "T09 Stakeholder grid", "live — Studio \u203a T09"], ["\u2713", "T10 Impact form", "live — Studio \u203a T10"], ["next", "T11 comms planner \u00b7 T14 retro canvas", "Framework Council intake"]].map(([n2, t2, d2]) => (
+            <div key={n2} style={{ flex: "1 1 180px", minWidth: 170 }}>
+              <span style={{ fontFamily: MONO, fontSize: 10, color: "#8A6200", fontWeight: 600 }}>{n2} \u00b7 </span>
+              <b style={{ fontFamily: DISP, fontSize: 12 }}>{t2}</b>
+              <div style={{ color: C.mid, fontSize: 10.5 }}>{d2}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
@@ -1598,16 +1638,31 @@ function Workspace({ projects, project, setSel, update }) {
 
 /* ================= PPT STUDIO — AZ-branded generation in the browser ================= */
 let _pptxPromise = null;
-function loadPptx() {
-  if (window.PptxGenJS) return Promise.resolve(window.PptxGenJS);
-  if (_pptxPromise) return _pptxPromise;
-  _pptxPromise = new Promise((resolve, reject) => {
+const PPTX_URLS = [
+  "https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js",
+  "https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js",
+  "https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/PptxGenJS/3.12.0/pptxgen.bundle.min.js",
+];
+function tryScript(url) {
+  return new Promise((resolve, reject) => {
     const s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/PptxGenJS/3.12.0/pptxgen.bundle.js";
-    s.onload = () => window.PptxGenJS ? resolve(window.PptxGenJS) : reject(new Error("PptxGenJS not found after load"));
-    s.onerror = () => reject(new Error("Could not load PptxGenJS from cdnjs"));
+    s.src = url; s.async = true;
+    const t = setTimeout(() => { s.remove(); reject(new Error("timeout " + url)); }, 9000);
+    s.onload = () => { clearTimeout(t); window.PptxGenJS ? resolve(window.PptxGenJS) : reject(new Error("global missing")); };
+    s.onerror = () => { clearTimeout(t); s.remove(); reject(new Error("blocked " + url)); };
     document.head.appendChild(s);
   });
+}
+async function loadPptx() {
+  if (window.PptxGenJS) return window.PptxGenJS;
+  if (_pptxPromise) return _pptxPromise;
+  _pptxPromise = (async () => {
+    let last = null;
+    for (const u of PPTX_URLS) { try { return await tryScript(u); } catch (e) { last = e; } }
+    _pptxPromise = null;
+    throw last || new Error("no CDN reachable");
+  })();
   return _pptxPromise;
 }
 const AZ = { mul: "830051", gold: "F0AB00", graph: "3F4444", mid: "6B6B6B", line: "D5D5D5", soft: "F4F1EF",
@@ -1770,7 +1825,28 @@ function buildT05(pptx, p) {
   }
 }
 
+
+/* ================= STUDIO (documents + template builders) ================= */
 function PptStudio({ projects, project, setSel, update }) {
+  const [sub, setSub] = useState("docs");
+  const SUBS = [["docs", "Documents & exports"], ["t02", "T02 Business Case"], ["t15", "T15 One-pagers"], ["t09", "T09 Stakeholders"], ["t10", "T10 Impact"], ["t17", "T17 Closure"]];
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
+        {SUBS.map(([id, l]) => (
+          <button key={id} onClick={() => setSub(id)} style={{ border: `1px solid ${sub === id ? C.mul : C.line}`, background: sub === id ? C.mul : "#fff", color: sub === id ? "#fff" : C.mid, borderRadius: 99, padding: "8px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>{l}</button>
+        ))}
+      </div>
+      {sub === "docs" && <StudioDocs projects={projects} project={project} setSel={setSel} update={update} />}
+      {sub === "t02" && <BizCaseBuilder projects={projects} project={project} setSel={setSel} update={update} />}
+      {sub === "t15" && <EpicsBuilder projects={projects} project={project} setSel={setSel} update={update} />}
+      {sub === "t09" && <StakeBuilder projects={projects} project={project} setSel={setSel} update={update} />}
+      {sub === "t10" && <ImpactBuilder projects={projects} project={project} setSel={setSel} update={update} />}
+      {sub === "t17" && <ClosureBuilder projects={projects} project={project} setSel={setSel} update={update} />}
+    </div>
+  );
+}
+function StudioDocs({ projects, project, setSel, update }) {
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState(null);
   if (!project) return <Card>Add a project in Portfolio first.</Card>;
@@ -1786,26 +1862,47 @@ function PptStudio({ projects, project, setSel, update }) {
       if (kind === "t04") buildT04(pptx, project);
       if (kind === "t01") buildT01(pptx, project);
       if (kind === "t05") buildT05(pptx, project);
+      if (kind === "t02") buildT02(pptx, project);
+      if (kind === "t15") buildT15(pptx, project);
+      if (kind === "t09") buildT09(pptx, project);
+      if (kind === "t10") buildT10(pptx, project);
+      if (kind === "t17") buildT17(pptx, project);
       await pptx.writeFile({ fileName: `${project.code}_${kind.toUpperCase()}_${today()}.pptx` });
       if (update) update(project.id, { events: evPush(project, mkEv("forum", `${kind.toUpperCase()} generated from the Studio`, "AZ-branded draft — review and sign before circulation")) });
-    } catch (e) { setErr("PPT engine couldn't load in this environment (" + e.message + "). In the corporate deployment this runs locally — meanwhile your data is safe in Project Data and exportable as JSON."); }
+    } catch (e) {
+      try {
+        dl(`${project.code}_${kind.toUpperCase()}_${today()}.html`, buildHtmlDoc(kind, project), "text/html");
+        setErr("This environment's security policy blocked the PPT engine, so I generated the same document as a print-ready AZ-branded HTML file instead — open it and print/save as PDF. In the corporate deployment the engine runs locally and you get native .pptx.");
+        if (update) update(project.id, { events: evPush(project, mkEv("forum", `${kind.toUpperCase()} generated (HTML fallback)`, "PPT engine unavailable — branded HTML produced for print-to-PDF")) });
+      } catch (e2) { setErr("Document engine unavailable (" + e.message + "). Your data is safe in Project Data and exportable as JSON."); }
+    }
     setBusy(null);
   };
   const ready = {
     t04: !!kd.headline || kd.risks.length || kd.decisions.length,
     t01: !!(cv.problem || cv.outcome || cv.hypothesis),
     t05: kd.decisions.length || kd.benefits.length,
+    t02: !!(project.bizcase?.problemSized || (project.bizcase?.options || []).length),
+    t15: (project.epics || []).length,
+    t09: (project.stakeholders || []).length,
+    t10: (project.impact || []).length,
+    t17: !!(project.closure?.keep || project.closure?.spend || kd.benefits.length),
   };
   const DOCS = [
     ["t04", "Status Report — T04", "One AZ-branded slide: headline, RAG strip with your live dots, top risks, decisions needed, look-ahead.", "Feeds from: Portfolio RAG + Project Data"],
     ["t05", "SteerCo pack — T05 (5 slides)", "The T04, decisions requested, value tracker, plan & milestones, and risks & escalations. The rule of eight, started for you.", "Feeds from: Project Data + Workspace Plan"],
     ["t01", "Charter — T01", "One-page charter on the AZ master, drafted from your Delivery Canvas boxes, signature line included.", "Feeds from: Delivery Canvas"],
+    ["t02", "Business Case — T02", "Problem sized, options with do-nothing, recommendation, value hypotheses and the ask — one decision-ready slide.", "Feeds from: T02 builder + benefits"],
+    ["t15", "Epic One-pagers — T15", "One slide per epic: user, problem evidence, hypothesis, acceptance, instrumentation. The backlog's quality bar, printable.", "Feeds from: T15 builder"],
+    ["t09", "Stakeholder Map — T09", "Power/interest grid with stance deltas and the engagement table. Candid by design — core team circulation only.", "Feeds from: T09 builder"],
+    ["t10", "Impact Assessment — T10", "Per-group severity heat across process/tools/skills/behaviour, with readiness gaps. The G2 evidence.", "Feeds from: T10 builder"],
+    ["t17", "Closure Pack — T17", "Outcomes vs charter, value handover with owners, lessons and release — three slides, no narrative laundering.", "Feeds from: T17 builder + benefits + risks"],
   ];
   return (
     <div>
       <Card style={{ marginBottom: 14, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <ProjectPicker projects={projects} project={project} setSel={setSel} />
-        <div style={{ fontSize: 12.5, color: C.mid }}>Fill once in the app — generate the deck on the official mulberry/gold master with one click. The PM still reviews and signs: the Studio drafts, certified humans dispose.</div>
+        <div style={{ fontSize: 12.5, color: C.mid }}>Fill once in the app — generate the deck on the official mulberry/gold master with one click. If this environment blocks the PPT engine, the Studio automatically delivers the same document as print-ready branded HTML. The PM still reviews and signs: the Studio drafts, certified humans dispose.</div>
       </Card>
       {err && <Card style={{ borderLeft: `4px solid ${C.red}`, background: "#F8E9E8", marginBottom: 14, fontSize: 12.5 }}>{err}</Card>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 14 }}>
@@ -1895,7 +1992,9 @@ function ExportTools({ project }) {
 
   const jiraCsv = () => dl(`${code}_jira_import.csv`, csv([
     ["Summary", "Issue Type", "Status", "Description", "Labels"],
-    [`${project.name} — delivery epic`, "Epic", "To Do", `Tier ${project.tier} · ${project.phase}. Charter: ${cv.problem || ""}`, "dcos"],
+    ...(project.epics || []).length
+      ? project.epics.map(ep => [ep.title || "Untitled epic", "Epic", "To Do", `USER: ${ep.user || ""}\nPROBLEM: ${ep.problem || ""}\nHYPOTHESIS: ${ep.hypothesis || ""}\nACCEPTANCE: ${ep.acceptance || ""}\nINSTRUMENTATION: ${ep.instrumentation || ""}`, "dcos,t15"])
+      : [[`${project.name} — delivery epic`, "Epic", "To Do", `Tier ${project.tier} · ${project.phase}. Charter: ${cv.problem || ""}`, "dcos"]],
     ...work.map(c => [c.title, "Task", STATUS_MAP[c.col] || "To Do", "", "dcos"]),
   ]), "text/csv");
 
@@ -1918,6 +2017,27 @@ function ExportTools({ project }) {
     kd.decisions.forEach((d, i) => { md += `| D-${String(i + 1).padStart(2, "0")} | ${d.text} | ${d.owner || ""} | ${d.status || "needed"} |\n`; });
     md += `\n## Benefits (T13)\n\n| Benefit | Baseline | Target | Owner | Status |\n|---|---|---|---|---|\n`;
     kd.benefits.forEach(b => { md += `| ${b.name} | ${b.baseline || ""} | ${b.target || ""} | ${b.owner || ""} | ${b.status || ""} |\n`; });
+    const sh = project.stakeholders || [];
+    if (sh.length) {
+      md += `\n## Stakeholder Map (T09) — core team only\n\n| Name | Quadrant | Stance | Cares about | Action |\n|---|---|---|---|---|\n`;
+      sh.forEach(s2 => { md += `| ${s2.name} | ${QUAD_LBL[s2.quadrant] || ""} | ${s2.stanceFrom || ""} \u2192 ${s2.stanceTo || ""} | ${s2.care || ""} | ${s2.action || ""} |\n`; });
+    }
+    const imp = project.impact || [];
+    if (imp.length) {
+      md += `\n## Change Impact (T10)\n\n| Group | Size | Process | Tools | Skills | Behaviour | Readiness gap |\n|---|---|---|---|---|---|---|\n`;
+      imp.forEach(g => { md += `| ${g.group} | ${g.size || ""} | ${SEV_LBL[g.process ?? 0]} | ${SEV_LBL[g.tools ?? 0]} | ${SEV_LBL[g.skills ?? 0]} | ${SEV_LBL[g.behaviour ?? 0]} | ${g.gap || ""} |\n`; });
+    }
+    const bc = project.bizcase || {};
+    if (bc.problemSized || (bc.options || []).length) {
+      md += `\n## Business Case (T02)\n\n**Problem sized.** ${bc.problemSized || ""}\n\n`;
+      (bc.options || []).forEach((o, i) => { md += `- **Option ${String.fromCharCode(65 + i)} — ${o.name}** (${o.cost || "cost ?"}): ${o.summary || ""}\n`; });
+      if (bc.recommendation) md += `\n**Recommendation.** ${bc.recommendation}\n`;
+      if (bc.ask) md += `\n**Ask.** ${bc.ask}\n`;
+    }
+    const cl = project.closure || {};
+    if (cl.keep || cl.change || cl.stop || cl.spend) {
+      md += `\n## Closure (T17)\n\nFinal spend: ${cl.spend || "?"} vs envelope ${cl.envelope || "?"}. Residual: ${cl.residual || "none"}\n\n- **Keep:** ${cl.keep || ""}\n- **Change:** ${cl.change || ""}\n- **Stop:** ${cl.stop || ""}\n\n> We'd tell the next team: ${cl.tellNext || ""}\n`;
+    }
     if (pages.length) { md += `\n## Pages\n\n`; pages.forEach(pg => { md += `### ${pg.title} _(updated ${pg.updated})_\n\n${pg.body}\n\n---\n\n`; }); }
     dl(`${code}_confluence.md`, md, "text/markdown");
   };
@@ -2461,4 +2581,536 @@ function Advisor({ projects, project, setSel }) {
       )}
     </div>
   );
+}
+
+/* ================= HTML FALLBACK DOCUMENTS (print-to-PDF) ================= */
+function buildHtmlDoc(kind, p) {
+  const kd = { ...KD_DEFAULT, ...(p.keydata || {}) };
+  const cv = p.canvas || {};
+  const plan = [...(p.plan || [])].sort((a, b) => (a.due || "9999") < (b.due || "9999") ? -1 : 1);
+  const esc2 = s2 => String(s2 ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const ragColor = v => v === "G" ? ["#E8F2E9", "#2E7D32", "GREEN"] : v === "A" ? ["#FBF0DC", "#C77800", "AMBER"] : ["#F8E9E8", "#B3261E", "RED"];
+  const head2 = (eyebrow, tA, tB) => `
+    <div class="topbar"></div>
+    <div class="hwrap">
+      <div class="brandrow"><span class="wordmark">AstraZeneca</span><span class="suite">DCOS NAVIGATOR · DELIVERY &amp; CHANGE OFFICE</span></div>
+      <div class="eyebrow">${esc2(eyebrow)}</div>
+      <h1><span class="g">${esc2(tA)}</span> <span class="m">${esc2(tB)}</span></h1>
+      <div class="golddash"></div>
+      <div class="ident"><b>${esc2(p.name)} · ${esc2(p.code)}</b><br>Tier ${esc2(p.tier)} · ${esc2(p.phase)} · ${today()}</div>
+    </div>`;
+  const css = `<style>
+    @page{size:A4 landscape;margin:0}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Calibri,'Segoe UI',Arial,sans-serif;color:#1C2222;background:#fff}
+    .page{position:relative;width:297mm;min-height:209mm;padding:10mm 14mm 16mm;page-break-after:always;overflow:hidden}
+    .topbar{position:absolute;top:0;left:0;right:0;height:3.5mm;background:#830051}
+    .page::after{content:"";position:absolute;bottom:0;left:0;right:0;height:3.5mm;background:#830051}
+    .hwrap{position:relative;padding-top:4mm}
+    .brandrow{display:flex;justify-content:space-between;align-items:baseline}
+    .wordmark{color:#830051;font-weight:700;font-size:15pt}
+    .suite{font-family:Arial;font-size:7pt;letter-spacing:.22em;color:#9AA3A0;font-weight:700}
+    .eyebrow{font-family:Arial;font-size:8pt;font-weight:700;letter-spacing:.28em;color:#3F4444;margin-top:6mm;text-transform:uppercase}
+    h1{font-family:Arial;font-size:21pt;margin-top:1.5mm}
+    h1 .g{color:#3F4444}h1 .m{color:#830051}
+    .golddash{width:14mm;height:1.2mm;background:#F0AB00;margin:2mm 0 0 .5mm}
+    .ident{position:absolute;top:10mm;right:0;text-align:right;font-size:9pt;color:#6B6B6B}
+    .ident b{color:#3F4444}
+    .zone{border:0.3mm solid #D5D5D5;border-radius:2.5mm;padding:4mm 5mm;margin-top:4mm}
+    .zone.mul{background:#F6E9F1;border-color:#fff}.zone.gold{background:#FDF3DC;border-color:#fff}.zone.navy{background:#E7EEF4;border-color:#fff}
+    .lbl{font-family:Arial;font-size:7.5pt;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:1.5mm}
+    .rags{display:flex;gap:3mm;margin-top:4mm}
+    .rag{flex:1;border-radius:2.5mm;padding:3mm 4mm}
+    .rag b{font-family:Arial;font-size:9pt}.rag .st{font-family:Arial;font-weight:800;font-size:11pt;margin-top:1mm}
+    table{width:100%;border-collapse:collapse;margin-top:2mm;font-size:9.5pt}
+    th{background:#3F4444;color:#fff;font-family:Arial;font-size:8pt;text-align:left;padding:2.2mm 3mm;letter-spacing:.04em}
+    td{padding:2.2mm 3mm;border-bottom:0.2mm solid #ECE8E4;vertical-align:top}
+    .foot{position:absolute;bottom:6mm;left:14mm;right:14mm;display:flex;justify-content:space-between;font-size:7.5pt;color:#9AA3A0;font-style:italic}
+    ul{margin:1.5mm 0 0 5mm;font-size:10pt}li{margin-bottom:1.2mm}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+    .printhint{position:fixed;top:6px;right:8px;background:#2B3333;color:#fff;font:600 11px Arial;padding:6px 12px;border-radius:8px;opacity:.92}
+    @media print{.printhint{display:none}}
+  </style>`;
+  const foot = `<div class="foot"><span>Generated by DCOS Navigator — review and sign before circulation (AI/tool-drafted, unconfirmed)</span><span>Branded HTML fallback · print or save as PDF for circulation</span></div>`;
+
+  const t04page = () => `
+  <div class="page">${head2("T04 · Status report — assembled from the Navigator", "Status", "report")}
+    <div class="zone mul"><span class="lbl" style="color:#830051">Headline</span>
+      <div style="font-size:11.5pt;${kd.headline ? "" : "font-style:italic;color:#9AA3A0"}">${esc2(kd.headline || "— add a headline in Project Data —")}</div></div>
+    <div class="rags">${RAG_DIMS.map(d => { const [bg, fg, lbl2] = ragColor(p.rag?.[d] || "G"); return `<div class="rag" style="background:${bg}"><b>${d}</b><div class="st" style="color:${fg}">${lbl2}</div></div>`; }).join("")}</div>
+    <div class="grid2" style="margin-top:4mm">
+      <div class="zone"><span class="lbl" style="color:#830051">Top risks — from Project Data</span>
+        ${(kd.risks.slice(0, 3).length ? kd.risks.slice(0, 3) : [{ desc: "— add risks in Project Data —" }]).map(r => `<div style="font-size:10pt;margin-top:1.6mm">• ${esc2(r.desc)}${r.owner ? ` <span style="color:#6B6B6B;font-size:8.5pt">— ${esc2(r.owner)}${r.due ? ", due " + esc2(r.due) : ""}</span>` : ""}</div>`).join("")}</div>
+      <div class="zone gold"><span class="lbl" style="color:#8A6200">Decisions needed</span>
+        ${(() => { const dn = kd.decisions.filter(d => d.status !== "taken").slice(0, 3); return (dn.length ? dn : [{ text: "— none open: an empty box is a statement —" }]).map((d, i) => `<div style="font-size:10pt;margin-top:1.6mm"><b style="font-family:'Courier New';color:#8A6200">D${i + 1}</b> ${esc2(d.text)}${d.owner ? ` <span style="color:#6B6B6B;font-size:8.5pt">— ${esc2(d.owner)}</span>` : ""}</div>`).join(""); })()}</div>
+    </div>
+    <div class="zone navy"><span class="lbl" style="color:#003865">Look-ahead</span>
+      <div style="font-size:10.5pt">Next milestone: <b>${esc2(kd.milestone || "—")}</b>${kd.milestoneDate ? " — " + esc2(kd.milestoneDate) : ""} — confidence ${kd.confidence}%</div></div>
+    ${foot}</div>`;
+
+  const t01page = () => `
+  <div class="page">${head2("T01 · Project charter — drafted from the Delivery Canvas", "Project", "charter")}
+    <div class="grid2">
+      <div>
+        <div class="zone"><span class="lbl" style="color:#830051">Problem</span><div style="font-size:10pt">${esc2(cv.problem || "— complete in the Delivery Canvas —")}</div></div>
+        <div class="zone"><span class="lbl" style="color:#8A9900">Outcome &amp; success measures (→ T13)</span><div style="font-size:10pt">${esc2(cv.outcome || "—")}</div></div>
+        <div class="zone"><span class="lbl" style="color:#003865">Scope &amp; edges</span><div style="font-size:10pt">${esc2(cv.solution || "—")}</div></div>
+      </div>
+      <div>
+        <div class="zone"><span class="lbl" style="color:#003865">Users &amp; stakeholders</span><div style="font-size:10pt">${esc2(cv.users || "—")}</div></div>
+        <div class="zone"><span class="lbl" style="color:#8A9900">Value hypothesis</span><div style="font-size:10pt">${esc2(cv.hypothesis || "—")}</div></div>
+        <div class="zone"><span class="lbl" style="color:#B3261E">Top risks &amp; dependencies (→ RAID)</span><div style="font-size:10pt">${esc2(cv.risks || "—")}</div></div>
+        <div class="zone mul"><div style="font-size:9.5pt;color:#830051;font-weight:700">Tier ${esc2(p.tier)} · Signatures: Sponsor ____ &nbsp; Sr. Director ____ &nbsp; PM ____</div></div>
+      </div>
+    </div>${foot}</div>`;
+
+  const t05pages = () => {
+    const dn = kd.decisions.slice(0, 6);
+    return t04page() + `
+  <div class="page">${head2("T05 · SteerCo — slide 2", "Decisions requested", "today")}
+    <table><tr><th style="width:8mm">#</th><th>Decision</th><th style="width:38mm">Decision-maker</th><th style="width:22mm">Status</th></tr>
+      ${(dn.length ? dn : [{ text: "— add decisions in Project Data —" }]).map((d, i) => `<tr><td style="font-family:'Courier New';color:#8A6200;font-weight:700">D${i + 1}</td><td>${esc2(d.text)}</td><td>${esc2(d.owner || "")}</td><td style="color:${d.status === "taken" ? "#2E7D32" : "#C77800"}">${esc2(d.status || "")}</td></tr>`).join("")}
+    </table>${foot}</div>
+  <div class="page">${head2("T05 · SteerCo — slide 3", "Value tracker", "extract")}
+    <table><tr><th>Benefit</th><th style="width:28mm">Baseline</th><th style="width:32mm">Target</th><th style="width:34mm">Owner (business)</th><th style="width:24mm">Status</th></tr>
+      ${((kd.benefits.length ? kd.benefits : [{ name: "— add benefits in Project Data —" }]).slice(0, 6)).map(b => `<tr><td>${esc2(b.name)}</td><td>${esc2(b.baseline || "")}</td><td>${esc2(b.target || "")}</td><td>${esc2(b.owner || "")}</td><td style="font-weight:700;color:${b.status === "at risk" ? "#B3261E" : b.status === "realised" ? "#2E7D32" : "#1C2222"}">${esc2(b.status || "")}</td></tr>`).join("")}
+    </table>${foot}</div>
+  <div class="page">${head2("T05 · SteerCo — slide 4", "Plan &", "milestones")}
+    <table><tr><th>Milestone (outcome)</th><th style="width:24mm">Due</th><th style="width:30mm">Owner</th><th style="width:24mm">Confidence</th><th style="width:20mm">Status</th></tr>
+      ${((plan.length ? plan : [{ name: "— add milestones in Workspace › Plan —" }]).slice(0, 8)).map(m => { const c2 = m.conf ?? 80; return `<tr><td>${esc2(m.name)}</td><td>${esc2(m.due || "")}</td><td>${esc2(m.owner || "")}</td><td style="font-weight:700;color:${c2 < 60 ? "#B3261E" : c2 < 80 ? "#C77800" : "#2E7D32"}">${m.name ? c2 + "%" : ""}</td><td style="color:${m.status === "done" ? "#2E7D32" : "#1C2222"}">${esc2(m.status || "")}</td></tr>`; }).join("")}
+    </table>
+    <div style="font-size:8.5pt;color:#6B6B6B;font-style:italic;margin-top:3mm">Baseline locked at gates — any re-baseline carries a T08 entry. Confidence comes from the plan of record, not optimism in the room.</div>${foot}</div>
+  <div class="page">${head2("T05 · SteerCo — slide 5", "Risks &", "escalations")}
+    ${(kd.risks.slice(0, 4).length ? kd.risks.slice(0, 4).map((r, i) => `<div class="zone" style="${i === 0 ? "background:#F8E9E8;border-color:#fff" : ""}"><div style="font-size:10.5pt"><b style="font-family:'Courier New';color:#B3261E">R${i + 1}</b> ${esc2(r.desc)}</div><div style="font-size:8.5pt;color:#6B6B6B;margin-top:1mm">Owner: ${esc2(r.owner || "—")} · mitigation due: ${esc2(r.due || "—")} · bring options + recommendation, never the problem alone</div></div>`).join("") : `<div class="zone"><div style="font-size:11pt;font-style:italic;color:#6B6B6B">No escalated risks this cycle — this page saying so is itself the signal, and the meeting shortens.</div></div>`)}
+    ${foot}</div>`;
+  };
+
+  const zone = (label, color, content) => `<div class="zone"><span class="lbl" style="color:${color}">${label}</span><div style="font-size:10pt">${content}</div></div>`;
+  const genericPage = (eyebrow, tA, tB, inner) => `<div class="page">${head2(eyebrow, tA, tB)}${inner}${foot}</div>`;
+  const bc = p.bizcase || {}; const eps = p.epics || []; const sh2 = p.stakeholders || []; const imp2 = p.impact || []; const cl2 = p.closure || {};
+  const t02page = () => genericPage("T02 \u00b7 Business case", "Business", "case",
+    zone("Problem \u2014 sized", "#830051", esc2(bc.problemSized || "\u2014")) +
+    `<table><tr><th>Option</th><th>Trade-off</th><th style="width:30mm">TCO</th></tr>${(bc.options || []).map((o, i) => `<tr><td><b>${String.fromCharCode(65 + i)} \u00b7 ${esc2(o.name)}</b></td><td>${esc2(o.summary)}</td><td>${esc2(o.cost)}</td></tr>`).join("")}</table>` +
+    zone("Recommendation &amp; ask", "#8A6200", esc2(bc.recommendation || "\u2014") + (bc.ask ? "<br><b>Ask:</b> " + esc2(bc.ask) : "")) +
+    zone("Value hypotheses (T13)", "#8A9900", kd.benefits.map(b => "\u2022 " + esc2(b.name)).join("<br>") || "\u2014"));
+  const t15pages = () => eps.map((e, i) => genericPage(`T15 \u00b7 Epic one-pager \u2014 ${i + 1}/${eps.length}`, "Epic:", esc2(e.title || "untitled"),
+    `<div class="grid2"><div>${zone("User", "#003865", esc2(e.user || "\u2014"))}${zone("Problem \u2014 with evidence", "#830051", esc2(e.problem || "\u2014"))}${zone("Value hypothesis", "#8A9900", esc2(e.hypothesis || "\u2014"))}</div><div>${zone("Acceptance criteria", "#003865", esc2(e.acceptance || "\u2014"))}${zone("Instrumentation \u2014 no telemetry, no Done", "#8A6200", esc2(e.instrumentation || "\u2014"))}</div></div>`)).join("") || genericPage("T15", "Epic", "one-pagers", zone("Empty", "#830051", "Add epics in Studio \u203a T15"));
+  const t09page = () => genericPage("T09 \u00b7 Stakeholder map \u2014 core team only", "Stakeholder", "map",
+    `<table><tr><th>Name</th><th>Quadrant</th><th>Stance</th><th>Cares about</th><th>Action</th></tr>${(sh2.length ? sh2 : [{ name: "\u2014" }]).map(s3 => `<tr><td><b>${esc2(s3.name)}</b></td><td>${esc2(QUAD_LBL[s3.quadrant] || "")}</td><td>${esc2(s3.stanceFrom || "")} \u2192 ${esc2(s3.stanceTo || "")}</td><td><i>${esc2(s3.care || "")}</i></td><td>${esc2(s3.action || "")}</td></tr>`).join("")}</table>` +
+    `<div style="font-size:8.5pt;color:#B3261E;font-style:italic;margin-top:3mm">Handle with care: candid by design \u2014 never pasted into broad-access decks.</div>`);
+  const t10page = () => genericPage("T10 \u00b7 Change impact assessment", "Change", "impact",
+    `<table><tr><th>Group</th><th>Size</th><th>Process</th><th>Tools</th><th>Skills</th><th>Behaviour</th><th>From \u2192 to</th><th>Readiness gap</th></tr>${(imp2.length ? imp2 : [{ group: "\u2014" }]).map(g => `<tr><td><b>${esc2(g.group)}</b></td><td>${esc2(g.size || "")}</td>${["process", "tools", "skills", "behaviour"].map(k => `<td style="font-weight:700;color:${["#9AA3A0", "#8A9900", "#C77800", "#B3261E"][g[k] ?? 0]}">${SEV_LBL[g[k] ?? 0]}</td>`).join("")}<td><i>${esc2(g.fromTo || "")}</i></td><td>${esc2(g.gap || "")}</td></tr>`).join("")}</table>`);
+  const t17pages = () => genericPage("T17 \u00b7 Closure \u2014 1/3", "Outcomes vs", "charter",
+    zone("Charter measures (Canvas)", "#830051", esc2(cv.outcome || "\u2014")) +
+    `<table><tr><th>Benefit</th><th>Baseline \u2192 target</th><th>Owner</th><th>Final status</th></tr>${kd.benefits.map(b => `<tr><td>${esc2(b.name)}</td><td>${esc2(b.baseline || "")} \u2192 ${esc2(b.target || "")}</td><td>${esc2(b.owner || "")}</td><td style="font-weight:700">${esc2(b.status || "")}</td></tr>`).join("") || "<tr><td colspan=4>\u2014</td></tr>"}</table>` +
+    zone("Final spend", "#830051", `${esc2(cl2.spend || "\u2014")} vs envelope ${esc2(cl2.envelope || "\u2014")} \u00b7 residual: ${esc2(cl2.residual || "none")}`)) +
+    genericPage("T17 \u00b7 Closure \u2014 2/3", "Handover &", "transfer",
+      zone("Benefits \u2192 business owners", "#8A9900", kd.benefits.filter(b => b.status !== "realised" && b.status !== "written off").map(b => `\u2022 ${esc2(b.name)} \u2192 ${esc2(b.owner || "owner?")} \u00b7 signature ___`).join("<br>") || "\u2014") +
+      zone("Open risks \u2192 run owner", "#003865", kd.risks.map(r => `\u2022 ${esc2(r.desc)} \u2192 ${esc2(cl2.runOwner || "service owner ___")}`).join("<br>") || "\u2014")) +
+    genericPage("T17 \u00b7 Closure \u2014 3/3", "Lessons &", "release",
+      zone("Keep", "#8A9900", esc2(cl2.keep || "\u2014")) + zone("Change", "#C77800", esc2(cl2.change || "\u2014")) + zone("Stop", "#B3261E", esc2(cl2.stop || "\u2014")) +
+      zone("We'd tell the next team\u2026", "#830051", esc2(cl2.tellNext || "\u2014")));
+  const PAGES = { t01: t01page, t04: t04page, t05: t05pages, t02: t02page, t15: t15pages, t09: t09page, t10: t10page, t17: t17pages };
+  const body = (PAGES[kind] || t04page)();
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc2(p.code)} ${kind.toUpperCase()} — ${esc2(p.name)}</title>${css}</head>
+  <body><div class="printhint">Ctrl/Cmd+P → Save as PDF (landscape)</div>${body}</body></html>`;
+}
+
+/* ================= TEMPLATE BUILDERS (production order delivered) ================= */
+const QUAD_LBL = { mc: "Manage closely", ks: "Keep satisfied", ki: "Keep informed", mon: "Monitor" };
+const SEV_LBL = ["none", "low", "medium", "high"];
+const SEV_COL = [C.soft, C.limeLt, C.goldLt, "#F8E9E8"];
+const SEV_FG = [C.faint, C.lime, "#8A6200", C.red];
+const Inp = ({ v, on, ph, w, mono }) => (
+  <input value={v || ""} onChange={e => on(e.target.value)} placeholder={ph}
+    style={{ flex: w ? `0 0 ${w}px` : 1, minWidth: 70, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "7px 9px", fontSize: 12, fontFamily: mono ? MONO : BODY }} />
+);
+const TArea = ({ v, on, ph, rows = 2 }) => (
+  <textarea value={v || ""} onChange={e => on(e.target.value)} placeholder={ph} rows={rows}
+    style={{ width: "100%", border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, lineHeight: 1.5, color: C.ink }} />
+);
+function BuilderHead({ projects, project, setSel, title, blurb }) {
+  return (
+    <Card style={{ marginBottom: 14, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+      <ProjectPicker projects={projects} project={project} setSel={setSel} />
+      <div style={{ flex: 1, minWidth: 220 }}>
+        <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 16 }}>{title}</div>
+        <div style={{ fontSize: 12, color: C.mid }}>{blurb} Saves as you type → generate from <b>Documents & exports</b>.</div>
+      </div>
+    </Card>
+  );
+}
+
+/* ---- T02 Business Case ---- */
+function BizCaseBuilder({ projects, project, setSel, update }) {
+  if (!project) return <Card>Add a project first.</Card>;
+  const bc = { problemSized: "", options: [], recommendation: "", tco: "", sensitivity: "", ask: "", ...(project.bizcase || {}) };
+  const set = patch => update(project.id, { bizcase: { ...bc, ...patch } });
+  const setOpt = (id, patch) => set({ options: bc.options.map(o => o.id === id ? { ...o, ...patch } : o) });
+  return (
+    <div>
+      <BuilderHead projects={projects} project={project} setSel={setSel} title="T02 · Business Case & Value Hypothesis" blurb="Problem sized with data, ≥3 options including do-nothing, a recommendation and the ask." />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(330px,1fr))", gap: 14 }}>
+        <Card style={{ gridColumn: "1/-1" }}>
+          <SectionLabel>Problem — sized, not asserted</SectionLabel>
+          <TArea v={bc.problemSized} on={v => set({ problemSized: v })} ph="e.g. Field managers wait ~5 days for performance answers; ~120 requests/month × 45 min analyst time ≈ €11k/month of latency and rework." rows={2} />
+        </Card>
+        <Card style={{ gridColumn: "1/-1" }}>
+          <SectionLabel color={C.navy}>Options — the do-nothing option is mandatory</SectionLabel>
+          {bc.options.map((o, i) => (
+            <div key={o.id} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center", flexWrap: "wrap" }}>
+              <span style={{ fontFamily: MONO, fontSize: 11, color: C.navy, fontWeight: 600, minWidth: 18 }}>{String.fromCharCode(65 + i)}</span>
+              <Inp v={o.name} on={v => setOpt(o.id, { name: v })} ph={i === 0 ? "Do nothing" : "Option name"} w={170} />
+              <Inp v={o.summary} on={v => setOpt(o.id, { summary: v })} ph="one-line trade-off" />
+              <Inp v={o.cost} on={v => setOpt(o.id, { cost: v })} ph="TCO €" w={100} mono />
+              <button onClick={() => set({ options: bc.options.filter(x => x.id !== o.id) })} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+            </div>
+          ))}
+          <button onClick={() => set({ options: [...bc.options, { id: uid(), name: bc.options.length === 0 ? "Do nothing" : "", summary: "", cost: "" }] })}
+            style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.navy, borderRadius: 8, padding: "7px 12px", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>+ option</button>
+        </Card>
+        <Card>
+          <SectionLabel>Recommendation & ask</SectionLabel>
+          <TArea v={bc.recommendation} on={v => set({ recommendation: v })} ph="Option B, because… (cost, value, risk left on the table)" rows={2} />
+          <div style={{ height: 8 }} />
+          <Inp v={bc.ask} on={v => set({ ask: v })} ph="The ask: € envelope + FTEs + decision date" />
+        </Card>
+        <Card>
+          <SectionLabel color={"#8A6200"}>TCO & sensitivity</SectionLabel>
+          <Inp v={bc.tco} on={v => set({ tco: v })} ph="Total cost of ownership, by phase (build/run, 3y)" />
+          <div style={{ height: 8 }} />
+          <Inp v={bc.sensitivity} on={v => set({ sensitivity: v })} ph="Sensitivity: which assumption breaks the case first?" />
+          <div style={{ fontSize: 11, color: C.faint, marginTop: 8 }}>Value hypotheses come from Project Data → Benefits and print with the case — keep them there, single source.</div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---- T15 Epic one-pagers ---- */
+function EpicsBuilder({ projects, project, setSel, update }) {
+  if (!project) return <Card>Add a project first.</Card>;
+  const eps = project.epics || [];
+  const set = v => update(project.id, { epics: v });
+  const setE = (id, patch) => set(eps.map(e => e.id === id ? { ...e, ...patch } : e));
+  return (
+    <div>
+      <BuilderHead projects={projects} project={project} setSel={setSel} title="T15 · Feature / Epic one-pagers" blurb="No epic enters the board without one. They ride the JIRA export as the epic description." />
+      <button onClick={() => set([...eps, { id: uid(), title: "", user: "", problem: "", hypothesis: "", acceptance: "", instrumentation: "" }])}
+        style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.mul, borderRadius: 9, padding: "9px 16px", fontSize: 13, cursor: "pointer", fontWeight: 700, fontFamily: DISP, marginBottom: 14 }}>+ new epic one-pager</button>
+      {eps.length === 0 && <Card style={{ color: C.mid, fontSize: 13 }}>The quality bar in one rule: user + evidenced problem + falsifiable hypothesis + acceptance + instrumentation. "No telemetry, no Done."</Card>}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))", gap: 14 }}>
+        {eps.map((e, i) => (
+          <Card key={e.id} style={{ borderTop: `3px solid ${C.navy}` }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontFamily: MONO, fontSize: 10.5, color: C.navy }}>EP-{String(i + 1).padStart(2, "0")}</span>
+              <Inp v={e.title} on={v => setE(e.id, { title: v })} ph="Epic title (outcome, not feature name)" />
+              <button onClick={() => set(eps.filter(x => x.id !== e.id))} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+            </div>
+            {[["user", "User — who exactly?"], ["problem", "Problem — with evidence (quote, metric, ticket count)"], ["hypothesis", "Hypothesis — we believe… measurable in [indicator] by [date]"], ["acceptance", "Acceptance criteria — testable, 3–5 bullets"], ["instrumentation", "Instrumentation — events/telemetry that prove the hypothesis"]].map(([k, ph]) => (
+              <div key={k} style={{ marginBottom: 7 }}>
+                <TArea v={e[k]} on={v => setE(e.id, { [k]: v })} ph={ph} rows={k === "user" ? 1 : 2} />
+              </div>
+            ))}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---- T09 Stakeholder grid ---- */
+function StakeBuilder({ projects, project, setSel, update }) {
+  if (!project) return <Card>Add a project first.</Card>;
+  const sh = project.stakeholders || [];
+  const set = v => update(project.id, { stakeholders: v });
+  const setS = (id, patch) => set(sh.map(s2 => s2.id === id ? { ...s2, ...patch } : s2));
+  const quads = [["ks", C.navyLt, C.navy], ["mc", C.mulLt, C.mul], ["mon", C.soft, C.faint], ["ki", C.goldLt, "#8A6200"]];
+  return (
+    <div>
+      <BuilderHead projects={projects} project={project} setSel={setSel} title="T09 · Stakeholder map — power / interest with stance" blurb="Candid by design: this stays in the core team. Click a chip's quadrant selector to move it on the grid." />
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(300px,1fr) minmax(300px,1.1fr)", gap: 16, alignItems: "start" }}>
+        <Card style={{ padding: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {quads.map(([q, bg, fg]) => (
+              <div key={q} style={{ background: bg, borderRadius: 10, minHeight: 130, padding: 10 }}>
+                <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: fg, marginBottom: 6 }}>{QUAD_LBL[q]}</div>
+                {sh.filter(s2 => s2.quadrant === q).map(s2 => (
+                  <div key={s2.id} style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 99, padding: "4px 11px", fontSize: 11, marginBottom: 5, display: "inline-block", marginRight: 5 }}>
+                    {s2.name || "—"} {s2.stanceFrom && s2.stanceTo && s2.stanceFrom !== s2.stanceTo ? <span style={{ color: fg, fontFamily: MONO, fontSize: 9 }}>{s2.stanceFrom}→{s2.stanceTo}</span> : null}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", fontFamily: MONO, fontSize: 9, color: C.faint, marginTop: 6 }}><span>↑ POWER</span><span>INTEREST →</span></div>
+        </Card>
+        <div>
+          <button onClick={() => set([...sh, { id: uid(), name: "", role: "", quadrant: "mc", stanceFrom: "neutral", stanceTo: "supporter", care: "", action: "" }])}
+            style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.mul, borderRadius: 9, padding: "8px 14px", fontSize: 12.5, cursor: "pointer", fontWeight: 700, fontFamily: DISP, marginBottom: 10 }}>+ stakeholder</button>
+          {sh.map(s2 => (
+            <Card key={s2.id} style={{ padding: 12, marginBottom: 10 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                <Inp v={s2.name} on={v => setS(s2.id, { name: v })} ph="Name · role" w={170} />
+                <select value={s2.quadrant} onChange={e => setS(s2.id, { quadrant: e.target.value })} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11 }}>
+                  {Object.entries(QUAD_LBL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                </select>
+                {["blocker", "sceptic", "neutral", "supporter", "champion"].map ? null : null}
+                <select value={s2.stanceFrom} onChange={e => setS(s2.id, { stanceFrom: e.target.value })} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11 }}>
+                  {["blocker", "sceptic", "neutral", "supporter", "champion"].map(x => <option key={x}>{x}</option>)}
+                </select>
+                <span style={{ color: C.faint }}>→</span>
+                <select value={s2.stanceTo} onChange={e => setS(s2.id, { stanceTo: e.target.value })} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11 }}>
+                  {["neutral", "supporter", "champion"].map(x => <option key={x}>{x}</option>)}
+                </select>
+                <button onClick={() => set(sh.filter(x => x.id !== s2.id))} style={{ marginLeft: "auto", border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+              </div>
+              <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                <Inp v={s2.care} on={v => setS(s2.id, { care: v })} ph="What they care about — their words, from a real conversation" />
+                <Inp v={s2.action} on={v => setS(s2.id, { action: v })} ph="Engagement action + owner + date" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---- T10 Impact form ---- */
+function ImpactBuilder({ projects, project, setSel, update }) {
+  if (!project) return <Card>Add a project first.</Card>;
+  const imp = project.impact || [];
+  const set = v => update(project.id, { impact: v });
+  const setG = (id, patch) => set(imp.map(g => g.id === id ? { ...g, ...patch } : g));
+  const LENSES2 = [["process", "Process"], ["tools", "Tools"], ["skills", "Skills"], ["behaviour", "Behaviour"]];
+  return (
+    <div>
+      <BuilderHead projects={projects} project={project} setSel={setSel} title="T10 · Change Impact Assessment" blurb="Per affected group, severity across four lenses. Built from interviews, signed before G2 — never after design freeze." />
+      <button onClick={() => set([...imp, { id: uid(), group: "", size: "", process: 0, tools: 0, skills: 0, behaviour: 0, fromTo: "", gap: "" }])}
+        style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.mul, borderRadius: 9, padding: "8px 14px", fontSize: 12.5, cursor: "pointer", fontWeight: 700, fontFamily: DISP, marginBottom: 12 }}>+ affected group</button>
+      {imp.map(g => {
+        const maxSev = Math.max(g.process ?? 0, g.tools ?? 0, g.skills ?? 0, g.behaviour ?? 0);
+        return (
+          <Card key={g.id} style={{ marginBottom: 12, borderLeft: `4px solid ${SEV_FG[maxSev]}` }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }}>
+              <Inp v={g.group} on={v => setG(g.id, { group: v })} ph="Group (e.g. Field managers — Iberia)" w={240} />
+              <Inp v={g.size} on={v => setG(g.id, { size: v })} ph="size (~n)" w={90} mono />
+              <Chip bg={SEV_COL[maxSev]} color={SEV_FG[maxSev]}>overall: {SEV_LBL[maxSev]}</Chip>
+              <button onClick={() => set(imp.filter(x => x.id !== g.id))} style={{ marginLeft: "auto", border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+            </div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 8 }}>
+              {LENSES2.map(([k, l]) => (
+                <label key={k} style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 11.5, color: C.mid }}>
+                  {l}
+                  <input type="range" min={0} max={3} value={g[k] ?? 0} onChange={e => setG(g.id, { [k]: +e.target.value })} style={{ width: 90 }} />
+                  <span style={{ fontFamily: MONO, fontSize: 10.5, color: SEV_FG[g[k] ?? 0], minWidth: 48 }}>{SEV_LBL[g[k] ?? 0]}</span>
+                </label>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <Inp v={g.fromTo} on={v => setG(g.id, { fromTo: v })} ph="From → to: a day-in-the-life sentence" />
+              <Inp v={g.gap} on={v => setG(g.id, { gap: v })} ph="Readiness gap → becomes a T11 comms/training row" />
+            </div>
+          </Card>
+        );
+      })}
+      {imp.length === 0 && <Card style={{ color: C.mid, fontSize: 13 }}>Anti-pattern this kills: one generic "users" group assessed from a desk. Severity 3 anywhere = named treatment plan, leaders as senders, readiness gate evidence.</Card>}
+    </div>
+  );
+}
+
+/* ---- T17 Closure ---- */
+function ClosureBuilder({ projects, project, setSel, update }) {
+  if (!project) return <Card>Add a project first.</Card>;
+  const cl = { spend: "", envelope: "", residual: "", keep: "", change: "", stop: "", tellNext: "", runOwner: "", ...(project.closure || {}) };
+  const set = patch => update(project.id, { closure: { ...cl, ...patch } });
+  const kd = { ...KD_DEFAULT, ...(project.keydata || {}) };
+  return (
+    <div>
+      <BuilderHead projects={projects} project={project} setSel={setSel} title="T17 · Closure & handover" blurb="Outcomes vs charter with no narrative laundering. The generator pulls benefits, open risks and the canvas automatically." />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(330px,1fr))", gap: 14 }}>
+        <Card>
+          <SectionLabel>Final spend vs envelope</SectionLabel>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <Inp v={cl.spend} on={v => set({ spend: v })} ph="actual €" mono />
+            <Inp v={cl.envelope} on={v => set({ envelope: v })} ph="envelope €" mono />
+          </div>
+          <div style={{ height: 8 }} />
+          <Inp v={cl.residual} on={v => set({ residual: v })} ph="Residual commitments (licences, run cost…)" />
+          <div style={{ height: 8 }} />
+          <Inp v={cl.runOwner} on={v => set({ runOwner: v })} ph="Run / service owner receiving open risks" />
+          <div style={{ fontSize: 11, color: C.faint, marginTop: 10 }}>Auto-pulled into the pack: {kd.benefits.length} benefit(s) with owners and honest status · {kd.risks.length} open risk(s) for transfer · charter measures from the Canvas.</div>
+        </Card>
+        <Card>
+          <SectionLabel color={C.lime}>Lessons → Framework Council</SectionLabel>
+          <TArea v={cl.keep} on={v => set({ keep: v })} ph="KEEP — what the next team should copy" rows={2} />
+          <div style={{ height: 6 }} />
+          <TArea v={cl.change} on={v => set({ change: v })} ph="CHANGE — what we'd do differently, and the mechanism" rows={2} />
+          <div style={{ height: 6 }} />
+          <TArea v={cl.stop} on={v => set({ stop: v })} ph="STOP — what cost effort and returned nothing" rows={2} />
+        </Card>
+        <Card style={{ gridColumn: "1/-1" }}>
+          <SectionLabel color={"#8A6200"}>"We'd tell the next team…"</SectionLabel>
+          <TArea v={cl.tellNext} on={v => set({ tellNext: v })} ph="One honest paragraph. The credibility of every future business case is priced off this." rows={2} />
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+/* ================= PPTX BUILDERS — T02 · T15 · T09 · T10 · T17 ================= */
+function buildT02(pptx, p) {
+  const bc = { problemSized: "", options: [], recommendation: "", tco: "", sensitivity: "", ask: "", ...(p.bizcase || {}) };
+  const kd = { ...KD_DEFAULT, ...(p.keydata || {}) };
+  const s = pptx.addSlide();
+  azFrame(pptx, s, "T02 · Business case & value hypothesis", "Business", "case", p);
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 1.92, w: 12.23, h: 0.85, rectRadius: 0.06, fill: { color: "F6E9F1" } });
+  s.addText([{ text: "PROBLEM — SIZED   ", options: { fontFace: "Arial", fontSize: 9, bold: true, color: AZ.mul, charSpacing: 2 } },
+    { text: bc.problemSized || "— complete in Studio › T02 —", options: { fontFace: "Calibri", fontSize: 11.5, italic: !bc.problemSized, color: bc.problemSized ? "1C2222" : AZ.mid } }],
+    { x: 0.8, y: 2.06, w: 11.7, h: 0.6 });
+  const ohdr = ["Option", "Trade-off", "TCO"].map(t => ({ text: t, options: { fill: { color: AZ.graph }, color: "FFFFFF", bold: true, fontFace: "Arial", fontSize: 10 } }));
+  const orows = [(ohdr)];
+  (bc.options.length ? bc.options : [{ name: "— add options (incl. do-nothing) —" }]).slice(0, 4).forEach((o, i) => {
+    orows.push([
+      { text: String.fromCharCode(65 + i) + " · " + (o.name || ""), options: { fontFace: "Calibri", fontSize: 10.5, bold: true } },
+      { text: o.summary || "", options: { fontFace: "Calibri", fontSize: 10.5 } },
+      { text: o.cost || "", options: { fontFace: "Courier New", fontSize: 10 } },
+    ]);
+  });
+  s.addTable(orows, { x: 0.55, y: 2.95, w: 7.3, colW: [2.3, 3.7, 1.3], border: { pt: 0.5, color: AZ.line }, rowH: 0.46, valign: "middle", margin: 0.05 });
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 8.05, y: 2.95, w: 4.73, h: 2.3, rectRadius: 0.06, fill: { color: "FDF3DC" } });
+  s.addText("RECOMMENDATION & ASK", { x: 8.25, y: 3.08, w: 4.3, h: 0.24, fontFace: "Arial", fontSize: 8.5, bold: true, color: "8A6200", charSpacing: 1.5 });
+  s.addText(bc.recommendation || "—", { x: 8.25, y: 3.36, w: 4.35, h: 1.1, fontFace: "Calibri", fontSize: 10.5, color: "1C2222" });
+  s.addText(bc.ask ? "Ask: " + bc.ask : "", { x: 8.25, y: 4.5, w: 4.35, h: 0.6, fontFace: "Calibri", fontSize: 10.5, bold: true, color: AZ.mul });
+  s.addText("VALUE HYPOTHESES (from T13 rows)", { x: 0.55, y: 5.45, w: 6, h: 0.24, fontFace: "Arial", fontSize: 8.5, bold: true, color: AZ.lime, charSpacing: 1.5 });
+  (kd.benefits.slice(0, 3).length ? kd.benefits.slice(0, 3) : [{ name: "— add benefits in Project Data —" }]).forEach((b, i) => {
+    s.addText("• " + (b.name || "") + (b.baseline ? ` (${b.baseline} → ${b.target || "?"})` : ""), { x: 0.6, y: 5.72 + i * 0.34, w: 7.0, h: 0.32, fontFace: "Calibri", fontSize: 10, color: "1C2222" });
+  });
+  s.addText([{ text: "TCO: ", options: { bold: true } }, { text: (bc.tco || "—") + "   ", options: {} }, { text: "Sensitivity: ", options: { bold: true } }, { text: bc.sensitivity || "—", options: {} }],
+    { x: 8.05, y: 5.72, w: 4.7, h: 1.0, fontFace: "Calibri", fontSize: 9.5, color: AZ.mid });
+}
+function buildT15(pptx, p) {
+  const eps = (p.epics || []).length ? p.epics : [{ title: "— add epics in Studio › T15 —" }];
+  eps.forEach((e, i) => {
+    const s = pptx.addSlide();
+    azFrame(pptx, s, `T15 · Epic one-pager — ${i + 1} of ${eps.length}`, "Epic:", (e.title || "untitled").slice(0, 40), p);
+    const box = (x, y, w, h, label, text, accent) => {
+      s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.06, fill: { color: "FFFFFF" }, line: { color: AZ.line, width: 0.75 } });
+      s.addText(label, { x: x + 0.16, y: y + 0.1, w: w - 0.3, h: 0.24, fontFace: "Arial", fontSize: 8.5, bold: true, color: accent, charSpacing: 1.5 });
+      s.addText(text || "—", { x: x + 0.16, y: y + 0.36, w: w - 0.32, h: h - 0.48, fontFace: "Calibri", fontSize: 10.5, color: text ? "1C2222" : AZ.mid, italic: !text, valign: "top" });
+    };
+    box(0.55, 1.92, 6.0, 1.25, "USER — WHO EXACTLY", e.user, AZ.navy);
+    box(0.55, 3.3, 6.0, 1.6, "PROBLEM — WITH EVIDENCE", e.problem, AZ.mul);
+    box(0.55, 5.03, 6.0, 1.65, "VALUE HYPOTHESIS", e.hypothesis, AZ.lime);
+    box(6.75, 1.92, 6.08, 2.4, "ACCEPTANCE CRITERIA", e.acceptance, AZ.navy);
+    box(6.75, 4.45, 6.08, 1.7, "INSTRUMENTATION — NO TELEMETRY, NO DONE", e.instrumentation, "8A6200");
+    s.addText("PO owns this page · linked from the JIRA epic · failed hypotheses are retired out loud at the value review.", { x: 6.75, y: 6.3, w: 6.0, h: 0.35, fontFace: "Calibri", fontSize: 8.5, italic: true, color: AZ.mid });
+  });
+}
+function buildT09(pptx, p) {
+  const sh = p.stakeholders || [];
+  const s = pptx.addSlide();
+  azFrame(pptx, s, "T09 · Stakeholder map — core team only", "Stakeholder", "map", p);
+  const quads = [["ks", "KEEP SATISFIED", "E7EEF4", AZ.navy, 0.55, 1.95], ["mc", "MANAGE CLOSELY", "F6E9F1", AZ.mul, 3.85, 1.95], ["mon", "MONITOR", "F6F4F2", AZ.mid, 0.55, 4.3], ["ki", "KEEP INFORMED", "FDF3DC", "8A6200", 3.85, 4.3]];
+  quads.forEach(([q, lbl, bg, fg, x, y]) => {
+    s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x, y, w: 3.2, h: 2.25, rectRadius: 0.06, fill: { color: bg } });
+    s.addText(lbl, { x: x + 0.15, y: y + 0.1, w: 2.9, h: 0.24, fontFace: "Arial", fontSize: 8.5, bold: true, color: fg, charSpacing: 1.5 });
+    sh.filter(s2 => s2.quadrant === q).slice(0, 5).forEach((s2, i) => {
+      s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: x + 0.18, y: y + 0.42 + i * 0.36, w: 2.85, h: 0.3, rectRadius: 0.15, fill: { color: "FFFFFF" }, line: { color: AZ.line, width: 0.5 } });
+      s.addText((s2.name || "—") + (s2.stanceFrom !== s2.stanceTo ? `  ${s2.stanceFrom}→${s2.stanceTo}` : ""), { x: x + 0.3, y: y + 0.42 + i * 0.36, w: 2.65, h: 0.3, fontFace: "Calibri", fontSize: 8.5, color: "1C2222", valign: "middle" });
+    });
+  });
+  s.addText("POWER ↑   INTEREST →", { x: 0.55, y: 6.62, w: 4, h: 0.26, fontFace: "Courier New", fontSize: 8.5, color: AZ.faint });
+  const thdr = ["Stakeholder", "Stance", "Cares about (their words)", "Engagement action"].map(t => ({ text: t, options: { fill: { color: AZ.graph }, color: "FFFFFF", bold: true, fontFace: "Arial", fontSize: 9 } }));
+  const trows = [thdr];
+  (sh.length ? sh : [{ name: "— add stakeholders in Studio › T09 —" }]).slice(0, 7).forEach(s2 => {
+    trows.push([
+      { text: s2.name || "", options: { fontFace: "Calibri", fontSize: 9, bold: true } },
+      { text: s2.stanceFrom ? `${s2.stanceFrom} → ${s2.stanceTo}` : "", options: { fontFace: "Calibri", fontSize: 9 } },
+      { text: s2.care || "", options: { fontFace: "Calibri", fontSize: 9, italic: true } },
+      { text: s2.action || "", options: { fontFace: "Calibri", fontSize: 9 } },
+    ]);
+  });
+  s.addTable(trows, { x: 7.25, y: 1.95, w: 5.53, colW: [1.25, 1.05, 1.7, 1.53], border: { pt: 0.5, color: AZ.line }, rowH: 0.5, valign: "middle", margin: 0.04 });
+  s.addText("Handle with care: stance notes are candid by design — never pasted into broad-access decks.", { x: 7.25, y: 6.55, w: 5.5, h: 0.4, fontFace: "Calibri", fontSize: 8.5, italic: true, color: AZ.red });
+}
+function buildT10(pptx, p) {
+  const imp = p.impact || [];
+  const s = pptx.addSlide();
+  azFrame(pptx, s, "T10 · Change impact assessment — G2 evidence", "Change", "impact", p);
+  const sevFill = ["FFFFFF", "EFF4D6", "FDF3DC", "F8E9E8"], sevTxt = ["9AA3A0", "8A9900", "C77800", "B3261E"];
+  const hdr = ["Group", "Size", "Process", "Tools", "Skills", "Behaviour", "From → to", "Readiness gap → T11"].map(t => ({ text: t, options: { fill: { color: AZ.graph }, color: "FFFFFF", bold: true, fontFace: "Arial", fontSize: 9 } }));
+  const rows = [hdr];
+  (imp.length ? imp : [{ group: "— add groups in Studio › T10 —" }]).slice(0, 7).forEach(g => {
+    const cell = k => ({ text: SEV_LBL[g[k] ?? 0], options: { fontFace: "Arial", fontSize: 9, bold: true, color: sevTxt[g[k] ?? 0], fill: { color: sevFill[g[k] ?? 0] }, align: "center" } });
+    rows.push([
+      { text: g.group || "", options: { fontFace: "Calibri", fontSize: 9.5, bold: true } },
+      { text: g.size || "", options: { fontFace: "Courier New", fontSize: 9 } },
+      cell("process"), cell("tools"), cell("skills"), cell("behaviour"),
+      { text: g.fromTo || "", options: { fontFace: "Calibri", fontSize: 9, italic: true } },
+      { text: g.gap || "", options: { fontFace: "Calibri", fontSize: 9 } },
+    ]);
+  });
+  s.addTable(rows, { x: 0.55, y: 2.0, w: 12.23, colW: [2.1, 0.7, 0.95, 0.95, 0.95, 1.05, 2.7, 2.83], border: { pt: 0.5, color: AZ.line }, rowH: 0.55, valign: "middle", margin: 0.05 });
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 6.15, w: 12.23, h: 0.75, rectRadius: 0.06, fill: { color: "E7EEF4" } });
+  s.addText([{ text: "Treatment rule:  ", options: { bold: true, color: AZ.navy } }, { text: "severity HIGH on any lens → named treatment plan, leaders as senders (T11), and explicit evidence at the G3 readiness gate. Built from interviews; co-signed where regulated.", options: { color: "1C2222" } }],
+    { x: 0.8, y: 6.33, w: 11.7, h: 0.45, fontFace: "Calibri", fontSize: 10.5 });
+}
+function buildT17(pptx, p) {
+  const cl = { spend: "", envelope: "", residual: "", keep: "", change: "", stop: "", tellNext: "", runOwner: "", ...(p.closure || {}) };
+  const kd = { ...KD_DEFAULT, ...(p.keydata || {}) };
+  const cv = p.canvas || {};
+  // slide 1 — outcomes
+  let s = pptx.addSlide();
+  azFrame(pptx, s, "T17 · Closure pack — slide 1 of 3", "Outcomes vs", "charter", p);
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 1.92, w: 12.23, h: 1.0, rectRadius: 0.06, fill: { color: "FFFFFF" }, line: { color: AZ.line, width: 0.75 } });
+  s.addText("CHARTER SUCCESS MEASURES (from the Canvas)", { x: 0.75, y: 2.04, w: 8, h: 0.24, fontFace: "Arial", fontSize: 8.5, bold: true, color: AZ.mul, charSpacing: 1.5 });
+  s.addText(cv.outcome || "— outcome measures not captured in the Canvas —", { x: 0.75, y: 2.32, w: 11.8, h: 0.55, fontFace: "Calibri", fontSize: 10.5, color: cv.outcome ? "1C2222" : AZ.mid, italic: !cv.outcome });
+  const bh = ["Benefit", "Baseline → target", "Owner", "Final status"].map(t => ({ text: t, options: { fill: { color: AZ.graph }, color: "FFFFFF", bold: true, fontFace: "Arial", fontSize: 9.5 } }));
+  const br = [bh];
+  (kd.benefits.length ? kd.benefits : [{ name: "— benefits in Project Data print here —" }]).slice(0, 5).forEach(b => {
+    const col = b.status === "realised" ? AZ.lime : b.status === "written off" ? AZ.red : b.status === "at risk" ? "C77800" : "1C2222";
+    br.push([
+      { text: b.name || "", options: { fontFace: "Calibri", fontSize: 10 } },
+      { text: (b.baseline || "") + (b.target ? " → " + b.target : ""), options: { fontFace: "Calibri", fontSize: 10 } },
+      { text: b.owner || "", options: { fontFace: "Calibri", fontSize: 10 } },
+      { text: b.status || "", options: { fontFace: "Arial", fontSize: 10, bold: true, color: col } },
+    ]);
+  });
+  s.addTable(br, { x: 0.55, y: 3.1, w: 12.23, colW: [5.2, 3.0, 2.2, 1.83], border: { pt: 0.5, color: AZ.line }, rowH: 0.48, valign: "middle", margin: 0.05 });
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 6.0, w: 12.23, h: 0.9, rectRadius: 0.06, fill: { color: "F6E9F1" } });
+  s.addText([{ text: "FINAL SPEND  ", options: { fontFace: "Arial", fontSize: 9, bold: true, color: AZ.mul, charSpacing: 2 } },
+    { text: `${cl.spend || "—"} vs envelope ${cl.envelope || "—"}   ·   residual: ${cl.residual || "none"}   ·   no narrative laundering — a missed measure is stated plainly with the reason.`, options: { fontFace: "Calibri", fontSize: 11, color: "1C2222" } }],
+    { x: 0.8, y: 6.22, w: 11.7, h: 0.55 });
+  // slide 2 — handover
+  s = pptx.addSlide();
+  azFrame(pptx, s, "T17 · Closure pack — slide 2 of 3", "Value handover &", "transfer", p);
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 1.95, w: 6.0, h: 3.6, rectRadius: 0.06, fill: { color: "EFF4D6" } });
+  s.addText("OPEN BENEFITS → BUSINESS OWNERS", { x: 0.75, y: 2.08, w: 5.5, h: 0.24, fontFace: "Arial", fontSize: 8.5, bold: true, color: AZ.lime, charSpacing: 1.5 });
+  kd.benefits.filter(b => b.status !== "realised" && b.status !== "written off").slice(0, 4).forEach((b, i) => {
+    s.addText(`• ${b.name || "—"} → ${b.owner || "owner?"} · quarterly cadence · signature ___`, { x: 0.78, y: 2.42 + i * 0.42, w: 5.6, h: 0.4, fontFace: "Calibri", fontSize: 10, color: "1C2222" });
+  });
+  s.addText("The test: the business owner can run the next value review without the project team.", { x: 0.78, y: 4.7, w: 5.5, h: 0.7, fontFace: "Calibri", fontSize: 9.5, italic: true, color: AZ.mid });
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 6.8, y: 1.95, w: 6.0, h: 3.6, rectRadius: 0.06, fill: { color: "FFFFFF" }, line: { color: AZ.line, width: 0.75 } });
+  s.addText("OPEN RISKS & RUN TRANSFER", { x: 7.0, y: 2.08, w: 5.5, h: 0.24, fontFace: "Arial", fontSize: 8.5, bold: true, color: AZ.navy, charSpacing: 1.5 });
+  (kd.risks.slice(0, 3).length ? kd.risks.slice(0, 3) : [{ desc: "— no open risks recorded —" }]).forEach((r, i) => {
+    s.addText(`• ${r.desc || ""} → ${cl.runOwner || "service owner ___"}`, { x: 7.0, y: 2.42 + i * 0.55, w: 5.6, h: 0.52, fontFace: "Calibri", fontSize: 9.5, color: "1C2222" });
+  });
+  s.addText(`Run owner: ${cl.runOwner || "___"} · support model & escalation path confirmed before the closure board, not in it.`, { x: 7.0, y: 4.6, w: 5.6, h: 0.7, fontFace: "Calibri", fontSize: 9.5, italic: true, color: AZ.mid });
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 5.75, w: 12.23, h: 1.05, rectRadius: 0.06, fill: { color: "F6F4F2" } });
+  s.addText([{ text: "G4 exit test:  ", options: { bold: true, color: AZ.mul } }, { text: "every open benefit has a countersigned business owner; every open risk a named run owner. The Senior Director closes at Portfolio Review only when both columns are complete.", options: { color: "1C2222" } }],
+    { x: 0.8, y: 5.98, w: 11.7, h: 0.65, fontFace: "Calibri", fontSize: 11 });
+  // slide 3 — lessons
+  s = pptx.addSlide();
+  azFrame(pptx, s, "T17 · Closure pack — slide 3 of 3", "Lessons &", "release", p);
+  [["KEEP", cl.keep, AZ.lime, "EFF4D6"], ["CHANGE", cl.change, "C77800", "FDF3DC"], ["STOP", cl.stop, AZ.red, "F8E9E8"]].forEach((r, i) => {
+    s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55 + i * 4.18, y: 1.95, w: 3.95, h: 2.2, rectRadius: 0.06, fill: { color: r[3] } });
+    s.addText(r[0], { x: 0.75 + i * 4.18, y: 2.1, w: 3, h: 0.26, fontFace: "Arial", fontSize: 10, bold: true, color: r[2], charSpacing: 2 });
+    s.addText(r[1] || "—", { x: 0.75 + i * 4.18, y: 2.42, w: 3.55, h: 1.6, fontFace: "Calibri", fontSize: 10.5, color: r[1] ? "1C2222" : AZ.mid, italic: !r[1], valign: "top" });
+  });
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 4.4, w: 12.23, h: 1.2, rectRadius: 0.06, fill: { color: "F6E9F1" } });
+  s.addText([{ text: "\u201cWe'd tell the next team\u2026\u201d  ", options: { bold: true, color: AZ.mul } }, { text: cl.tellNext || "— one honest paragraph —", options: { italic: !cl.tellNext, color: cl.tellNext ? "1C2222" : AZ.mid } }],
+    { x: 0.8, y: 4.62, w: 11.7, h: 0.85, fontFace: "Calibri", fontSize: 11.5 });
+  s.addText("Lessons route to the Framework Council with tier and context. And then it ends: space archived read-only, board closed — only the value tracker stays alive, in the business's hands.", { x: 0.55, y: 5.85, w: 12.2, h: 0.6, fontFace: "Calibri", fontSize: 10.5, italic: true, color: AZ.mid });
 }
