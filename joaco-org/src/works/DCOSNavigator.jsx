@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell, Label, LineChart, Line } from "recharts";
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell, Label, LineChart, Line, AreaChart, Area } from "recharts";
 import Papa from "papaparse";
 
 /* ============================================================
@@ -23,8 +23,8 @@ const DISP = "'Archivo', sans-serif", BODY = "'Inter', sans-serif", MONO = "'IBM
 
 /* ---- i18n (UI chrome; generated documents stay in corporate English) ---- */
 const I18N = {
-  en: { portfolio: "Portfolio", week: "This Week", workspace: "Workspace", data: "Project Data", studio: "PPT Studio", health: "Health Scan", priority: "Priority Lab", canvas: "Delivery Canvas", review: "Review Pack", govyear: "Governance Year", timeline: "Timeline", advisor: "Advisor", resources: "Resources", subtitle: "delivery intelligence cockpit", persists: "data persists across sessions", saving: "saving\u2026", saved: "saved \u2713", saveerr: "save failed \u2014 retrying on next change", export: "Export JSON", import: "Import", langnote: "" },
-  es: { portfolio: "Portafolio", week: "Esta Semana", workspace: "Espacio de Trabajo", data: "Datos del Proyecto", studio: "Estudio PPT", health: "Diagn\u00f3stico", priority: "Lab de Prioridades", canvas: "Canvas de Entrega", review: "Pack de Revisi\u00f3n", govyear: "A\u00f1o de Gobierno", timeline: "L\u00ednea de Tiempo", advisor: "Asesor IA", resources: "Recursos", subtitle: "cockpit de inteligencia de delivery", persists: "los datos persisten entre sesiones", saving: "guardando\u2026", saved: "guardado \u2713", saveerr: "fallo al guardar \u2014 reintenta en el pr\u00f3ximo cambio", export: "Exportar JSON", import: "Importar", langnote: "Los documentos generados mantienen el ingl\u00e9s corporativo (est\u00e1ndar de entregables)." },
+  en: { portfolio: "Portfolio", week: "This Week", workspace: "Workspace", data: "Project Data", studio: "PPT Studio", health: "Health Scan", priority: "Priority Lab", canvas: "Delivery Canvas", review: "Review Pack", govyear: "Governance Year", timeline: "Timeline", advisor: "Advisor", capacity: "Capacity & Budget", whiteboard: "Whiteboard", team: "Team & AI Model", charter: "Team Charter", resources: "Resources", gRun: "RUN", gGovern: "GOVERN", gGenerate: "GENERATE", gLearn: "LEARN", subtitle: "delivery intelligence cockpit", persists: "data persists across sessions", saving: "saving\u2026", saved: "saved \u2713", saveerr: "save failed \u2014 retrying on next change", export: "Export JSON", import: "Import", langnote: "" },
+  es: { portfolio: "Portafolio", week: "Esta Semana", workspace: "Espacio de Trabajo", data: "Datos del Proyecto", studio: "Estudio PPT", health: "Diagn\u00f3stico", priority: "Lab de Prioridades", canvas: "Canvas de Entrega", review: "Pack de Revisi\u00f3n", govyear: "A\u00f1o de Gobierno", timeline: "L\u00ednea de Tiempo", advisor: "Asesor IA", capacity: "Capacidad y Presupuesto", whiteboard: "Pizarra", team: "Equipo e IA", charter: "Carta del Equipo", resources: "Recursos", gRun: "EJECUTA", gGovern: "GOBIERNA", gGenerate: "GENERA", gLearn: "APRENDE", subtitle: "cockpit de inteligencia de delivery", persists: "los datos persisten entre sesiones", saving: "guardando\u2026", saved: "guardado \u2713", saveerr: "fallo al guardar \u2014 reintenta en el pr\u00f3ximo cambio", export: "Exportar JSON", import: "Importar", langnote: "Los documentos generados mantienen el ingl\u00e9s corporativo (est\u00e1ndar de entregables)." },
 };
 
 const TIERS = { A: "Full Agile", B: "Hybrid", C: "Waterfall", D: "Light Touch" };
@@ -121,28 +121,138 @@ const CANVAS_BOXES = [
 ];
 
 const STORE_KEY = "dcos-navigator-v1";
+const SNAP_KEY = "dcos-navigator-snapshots";
+const SNAP_MAX = 7;
 const uid = () => Math.random().toString(36).slice(2, 9);
-const seedProjects = () => ([
-  { id: uid(), name: "Insight Assistant", code: "OBU-114", tier: "B", phase: "Deliver", value: 7, effort: 5,
-    rag: { Scope: "G", Schedule: "A", Budget: "G", Risk: "A", Adoption: "A" },
+const dRel = w => new Date(Date.now() + w * 7 * 86400000).toISOString().slice(0, 10);
+const tRel = w => Date.now() + w * 7 * 86400000;
+function mk2(ts, type, title, detail) { return { date: new Date(ts).toISOString().slice(0, 10), ts, type, title, detail }; }
+const seedProjects = () => {
+  const m1c = uid(), m1d = uid(), m1e = uid();
+  return [
+  { id: uid(), name: "Insight Assistant", code: "OBU-114", tier: "B", phase: "Deliver", value: 7, effort: 5, pm: "M. Serra",
+    rag: { Scope: "G", Schedule: "A", Budget: "G", Risk: "A", Adoption: "G" },
     wsjf: { bv: 8, tc: 6, rr: 5, size: 5 },
-    health: { plan: 3, flow: 3, raid: 4, decisions: 3, honesty: 4, sponsor: 4, backlog: 4, value: 3, stake: 3, adoption: 2, capacity: 3, morale: 4 },
-    canvas: { problem: "Field managers wait ~5 days for performance answers that should be self-serve.", hypothesis: "We believe a GenAI assistant over the insights layer lifts same-day answers to 80% within 6 weeks of release." } },
-  { id: uid(), name: "Field Excellence Rollout", code: "OBU-097", tier: "C", phase: "Embed", value: 8, effort: 8,
-    rag: { Scope: "G", Schedule: "G", Budget: "A", Risk: "G", Adoption: "R" },
+    health: { plan: 3, flow: 3, raid: 4, decisions: 3, honesty: 4, sponsor: 4, backlog: 4, value: 3, stake: 3, adoption: 3, capacity: 3, morale: 4 },
+    snapshots: [{ date: dRel(-6), score: 58, dims: { plan: 2, flow: 3, raid: 3, decisions: 3, honesty: 3, sponsor: 4, backlog: 3, value: 2, stake: 3, adoption: 2, capacity: 3, morale: 3 } }, { date: dRel(-2), score: 66, dims: { plan: 3, flow: 3, raid: 4, decisions: 3, honesty: 4, sponsor: 4, backlog: 4, value: 3, stake: 3, adoption: 3, capacity: 3, morale: 4 } }],
+    hypothesis: { text: "We believe Tier B (Hybrid; biweekly status & demos, monthly SteerCo + gates) will deliver predictable delivery and decision-ready governance for Insight Assistant, because the profile scores 7/12 with uncertainty 2 and regulatory exposure 1. We will know we are wrong if a pivot trigger fires before the day-30 retro.", score: 7, date: dRel(-6), answers: [2, 1, 1, 1, 1, 1] },
+    canvas: {
+      problem: "Field managers wait ~5 days for performance answers that should be self-serve; ~120 requests/month consume analyst time and decisions slip a cycle.",
+      users: "Primary: 140 field managers (Iberia first). Secondary: 25 insights analysts whose role shifts to curation. Deciders: BU sponsor; Data Platform lead can block via access.",
+      outcome: "Same-day answer rate 35% -> 80% by Oct; analyst hours on routine requests -120 h/month; decision latency in territory reviews -2 days.",
+      hypothesis: "We believe a GenAI assistant grounded on the governed insights layer lifts same-day answers to 80% within 6 weeks of pilot release, visible in query telemetry.",
+      solution: "Assistant over the AI gateway with RAG on the insights mart. OUT: free-form SQL, write-back to CRM, markets beyond Iberia in phase 1.",
+      risks: "Vendor API capacity on critical path; data-access approval pending; adoption depends on champion coverage per district.",
+      change: "Behaviour change medium for field managers (ask-first habit), high for analysts (role shift). Senders: regional directors, not the project.",
+      team: "PM + PO + 3 eng + data steward + change lead (0.5). Tier B heartbeat: biweekly demo, monthly SteerCo.",
+      first30: "Data access signed; board to T07; stakeholder map v1; telemetry events defined; day-30 configuration retro booked." },
+    keydata: { headline: "Re-sequenced plan holding; pilot telemetry live; one decision needed on market scope.",
+      milestone: "Pilot live - Iberia", milestoneDate: dRel(3), confidence: 75,
+      risks: [
+        { id: uid(), desc: "Because the vendor API team carries single-squad capacity, the throughput upgrade may slip 2-3 weeks, leading to pilot delay and a compressed hypercare window.", owner: "PM + vendor AE", due: dRel(1) },
+        { id: uid(), desc: "Because data-access approval for the insights mart is pending with privacy, grounding scope may shrink, leading to lower answer coverage at pilot.", owner: "Data steward", due: dRel(1) }],
+      decisions: [
+        { id: uid(), text: "Confirm pilot market scope: Iberia only vs Iberia+Italy", owner: "Sponsor", status: "needed" },
+        { id: uid(), text: "Prioritise saved-views over export-to-deck for increment 4 (WSJF)", owner: "PO", status: "taken" }],
+      benefits: [
+        { id: uid(), name: "Same-day answer rate for field questions", baseline: "35%", target: "80% by Oct", owner: "E. Costa (BU Insights)", status: "on track" },
+        { id: uid(), name: "Analyst hours on routine requests", baseline: "180 h/m", target: "60 h/m by Nov", owner: "R. Vidal (Ops)", status: "at risk" }] },
+    budget: { envelope: 260000, lines: [{ id: uid(), label: "Vendor API tier", amount: 48000 }, { id: uid(), label: "Eval & red-team support", amount: 15000 }], tBest: 0, tLikely: 2, tWorst: 6 },
+    bizcase: { problemSized: "~120 requests/month x 45 min analyst handling = ~11k EUR/month of latency and rework; territory decisions slip one cycle while answers queue.",
+      options: [
+        { id: uid(), name: "Do nothing", summary: "queue keeps growing with field expansion; analyst attrition risk", cost: "0 (+132k/yr hidden)" },
+        { id: uid(), name: "Buy vendor copilot", summary: "fast start; weak grounding on our mart; per-seat lock-in", cost: "420k / 3y" },
+        { id: uid(), name: "Build on AI gateway", summary: "governed grounding, reusable pattern for OBU; needs 2 FTE", cost: "260k + 60k/yr" }],
+      recommendation: "Option C - build on the gateway: grounding quality drives the 80% target, and the pattern is reusable by two sister use cases already in the funnel.",
+      tco: "260k build + 60k/yr run (3y view 440k)", sensitivity: "Adoption <50% at week 6 breaks the payback - hence champion coverage as a leading indicator.",
+      ask: "260k EUR + 2 FTE for 2 quarters; scope decision by " + dRel(1) },
+    epics: [
+      { id: uid(), title: "Self-serve Q&A on territory performance", user: "Field manager preparing a territory review (Iberia)", problem: "Evidence: 87 tickets last quarter asking variants of the same 12 questions; median wait 5.2 days (helpdesk export).", hypothesis: "We believe grounded Q&A lifts same-day answers to 80% within 6 weeks, visible in answered-without-analyst telemetry.", acceptance: "Top-12 question patterns answered with source links; P95 latency < 8s; wrong-answer rate < 2% on the eval set; graceful refusal outside scope.", instrumentation: "Events: question_asked, answer_served(source_count), escalated_to_analyst, thumbs. Dashboard panel wired pre-launch." },
+      { id: uid(), title: "Saved views for recurring reviews", user: "Field manager running the same monthly cut per district", problem: "Evidence: 60% of repeat questions are month-over-month re-runs (query log sample, n=240).", hypothesis: "We believe saved views cut repeat effort 70% and lift week-4 retention above 60%.", acceptance: "Save/rename/share a view; refresh respects row-level security; opens in <3s.", instrumentation: "view_saved, view_reopened(week_bucket), share_event." }],
+    stakeholders: [
+      { id: uid(), name: "L. Marquez - BU Sponsor", role: "Sponsor", quadrant: "mc", stanceFrom: "supporter", stanceTo: "champion", care: "I want one number I can defend in the QBR - not a demo.", action: "Chairs monthly value review; sender of wave-1 comms" },
+      { id: uid(), name: "D. Huang - Data Platform lead", role: "Gatekeeper", quadrant: "ks", stanceFrom: "sceptic", stanceTo: "supporter", care: "If latency blame lands on my mart, I lose the quarter.", action: "Joint latency SLO + shared dashboard - PO, by " + dRel(2) },
+      { id: uid(), name: "Field Council (5 RDs)", role: "Adopter voice", quadrant: "ki", stanceFrom: "neutral", stanceTo: "supporter", care: "Don't add a tool; remove a wait.", action: "Demo at council + champion per district - Change lead, " + dRel(3) },
+      { id: uid(), name: "Privacy office", role: "Compliance", quadrant: "mon", stanceFrom: "neutral", stanceTo: "neutral", care: "Scope of personal data in grounding set", action: "DPIA addendum review - Data steward, " + dRel(1) }],
+    impact: [
+      { id: uid(), group: "Field managers - Iberia", size: "~140", process: 2, tools: 2, skills: 1, behaviour: 2, fromTo: "From emailing analysts and waiting days -> asking the assistant in the flow of territory prep.", gap: "Training wave + 1 champion per district + manager-led first-question ritual" },
+      { id: uid(), group: "Insights analysts", size: "~25", process: 3, tools: 2, skills: 2, behaviour: 3, fromTo: "From report factory -> curation, eval-set ownership and exception handling.", gap: "Role narrative from Ops lead + eval-rotation schedule + skills clinic" }],
+    comms: [
+      { id: uid(), audience: "Field managers - Iberia", message: "Same-day answers are coming: what changes for your territory prep", channel: "Regional town-hall + manager cascade", sender: "Regional Directors", date: dRel(2), status: "planned" },
+      { id: uid(), audience: "Insights analysts", message: "Your role shifts to curation - here is the path and the training", channel: "Team session + 1:1s", sender: "Ops lead (R. Vidal)", date: dRel(1), status: "planned" },
+      { id: uid(), audience: "Sponsors & leadership", message: "Pilot scope decision needed by " + dRel(1), channel: "SteerCo pre-read", sender: "Sponsor", date: dRel(0), status: "sent" }],
+    retros: [
+      { id: uid(), date: dRel(-4), temp: 3, keep: "Async refinement notes before the session", change: "Demo prep eating PO time - rotate ownership", stop: "Status detail in standup", experiment: "Rotate demo ownership across the squad for 2 sprints", expReviewed: true },
+      { id: uid(), date: dRel(-1), temp: 4, keep: "Rotated demos (kept after review - energy up)", change: "Eval-set reviews need Data Steward earlier", stop: "", experiment: "Data Steward joins refinement biweekly", expReviewed: false }],
+    plan: [
+      { id: uid(), name: "G1 - charter signed, tier confirmed", due: dRel(-6), conf: 95, status: "done", owner: "PM" },
+      { id: uid(), name: "G2 - mobilised, impact assessed", due: dRel(-2), conf: 90, status: "done", owner: "PM" },
+      { id: m1c, name: "Data access signed (privacy)", due: dRel(1), conf: 60, status: "open", owner: "Data steward" },
+      { id: m1d, name: "Pilot live - Iberia", due: dRel(3), conf: 75, status: "open", owner: "PO", dep: m1c },
+      { id: m1e, name: "G3 - readiness gate", due: dRel(9), conf: 70, status: "open", owner: "Change Lead", dep: m1d },
+      { id: uid(), name: "G4 - closure & value handover", due: dRel(16), conf: 65, status: "open", owner: "Sponsor", dep: m1e }],
+    wip: { doing: 3, review: 2 },
+    flowLog: seedFlow(),
+    work: [
+      { id: uid(), title: "Eval set v2 - top-12 question patterns", col: "doing" },
+      { id: uid(), title: "Telemetry events in pilot build", col: "review" },
+      { id: uid(), title: "Champion onboarding kit", col: "backlog" },
+      { id: uid(), title: "Latency SLO with Data Platform", col: "doing", blocked: true },
+      { id: uid(), title: "DPIA addendum draft", col: "done" }],
+    pages: [{ id: uid(), title: "SteerCo notes - last session", body: "Decisions: saved-views prioritised (logged). Risks: vendor capacity discussed, options A/B/C requested for next session. Sponsor to call vendor AE.", updated: dRel(-1) }],
+    events: [
+      mk2(tRel(-8), "gate", "Project framed - Tier B hypothesis written", "Profile 7/12, uncertainty 2. Pivot triggers registered."),
+      mk2(tRel(-6), "gate", "Milestone done: G1 - charter signed", "Confidence 95%"),
+      mk2(tRel(-6), "artefact", "Health snapshot saved - 58/100", "First scan; value instrumentation and adoption weakest."),
+      mk2(tRel(-3), "status", "RAG Schedule: G -> A", "Vendor API capacity slip flagged on the Portfolio board"),
+      mk2(tRel(-2), "gate", "Milestone done: G2 - mobilised, impact assessed", "Confidence 90%"),
+      mk2(tRel(-2), "artefact", "Health snapshot saved - 66/100", "Plan and RAID hygiene improving after re-sequence."),
+      mk2(tRel(-1), "decision", "Decision taken: Prioritise saved-views over export-to-deck", "Decision-maker: PO"),
+      mk2(tRel(-0.5), "forum", "T05 generated from the Studio", "AZ-branded draft - review and sign before circulation")] },
+  { id: uid(), name: "Field Excellence Rollout", code: "OBU-097", tier: "C", phase: "Embed", value: 8, effort: 8, pm: "A. Ribeiro",
+    rag: { Scope: "G", Schedule: "G", Budget: "A", Risk: "G", Adoption: "A" },
     wsjf: { bv: 9, tc: 7, rr: 4, size: 8 },
     health: { plan: 4, flow: 4, raid: 4, decisions: 4, honesty: 3, sponsor: 5, backlog: 3, value: 3, stake: 4, adoption: 2, capacity: 3, morale: 3 },
-    canvas: {} },
-  { id: uid(), name: "Dashboard Sunset", code: "OBU-121", tier: "D", phase: "Deliver", value: 3, effort: 2,
+    snapshots: [{ date: dRel(-4), score: 70, dims: { plan: 4, flow: 4, raid: 4, decisions: 4, honesty: 3, sponsor: 5, backlog: 3, value: 3, stake: 4, adoption: 3, capacity: 3, morale: 3 } }],
+    canvas: { problem: "CRM adoption uneven across waves; call-prep time target at risk in two districts.", outcome: "Call-prep time -30% by Q3; week-4 retention >=60% per district; zero parallel trackers." },
+    keydata: { headline: "Wave 2 readiness on track; retention recovering in District N after fast-follow fix.",
+      milestone: "Wave 2 go-live", milestoneDate: dRel(2), confidence: 80,
+      risks: [{ id: uid(), desc: "Because travel budget is amber, wave-2 floor training may move virtual, leading to weaker proficiency in low-coverage districts.", owner: "Change Lead", due: dRel(1) }],
+      decisions: [{ id: uid(), text: "Fast-follow product fix over comms push for retention dip", owner: "Sponsor", status: "taken" }],
+      benefits: [
+        { id: uid(), name: "Call-prep time per visit", baseline: "22 min", target: "15 min by Q3", owner: "P. Ortiz (Field Ops)", status: "on track" },
+        { id: uid(), name: "Parallel spreadsheet trackers", baseline: "14", target: "0 by Q4", owner: "P. Ortiz (Field Ops)", status: "realised" }] },
+    impact: [{ id: uid(), group: "Field reps - wave 2 districts", size: "~220", process: 2, tools: 3, skills: 2, behaviour: 3, fromTo: "From spreadsheet prep -> CRM-first visit planning.", gap: "District-led floor sessions + manager check-ins in week 1-2" }],
+    budget: { envelope: 780000, lines: [{ id: uid(), label: "Vendor & licences", amount: 180000 }, { id: uid(), label: "Travel & training waves", amount: 60000 }], tBest: 0, tLikely: 1, tWorst: 4 },
+    closure: { spend: "740k", envelope: "780k", residual: "Licences 95k/yr (run)", runOwner: "CRM service team (M. Pohl)",
+      keep: "Readiness gate per wave with champion coverage as entry criterion.",
+      change: "Instrument retention from day 1, not week 3 - the dip was visible earlier in support tickets.",
+      stop: "All-hands launch emails - zero measurable effect vs manager-led asks.",
+      tellNext: "Adoption is a product problem before it is a comms problem: shadow five users before writing a single newsletter." },
+    plan: [
+      { id: uid(), name: "G3 - wave 1 readiness", due: dRel(-10), conf: 95, status: "done", owner: "Change Lead" },
+      { id: uid(), name: "Wave 2 go-live", due: dRel(2), conf: 80, status: "open", owner: "PM" },
+      { id: uid(), name: "G4 - closure & value handover", due: dRel(8), conf: 75, status: "open", owner: "Sponsor" }],
+    work: [{ id: uid(), title: "Wave-2 readiness checklist", col: "doing" }, { id: uid(), title: "Retention dashboard per district", col: "done" }],
+    pages: [], epics: [],
+    stakeholders: [{ id: uid(), name: "P. Ortiz - Field Ops", role: "Benefit owner", quadrant: "mc", stanceFrom: "supporter", stanceTo: "champion", care: "Give my managers their hour back.", action: "Co-presents wave-2 kickoff - Change lead" }],
+    events: [
+      mk2(tRel(-10), "gate", "Milestone done: G3 - wave 1 readiness", "Training 96%, champions covering all districts"),
+      mk2(tRel(-7), "status", "RAG Adoption: G -> A", "Week-2 retention soft in District N & E"),
+      mk2(tRel(-6), "decision", "Decision taken: Fast-follow product fix over comms push", "Decision-maker: Sponsor"),
+      mk2(tRel(-3), "status", "RAG Adoption: A -> A", "Recovering - District N at 57% and climbing")] },
+  { id: uid(), name: "Dashboard Sunset", code: "OBU-121", tier: "D", phase: "Deliver", value: 3, effort: 2, pm: "M. Serra",
     rag: { Scope: "G", Schedule: "G", Budget: "G", Risk: "G", Adoption: "G" },
     wsjf: { bv: 4, tc: 3, rr: 2, size: 2 },
     health: { plan: 5, flow: 4, raid: 4, decisions: 4, honesty: 4, sponsor: 3, backlog: 4, value: 4, stake: 4, adoption: 4, capacity: 4, morale: 4 },
-    canvas: {} },
-]);
+    keydata: { headline: "7 of 12 dashboards migrated; usage of new stack at 80% of old baseline.", milestone: "Full switch-off", milestoneDate: dRel(6), confidence: 85, risks: [], decisions: [{ id: uid(), text: "Sunset banners 30 days before each switch-off", owner: "PM", status: "taken" }], benefits: [{ id: uid(), name: "Legacy BI licence cost", baseline: "48k/yr", target: "0 by Q4", owner: "IT FinOps", status: "on track" }] },
+    plan: [{ id: uid(), name: "Migration batch 3", due: dRel(2), conf: 85, status: "open", owner: "PM" }, { id: uid(), name: "Full switch-off", due: dRel(6), conf: 85, status: "open", owner: "PM" }],
+    work: [], pages: [], canvas: {}, events: [mk2(tRel(-4), "gate", "Project framed - Tier D confirmed", "Profile 2/12; monthly one-pager, quarterly review.")] },
+];};
 
 /* ---------- shared atoms ---------- */
-const Chip = ({ children, bg = C.soft, color = C.mid, style }) => (
-  <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 99, background: bg, color, whiteSpace: "nowrap", ...style }}>{children}</span>
+const Chip = ({ children, bg = C.soft, color = C.mid, style, onClick }) => (
+  <span onClick={onClick} style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 99, background: bg, color, whiteSpace: "nowrap", ...style }}>{children}</span>
 );
 const SectionLabel = ({ children, color = C.mul }) => (
   <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".15em", textTransform: "uppercase", color, marginBottom: 8 }}>{children}</div>
@@ -161,9 +271,29 @@ const today = () => new Date().toISOString().slice(0, 10);
 const mkEv = (type, title, detail = "") => ({ date: today(), ts: Date.now(), type, title, detail });
 const evPush = (p, ev) => [...(p.events || []), ev].slice(-200);
 
-function exportJson(projects) {
+async function rollSnapshot(payload) {
   try {
-    const blob = new Blob([JSON.stringify({ exported: today(), app: "dcos-navigator", projects }, null, 2)], { type: "application/json" });
+    const stamp = new Date().toISOString();
+    let snaps = [];
+    try { const raw = await window.storage.get(SNAP_KEY); if (raw?.value) snaps = JSON.parse(raw.value); } catch {}
+    const last = snaps[snaps.length - 1];
+    // keep at most one snapshot per ~20 min, and skip if unchanged
+    if (last && (last.payload === payload || (Date.now() - new Date(last.stamp).getTime()) < 20 * 60 * 1000)) {
+      if (last.payload !== payload) { last.payload = payload; last.stamp = stamp; }
+      else return;
+    } else {
+      snaps.push({ stamp, payload });
+    }
+    while (snaps.length > SNAP_MAX) snaps.shift();
+    await window.storage.set(SNAP_KEY, JSON.stringify(snaps));
+  } catch {}
+}
+async function loadSnapshots() {
+  try { const raw = await window.storage.get(SNAP_KEY); return raw?.value ? JSON.parse(raw.value) : []; } catch { return []; }
+}
+function exportJson(bundle) {
+  try {
+    const blob = new Blob([JSON.stringify({ exported: today(), app: "dcos-navigator", v: 10, ...bundle }, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `dcos-navigator-${today()}.json`;
@@ -171,16 +301,29 @@ function exportJson(projects) {
     URL.revokeObjectURL(a.href);
   } catch (e) { console.error("export failed", e); }
 }
-function importJson(file, setProjects, setSel) {
+const sanitizeProject = p => ({
+  work: [], pages: [], events: [], snapshots: [], epics: [], stakeholders: [], impact: [], plan: [], comms: [], retros: [],
+  keydata: { ...KD_DEFAULT }, canvas: {}, health: {}, ...p,
+  id: String(p.id || uid()), name: String(p.name || "Untitled"), code: String(p.code || "OBU-000"),
+  tier: ["A", "B", "C", "D"].includes(p.tier) ? p.tier : "B",
+  phase: PHASES.includes(p.phase) ? p.phase : "Frame",
+  value: +p.value || 5, effort: +p.effort || 5,
+  rag: { ...Object.fromEntries(RAG_DIMS.map(d => [d, "G"])), ...(p.rag || {}) },
+  wsjf: { bv: 5, tc: 5, rr: 5, size: 5, ...(p.wsjf || {}) },
+});
+function importJson(file, api) {
   if (!file) return;
   const r = new FileReader();
   r.onload = () => {
     try {
       const data = JSON.parse(r.result);
       if (Array.isArray(data.projects) && data.projects.length) {
-        setProjects(data.projects);
-        setSel(data.projects[0].id);
-      } else alert("That file doesn't contain a Navigator portfolio.");
+        const clean = data.projects.map(sanitizeProject);
+        api.setProjects(clean); api.setSel(clean[0].id);
+        if (Array.isArray(data.people)) api.setPeople(data.people);
+        if (Array.isArray(data.assignments)) api.setAssignments(data.assignments);
+        if (Array.isArray(data.programLinks)) api.setProgramLinks(data.programLinks);
+      } else alert("That file doesn't contain a Navigator portfolio (missing 'projects' array).");
     } catch { alert("Couldn't read that file — expected a Navigator JSON export."); }
   };
   r.readAsText(file);
@@ -193,6 +336,11 @@ export default function App() {
   const [saveState, setSaveState] = useState("idle");
   const [lang, setLang] = useState("en");
   const [confirmAct, setConfirmAct] = useState(null);
+  const [programLinks, setProgramLinks] = useState([]);
+  const [showBackup, setShowBackup] = useState(false);
+  const [charter, setCharter] = useState(null);
+  const [people, setPeople] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const T = k => (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k;
   const saveTimer = useRef(null);
   const loaded = useRef(false);
@@ -202,9 +350,9 @@ export default function App() {
       try {
         const r = await window.storage.get(STORE_KEY);
         const data = r ? JSON.parse(r.value) : null;
-        if (data?.projects?.length) { setProjects(data.projects); setSel(data.projects[0].id); if (data.lang) setLang(data.lang); }
-        else { const s = seedProjects(); setProjects(s); setSel(s[0].id); }
-      } catch { const s = seedProjects(); setProjects(s); setSel(s[0].id); }
+        if (data?.projects?.length) { setProjects(data.projects); setSel(data.projects[0].id); if (data.lang) setLang(data.lang); if (data.programLinks) setProgramLinks(data.programLinks); if (data.people) setPeople(data.people); if (data.assignments) setAssignments(data.assignments); if (data.charter) setCharter(data.charter); }
+        else { const s = seedProjects(); setProjects(s); setSel(s[0].id); const hr = seedHR(s); setPeople(hr.people); setAssignments(hr.assignments); }
+      } catch { const s = seedProjects(); setProjects(s); setSel(s[0].id); const hr = seedHR(s); setPeople(hr.people); setAssignments(hr.assignments); }
       loaded.current = true;
     })();
   }, []);
@@ -214,17 +362,27 @@ export default function App() {
     setSaveState("saving");
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
-      try { await window.storage.set(STORE_KEY, JSON.stringify({ projects, lang })); setSaveState("saved"); }
+      try {
+          const payload = JSON.stringify({ projects, lang, programLinks, people, assignments, charter });
+          await window.storage.set(STORE_KEY, payload);
+          setSaveState("saved");
+          rollSnapshot(payload).catch(() => {});
+        }
       catch { setSaveState("error"); }
       setTimeout(() => setSaveState("idle"), 1600);
     }, 700);
     return () => clearTimeout(saveTimer.current);
-  }, [projects, lang]);
+  }, [projects, lang, programLinks, people, assignments, charter]);
 
   const update = (id, patch) => setProjects(ps => ps.map(p => p.id === id ? { ...p, ...patch } : p));
   const project = projects?.find(p => p.id === sel) || null;
 
-  const TABS = ["portfolio", "week", "advisor", "workspace", "data", "studio", "health", "priority", "canvas", "review", "govyear", "timeline", "resources"].map(id => [id, T(id)]);
+  const TAB_GROUPS = [
+    ["gRun", ["portfolio", "week", "workspace", "data", "canvas", "whiteboard"]],
+    ["gGovern", ["review", "health", "priority", "capacity", "team", "govyear", "timeline"]],
+    ["gGenerate", ["studio", "advisor"]],
+    ["gLearn", ["charter", "resources"]],
+  ];
 
   if (!projects) return (
     <div style={{ fontFamily: BODY, background: C.bg, minHeight: "100vh", display: "grid", placeItems: "center", color: C.mid }}>
@@ -255,58 +413,72 @@ export default function App() {
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <button onClick={() => {
             if (confirmAct !== "demo") { setConfirmAct("demo"); setTimeout(() => setConfirmAct(c => c === "demo" ? null : c), 3000); return; }
-            const s2 = seedProjects(); setProjects(s2); setSel(s2[0].id); setConfirmAct(null);
+            const s2 = seedProjects(); setProjects(s2); setSel(s2[0].id); const hr2 = seedHR(s2); setPeople(hr2.people); setAssignments(hr2.assignments); setConfirmAct(null);
           }} style={{ border: "1px solid #4A5757", background: confirmAct === "demo" ? C.gold : "transparent", color: confirmAct === "demo" ? C.ink : "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>{confirmAct === "demo" ? "Replace all with demo?" : "⟳ Demo data"}</button>
           <button onClick={() => {
             if (confirmAct !== "clear") { setConfirmAct("clear"); setTimeout(() => setConfirmAct(c => c === "clear" ? null : c), 3000); return; }
             setProjects([]); setSel(null); setConfirmAct(null);
           }} style={{ border: "1px solid #4A5757", background: confirmAct === "clear" ? "#B3261E" : "transparent", color: confirmAct === "clear" ? "#fff" : "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>{confirmAct === "clear" ? "Delete everything?" : "Clear"}</button>
           <button onClick={() => setLang(l => l === "en" ? "es" : "en")} title={I18N[lang].langnote || "Switch UI language"} style={{ border: `1px solid ${C.gold}`, background: "transparent", color: C.gold, borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 700 }}>{lang === "en" ? "ES" : "EN"}</button>
-          <button onClick={() => exportJson(projects)} style={{ border: "1px solid #4A5757", background: "transparent", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>{T("export")}</button>
+          <button onClick={() => setShowBackup(true)} title="Backups & restore" style={{ border: "1px solid #4A5757", background: "transparent", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>↻ Backups</button>
+          <button onClick={() => exportJson({ projects, programLinks, people, assignments, lang, charter })} style={{ border: "1px solid #4A5757", background: "transparent", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>{T("export")}</button>
           <label style={{ border: "1px solid #4A5757", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>
             {T("import")}
             <input type="file" accept="application/json" style={{ display: "none" }}
-              onChange={e => importJson(e.target.files?.[0], setProjects, setSel)} />
+              onChange={e => importJson(e.target.files?.[0], { setProjects, setSel, setPeople, setAssignments, setProgramLinks })} />
           </label>
           <span style={{ fontFamily: MONO, fontSize: 10.5, color: saveState === "error" ? "#FF9B9B" : "#9FB0AC" }}>
             {saveState === "saving" ? T("saving") : saveState === "saved" ? T("saved") : saveState === "error" ? T("saveerr") : T("persists")}
+            {(() => { try { const kb = Math.round(JSON.stringify({ projects, programLinks, people, assignments }).length / 1024); return <span style={{ color: kb > 4096 ? "#FF9B9B" : "#7C8A87" }} title={kb > 4096 ? "Approaching the 5MB storage limit — export a JSON backup and clear closed projects" : "Portfolio data size"}> · {kb} KB{kb > 4096 ? " ⚠" : ""}</span>; } catch { return null; } })()}
           </span>
         </div>
       </div>
 
       {/* Tabs */}
       <div style={{ background: "#fff", borderBottom: `1px solid ${C.line}`, padding: "0 22px", display: "flex", gap: 4, overflowX: "auto" }}>
-        {TABS.map(([id, label]) => (
-          <button key={id} className="tabbtn" onClick={() => setTab(id)} style={{
-            border: "none", background: "transparent", padding: "13px 14px", cursor: "pointer",
-            fontFamily: DISP, fontWeight: 700, fontSize: 13.5,
-            color: tab === id ? C.mul : C.mid, borderBottom: `3px solid ${tab === id ? C.gold : "transparent"}`, whiteSpace: "nowrap",
-          }}>{label}</button>
+        {TAB_GROUPS.map(([g, ids], gi) => (
+          <div key={g} style={{ display: "flex", alignItems: "stretch", borderLeft: gi ? `1px solid ${C.soft}` : "none", paddingLeft: gi ? 10 : 0, marginLeft: gi ? 4 : 0 }}>
+            <span style={{ alignSelf: "center", fontFamily: MONO, fontSize: 8.5, letterSpacing: ".14em", color: ids.includes(tab) ? C.mul : C.faint, fontWeight: 600, marginRight: 4, whiteSpace: "nowrap" }}>{T(g)}</span>
+            {ids.map(id => (
+              <button key={id} className="tabbtn" onClick={() => setTab(id)} style={{
+                border: "none", background: "transparent", padding: "13px 9px", cursor: "pointer",
+                fontFamily: DISP, fontWeight: 700, fontSize: 13,
+                color: tab === id ? C.mul : C.mid, borderBottom: `3px solid ${tab === id ? C.gold : "transparent"}`, whiteSpace: "nowrap",
+              }}>{T(id)}</button>
+            ))}
+          </div>
         ))}
       </div>
 
       {lang === "es" && <div style={{ maxWidth: 1180, margin: "0 auto", padding: "10px 22px 0", fontSize: 11, color: C.faint }}>{I18N.es.langnote}</div>}
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 22px 60px" }}>
-        {tab === "portfolio" && <Portfolio projects={projects} setProjects={setProjects} update={update} setSel={setSel} setTab={setTab} />}
+        {tab === "portfolio" && <Portfolio projects={projects} setProjects={setProjects} update={update} setSel={setSel} setTab={setTab} programLinks={programLinks} setProgramLinks={setProgramLinks} />}
         {tab === "week" && <WeekView projects={projects} />}
         {tab === "workspace" && <Workspace projects={projects} project={project} setSel={setSel} update={update} />}
-        {tab === "data" && <ProjectData projects={projects} project={project} setSel={setSel} update={update} />}
+        {tab === "data" && <ProjectData projects={projects} project={project} setSel={setSel} update={update} people={people} />}
         {tab === "studio" && <PptStudio projects={projects} project={project} setSel={setSel} update={update} />}
         {tab === "health" && <HealthScan projects={projects} project={project} setSel={setSel} update={update} setTab={setTab} />}
         {tab === "priority" && <PriorityLab projects={projects} update={update} />}
-        {tab === "canvas" && <Canvas projects={projects} project={project} setSel={setSel} update={update} />}
-        {tab === "review" && <ReviewPack projects={projects} update={update} />}
+        {tab === "capacity" && <CapacityHub projects={projects} update={update} people={people} setPeople={setPeople} assignments={assignments} setAssignments={setAssignments} />}
+        {tab === "team" && <TeamAI projects={projects} update={update} people={people} assignments={assignments} setTab={setTab} setSel={setSel} />}
+        {tab === "canvas" && <Canvas projects={projects} project={project} setSel={setSel} update={update} people={people} />}
+        {tab === "whiteboard" && <WhiteboardTab projects={projects} project={project} setSel={setSel} update={update} />}
+        {tab === "review" && <ReviewPack projects={projects} update={update} people={people} assignments={assignments} />}
         {tab === "govyear" && <GovernanceYear />}
-        {tab === "timeline" && <TimelineHub projects={projects} />}
+        {tab === "timeline" && <TimelineHub projects={projects} setTab={setTab} setSel={setSel} />}
         {tab === "advisor" && <Advisor projects={projects} project={project} setSel={setSel} />}
+        {tab === "charter" && <TeamCharter charter={charter} setCharter={setCharter} people={people} />}
         {tab === "resources" && <Resources />}
       </div>
+      {showBackup && <BackupPanel onClose={() => setShowBackup(false)} current={{ projects, programLinks, people, assignments, lang, charter }}
+        onRestore={b => { const clean = (b.projects || []).map(sanitizeProject); setProjects(clean); setSel(clean[0]?.id || null); setProgramLinks(b.programLinks || []); setPeople(b.people || []); setAssignments(b.assignments || []); if (b.lang) setLang(b.lang); if (b.charter) setCharter(b.charter); setShowBackup(false); }} />}
     </div>
   );
 }
 
 /* ================= PORTFOLIO ================= */
-function Portfolio({ projects, setProjects, update, setSel, setTab }) {
+function Portfolio({ projects, setProjects, update, setSel, setTab, programLinks, setProgramLinks }) {
+  const [pview, setPview] = useState("cards");
   const [name, setName] = useState("");
   const [tier, setTier] = useState("B");
   const [wiz, setWiz] = useState(false);
@@ -364,6 +536,12 @@ function Portfolio({ projects, setProjects, update, setSel, setTab }) {
         </Card>
       )}
 
+      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+        {[["cards", "Project cards"], ["map", "Program map — dependencies"]].map(([id, l]) => (
+          <button key={id} onClick={() => setPview(id)} style={{ border: `1px solid ${pview === id ? C.mul : C.line}`, background: pview === id ? C.mul : "#fff", color: pview === id ? "#fff" : C.mid, borderRadius: 99, padding: "7px 15px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>{l}</button>
+        ))}
+      </div>
+      {pview === "map" ? <ProgramMap projects={projects} programLinks={programLinks || []} setProgramLinks={setProgramLinks} setSel={setSel} setTab={setTab} /> : (<>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 14 }}>
         {projects.map(p => {
           const h = healthScore(p.health);
@@ -430,6 +608,7 @@ function Portfolio({ projects, setProjects, update, setSel, setTab }) {
         </div>
         <div style={{ fontSize: 11.5, color: C.faint }}>Top-left quadrant (high value, low effort) is where the next quarter lives. Bubble colour = health-scan score.</div>
       </Card>
+      </>)}
     </div>
   );
 }
@@ -609,7 +788,7 @@ function PriorityLab({ projects, update }) {
 }
 
 /* ================= DELIVERY CANVAS ================= */
-function Canvas({ projects, project, setSel, update }) {
+function Canvas({ projects, project, setSel, update, people = [] }) {
   if (!project) return <Card>Add a project in Portfolio first.</Card>;
   const cv = project.canvas || {};
   const setBox = (id, v) => update(project.id, { canvas: { ...cv, [id]: v } });
@@ -619,6 +798,12 @@ function Canvas({ projects, project, setSel, update }) {
     <div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
         <ProjectPicker projects={projects} project={project} setSel={setSel} />
+        <label style={{ fontSize: 11.5, color: C.faint, display: "flex", gap: 6, alignItems: "center" }}>PM:
+          <select value={project.pm || ""} onChange={e => update(project.id, { pm: e.target.value })} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px 8px", fontSize: 12, fontFamily: DISP, fontWeight: 600 }}>
+            <option value="">— unassigned —</option>
+            {people.filter(p2 => /pm|project|product/i.test(p2.role || "")).map(p2 => <option key={p2.id} value={p2.name}>{p2.name}</option>)}
+          </select>
+        </label>
         <Chip bg={C.navyLt} color={C.navy} style={{ fontSize: 11, padding: "5px 12px" }}>{filled}/9 boxes</Chip>
         <div style={{ fontSize: 12, color: C.faint }}>The one-page brain of the project. Draft it in the kickoff, pressure-test it at the day-30 retro, keep it honest at every gate. Everything here should trace to a DCOS artefact.</div>
       </div>
@@ -695,7 +880,7 @@ function Playbook() {
 }
 
 /* ================= REVIEW PACK ================= */
-function ReviewPack({ projects, update }) {
+function ReviewPack({ projects, update, people = [], assignments = [] }) {
   const [copied, setCopied] = useState(false);
   const ranked = [...projects].sort((a, b) => wsjfScore(b.wsjf) - wsjfScore(a.wsjf));
   const attention = projects.map(p => {
@@ -708,6 +893,8 @@ function ReviewPack({ projects, update }) {
     if (h !== null && h < 55) flags.push(`health ${h}/100`);
     if (weak.length) flags.push(`weak: ${weak.join(", ")}`);
     if (!reds.length && ambers.length >= 3) flags.push(`${ambers.length} ambers`);
+    const be = budgetEval(p, people, assignments);
+    if (be && be.env > 0 && be.p80 > be.env) flags.push(`cost P80 \u20ac${Math.round(be.p80 / 1000)}k over envelope \u20ac${Math.round(be.env / 1000)}k`);
     return { p, h, flags };
   }).filter(x => x.flags.length);
 
@@ -742,9 +929,12 @@ function ReviewPack({ projects, update }) {
           <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 18 }}>Portfolio Review pre-pack</div>
           <div style={{ fontSize: 12.5, color: C.mid }}>The Senior Director's five-minute read: who needs attention, why, and the priority order. Assembled from your scans and scores.</div>
         </div>
-        <button onClick={copy} style={{ marginLeft: "auto", background: C.mul, color: "#fff", border: "none", borderRadius: 8, padding: "10px 16px", fontFamily: DISP, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-          {copied ? "Copied ✓" : "Copy as Markdown"}
-        </button>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          <button onClick={() => dl(`Portfolio_Review_Pack_${today()}.html`, buildReviewHtml(projects, attention, ranked, retros, people, assignments), "text/html")} style={{ background: C.navy, color: "#fff", border: "none", borderRadius: 8, padding: "10px 16px", fontFamily: DISP, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Print pack ↓</button>
+          <button onClick={copy} style={{ background: C.mul, color: "#fff", border: "none", borderRadius: 8, padding: "10px 16px", fontFamily: DISP, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+            {copied ? "Copied ✓" : "Copy as Markdown"}
+          </button>
+        </div>
       </Card>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: 14 }}>
         <Card>
@@ -955,6 +1145,7 @@ const DEMO_PROJECTS = [
 ];
 
 function TimelineDemo() {
+  const [viewer, setViewer] = useState(null);
   const [pid, setPid] = useState("helios");
   const [typ, setTyp] = useState("All");
   const [asOf, setAsOf] = useState("2026-06-30");
@@ -1027,12 +1218,14 @@ function TimelineDemo() {
               )}
               <SectionLabel color={C.navy}>Connected — one click to the system of record</SectionLabel>
               {selEv.links.map(([kind, label], i) => (
-                <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", padding: "7px 10px", border: `1px solid ${C.soft}`, borderRadius: 8, marginBottom: 6, fontSize: 12.5 }}>
+                <button key={i} onClick={() => setViewer({ kind, label, ev: selEv })} style={{ width: "100%", display: "flex", gap: 8, alignItems: "center", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 8, marginBottom: 6, fontSize: 12.5, background: "#fff", cursor: "pointer", textAlign: "left" }}>
                   <Chip bg={C.navyLt} color={C.navy} style={{ fontSize: 8.5 }}>{LINK_KINDS[kind]}</Chip>
-                  <span>{label}</span>
-                  <span style={{ marginLeft: "auto", color: C.faint, fontFamily: MONO, fontSize: 10 }}>demo →</span>
-                </div>
+                  <span style={{ color: C.ink }}>{label}</span>
+                  <span style={{ marginLeft: "auto", color: C.mul, fontFamily: MONO, fontSize: 10, fontWeight: 600 }}>open →</span>
+                </button>
               ))}
+              <div style={{ fontSize: 10, color: C.faint }}>Opens the tool's simple mode inside the Navigator; the corporate deployment opens the real object.</div>
+              {viewer && <MockDocViewer viewer={viewer} project={proj} onClose={() => setViewer(null)} />}
             </Card>
           ) : (
             <Card style={{ color: C.mid, fontSize: 13 }}>
@@ -1101,9 +1294,9 @@ function Library() {
       <Card style={{ marginTop: 16, borderLeft: `4px solid ${C.gold}`, background: C.goldLt }}>
         <SectionLabel color={"#8A6200"}>Next evolution — agreed roadmap</SectionLabel>
         <ul style={{ margin: "0 0 0 18px", fontSize: 13, color: C.ink }}>
-          <li style={{ marginBottom: 6 }}><b>AZ-branded PPT generation in-app:</b> fill T04 / T05 / T01 in the Navigator and export a finished deck on the official AstraZeneca master (mulberry/gold layouts per the brand deck) with one button — runs on pptxgenjs in the corporate deployment, where file generation is available.</li>
-          <li style={{ marginBottom: 6 }}><b>Corporate deployment:</b> host inside AZ (Azure static app + Entra SSO), swap demo links for live connectors per the Agent Blueprint — the Demo Timeline becomes the real navigator, with every event resolving to its Confluence page, Smartsheet row, JIRA issue or SteerCo deck.</li>
-          <li><b>Agents wired in:</b> AG-01 pre-fills the status from systems of record; AG-02's digest lands in the Review Pack; the Health Scan trend feeds the Portfolio Review automatically.</li>
+          <li style={{ marginBottom: 6 }}><b style={{ color: C.lime }}>\u2713 DONE \u2014 AZ-branded PPT generation in-app:</b> the Studio generates T01 / T02 / T04 / T05 / T09 / T10 / T15 / T17 on the official mulberry/gold master today, with a print-ready branded HTML fallback when the environment blocks the engine. In the corporate deployment the engine runs locally.</li>
+          <li style={{ marginBottom: 6 }}><b style={{ color: "#8A6200" }}>\u25d4 PREPARED \u2014 Corporate deployment:</b> exports, the Agent Blueprint and the Demo Timeline's simulated tool viewers define the contract; pending: Azure static app + Entra SSO and live connectors so every ledger event resolves to its real Confluence page, Smartsheet row, JIRA issue or deck.</li>
+          <li><b style={{ color: "#8A6200" }}>\u25d4 PREFIGURED \u2014 Agents wired in:</b> the Advisor already runs AG-01/02/04 behaviours on your data (with rules fallback); pending: routing through the enterprise AI gateway and AG-01 pre-filling the status from systems of record.</li>
         </ul>
       </Card>
     </div>
@@ -1277,10 +1470,10 @@ const TPL_IMPL = {
   T08: [["data", "Project Data \u2192 Decisions"], ["live", "Confluence export \u2713"]],
   T09: [["live", "Grid builder \u2713 in Studio"], ["live", "PPT \u2713"]],
   T10: [["live", "Form \u2713 in Studio"], ["live", "PPT \u2713"]],
-  T11: [["file", "Master in Template Pack"]],
+  T11: [["live", "Builder \u2713 in Studio"], ["live", "PPT \u2713"]],
   T12: [["data", "Adoption RAG on Portfolio"]],
   T13: [["data", "Project Data \u2192 Benefits"], ["live", "T05 value slide \u2713"]],
-  T14: [["live", "Day-30 retro radar \u2713"]],
+  T14: [["live", "Day-30 retro radar \u2713"], ["live", "Retro canvas \u2713 in Studio"]],
   T15: [["live", "Builder \u2713 in Studio"], ["live", "JIRA export carries it \u2713"]],
   T16: [["file", "Master in Template Pack"]],
   T17: [["live", "Generator \u2713 in Studio"], ["live", "PPT \u2713 3 slides"]],
@@ -1353,10 +1546,10 @@ function TemplatesCat() {
       <Card style={{ marginTop: 16, borderLeft: `4px solid ${C.gold}`, background: C.goldLt }}>
         <SectionLabel color={"#8A6200"}>Template coverage — where we are, what's next in-app</SectionLabel>
         <div style={{ fontSize: 12.5, color: C.ink, marginBottom: 8 }}>
-          All 17 have full field-by-field masters in the <b>Template Pack</b> (Library & Links). Inside the Navigator today: <b>12 live</b> (builders, generation or export) and <b>the rest with structured data entry</b>. The production order below has been delivered — remaining candidates route through the Framework Council intake:
+          All 17 have full field-by-field masters in the <b>Template Pack</b> (Library & Links). Inside the Navigator today: <b>14 live</b> (builders, generation or export) and <b>the rest with structured data entry</b>. The production order below has been delivered — remaining candidates route through the Framework Council intake:
         </div>
         <div style={{ display: "flex", gap: 14, flexWrap: "wrap", fontSize: 12 }}>
-          {[["\u2713", "T17 Closure generator", "live — Studio \u203a T17 Closure"], ["\u2713", "T02 Business case builder", "live — Studio \u203a T02"], ["\u2713", "T15 One-pager builder", "live — Studio \u203a T15, rides the JIRA export"], ["\u2713", "T09 Stakeholder grid", "live — Studio \u203a T09"], ["\u2713", "T10 Impact form", "live — Studio \u203a T10"], ["next", "T11 comms planner \u00b7 T14 retro canvas", "Framework Council intake"]].map(([n2, t2, d2]) => (
+          {[["\u2713", "T17 Closure generator", "live — Studio \u203a T17 Closure"], ["\u2713", "T02 Business case builder", "live — Studio \u203a T02"], ["\u2713", "T15 One-pager builder", "live — Studio \u203a T15, rides the JIRA export"], ["\u2713", "T09 Stakeholder grid", "live — Studio \u203a T09"], ["\u2713", "T10 Impact form", "live — Studio \u203a T10"], ["next", "Live connectors & portfolio API", "corporate deployment phase"]].map(([n2, t2, d2]) => (
             <div key={n2} style={{ flex: "1 1 180px", minWidth: 170 }}>
               <span style={{ fontFamily: MONO, fontSize: 10, color: "#8A6200", fontWeight: 600 }}>{n2} \u00b7 </span>
               <b style={{ fontFamily: DISP, fontSize: 12 }}>{t2}</b>
@@ -1406,7 +1599,7 @@ function TrainingRes() {
 
 /* ================= PROJECT DATA — key data entry ================= */
 const KD_DEFAULT = { headline: "", milestone: "", milestoneDate: "", confidence: 80, risks: [], decisions: [], benefits: [] };
-function ProjectData({ projects, project, setSel, update }) {
+function ProjectData({ projects, project, setSel, update, people = [] }) {
   if (!project) return <Card>Add a project in Portfolio first.</Card>;
   const kd = { ...KD_DEFAULT, ...(project.keydata || {}) };
   const setKd = patch => update(project.id, { keydata: { ...kd, ...patch } });
@@ -1421,6 +1614,7 @@ function ProjectData({ projects, project, setSel, update }) {
         <ProjectPicker projects={projects} project={project} setSel={setSel} />
         <div style={{ fontSize: 12, color: C.faint }}>The governance data of record inside the Navigator. Everything here flows straight into the PPT Studio, the Review Pack and This Week.</div>
       </div>
+      <DataGuide />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(330px,1fr))", gap: 14 }}>
         <Card style={{ gridColumn: "1/-1" }}>
           <SectionLabel>Status essentials → T04</SectionLabel>
@@ -1507,12 +1701,15 @@ function Workspace({ projects, project, setSel, update }) {
   const setWork = w => update(project.id, { work: w });
   const setPlan = p => update(project.id, { plan: p });
   const setPages = p => update(project.id, { pages: p });
-  const move = (id, dir) => setWork(work.map(c => {
-    if (c.id !== id) return c;
-    const i = WCOLS.findIndex(([k]) => k === c.col);
-    const ni = Math.min(Math.max(i + dir, 0), WCOLS.length - 1);
-    return { ...c, col: WCOLS[ni][0] };
-  }));
+  const move = (id, dir) => {
+    const nw = work.map(c => {
+      if (c.id !== id) return c;
+      const i = WCOLS.findIndex(([k]) => k === c.col);
+      const ni = Math.min(Math.max(i + dir, 0), WCOLS.length - 1);
+      return { ...c, col: WCOLS[ni][0] };
+    });
+    update(project.id, { work: nw, flowLog: pushFlow(project, nw) });
+  };
   const donePct = work.length ? Math.round(work.filter(c => c.col === "done").length / work.length * 100) : null;
   const page = pages.find(p => p.id === pageSel);
   const inp = (v, on, ph, type = "text", w) => <input type={type} value={v || ""} onChange={e => on(e.target.value)} placeholder={ph} style={{ flex: w ? `0 0 ${w}px` : 1, minWidth: 70, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "7px 9px", fontSize: 12 }} />;
@@ -1524,7 +1721,7 @@ function Workspace({ projects, project, setSel, update }) {
         {donePct !== null && <Chip bg={C.navyLt} color={C.navy} style={{ fontSize: 11, padding: "5px 12px" }}>{donePct}% work done</Chip>}
         {plan.length > 0 && <Chip bg={C.goldLt} color={"#8A6200"} style={{ fontSize: 11, padding: "5px 12px" }}>{plan.filter(m => m.status !== "done").length} open milestones</Chip>}
         <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
-          {[["board", "Board"], ["plan", "Plan"], ["pages", "Pages"]].map(([id, l]) => (
+          {[["board", "Board"], ["flow", "Flow"], ["plan", "Plan"], ["pages", "Pages"]].map(([id, l]) => (
             <button key={id} onClick={() => setView(id)} style={{ border: `1px solid ${view === id ? C.mul : C.line}`, background: view === id ? C.mul : "#fff", color: view === id ? "#fff" : C.mid, borderRadius: 99, padding: "7px 15px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>{l}</button>
           ))}
         </div>
@@ -1558,11 +1755,14 @@ function Workspace({ projects, project, setSel, update }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 10 }}>
             {WCOLS.map(([k, label]) => (
               <div key={k} style={{ background: k === "done" ? C.limeLt : C.soft, borderRadius: 12, padding: 10, minHeight: 160 }}>
-                <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: k === "done" ? C.lime : C.faint, margin: "2px 4px 8px" }}>{label} · {work.filter(c => c.col === k).length}</div>
+                {(() => { const n = work.filter(c => c.col === k).length, lim = project.wip?.[k]; const over = lim && n > lim; return (
+                  <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: over ? C.red : k === "done" ? C.lime : C.faint, margin: "2px 4px 8px", fontWeight: over ? 700 : 500 }}>{label} · {n}{lim ? `/${lim}` : ""}{over ? " ⚠ WIP" : ""}</div>
+                ); })()}
                 {work.filter(c => c.col === k).map(c => (
-                  <div key={c.id} style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 9, padding: "9px 11px", marginBottom: 7, fontSize: 12.5 }}>
-                    {c.title}
+                  <div key={c.id} style={{ background: "#fff", border: `1px solid ${c.blocked ? C.red : C.line}`, borderLeft: c.blocked ? `4px solid ${C.red}` : `1px solid ${C.line}`, borderRadius: 9, padding: "9px 11px", marginBottom: 7, fontSize: 12.5 }}>
+                    {c.title} {c.blocked && <span style={{ fontFamily: MONO, fontSize: 8.5, color: C.red, fontWeight: 700 }}>BLOCKED</span>}
                     <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+                      <button onClick={() => setWork(work.map(x => x.id === c.id ? { ...x, blocked: !x.blocked } : x))} title={c.blocked ? "Unblock" : "Mark blocked"} style={{ border: `1px solid ${c.blocked ? C.red : C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 7px", cursor: "pointer", color: c.blocked ? C.red : C.faint, fontSize: 11 }}>⚑</button>
                       <button onClick={() => move(c.id, -1)} disabled={k === "backlog"} style={{ border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 8px", cursor: "pointer", color: C.mid, fontSize: 11 }}>◀</button>
                       <button onClick={() => move(c.id, 1)} disabled={k === "done"} style={{ border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 8px", cursor: "pointer", color: C.mid, fontSize: 11 }}>▶</button>
                       <button onClick={() => setWork(work.filter(x => x.id !== c.id))} style={{ marginLeft: "auto", border: "none", background: "transparent", color: C.faint, cursor: "pointer", fontSize: 12 }}>×</button>
@@ -1574,6 +1774,8 @@ function Workspace({ projects, project, setSel, update }) {
           </div>
         </div>
       )}
+
+      {view === "flow" && <FlowView project={project} update={update} />}
 
       {view === "plan" && (
         <div>
@@ -1593,6 +1795,10 @@ function Workspace({ projects, project, setSel, update }) {
                 <input type="range" min={10} max={100} step={5} value={m.conf ?? 80} onChange={e => setPlan(plan.map(x => x.id === m.id ? { ...x, conf: +e.target.value } : x))} style={{ width: 80 }} />
                 <span style={{ fontFamily: MONO, color: (m.conf ?? 80) < 60 ? C.red : C.mid }}>{m.conf ?? 80}%</span>
               </label>
+              <select value={m.dep || ""} onChange={e => setPlan(plan.map(x => x.id === m.id ? { ...x, dep: e.target.value || undefined } : x))} title="Depends on" style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11, maxWidth: 150 }}>
+                <option value="">no dependency</option>
+                {plan.filter(x => x.id !== m.id).map(x => <option key={x.id} value={x.id}>after: {(x.name || "untitled").slice(0, 22)}</option>)}
+              </select>
               <select value={m.status || "open"} onChange={e => {
                 const v = e.target.value;
                 const np = plan.map(x => x.id === m.id ? { ...x, status: v } : x);
@@ -1829,7 +2035,7 @@ function buildT05(pptx, p) {
 /* ================= STUDIO (documents + template builders) ================= */
 function PptStudio({ projects, project, setSel, update }) {
   const [sub, setSub] = useState("docs");
-  const SUBS = [["docs", "Documents & exports"], ["t02", "T02 Business Case"], ["t15", "T15 One-pagers"], ["t09", "T09 Stakeholders"], ["t10", "T10 Impact"], ["t17", "T17 Closure"]];
+  const SUBS = [["docs", "Documents & exports"], ["t02", "T02 Business Case"], ["t15", "T15 One-pagers"], ["t09", "T09 Stakeholders"], ["t10", "T10 Impact"], ["t11", "T11 Comms"], ["t14", "T14 Retros"], ["t17", "T17 Closure"]];
   return (
     <div>
       <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
@@ -1842,6 +2048,8 @@ function PptStudio({ projects, project, setSel, update }) {
       {sub === "t15" && <EpicsBuilder projects={projects} project={project} setSel={setSel} update={update} />}
       {sub === "t09" && <StakeBuilder projects={projects} project={project} setSel={setSel} update={update} />}
       {sub === "t10" && <ImpactBuilder projects={projects} project={project} setSel={setSel} update={update} />}
+      {sub === "t11" && <CommsBuilder projects={projects} project={project} setSel={setSel} update={update} />}
+      {sub === "t14" && <RetrosBuilder projects={projects} project={project} setSel={setSel} update={update} />}
       {sub === "t17" && <ClosureBuilder projects={projects} project={project} setSel={setSel} update={update} />}
     </div>
   );
@@ -1867,6 +2075,7 @@ function StudioDocs({ projects, project, setSel, update }) {
       if (kind === "t09") buildT09(pptx, project);
       if (kind === "t10") buildT10(pptx, project);
       if (kind === "t17") buildT17(pptx, project);
+      if (kind === "t11") buildT11(pptx, project);
       await pptx.writeFile({ fileName: `${project.code}_${kind.toUpperCase()}_${today()}.pptx` });
       if (update) update(project.id, { events: evPush(project, mkEv("forum", `${kind.toUpperCase()} generated from the Studio`, "AZ-branded draft — review and sign before circulation")) });
     } catch (e) {
@@ -1887,6 +2096,7 @@ function StudioDocs({ projects, project, setSel, update }) {
     t09: (project.stakeholders || []).length,
     t10: (project.impact || []).length,
     t17: !!(project.closure?.keep || project.closure?.spend || kd.benefits.length),
+    t11: (project.comms || []).length,
   };
   const DOCS = [
     ["t04", "Status Report — T04", "One AZ-branded slide: headline, RAG strip with your live dots, top risks, decisions needed, look-ahead.", "Feeds from: Portfolio RAG + Project Data"],
@@ -1896,6 +2106,7 @@ function StudioDocs({ projects, project, setSel, update }) {
     ["t15", "Epic One-pagers — T15", "One slide per epic: user, problem evidence, hypothesis, acceptance, instrumentation. The backlog's quality bar, printable.", "Feeds from: T15 builder"],
     ["t09", "Stakeholder Map — T09", "Power/interest grid with stance deltas and the engagement table. Candid by design — core team circulation only.", "Feeds from: T09 builder"],
     ["t10", "Impact Assessment — T10", "Per-group severity heat across process/tools/skills/behaviour, with readiness gaps. The G2 evidence.", "Feeds from: T10 builder"],
+    ["t11", "Comms Plan — T11", "Audience × message × channel × sender × date. Senders are leaders — the project drafts, credible voices deliver.", "Feeds from: T11 builder"],
     ["t17", "Closure Pack — T17", "Outcomes vs charter, value handover with owners, lessons and release — three slides, no narrative laundering.", "Feeds from: T17 builder + benefits + risks"],
   ];
   return (
@@ -1953,7 +2164,9 @@ function PlanTimeline({ plan }) {
         <text x={X(Date.now()) + 4} y={H - 12} fontSize="9.5" fill={"#8A6200"} fontFamily={MONO}>today</text>
         {dated.map((m, i) => {
           const y = 40 + i * RH;
-          const start = i === 0 ? min + 7 * DAY : D(dated[i - 1].due);
+          const depM = m.dep ? dated.find(x => x.id === m.dep) : null;
+          const depConflict = depM && D(depM.due) > D(m.due);
+          const start = depM ? D(depM.due) : (i === 0 ? min + 7 * DAY : D(dated[i - 1].due));
           const conf = m.conf ?? 80;
           const col = m.status === "done" ? C.lime : conf < 60 ? C.red : conf < 80 ? C.amber : C.navy;
           const late = m.status !== "done" && D(m.due) < Date.now();
@@ -1961,13 +2174,17 @@ function PlanTimeline({ plan }) {
             <g key={m.id}>
               <text x={0} y={y + 4} fontSize="11.5" fill={C.ink} fontWeight="600" fontFamily={DISP}>{(m.name || "Untitled").slice(0, 30)}</text>
               <rect x={X(start)} y={y - 7} width={Math.max(X(D(m.due)) - X(start), 4)} height={14} rx={7} fill={col} opacity={m.status === "done" ? 0.45 : 0.22} />
+              {depM && (() => { const di = dated.findIndex(x => x.id === m.dep); const dy = 40 + di * RH; return (
+                <path d={`M ${X(D(depM.due))} ${dy + 9} C ${X(D(depM.due))} ${(dy + y) / 2}, ${X(start)} ${(dy + y) / 2}, ${X(start)} ${y - 8}`} fill="none" stroke={depConflict ? C.red : C.faint} strokeWidth="1.4" strokeDasharray="3 3" />
+              ); })()}
               <path d={`M ${X(D(m.due))} ${y - 9} l 9 9 l -9 9 l -9 -9 Z`} fill={col} />
+              {depConflict && <text x={X(D(m.due)) + 13} y={y - 10} fontSize="8.5" fill={C.red} fontFamily={MONO}>dep conflict!</text>}
               <text x={X(D(m.due)) + 13} y={y + 4} fontSize="9.5" fill={late ? C.red : C.faint} fontFamily={MONO}>{m.due.slice(5)}{m.status === "done" ? " ✓" : ` · ${conf}%`}{late ? " · late" : ""}</text>
             </g>
           );
         })}
       </svg>
-      <div style={{ fontSize: 11, color: C.faint }}>Bars cascade from the previous milestone — the diamond is the commitment. Colour: navy ≥80% confidence · amber 60–79 · red &lt;60 · green done. The dashed gold line is today.</div>
+      <div style={{ fontSize: 11, color: C.faint }}>Bars cascade from the previous milestone, or from a declared dependency (dashed connector; red = the dependency lands after the commitment). Colour: navy ≥80% confidence · amber 60–79 · red &lt;60 · green done. The dashed gold line is today.</div>
     </Card>
   );
 }
@@ -2037,6 +2254,16 @@ function ExportTools({ project }) {
     const cl = project.closure || {};
     if (cl.keep || cl.change || cl.stop || cl.spend) {
       md += `\n## Closure (T17)\n\nFinal spend: ${cl.spend || "?"} vs envelope ${cl.envelope || "?"}. Residual: ${cl.residual || "none"}\n\n- **Keep:** ${cl.keep || ""}\n- **Change:** ${cl.change || ""}\n- **Stop:** ${cl.stop || ""}\n\n> We'd tell the next team: ${cl.tellNext || ""}\n`;
+    }
+    const cm = project.comms || [];
+    if (cm.length) {
+      md += `\n## Comms Plan (T11)\n\n| Audience | Message | Channel | Sender | Date | Status |\n|---|---|---|---|---|---|\n`;
+      cm.forEach(c2 => { md += `| ${c2.audience || ""} | ${c2.message || ""} | ${c2.channel || ""} | ${c2.sender || ""} | ${c2.date || ""} | ${c2.status || ""} |\n`; });
+    }
+    const rt = project.retros || [];
+    if (rt.length) {
+      md += `\n## Retros (T14)\n\n`;
+      rt.forEach(r2 => { md += `### ${r2.date} — temperature ${r2.temp}/5\n- Keep: ${r2.keep || ""}\n- Change: ${r2.change || ""}\n- Stop: ${r2.stop || ""}\n- **Experiment:** ${r2.experiment || ""} ${r2.expReviewed ? "(reviewed \u2713)" : "(pending review)"}\n\n`; });
     }
     if (pages.length) { md += `\n## Pages\n\n`; pages.forEach(pg => { md += `### ${pg.title} _(updated ${pg.updated})_\n\n${pg.body}\n\n---\n\n`; }); }
     dl(`${code}_confluence.md`, md, "text/markdown");
@@ -2358,21 +2585,21 @@ function Spark({ data }) {
 }
 
 /* ================= TIMELINE HUB — real projects + demo ================= */
-function TimelineHub({ projects }) {
+function TimelineHub({ projects, setTab, setSel }) {
   const [mode, setMode] = useState(projects.some(p => (p.events || []).length) ? "mine" : "demo");
   return (
     <div>
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {[["mine", "My projects — live ledger"], ["demo", "Demo — three model projects"]].map(([id, l]) => (
+        {[["mine", "My projects — live ledger"], ["cal", "Project calendar"], ["demo", "Demo — three model projects"]].map(([id, l]) => (
           <button key={id} onClick={() => setMode(id)} style={{ border: `1px solid ${mode === id ? C.mul : C.line}`, background: mode === id ? C.mul : "#fff", color: mode === id ? "#fff" : C.mid, borderRadius: 99, padding: "8px 16px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>{l}</button>
         ))}
       </div>
-      {mode === "demo" ? <TimelineDemo /> : <MyTimeline projects={projects} />}
+      {mode === "demo" ? <TimelineDemo /> : mode === "cal" ? <ProjectCalendar projects={projects} /> : <MyTimeline projects={projects} setTab={setTab} setSel={setSel} />}
     </div>
   );
 }
 
-function MyTimeline({ projects }) {
+function MyTimeline({ projects, setTab, setSel }) {
   const withEv = projects.filter(p => (p.events || []).length);
   const [pid, setPid] = useState(withEv[0]?.id || projects[0]?.id || null);
   const [typ, setTyp] = useState("All");
@@ -2427,7 +2654,18 @@ function MyTimeline({ projects }) {
               <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 16, margin: "8px 0 2px" }}>{selEv.title}</div>
               <div style={{ fontFamily: MONO, fontSize: 10.5, color: C.faint, marginBottom: 10 }}>{selEv.date} · {proj.name}</div>
               {selEv.detail && <p style={{ fontSize: 13, color: C.ink }}>{selEv.detail}</p>}
-              <div style={{ fontSize: 11, color: C.faint, marginTop: 8 }}>In the corporate deployment this event links to its Confluence page / Smartsheet row / JIRA issue via the Agent Blueprint connectors — the demo tab shows that experience.</div>
+              {(() => {
+                const t3 = selEv.type, ti = selEv.title || "";
+                const targets = t3 === "status" ? [["portfolio", "Portfolio — RAG board"]]
+                  : t3 === "gate" ? [["workspace", "Workspace — Plan & Gantt"]]
+                  : t3 === "decision" ? (ti.startsWith("Day-30") ? [["review", "Review Pack — retro radar"]] : [["data", "Project Data — Decisions"]])
+                  : t3 === "artefact" ? (ti.startsWith("Health") ? [["health", "Health Scan"]] : [["workspace", "Workspace"]])
+                  : t3 === "forum" ? [["studio", "PPT Studio"]] : [["workspace", "Workspace"]];
+                return targets.map(([tb, lb]) => (
+                  <button key={tb} onClick={() => { setSel(proj.id); setTab(tb); }} style={{ display: "block", width: "100%", textAlign: "left", border: `1px solid ${C.line}`, background: "#fff", borderRadius: 8, padding: "8px 10px", fontSize: 12, color: C.navy, fontWeight: 600, cursor: "pointer", marginBottom: 6 }}>Open in app: {lb} →</button>
+                ));
+              })()}
+              <div style={{ fontSize: 11, color: C.faint, marginTop: 8 }}>In the corporate deployment this event also links to its Confluence page / Smartsheet row / JIRA issue via the Agent Blueprint connectors — the Demo mode shows that experience.</div>
             </Card>
           ) : (
             <Card style={{ color: C.mid, fontSize: 13 }}>
@@ -2710,7 +2948,11 @@ function buildHtmlDoc(kind, p) {
     genericPage("T17 \u00b7 Closure \u2014 3/3", "Lessons &", "release",
       zone("Keep", "#8A9900", esc2(cl2.keep || "\u2014")) + zone("Change", "#C77800", esc2(cl2.change || "\u2014")) + zone("Stop", "#B3261E", esc2(cl2.stop || "\u2014")) +
       zone("We'd tell the next team\u2026", "#830051", esc2(cl2.tellNext || "\u2014")));
-  const PAGES = { t01: t01page, t04: t04page, t05: t05pages, t02: t02page, t15: t15pages, t09: t09page, t10: t10page, t17: t17pages };
+  const cm9 = p.comms || [];
+  const t11page = () => genericPage("T11 \u00b7 Communications & engagement plan", "Comms", "plan",
+    `<table><tr><th>Audience</th><th>Message</th><th>Channel</th><th>Sender</th><th style="width:22mm">Date</th><th style="width:18mm">Status</th></tr>${(cm9.length ? cm9 : [{ audience: "\u2014" }]).map(r => `<tr><td><b>${esc2(r.audience)}</b></td><td>${esc2(r.message || "")}</td><td>${esc2(r.channel || "")}</td><td style="color:#830051;font-weight:700">${esc2(r.sender || "")}</td><td>${esc2(r.date || "")}</td><td>${esc2(r.status || "")}</td></tr>`).join("")}</table>` +
+    zone("Rule", "#8A6200", "Senders are leaders \u2014 the project drafts, credible voices deliver. Sequence aware \u2192 trained \u2192 live."));
+  const PAGES = { t01: t01page, t04: t04page, t05: t05pages, t02: t02page, t15: t15pages, t09: t09page, t10: t10page, t17: t17pages, t11: t11page };
   const body = (PAGES[kind] || t04page)();
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc2(p.code)} ${kind.toUpperCase()} — ${esc2(p.name)}</title>${css}</head>
   <body><div class="printhint">Ctrl/Cmd+P → Save as PDF (landscape)</div>${body}</body></html>`;
@@ -3113,4 +3355,1636 @@ function buildT17(pptx, p) {
   s.addText([{ text: "\u201cWe'd tell the next team\u2026\u201d  ", options: { bold: true, color: AZ.mul } }, { text: cl.tellNext || "— one honest paragraph —", options: { italic: !cl.tellNext, color: cl.tellNext ? "1C2222" : AZ.mid } }],
     { x: 0.8, y: 4.62, w: 11.7, h: 0.85, fontFace: "Calibri", fontSize: 11.5 });
   s.addText("Lessons route to the Framework Council with tier and context. And then it ends: space archived read-only, board closed — only the value tracker stays alive, in the business's hands.", { x: 0.55, y: 5.85, w: 12.2, h: 0.6, fontFace: "Calibri", fontSize: 10.5, italic: true, color: AZ.mid });
+}
+
+/* ================= MOCK TOOL VIEWERS (simple mode inside the app) ================= */
+function MockDocViewer({ viewer, project, onClose }) {
+  if (!viewer) return null;
+  const { kind, label, ev } = viewer;
+  const name = project?.name || "Project";
+  const Shell = ({ tool, color, children }) => (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(28,34,34,.55)", zIndex: 50, display: "grid", placeItems: "center", padding: 18 }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: "min(680px, 94vw)", maxHeight: "86vh", overflowY: "auto", background: "#fff", borderRadius: 14, boxShadow: "0 18px 50px rgba(0,0,0,.3)" }}>
+        <div style={{ background: color, color: "#fff", padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, borderRadius: "14px 14px 0 0" }}>
+          <span style={{ fontFamily: DISP, fontWeight: 800, fontSize: 13 }}>{tool}</span>
+          <span style={{ fontFamily: MONO, fontSize: 9.5, opacity: .85 }}>SIMULATED · simple mode inside the Navigator</span>
+          <button onClick={onClose} style={{ marginLeft: "auto", border: "none", background: "rgba(255,255,255,.18)", color: "#fff", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 13 }}>×</button>
+        </div>
+        <div style={{ padding: 18 }}>{children}</div>
+        <div style={{ padding: "8px 18px 14px", fontSize: 10.5, color: C.faint }}>In the corporate deployment this button opens the real object via the Agent Blueprint connectors.</div>
+      </div>
+    </div>
+  );
+  if (kind === "confluence") return (
+    <Shell tool="Confluence" color="#1868DB">
+      <div style={{ fontFamily: MONO, fontSize: 10.5, color: C.faint, marginBottom: 6 }}>OBU DSAI › {name} › {label}</div>
+      <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 20, marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 11, color: C.faint, marginBottom: 12 }}>Owned by PM · last updated {ev.date} · <Chip bg={C.limeLt} color={C.lime}>current</Chip></div>
+      <p style={{ fontSize: 13.5, lineHeight: 1.65 }}>{ev.detail}</p>
+      {ev.discussion && <div style={{ borderLeft: `3px solid ${C.line}`, padding: "8px 12px", fontSize: 12.5, fontStyle: "italic", color: C.mid, marginTop: 10 }}>💬 {ev.discussion}</div>}
+      <div style={{ marginTop: 14, padding: "9px 12px", background: "#F4F8FF", borderRadius: 8, fontSize: 11.5, color: C.mid }}>🔗 Linked: Decision Log (T08) · RAID sheet · {name} space home</div>
+    </Shell>
+  );
+  if (kind === "smartsheet") return (
+    <Shell tool="Smartsheet" color="#1D3D6E">
+      <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 15, marginBottom: 10 }}>{name} — plan & RAID workspace</div>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+        <thead><tr>{["Row", "Item", "Owner", "Date", "Status"].map(h => <th key={h} style={{ background: C.graph, color: "#fff", padding: "7px 9px", textAlign: "left", fontFamily: DISP, fontSize: 10.5 }}>{h}</th>)}</tr></thead>
+        <tbody>
+          <tr><td style={{ padding: 8, borderBottom: `1px solid ${C.soft}` }}>14</td><td style={{ padding: 8, borderBottom: `1px solid ${C.soft}`, color: C.faint }}>…</td><td style={{ padding: 8, borderBottom: `1px solid ${C.soft}` }} /><td style={{ padding: 8, borderBottom: `1px solid ${C.soft}` }} /><td style={{ padding: 8, borderBottom: `1px solid ${C.soft}` }} /></tr>
+          <tr style={{ background: C.goldLt }}><td style={{ padding: 8, fontWeight: 700 }}>15</td><td style={{ padding: 8, fontWeight: 600 }}>{label}: {ev.title}</td><td style={{ padding: 8 }}>PM</td><td style={{ padding: 8, fontFamily: MONO, fontSize: 11 }}>{ev.date}</td><td style={{ padding: 8 }}><Chip bg={C.navyLt} color={C.navy}>open</Chip></td></tr>
+          <tr><td style={{ padding: 8 }}>16</td><td style={{ padding: 8, color: C.faint }}>…</td><td /><td /><td /></tr>
+        </tbody>
+      </table>
+      <div style={{ fontSize: 11.5, color: C.mid, marginTop: 10 }}>{ev.detail}</div>
+    </Shell>
+  );
+  if (kind === "jira") return (
+    <Shell tool="JIRA" color="#1868DB">
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+        <Chip bg="#E9F2FF" color="#1868DB">{(project?.code || "PRJ") + "-" + (40 + (ev.title.length % 50))}</Chip>
+        <Chip bg={C.mulLt} color={C.mul}>Epic</Chip>
+        <span style={{ marginLeft: "auto" }}><Chip bg={C.navyLt} color={C.navy}>IN PROGRESS</Chip></span>
+      </div>
+      <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 18, marginBottom: 10 }}>{label}</div>
+      <div style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>{ev.detail}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 11.5, color: C.mid, background: "#FBFAF8", borderRadius: 8, padding: 12 }}>
+        <div><b>Assignee:</b> PO</div><div><b>Sprint:</b> current</div>
+        <div><b>Labels:</b> dcos, t15</div><div><b>Linked:</b> T15 one-pager (Confluence)</div>
+      </div>
+    </Shell>
+  );
+  if (kind === "ppt") return (
+    <Shell tool="PowerPoint" color={"#" + "B7472A"}>
+      <div style={{ aspectRatio: "16/9", border: `1px solid ${C.line}`, borderRadius: 8, position: "relative", overflow: "hidden", background: "#fff" }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 7, background: C.mul }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 7, background: C.mul }} />
+        <div style={{ padding: "26px 26px 0" }}>
+          <div style={{ color: C.mul, fontWeight: 700, fontSize: 13, fontFamily: BODY }}>AstraZeneca</div>
+          <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 21, marginTop: 14 }}><span style={{ color: "#3F4444" }}>{label.split(" ")[0]} </span><span style={{ color: C.mul }}>{label.split(" ").slice(1).join(" ")}</span></div>
+          <div style={{ width: 38, height: 4, background: C.gold, marginTop: 6 }} />
+          <div style={{ fontSize: 11.5, color: C.mid, marginTop: 12, lineHeight: 1.6 }}>{ev.detail}</div>
+        </div>
+      </div>
+      <div style={{ fontSize: 11, color: C.faint, marginTop: 8 }}>Generated on the locked Governance Master layout · {ev.date} · review and sign before circulation.</div>
+    </Shell>
+  );
+  if (kind === "teams") return (
+    <Shell tool="Microsoft Teams" color="#5B5FC7">
+      <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 14, marginBottom: 12 }}># {name} — delivery channel</div>
+      {[(ev.discussion || ev.detail), "Noted — bring it to Thursday with the three options costed.", "On it. Deck draft will be in the channel by Wednesday EOD."].map((m, i) => (
+        <div key={i} style={{ display: "flex", gap: 10, marginBottom: 10, flexDirection: i === 1 ? "row-reverse" : "row" }}>
+          <div style={{ width: 30, height: 30, borderRadius: "50%", background: i === 1 ? C.navy : C.mul, color: "#fff", display: "grid", placeItems: "center", fontFamily: DISP, fontWeight: 700, fontSize: 12, flexShrink: 0 }}>{i === 1 ? "SP" : "PM"}</div>
+          <div style={{ background: i === 1 ? C.navyLt : "#F4F3F1", borderRadius: 10, padding: "8px 12px", fontSize: 12.5, maxWidth: "78%" }}>{m}</div>
+        </div>
+      ))}
+    </Shell>
+  );
+  return (
+    <Shell tool="Power BI" color="#E9A800">
+      <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 14, marginBottom: 12 }}>{name} — {label}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 12 }}>
+        {[["Activation", "92%", C.lime], ["Week-4 retention", "57%", C.amber], ["Sentiment", "3.9 / 5", C.navy]].map(([l, v, col]) => (
+          <div key={l} style={{ background: "#FBFAF8", border: `1px solid ${C.soft}`, borderRadius: 10, padding: 12 }}>
+            <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: C.faint }}>{l}</div>
+            <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 22, color: col }}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 70, padding: "0 4px" }}>
+        {[42, 51, 48, 57, 61, 60, 66, 71].map((h, i) => <div key={i} style={{ flex: 1, height: `${h}%`, background: i >= 6 ? C.mul : C.line, borderRadius: "3px 3px 0 0" }} />)}
+      </div>
+      <div style={{ fontSize: 11.5, color: C.mid, marginTop: 10 }}>{ev.detail}</div>
+    </Shell>
+  );
+}
+
+/* ================= PROJECT CALENDAR (governance-year view, per project, real dates) ================= */
+function ProjectCalendar({ projects }) {
+  const [pid, setPid] = useState(projects[0]?.id || null);
+  const [det, setDet] = useState(null);
+  const proj = projects.find(p => p.id === pid);
+  if (!proj) return <Card>Add a project first.</Card>;
+  const plan = proj.plan || [], snaps = proj.snapshots || [];
+  const D = s => new Date(s + "T00:00:00");
+  const dates = [...plan.filter(m => m.due).map(m => D(m.due)), ...snaps.map(s => D(s.date)), new Date()];
+  if (proj.hypothesis?.date) dates.push(new Date(D(proj.hypothesis.date).getTime() + 30 * 86400000));
+  let lo = new Date(Math.min(...dates.map(d => d.getTime()))), hi = new Date(Math.max(...dates.map(d => d.getTime())));
+  lo = new Date(lo.getFullYear(), lo.getMonth(), 1); hi = new Date(hi.getFullYear(), hi.getMonth() + 1, 1);
+  const cols = [];
+  for (let d = new Date(lo); d < hi && cols.length < 14; d.setMonth(d.getMonth() + 1)) cols.push(new Date(d));
+  const ym = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  const colKeys = cols.map(ym);
+  const nowYm = ym(new Date());
+  const T2 = proj.tier;
+  const inMonth = (k, arr) => arr.filter(x => x.k === k);
+  const gates = plan.filter(m => m.due && /^G\d/.test(m.name || "")).map(m => ({ k: m.due.slice(0, 7), label: (m.name || "").slice(0, 2), done: m.status === "done", item: `${m.name} — ${m.due} · ${m.conf ?? 80}%${m.status === "done" ? " · done ✓" : ""}` }));
+  const miles = plan.filter(m => m.due && !/^G\d/.test(m.name || "")).map(m => ({ k: m.due.slice(0, 7), done: m.status === "done", item: `${m.name} — ${m.due} · ${m.conf ?? 80}%${m.dep ? " · has dependency" : ""}` }));
+  const retro = [];
+  if (proj.hypothesis?.date) {
+    const rd = new Date(D(proj.hypothesis.date).getTime() + 30 * 86400000);
+    retro.push({ k: ym(rd), late: !proj.hypothesis.retroDone && rd < new Date(), done: !!proj.hypothesis.retroDone, item: `Day-30 configuration retro — due ~${rd.toISOString().slice(0, 10)}${proj.hypothesis.retroDone ? " · done ✓ " + proj.hypothesis.retroDone : ""}` });
+  }
+  const snapDots = snaps.map(s => ({ k: s.date.slice(0, 7), item: `Health snapshot ${s.date} — ${s.score}/100` }));
+  const cadence = {
+    "Status report (T04)": T2 === "C" ? "weekly" : T2 === "D" ? "monthly" : "biweekly",
+    "SteerCo / sponsor review": T2 === "D" ? "quarterly" : "monthly",
+    "RAID review (T03)": "weekly",
+    "Value review (T13)": T2 === "D" ? "quarterly" : "monthly",
+  };
+  const cadCell = (mode, d) => {
+    if (mode === "quarterly" && d.getMonth() % 3 !== 0) return null;
+    return mode === "weekly" ? "w" : mode === "biweekly" ? "2×" : "●";
+  };
+  const rows = [
+    ["Gates (from plan)", C.gold, k => inMonth(k, gates).map(g => ({ txt: g.label, col: g.done ? C.green : "#8A6200", bg: g.done ? C.limeLt : C.goldLt, item: g.item }))],
+    ["Milestones", C.navy, k => inMonth(k, miles).map(m => ({ txt: "◆", col: m.done ? C.green : C.navy, item: m.item }))],
+    ["Day-30 retro (T14)", C.mul, k => inMonth(k, retro).map(r => ({ txt: r.done ? "✓" : "◆", col: r.done ? C.green : r.late ? C.red : C.mul, item: r.item }))],
+    ["Health snapshots", C.lime, k => inMonth(k, snapDots).map(s => ({ txt: "●", col: C.lime, item: s.item }))],
+  ];
+  return (
+    <div>
+      <Card style={{ marginBottom: 14, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <select value={pid} onChange={e => { setPid(e.target.value); setDet(null); }} style={{ fontFamily: DISP, fontWeight: 700, fontSize: 14, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 12px", background: "#fff", cursor: "pointer" }}>
+          {projects.map(p => <option key={p.id} value={p.id}>{p.code} · {p.name}</option>)}
+        </select>
+        <div style={{ fontSize: 12, color: C.mid }}>The Governance Year, instantiated for one project with <b>real dates</b>: gates and milestones from the plan, the day-30 retro from the hypothesis, snapshots from the Health Scan, and the Tier {T2} cadences. Click any marked cell.</div>
+      </Card>
+      <Card style={{ padding: 0, overflowX: "auto" }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 760 }}>
+          <thead><tr>
+            <th style={{ textAlign: "left", padding: "9px 14px", fontFamily: DISP, fontSize: 11, color: "#fff", background: C.graph }}>Rhythm / event</th>
+            {cols.map((d, i) => <th key={i} style={{ padding: "9px 6px", fontFamily: MONO, fontSize: 9.5, color: colKeys[i] === nowYm ? C.gold : "#C9D2CF", background: C.graph, fontWeight: colKeys[i] === nowYm ? 700 : 500 }}>{MONTHS[d.getMonth()]} {String(d.getFullYear()).slice(2)}</th>)}
+          </tr></thead>
+          <tbody>
+            {rows.map(([name, color, fn]) => (
+              <tr key={name}>
+                <td style={{ padding: "9px 14px", fontFamily: DISP, fontWeight: 600, fontSize: 12, borderTop: `1px solid ${C.soft}`, whiteSpace: "nowrap", color }}>{name}</td>
+                {colKeys.map(k => {
+                  const items = fn(k);
+                  return (
+                    <td key={k} onClick={() => items.length && setDet({ k, name, items: items.map(x => x.item) })} style={{ textAlign: "center", borderTop: `1px solid ${C.soft}`, background: k === nowYm ? "#FBF7EF" : "transparent", cursor: items.length ? "pointer" : "default", padding: "7px 2px" }}>
+                      {items.map((x, i) => (
+                        <span key={i} style={{ display: "inline-block", fontFamily: MONO, fontSize: 10.5, fontWeight: 700, color: x.col, background: x.bg || "transparent", borderRadius: 99, padding: x.bg ? "2px 7px" : 0, margin: "0 1px" }}>{x.txt}</span>
+                      ))}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+            {Object.entries(cadence).map(([name, mode]) => (
+              <tr key={name}>
+                <td style={{ padding: "9px 14px", fontFamily: DISP, fontWeight: 600, fontSize: 12, borderTop: `1px solid ${C.soft}`, whiteSpace: "nowrap", color: C.mid }}>{name}</td>
+                {cols.map((d, i) => (
+                  <td key={i} onClick={() => setDet({ k: colKeys[i], name, items: [`${name}: ${mode} cadence (Tier ${T2}) — items land in This Week automatically`] })} style={{ textAlign: "center", borderTop: `1px solid ${C.soft}`, background: colKeys[i] === nowYm ? "#FBF7EF" : "transparent", fontFamily: MONO, fontSize: 9.5, color: C.faint, cursor: "pointer", padding: "7px 2px" }}>
+                    {cadCell(mode, d)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+      {det && (
+        <Card style={{ marginTop: 12, borderLeft: `4px solid ${C.gold}` }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+            <SectionLabel color={"#8A6200"}>{det.name} · {det.k}</SectionLabel>
+            <button onClick={() => setDet(null)} style={{ marginLeft: "auto", border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+          </div>
+          {det.items.map((x, i) => <div key={i} style={{ fontSize: 13, marginBottom: 4 }}>{x}</div>)}
+        </Card>
+      )}
+    </div>
+  );
+}
+
+/* ================= PROGRAM MAP (cross-project dependencies) ================= */
+const LINK_TYPES = { content: ["Content / scope", "#830051"], data: ["Data", "#003865"], stakeholder: ["Stakeholders", "#8A6200"], adoption: ["Adoption / users", "#8A9900"] };
+function ProgramMap({ projects, programLinks, setProgramLinks, setSel, setTab }) {
+  const [selEdge, setSelEdge] = useState(null);
+  const norm = s => String(s || "").toLowerCase().trim();
+  const auto = useMemo(() => {
+    const edges = [];
+    for (let i = 0; i < projects.length; i++) for (let j = i + 1; j < projects.length; j++) {
+      const a = projects[i], b = projects[j];
+      const shN = (a.stakeholders || []).map(s => norm(s.name)).filter(Boolean).filter(n => (b.stakeholders || []).some(s => norm(s.name) === n));
+      if (shN.length) edges.push({ from: a.id, to: b.id, type: "stakeholder", note: "Shared stakeholders: " + shN.join(", "), auto: true });
+      const shG = (a.impact || []).map(g => norm(g.group)).filter(Boolean).filter(n => (b.impact || []).some(g => norm(g.group) === n));
+      if (shG.length) edges.push({ from: a.id, to: b.id, type: "adoption", note: "Same affected groups: " + shG.join(", "), auto: true });
+      const shO = (a.keydata?.benefits || []).map(x => norm(x.owner)).filter(Boolean).filter(n => (b.keydata?.benefits || []).some(x => norm(x.owner) === n));
+      if (shO.length) edges.push({ from: a.id, to: b.id, type: "data", note: "Shared benefit owners: " + shO.join(", "), auto: true });
+    }
+    return edges;
+  }, [projects]);
+  const all = [...auto, ...programLinks.filter(l => projects.some(p => p.id === l.from) && projects.some(p => p.id === l.to))];
+  const W = 860, H = 420, cx = W / 2, cy = H / 2, R = Math.min(165, 60 + projects.length * 18);
+  const pos = {}; projects.forEach((p, i) => { const a = (i / projects.length) * 2 * Math.PI - Math.PI / 2; pos[p.id] = [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+  const byId = id => projects.find(p => p.id === id);
+  return (
+    <div>
+      <Card style={{ marginBottom: 12 }}>
+        <SectionLabel>Program map — where projects touch</SectionLabel>
+        <div style={{ fontSize: 12.5, color: C.mid }}>Connections are <b>auto-detected</b> from shared stakeholders, shared affected groups (adoption) and shared benefit owners — plus any program links you declare below. Two or more connected projects are a de-facto programme: govern the seam, not just the nodes.</div>
+        <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+          {Object.entries(LINK_TYPES).map(([k, [l, col]]) => <Chip key={k} bg="#fff" color={col} style={{ borderColor: col }}>― {l}</Chip>)}
+        </div>
+      </Card>
+      <Card style={{ overflowX: "auto" }}>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", minWidth: 640 }} role="img" aria-label="Program dependency map">
+          {all.map((e, i) => {
+            const [x1, y1] = pos[e.from] || [0, 0], [x2, y2] = pos[e.to] || [0, 0];
+            const col = LINK_TYPES[e.type]?.[1] || C.faint;
+            const mx = (x1 + x2) / 2 + (i % 2 ? 14 : -14), my = (y1 + y2) / 2 + (i % 3 ? 10 : -10);
+            return (
+              <g key={i} onClick={() => setSelEdge(e)} style={{ cursor: "pointer" }}>
+                <path d={`M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`} fill="none" stroke={col} strokeWidth={selEdge === e ? 3.5 : 2} strokeDasharray={e.auto ? "none" : "6 4"} opacity={0.8} />
+                <circle cx={mx} cy={my} r={4.5} fill={col} />
+              </g>
+            );
+          })}
+          {projects.map(p => {
+            const [x, y] = pos[p.id];
+            const anyR = RAG_DIMS.some(d => p.rag?.[d] === "R");
+            return (
+              <g key={p.id} onClick={() => { setSel(p.id); setTab("data"); }} style={{ cursor: "pointer" }}>
+                <circle cx={x} cy={y} r={27} fill={C.mul} stroke={anyR ? C.red : C.gold} strokeWidth={anyR ? 3 : 2} />
+                <text x={x} y={y + 4} textAnchor="middle" fontSize="10" fontWeight="700" fill="#fff" fontFamily={MONO}>{p.code.replace("OBU-", "")}</text>
+                <text x={x} y={y + 44} textAnchor="middle" fontSize="11" fontWeight="600" fill={C.ink} fontFamily={DISP}>{p.name.slice(0, 22)}</text>
+                <text x={x} y={y + 57} textAnchor="middle" fontSize="8.5" fill={C.faint} fontFamily={MONO}>Tier {p.tier} · {p.phase}</text>
+              </g>
+            );
+          })}
+        </svg>
+        {selEdge && (
+          <div style={{ borderLeft: `4px solid ${LINK_TYPES[selEdge.type]?.[1] || C.faint}`, background: "#FBFAF8", borderRadius: "0 10px 10px 0", padding: "10px 14px", marginTop: 8 }}>
+            <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 13 }}>{byId(selEdge.from)?.name} ↔ {byId(selEdge.to)?.name} <Chip bg="#fff" color={LINK_TYPES[selEdge.type]?.[1]}>{LINK_TYPES[selEdge.type]?.[0]}</Chip> {selEdge.auto && <Chip>auto-detected</Chip>}</div>
+            <div style={{ fontSize: 12.5, color: C.mid, marginTop: 3 }}>{selEdge.note || "—"}</div>
+          </div>
+        )}
+      </Card>
+      <Card style={{ marginTop: 12 }}>
+        <SectionLabel color={C.navy}>Declared program links</SectionLabel>
+        {programLinks.map(l => (
+          <div key={l.id} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center", flexWrap: "wrap" }}>
+            <select value={l.from} onChange={e => setProgramLinks(ls => ls.map(x => x.id === l.id ? { ...x, from: e.target.value } : x))} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11.5 }}>
+              {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <span style={{ color: C.faint }}>↔</span>
+            <select value={l.to} onChange={e => setProgramLinks(ls => ls.map(x => x.id === l.id ? { ...x, to: e.target.value } : x))} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11.5 }}>
+              {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <select value={l.type} onChange={e => setProgramLinks(ls => ls.map(x => x.id === l.id ? { ...x, type: e.target.value } : x))} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11.5 }}>
+              {Object.entries(LINK_TYPES).map(([k, [lab]]) => <option key={k} value={k}>{lab}</option>)}
+            </select>
+            <input value={l.note || ""} onChange={e => setProgramLinks(ls => ls.map(x => x.id === l.id ? { ...x, note: e.target.value } : x))} placeholder="why they're linked (e.g. shared data product, sequenced go-lives)" style={{ flex: 1, minWidth: 180, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "7px 9px", fontSize: 12 }} />
+            <button onClick={() => setProgramLinks(ls => ls.filter(x => x.id !== l.id))} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+          </div>
+        ))}
+        <button onClick={() => projects.length >= 2 && setProgramLinks(ls => [...ls, { id: uid(), from: projects[0].id, to: projects[1].id, type: "content", note: "" }])}
+          style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.navy, borderRadius: 8, padding: "8px 14px", fontSize: 12.5, cursor: "pointer", fontWeight: 600 }}>+ program link</button>
+        <div style={{ fontSize: 11, color: C.faint, marginTop: 8 }}>Cross-project conflicts surface here before they surface in a SteerCo: a shared stakeholder pulled two ways, or two go-lives landing on the same user group, is a Portfolio Review decision — escalate the conflict, not the frustration.</div>
+      </Card>
+    </div>
+  );
+}
+
+/* ================= DATA GUIDE (app vs corporate tool) ================= */
+function DataGuide() {
+  const [open, setOpen] = useState(false);
+  const ROWS = [
+    ["Work items / backlog", "Workspace › Board", "JIRA", "multi-team flow, >100 items, compliance workflows"],
+    ["Plan & milestones", "Workspace › Plan (+ Gantt, dependencies)", "Smartsheet", "resource management, cross-portfolio roll-ups"],
+    ["Risks (RAID)", "Project Data › Risks", "Smartsheet T03 sheet", "portfolio-wide RAID mining, audit at scale"],
+    ["Decisions (T08)", "Project Data › Decisions", "Confluence Decision Log", "broad-organisation visibility & search"],
+    ["Benefits (T13)", "Project Data › Benefits", "Smartsheet + Power BI", "automated telemetry feeds, exec dashboards"],
+    ["Notes & memory", "Workspace › Pages", "Confluence", "many contributors, permissions, longevity"],
+    ["Stakeholders / impact / case / closure", "Studio › T09 · T10 · T02 · T17 builders", "Miro + masters in the Template Pack", "live workshops, very large maps"],
+  ];
+  return (
+    <Card style={{ marginBottom: 14, borderLeft: `4px solid ${C.navy}` }}>
+      <div onClick={() => setOpen(o => !o)} style={{ display: "flex", gap: 10, alignItems: "baseline", cursor: "pointer" }}>
+        <SectionLabel color={C.navy}>Where does each piece of data live? — app vs corporate tool</SectionLabel>
+        <span style={{ marginLeft: "auto", color: C.faint }}>{open ? "−" : "+"}</span>
+      </div>
+      {open && (
+        <div>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 640, fontSize: 12 }}>
+              <thead><tr>{["Data", "In the Navigator (default)", "Corporate alternative", "Switch to the tool when…"].map(h => <th key={h} style={{ textAlign: "left", padding: "8px 12px", fontFamily: DISP, fontSize: 10.5, color: "#fff", background: C.graph }}>{h}</th>)}</tr></thead>
+              <tbody>{ROWS.map(r => (
+                <tr key={r[0]}>{r.map((c, i) => <td key={i} style={{ padding: "8px 12px", borderTop: `1px solid ${C.soft}`, fontWeight: i === 0 ? 600 : 400, fontFamily: i === 1 ? MONO : BODY, fontSize: i === 1 ? 11 : 12, color: i === 1 ? C.navy : C.ink }}>{c}</td>)}</tr>
+              ))}</tbody>
+            </table>
+          </div>
+          <div style={{ fontSize: 12, color: C.mid, marginTop: 10 }}>
+            <b style={{ color: C.ink }}>Rule of thumb:</b> under ~100 projects, enter once here and push out with the Studio exports — zero duplicated truth. The moment a corporate tool is declared the system of record for a data type, enter it <i>there</i> and treat the Navigator as the cockpit view (import for JIRA today; live connectors in the corporate deployment).
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/* ================= CAPACITY & BUDGET (people · load · forecast · triple-constraint risk) ================= */
+const ymNow = () => new Date().toISOString().slice(0, 7);
+const ymAdd = (ym, n) => { const d = new Date(ym + "-01T00:00:00"); d.setMonth(d.getMonth() + n); return d.toISOString().slice(0, 7); };
+const ymDiff = (a, b) => (new Date(b + "-01") - new Date(a + "-01")) / (30.44 * 86400000);
+const monthsBetween = (from, to) => { const out = []; let m = from; while (m <= to && out.length < 36) { out.push(m); m = ymAdd(m, 1); } return out; };
+const eur = n => "\u20ac" + (Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(2) + "M" : Math.round(n / 1000) + "k");
+const PERT = (o, m, p2) => { const e = (o + 4 * m + p2) / 6, s = Math.max((p2 - o) / 6, 0); return { e, s, p80: e + 0.8416 * s }; };
+
+function labourForecast(p, people, assignments) {
+  let total = 0; const who = new Set();
+  assignments.filter(a => a.projectId === p.id).forEach(a => {
+    const per = people.find(x => x.id === a.personId); if (!per || !a.from || !a.to) return;
+    const months = Math.max(Math.round(ymDiff(a.from, a.to)) + 1, 0);
+    total += months * (a.pct / 100) * (per.costMonth || 0); who.add(per.id);
+  });
+  return { labour: total, headcount: who.size };
+}
+function budgetEval(p, people, assignments) {
+  const b = p.budget; if (!b) return null;
+  const { labour } = labourForecast(p, people, assignments);
+  const lines = (b.lines || []).reduce((s, l) => s + (+l.amount || 0), 0);
+  const forecast = labour + lines;
+  const cBest = b.cBest ?? forecast * 0.92, cLikely = b.cLikely ?? forecast, cWorst = b.cWorst ?? forecast * 1.3;
+  const pc = PERT(cBest, cLikely, cWorst);
+  return { env: +b.envelope || 0, labour, lines, forecast, p50: pc.e, p80: pc.p80, cBest, cLikely, cWorst };
+}
+function seedHR(projects) {
+  const byCode = c => projects.find(p => p.code === c)?.id;
+  const P = (name, role, costMonth, cap = 100, team = "Delivery", type = "AZ Permanent", location = "Barcelona", extra = {}) => ({ id: uid(), name, role, costMonth, cap, team, type, location, status: extra.vacancy ? "Vacancy" : "Staffed", supervisor: extra.supervisor || "J. Arbona", cc: extra.cc || "1175", vacancy: !!extra.vacancy, ...extra });
+  const people = [
+    P("M. Serra", "Project Manager", 9800, 100, "Delivery"), P("A. Ribeiro", "Project Manager", 9800, 100, "Delivery"),
+    P("T. Keller", "Product Owner", 10400, 100, "Product"), P("N. Osei", "Engineer", 8900, 100, "Engineering", "OSP"), P("C. Duarte", "Engineer", 8900, 100, "Engineering"),
+    P("S. Lindqvist", "Data Steward", 9200, 80, "Data", "AZ Permanent", "Cambridge"), P("E. Romero", "Change Lead", 9500, 100, "Change"), P("K. Yamada", "BI Analyst", 8300, 60, "Data", "OSP", "Warsaw"),
+    P("(open req) - Sr Engineer", "Engineer", 9100, 100, "Engineering", "OSP", "Warsaw", { vacancy: true }),
+    P("(open req) - Change Analyst", "Change Analyst", 7800, 100, "Change", "AZ Permanent", "Barcelona", { vacancy: true }),
+  ];
+  const id = n => people[n].id, m0 = ymNow();
+  const A = (n, code, pct, fromOff, toOff) => ({ id: uid(), personId: id(n), projectId: byCode(code), pct, from: ymAdd(m0, fromOff), to: ymAdd(m0, toOff) });
+  const assignments = [
+    A(0, "OBU-114", 60, -1, 4), A(2, "OBU-114", 50, -1, 4), A(3, "OBU-114", 100, 0, 3), A(4, "OBU-114", 80, 0, 3), A(5, "OBU-114", 40, -1, 2), A(6, "OBU-114", 50, 0, 4),
+    A(1, "OBU-097", 80, -2, 2), A(6, "OBU-097", 60, -1, 2), A(7, "OBU-097", 60, -1, 1), A(4, "OBU-097", 30, 1, 2),
+    A(0, "OBU-121", 20, 0, 2), A(7, "OBU-121", 40, 0, 2),
+  ].filter(a => a.projectId);
+  return { people, assignments };
+}
+
+
+/* ================= EXCEL EXPORT (CAI 2026 Portfolio & Capacity Plan style) ================= */
+let _xlsxPromise = null;
+const XLSX_URLS = [
+  "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",
+  "https://cdn.sheetjs.com/xlsx-0.18.5/package/dist/xlsx.full.min.js",
+  "https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",
+];
+function loadXLSX() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (_xlsxPromise) return _xlsxPromise;
+  _xlsxPromise = (async () => {
+    let last;
+    for (const u of XLSX_URLS) {
+      try { return await new Promise((res, rej) => { const s = document.createElement("script"); s.src = u; const t = setTimeout(() => { s.remove(); rej(new Error("timeout")); }, 9000); s.onload = () => { clearTimeout(t); window.XLSX ? res(window.XLSX) : rej(new Error("no global")); }; s.onerror = () => { clearTimeout(t); s.remove(); rej(new Error("blocked")); }; document.head.appendChild(s); }); }
+      catch (e) { last = e; }
+    }
+    _xlsxPromise = null; throw last || new Error("no CDN");
+  })();
+  return _xlsxPromise;
+}
+const MONTH_HDRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function allocByMonth(personId, projectId, assignments) {
+  // returns 12 fractional FTE values for the 2026 calendar from assignments
+  const out = Array(12).fill(0);
+  assignments.filter(a => a.personId === personId && (!projectId || a.projectId === projectId) && a.from && a.to).forEach(a => {
+    for (let m = 0; m < 12; m++) { const ym = "2026-" + String(m + 1).padStart(2, "0"); if (a.from <= ym && ym <= a.to) out[m] += (+a.pct || 0) / 100; }
+  });
+  return out;
+}
+async function exportCapacityXlsx(projects, people, assignments) {
+  const XLSX = await loadXLSX();
+  const wb = XLSX.utils.book_new();
+  const FOCUS = 0.8, HRS_MONTH = 152; // net hours assumption
+  const projName = id => (projects.find(p => p.id === id) || {}).name || "Unassigned";
+  const projById = id => projects.find(p => p.id === id) || {};
+  const aoa = (rows) => XLSX.utils.aoa_to_sheet(rows);
+  const setCols = (ws, widths) => { ws["!cols"] = widths.map(w => ({ wch: w })); };
+
+  /* --- Sheet 1: Project Profiling --- */
+  const p1 = [
+    ["CAI 2026 — Portfolio & Capacity Plan · generated by DCOS Navigator " + today()],
+    ["Project portfolio mapping (not a project resource plan)"],
+    [],
+    ["ID", "Project Name", "PM / PO", "Status", "Tier", "Priority (WSJF)", "Staffing Confidence", "Start", "End (G4)", "Team", "Headcount", "Labour forecast (€)", "Envelope (€)", "Description / Benefit"],
+  ];
+  projects.forEach(p => {
+    const lf = labourForecast(p, people, assignments);
+    const plan = (p.plan || []).filter(m => m.due).map(m => m.due).sort();
+    const g4 = (p.plan || []).filter(m => /^G4/.test(m.name || "") && m.due).map(m => m.due)[0] || plan.slice(-1)[0] || "";
+    const w = p.wsjf || {}; const wsjf = ((w.bv || 0) + (w.tc || 0) + (w.rr || 0)) / Math.max(w.size || 1, 1);
+    const kd = p.keydata || {};
+    const teams = [...new Set(assignments.filter(a => a.projectId === p.id).map(a => (people.find(x => x.id === a.personId) || {}).team).filter(Boolean))].join(", ");
+    p1.push([p.code, p.name, p.pm || "—", p.phase, "Tier " + p.tier, +wsjf.toFixed(1), p.staffConf || "—", plan[0] || "", g4, teams, lf.headcount, Math.round(lf.labour), +p.budget?.envelope || "", (kd.headline || "").slice(0, 80)]);
+  });
+  const ws1 = aoa(p1); setCols(ws1, [10, 26, 16, 12, 8, 12, 16, 12, 12, 16, 11, 16, 14, 40]);
+  XLSX.utils.book_append_sheet(wb, ws1, "Project Profiling");
+
+  /* --- Sheet 2: CAI Resource Profile (monthly allocation + day rate -> cost) --- */
+  const hdr2 = ["ID", "Project Name", "Resource Confidence", "Status", "Name", "Role", "Type", "Team", "Location", "Allocation", "Day Rate (€)", ...MONTH_HDRS, "Monthly Rate (€)", "2026 Cost (€)"];
+  const p2 = [["Resource & Cost Profiling Based on Demand"], [], hdr2];
+  assignments.forEach(a => {
+    const per = people.find(x => x.id === a.personId); if (!per) return;
+    const pr = projById(a.projectId);
+    const months = allocByMonth(a.personId, a.projectId, assignments);
+    const dayRate = Math.round((per.costMonth || 0) / 21);
+    const monthly = Math.round((per.costMonth || 0) * (a.pct / 100));
+    const cost = months.reduce((s, m) => s + m * (per.costMonth || 0), 0);
+    p2.push([pr.code || "", pr.name || "Unassigned", "1 - Very High (81%-100%)", pr.phase || "", per.name, per.role, per.type || "AZ Permanent", per.team || "", per.location || "—", a.pct / 100, dayRate, ...months.map(m => +m.toFixed(2)), monthly, Math.round(cost)]);
+  });
+  // total row
+  const firstData = 4, lastData = p2.length;
+  const totRow = ["", "TOTAL", "", "", "", "", "", "", "", "", ""];
+  for (let m = 0; m < 12; m++) totRow.push({ f: `SUM(${XLSX.utils.encode_col(11 + m)}${firstData}:${XLSX.utils.encode_col(11 + m)}${lastData})` });
+  totRow.push("", { f: `SUM(${XLSX.utils.encode_col(11 + 13)}${firstData}:${XLSX.utils.encode_col(11 + 13)}${lastData})` });
+  p2.push(totRow);
+  const ws2 = aoa(p2); setCols(ws2, [9, 22, 18, 10, 16, 18, 14, 14, 12, 10, 11, ...MONTH_HDRS.map(() => 6), 13, 13]);
+  XLSX.utils.book_append_sheet(wb, ws2, "CAI Resource Profile");
+
+  /* --- Sheet 3: Team Structure (capacity planned vs assigned, focus factor, vacancies) --- */
+  const hdr3 = ["Name", "Business Title", "Team", "LM / Supervisor", "CC", "Vacancy", "Status", "Employee Type", "Location", ...MONTH_HDRS.map(m => m + " plan"), "·", ...MONTH_HDRS.map(m => m + " assigned"), "Gross Hrs", "Net Hrs (×0.8)"];
+  const p3 = [["Capacity Planned vs Assigned", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Focus Factor", FOCUS], [], hdr3];
+  people.forEach(per => {
+    const planned = Array(12).fill(per.cap != null ? per.cap / 100 : 1);
+    const assigned = allocByMonth(per.id, null, assignments);
+    const grossH = HRS_MONTH * 12 * (per.cap != null ? per.cap / 100 : 1);
+    p3.push([per.name, per.role, per.team || "", per.supervisor || "—", per.cc || "", per.vacancy ? "Yes" : "No", per.status || "Staffed", per.type || "AZ Permanent", per.location || "—", ...planned.map(x => +x.toFixed(2)), "", ...assigned.map(x => +x.toFixed(2)), Math.round(grossH), Math.round(grossH * FOCUS)]);
+  });
+  const ws3 = aoa(p3); setCols(ws3, [16, 18, 14, 16, 7, 8, 10, 14, 12, ...MONTH_HDRS.map(() => 5.5), 2, ...MONTH_HDRS.map(() => 6.5), 9, 11]);
+  XLSX.utils.book_append_sheet(wb, ws3, "Team Structure");
+
+  /* --- Sheet 4: Vacancies & availability --- */
+  const p4 = [["Vacancies & Availability — where capacity is open"], [], ["Name / Req", "Role", "Team", "Status", "Type", "Avg 2026 allocation", "Avg free capacity", "Flag"]];
+  people.forEach(per => {
+    const assigned = allocByMonth(per.id, null, assignments);
+    const avg = assigned.reduce((s, m) => s + m, 0) / 12;
+    const cap = per.cap != null ? per.cap / 100 : 1;
+    const free = cap - avg;
+    const flag = per.vacancy ? "VACANCY — to hire" : free > 0.4 ? "Under-utilised" : free < -0.05 ? "OVERALLOCATED" : "Balanced";
+    p4.push([per.name || "(open req)", per.role, per.team || "", per.status || (per.vacancy ? "Vacancy" : "Staffed"), per.type || "AZ Permanent", +avg.toFixed(2), +free.toFixed(2), flag]);
+  });
+  const ws4 = aoa(p4); setCols(ws4, [20, 18, 14, 12, 14, 18, 18, 18]);
+  XLSX.utils.book_append_sheet(wb, ws4, "Vacancies");
+
+  /* --- Sheet 5: ByProject pivot --- */
+  const p5 = [["Pivot — FTE allocation ByProject"], [], ["Project Name", "Team", "Role", "Name", ...MONTH_HDRS.map(m => m + "26")]];
+  let r5 = 4;
+  const projGroups = {};
+  assignments.forEach(a => { (projGroups[a.projectId] = projGroups[a.projectId] || []).push(a); });
+  Object.entries(projGroups).forEach(([pid, list]) => {
+    const startRow = r5;
+    list.forEach(a => { const per = people.find(x => x.id === a.personId); if (!per) return; const months = allocByMonth(a.personId, pid, assignments); p5.push([projName(pid), per.team || "", per.role, per.name, ...months.map(m => +m.toFixed(2))]); r5++; });
+    if (r5 > startRow) {
+      const total = [projName(pid) + " Total", "", "", ""];
+      for (let m = 0; m < 12; m++) { const col = XLSX.utils.encode_col(4 + m); total.push({ f: `SUM(${col}${startRow}:${col}${r5 - 1})` }); }
+      p5.push(total); r5++;
+    }
+  });
+  const gt5 = ["Grand Total", "", "", ""];
+  for (let m = 0; m < 12; m++) { const col = XLSX.utils.encode_col(4 + m); gt5.push({ f: `SUMIF($A$4:$A$${r5 - 1},"*Total",${col}$4:${col}$${r5 - 1})/0+SUM(${col}4:${col}${r5 - 1})/2` }); }
+  // simpler robust grand total: sum of detail rows only (skip the per-project total rows)
+  const gt5b = ["Grand Total", "", "", ""];
+  for (let m = 0; m < 12; m++) { const col = XLSX.utils.encode_col(4 + m); gt5b.push({ f: `SUMIFS(${col}4:${col}${r5 - 1},$A4:$A${r5 - 1},"<>*Total")` }); }
+  p5.push(gt5b);
+  const ws5 = aoa(p5); setCols(ws5, [26, 14, 18, 16, ...MONTH_HDRS.map(() => 6.5)]);
+  XLSX.utils.book_append_sheet(wb, ws5, "ByProject");
+
+  /* --- Sheet 6: ByPeople pivot --- */
+  const p6 = [["Pivot — FTE allocation ByPeople"], [], ["Name", "Project Name", ...MONTH_HDRS.map(m => m + "26")]];
+  let r6 = 4;
+  const peopleGroups = {};
+  assignments.forEach(a => { (peopleGroups[a.personId] = peopleGroups[a.personId] || []).push(a); });
+  Object.entries(peopleGroups).forEach(([pid, list]) => {
+    const per = people.find(x => x.id === pid); if (!per) return;
+    const startRow = r6;
+    list.forEach(a => { const months = allocByMonth(pid, a.projectId, assignments); p6.push([per.name, projName(a.projectId), ...months.map(m => +m.toFixed(2))]); r6++; });
+    if (r6 > startRow) { const total = [per.name + " Total", ""]; for (let m = 0; m < 12; m++) { const col = XLSX.utils.encode_col(2 + m); total.push({ f: `SUM(${col}${startRow}:${col}${r6 - 1})` }); } p6.push(total); r6++; }
+  });
+  const gt6 = ["Grand Total", ""];
+  for (let m = 0; m < 12; m++) { const col = XLSX.utils.encode_col(2 + m); gt6.push({ f: `SUMIFS(${col}4:${col}${r6 - 1},$A4:$A${r6 - 1},"<>*Total")` }); }
+  p6.push(gt6);
+  const ws6 = aoa(p6); setCols(ws6, [16, 26, ...MONTH_HDRS.map(() => 6.5)]);
+  XLSX.utils.book_append_sheet(wb, ws6, "ByPeople");
+
+  /* --- Sheet 7: Dashboard (text KPIs + instructions to insert native charts) --- */
+  const totLabour = projects.reduce((s, p) => s + labourForecast(p, people, assignments).labour, 0);
+  const totEnv = projects.reduce((s, p) => s + (+p.budget?.envelope || 0), 0);
+  const vac = people.filter(p => p.vacancy).length;
+  const over = people.filter(p => { const a = allocByMonth(p.id, null, assignments); const avg = a.reduce((s, m) => s + m, 0) / 12; return avg > (p.cap != null ? p.cap / 100 : 1) + 0.01; }).length;
+  const p7 = [
+    ["Capacity & Budget — Dashboard"], [],
+    ["KPI", "Value"],
+    ["Projects", projects.length],
+    ["People", people.length],
+    ["Vacancies to fill", vac],
+    ["Overallocated people", over],
+    ["Total labour forecast (€)", Math.round(totLabour)],
+    ["Total envelopes (€)", Math.round(totEnv)],
+    ["Headcount allocated", new Set(assignments.map(a => a.personId)).size],
+    [],
+    ["FTE by team (avg 2026)", ""],
+  ];
+  const teamAgg = {};
+  people.forEach(per => { const a = allocByMonth(per.id, null, assignments); const avg = a.reduce((s, m) => s + m, 0) / 12; teamAgg[per.team || "Unassigned"] = (teamAgg[per.team || "Unassigned"] || 0) + avg; });
+  const teamStart = p7.length + 1;
+  Object.entries(teamAgg).forEach(([t, v]) => p7.push([t, +v.toFixed(2)]));
+  const teamEnd = p7.length;
+  p7.push([], ["To visualise: select the 'FTE by team' range above → Insert → Chart (bar). The ByProject/ByPeople sheets are ready to drop into a PivotTable (Insert → PivotTable)."]);
+  const ws7 = aoa(p7); setCols(ws7, [30, 16]);
+  XLSX.utils.book_append_sheet(wb, ws7, "Dashboard");
+  // move Dashboard to first position
+  wb.SheetNames = ["Dashboard", "Project Profiling", "CAI Resource Profile", "Team Structure", "Vacancies", "ByProject", "ByPeople"];
+
+  XLSX.writeFile(wb, `CAI_2026_Capacity_Plan_${today()}.xlsx`);
+}
+
+function CapacityHub({ projects, update, people, setPeople, assignments, setAssignments }) {
+  const [sub, setSub] = useState("load");
+  const [xls, setXls] = useState(null);
+  const SUBS = [["load", "Load heatmap"], ["people", `People (${people.length})`], ["budget", "Budget & risk"]];
+  const doExport = async () => {
+    setXls("working");
+    try { await exportCapacityXlsx(projects, people, assignments); setXls("done"); setTimeout(() => setXls(null), 2500); }
+    catch (e) { console.error(e); setXls("err"); setTimeout(() => setXls(null), 6000); }
+  };
+  return (
+    <div>
+      <Card style={{ marginBottom: 14 }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 18 }}>Capacity & Budget — the resourcing spine</div>
+            <div style={{ fontSize: 12.5, color: C.mid }}>Sized for &lt;100 projects and &lt;1000 people: a people registry with monthly cost, assignments that drive a portfolio load heatmap, an automatic labour forecast per project, and a triple-constraint risk read (cost · time · scope) using PERT P50/P80.</div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <button onClick={doExport} disabled={xls === "working"} style={{ background: "#1D6F42", color: "#fff", border: "none", borderRadius: 9, padding: "10px 16px", fontFamily: DISP, fontWeight: 700, fontSize: 13, cursor: xls === "working" ? "default" : "pointer", whiteSpace: "nowrap" }}>
+              {xls === "working" ? "Building…" : xls === "done" ? "Downloaded ✓" : xls === "err" ? "Engine blocked — retry" : "⬇ Export to Excel"}
+            </button>
+            <div style={{ fontSize: 10.5, color: C.faint, marginTop: 5, maxWidth: 210 }}>CAI-style workbook: portfolio, resource profile, team structure, vacancies + ByProject / ByPeople pivots & charts.</div>
+          </div>
+        </div>
+      </Card>
+      <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+        {SUBS.map(([id, l]) => (
+          <button key={id} onClick={() => setSub(id)} style={{ border: `1px solid ${sub === id ? C.mul : C.line}`, background: sub === id ? C.mul : "#fff", color: sub === id ? "#fff" : C.mid, borderRadius: 99, padding: "8px 15px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>{l}</button>
+        ))}
+      </div>
+      {sub === "people" && <PeopleReg people={people} setPeople={setPeople} assignments={assignments} />}
+      {sub === "load" && <LoadHeatmap projects={projects} people={people} assignments={assignments} setAssignments={setAssignments} />}
+      {sub === "budget" && <BudgetRisk projects={projects} update={update} people={people} assignments={assignments} />}
+    </div>
+  );
+}
+
+function PeopleReg({ people, setPeople, assignments }) {
+  const totalCost = people.reduce((s, p) => s + (p.costMonth || 0) * ((p.cap ?? 100) / 100), 0);
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
+        <Card style={{ flex: "1 1 140px", padding: "12px 16px" }}><div style={{ fontFamily: MONO, fontSize: 10, textTransform: "uppercase", color: C.faint }}>People</div><div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 26 }}>{people.length}</div></Card>
+        <Card style={{ flex: "1 1 180px", padding: "12px 16px" }}><div style={{ fontFamily: MONO, fontSize: 10, textTransform: "uppercase", color: C.faint }}>Available capacity cost / month</div><div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 26, color: C.mul }}>{eur(totalCost)}</div></Card>
+        <Card style={{ flex: "2 1 260px", padding: "12px 16px", fontSize: 12, color: C.mid }}>Cost is the loaded monthly rate (salary + overheads). Capacity &lt;100% models part-time or shared roles. People with assignments can't be deleted.</Card>
+      </div>
+      <Card>
+        {people.map(p => {
+          const used = assignments.some(a => a.personId === p.id);
+          return (
+            <div key={p.id} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center", flexWrap: "wrap" }}>
+              <Inp v={p.name} on={v => setPeople(ps => ps.map(x => x.id === p.id ? { ...x, name: v } : x))} ph="Name" w={170} />
+              <Inp v={p.role} on={v => setPeople(ps => ps.map(x => x.id === p.id ? { ...x, role: v } : x))} ph="Role" w={150} />
+              <label style={{ fontSize: 11, color: C.faint }}>\u20ac/month <input type="number" value={p.costMonth || 0} onChange={e => setPeople(ps => ps.map(x => x.id === p.id ? { ...x, costMonth: +e.target.value } : x))} style={{ width: 86, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "6px 8px", fontSize: 12, fontFamily: MONO }} /></label>
+              <label style={{ fontSize: 11, color: C.faint }}>cap % <input type="number" value={p.cap ?? 100} onChange={e => setPeople(ps => ps.map(x => x.id === p.id ? { ...x, cap: +e.target.value } : x))} style={{ width: 60, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "6px 8px", fontSize: 12, fontFamily: MONO }} /></label>
+              <button onClick={() => !used && setPeople(ps => ps.filter(x => x.id !== p.id))} title={used ? "Has assignments" : "Remove"} style={{ border: "none", background: "transparent", color: used ? C.soft : C.faint, cursor: used ? "default" : "pointer" }}>×</button>
+            </div>
+          );
+        })}
+        <button onClick={() => setPeople(ps => [...ps, { id: uid(), name: "", role: "", costMonth: 9000, cap: 100 }])} style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.mul, borderRadius: 8, padding: "8px 14px", fontSize: 12.5, cursor: "pointer", fontWeight: 600 }}>+ person</button>
+      </Card>
+    </div>
+  );
+}
+
+function LoadHeatmap({ projects, people, assignments, setAssignments }) {
+  const m0 = ymNow();
+  const cols = Array.from({ length: 9 }, (_, i) => ymAdd(m0, i - 1));
+  const loadOf = (pid, ym) => assignments.filter(a => a.personId === pid && a.from && a.to && a.from <= ym && ym <= a.to).reduce((s, a) => s + (+a.pct || 0), 0);
+  const cell = (load, cap) => {
+    if (!load) return ["", "transparent", C.faint];
+    const r = load / (cap || 100);
+    return [load + "%", r > 1 ? "#F8E9E8" : r > 0.85 ? C.goldLt : C.limeLt, r > 1 ? C.red : r > 0.85 ? "#8A6200" : C.lime];
+  };
+  return (
+    <div>
+      <Card style={{ padding: 0, overflowX: "auto", marginBottom: 14 }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 760 }}>
+          <thead><tr>
+            <th style={{ textAlign: "left", padding: "9px 14px", fontFamily: DISP, fontSize: 11, color: "#fff", background: C.graph }}>Person · capacity</th>
+            {cols.map(c2 => <th key={c2} style={{ padding: "9px 6px", fontFamily: MONO, fontSize: 9.5, color: c2 === m0 ? C.gold : "#C9D2CF", background: C.graph, fontWeight: c2 === m0 ? 700 : 500 }}>{MONTHS[+c2.slice(5) - 1]} {c2.slice(2, 4)}</th>)}
+          </tr></thead>
+          <tbody>
+            {people.map(per => (
+              <tr key={per.id}>
+                <td style={{ padding: "8px 14px", borderTop: `1px solid ${C.soft}`, whiteSpace: "nowrap" }}>
+                  <span style={{ fontFamily: DISP, fontWeight: 600, fontSize: 12.5 }}>{per.name || "—"}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint }}> · {per.role} · {per.cap ?? 100}%</span>
+                </td>
+                {cols.map(c2 => {
+                  const [txt, bg, fg] = cell(loadOf(per.id, c2), per.cap ?? 100);
+                  return <td key={c2} style={{ textAlign: "center", borderTop: `1px solid ${C.soft}`, background: c2 === m0 ? "#FBF7EF" : "transparent", padding: "6px 2px" }}>
+                    {txt && <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 700, color: fg, background: bg, borderRadius: 99, padding: "2px 7px" }}>{txt}</span>}
+                  </td>;
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+      <Card>
+        <SectionLabel color={C.navy}>Assignments — who, where, how much, when</SectionLabel>
+        {assignments.map(a => (
+          <div key={a.id} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center", flexWrap: "wrap" }}>
+            <select value={a.personId} onChange={e => setAssignments(as => as.map(x => x.id === a.id ? { ...x, personId: e.target.value } : x))} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11.5, maxWidth: 150 }}>
+              {people.map(p => <option key={p.id} value={p.id}>{p.name || "—"}</option>)}
+            </select>
+            <span style={{ color: C.faint, fontSize: 11 }}>on</span>
+            <select value={a.projectId} onChange={e => setAssignments(as => as.map(x => x.id === a.id ? { ...x, projectId: e.target.value } : x))} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11.5, maxWidth: 180 }}>
+              {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <label style={{ fontSize: 11, color: C.faint }}>% <input type="number" value={a.pct} min={5} max={100} step={5} onChange={e => setAssignments(as => as.map(x => x.id === a.id ? { ...x, pct: +e.target.value } : x))} style={{ width: 58, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "6px 8px", fontSize: 12, fontFamily: MONO }} /></label>
+            <input type="month" value={a.from || ""} onChange={e => setAssignments(as => as.map(x => x.id === a.id ? { ...x, from: e.target.value } : x))} style={{ border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "5px 7px", fontSize: 11.5 }} />
+            <span style={{ color: C.faint }}>→</span>
+            <input type="month" value={a.to || ""} onChange={e => setAssignments(as => as.map(x => x.id === a.id ? { ...x, to: e.target.value } : x))} style={{ border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "5px 7px", fontSize: 11.5 }} />
+            <button onClick={() => setAssignments(as => as.filter(x => x.id !== a.id))} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+          </div>
+        ))}
+        <button onClick={() => people.length && projects.length && setAssignments(as => [...as, { id: uid(), personId: people[0].id, projectId: projects[0].id, pct: 50, from: ymNow(), to: ymAdd(ymNow(), 3) }])}
+          style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.navy, borderRadius: 8, padding: "8px 14px", fontSize: 12.5, cursor: "pointer", fontWeight: 600 }}>+ assignment</button>
+        <div style={{ fontSize: 11, color: C.faint, marginTop: 8 }}>Red cells = overallocation vs that person's capacity — a Portfolio Review conversation, not a heroics plan. Assignments drive the labour forecast in Budget & risk automatically.</div>
+      </Card>
+    </div>
+  );
+}
+
+function BudgetRisk({ projects, update, people, assignments }) {
+  const evals = projects.map(p => ({ p, be: budgetEval(p, people, assignments), lab: labourForecast(p, people, assignments) }));
+  const withB = evals.filter(x => x.be);
+  const tot = withB.reduce((s, x) => ({ env: s.env + x.be.env, p50: s.p50 + x.be.p50, p80: s.p80 + x.be.p80 }), { env: 0, p50: 0, p80: 0 });
+  const over = withB.filter(x => x.be.env > 0 && x.be.p80 > x.be.env).length;
+  const numIn = (v, on, w = 96) => <input type="number" value={Math.round(v)} onChange={e => on(+e.target.value)} style={{ width: w, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "6px 8px", fontSize: 12, fontFamily: MONO }} />;
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
+        {[["Envelopes (total)", eur(tot.env), C.ink], ["Forecast P50", eur(tot.p50), tot.p50 > tot.env ? C.red : C.navy], ["Forecast P80", eur(tot.p80), tot.p80 > tot.env ? C.red : "#8A6200"], ["Projects with P80 > envelope", over, over ? C.red : C.lime]].map(([l, v, col]) => (
+          <Card key={l} style={{ flex: "1 1 150px", padding: "12px 16px" }}>
+            <div style={{ fontFamily: MONO, fontSize: 10, textTransform: "uppercase", color: C.faint }}>{l}</div>
+            <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 24, color: col }}>{v}</div>
+          </Card>
+        ))}
+      </div>
+      {evals.map(({ p, be, lab }) => {
+        const b = p.budget || {};
+        const setB = patch => update(p.id, { budget: { lines: [], ...b, ...patch } });
+        const g4 = (p.plan || []).filter(m => m.due && /^G4/.test(m.name || "")).map(m => m.due)[0] || (p.plan || []).filter(m => m.due).map(m => m.due).sort().slice(-1)[0];
+        const pt = PERT(b.tBest ?? 0, b.tLikely ?? 2, b.tWorst ?? 6);
+        const shift = d => d ? new Date(new Date(d + "T00:00:00").getTime() + 0 * 1).toISOString().slice(0, 10) : null;
+        const dShift = (d, w) => d ? new Date(new Date(d + "T00:00:00").getTime() + w * 7 * 86400000).toISOString().slice(0, 10) : "—";
+        const costChip = !be || !be.env ? ["set envelope", C.soft, C.faint] : be.p80 <= be.env ? ["COST GREEN — P80 inside envelope", C.limeLt, C.lime] : be.p50 <= be.env ? ["COST AMBER — P80 " + eur(be.p80 - be.env) + " over", C.goldLt, "#8A6200"] : ["COST RED — P50 already over by " + eur(be.p50 - be.env), "#F8E9E8", C.red];
+        const timeChip = pt.p80 <= 2 ? ["TIME GREEN — P80 slip \u2264 2w", C.limeLt, C.lime] : pt.p80 <= 6 ? ["TIME AMBER — P80 slip " + pt.p80.toFixed(1) + "w", C.goldLt, "#8A6200"] : ["TIME RED — P80 slip " + pt.p80.toFixed(1) + "w", "#F8E9E8", C.red];
+        const openDec = (p.keydata?.decisions || []).filter(d => d.status !== "taken").length;
+        const sc = p.rag?.Scope || "G";
+        const scopeChip = sc === "G" && openDec <= 1 ? ["SCOPE GREEN — stable", C.limeLt, C.lime] : sc === "R" ? ["SCOPE RED — RAG red", "#F8E9E8", C.red] : ["SCOPE AMBER — " + (sc !== "G" ? "RAG " + sc : openDec + " open decisions"), C.goldLt, "#8A6200"];
+        return (
+          <Card key={p.id} style={{ marginBottom: 14, borderTop: `3px solid ${C.mul}` }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap", marginBottom: 8 }}>
+              <span style={{ fontFamily: MONO, fontSize: 10.5, color: C.mul }}>{p.code}</span>
+              <span style={{ fontFamily: DISP, fontWeight: 800, fontSize: 16 }}>{p.name}</span>
+              <Chip bg={C.mulLt} color={C.mul}>Tier {p.tier} · {p.phase}</Chip>
+              <span style={{ marginLeft: "auto", display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {[costChip, timeChip, scopeChip].map(([t2, bg, fg], i) => <Chip key={i} bg={bg} color={fg} style={{ fontSize: 9.5 }}>{t2}</Chip>)}
+              </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 14 }}>
+              <div>
+                <SectionLabel>Cost — forecast vs envelope</SectionLabel>
+                <div style={{ fontSize: 12, marginBottom: 6 }}>
+                  Labour (auto, {lab.headcount} people): <b style={{ fontFamily: MONO }}>{eur(lab.labour)}</b> · Lines: <b style={{ fontFamily: MONO }}>{eur((b.lines || []).reduce((s, l) => s + (+l.amount || 0), 0))}</b> → Forecast <b style={{ fontFamily: MONO, color: C.navy }}>{be ? eur(be.forecast) : "—"}</b>
+                </div>
+                {(b.lines || []).map(l => (
+                  <div key={l.id} style={{ display: "flex", gap: 6, marginBottom: 5, alignItems: "center" }}>
+                    <Inp v={l.label} on={v => setB({ lines: b.lines.map(x => x.id === l.id ? { ...x, label: v } : x) })} ph="Cost line (vendor, licences…)" />
+                    {numIn(+l.amount || 0, v => setB({ lines: b.lines.map(x => x.id === l.id ? { ...x, amount: v } : x) }), 90)}
+                    <button onClick={() => setB({ lines: b.lines.filter(x => x.id !== l.id) })} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+                  </div>
+                ))}
+                <button onClick={() => setB({ lines: [...(b.lines || []), { id: uid(), label: "", amount: 0 }] })} style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.mul, borderRadius: 7, padding: "5px 11px", fontSize: 11.5, cursor: "pointer", fontWeight: 600 }}>+ line</button>
+                <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 8, flexWrap: "wrap", fontSize: 11.5, color: C.mid }}>
+                  Envelope \u20ac {numIn(+b.envelope || 0, v => setB({ envelope: v }))}
+                  {be && be.env > 0 && (
+                    <div style={{ flex: "1 1 160px", minWidth: 150 }}>
+                      <div style={{ height: 10, background: C.soft, borderRadius: 99, position: "relative", overflow: "hidden" }}>
+                        <div style={{ width: Math.min((be.p50 / be.env) * 100, 100) + "%", height: "100%", background: be.p50 > be.env ? C.red : C.navy }} />
+                        <div style={{ position: "absolute", left: Math.min((be.p80 / be.env) * 100, 99) + "%", top: 0, bottom: 0, width: 2, background: "#8A6200" }} />
+                      </div>
+                      <div style={{ fontFamily: MONO, fontSize: 9.5 }}>P50 {eur(be.p50)} · <span style={{ color: "#8A6200" }}>P80 {eur(be.p80)}</span> vs {eur(be.env)}</div>
+                    </div>
+                  )}
+                </div>
+                <div style={{ fontSize: 10.5, color: C.faint, marginTop: 6 }}>PERT cost range (best / likely / worst): {be && <>{numIn(be.cBest, v => setB({ cBest: v }), 84)} {numIn(be.cLikely, v => setB({ cLikely: v }), 84)} {numIn(be.cWorst, v => setB({ cWorst: v }), 84)}</>} <span>defaults: 0.92× / 1× / 1.3× forecast</span></div>
+              </div>
+              <div>
+                <SectionLabel color={C.navy}>Time — slip vs {g4 ? "G4 " + g4 : "last milestone"}</SectionLabel>
+                <div style={{ fontSize: 11.5, color: C.mid, marginBottom: 6 }}>Schedule slip in weeks (best / likely / worst):</div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  {numIn(b.tBest ?? 0, v => setB({ tBest: v }), 64)} {numIn(b.tLikely ?? 2, v => setB({ tLikely: v }), 64)} {numIn(b.tWorst ?? 6, v => setB({ tWorst: v }), 64)}
+                </div>
+                <div style={{ fontSize: 12, marginTop: 8 }}>
+                  P50 finish: <b style={{ fontFamily: MONO }}>{dShift(g4, pt.e)}</b><br />
+                  P80 finish: <b style={{ fontFamily: MONO, color: pt.p80 > 6 ? C.red : "#8A6200" }}>{dShift(g4, pt.p80)}</b>
+                </div>
+                <div style={{ fontSize: 10.5, color: C.faint, marginTop: 6 }}>Anchor the worst case in evidence: the Gantt's dep conflicts and any milestone under 60% confidence belong here.</div>
+                <SectionLabel color={"#8A6200"}>Scope — derived</SectionLabel>
+                <div style={{ fontSize: 11.5, color: C.mid }}>From your Scope RAG ({sc}) and {openDec} open decision(s). Scope risk isn't an input — it's the consequence of unfunded asks; route them through T15 + WSJF.</div>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
+      <div style={{ fontSize: 11, color: C.faint }}>Doctrine: P80 is what you communicate upward ("80% confident by…"); P50 is what you manage to. An envelope breached at P80 but not P50 is an honest amber — say it before it says itself.</div>
+    </div>
+  );
+}
+
+/* ================= T11 COMMS PLANNER ================= */
+function CommsBuilder({ projects, project, setSel, update }) {
+  if (!project) return <Card>Add a project first.</Card>;
+  const cm = project.comms || [];
+  const set = v => update(project.id, { comms: v });
+  const setR = (id, patch) => set(cm.map(r => r.id === id ? { ...r, ...patch } : r));
+  return (
+    <div>
+      <BuilderHead projects={projects} project={project} setSel={setSel} title="T11 · Communications & engagement plan" blurb="Audience × message × channel × sender × date. Sequenced aware → trained → live; gaps from T10 become rows here." />
+      <button onClick={() => set([...cm, { id: uid(), audience: "", message: "", channel: "", sender: "", date: "", status: "planned" }])}
+        style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.mul, borderRadius: 9, padding: "9px 16px", fontSize: 13, cursor: "pointer", fontWeight: 700, fontFamily: DISP, marginBottom: 14 }}>+ comms row</button>
+      {cm.length === 0 && <Card style={{ color: C.mid, fontSize: 13 }}>Doctrine: <b>senders are leaders</b> — the project drafts, credible voices deliver. One message per audience per moment; if everyone is the audience, no one is.</Card>}
+      {cm.map(r => (
+        <Card key={r.id} style={{ marginBottom: 10, padding: 12 }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+            <Inp v={r.audience} on={v => setR(r.id, { audience: v })} ph="Audience (specific group)" w={200} />
+            <Inp v={r.message} on={v => setR(r.id, { message: v })} ph="Key message — what changes for them, in their words" />
+            <button onClick={() => set(cm.filter(x => x.id !== r.id))} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginTop: 6 }}>
+            <Inp v={r.channel} on={v => setR(r.id, { channel: v })} ph="Channel (town-hall, cascade, 1:1…)" w={210} />
+            <Inp v={r.sender} on={v => setR(r.id, { sender: v })} ph="Sender — a leader, not the project" w={190} />
+            <input type="date" value={r.date || ""} onChange={e => setR(r.id, { date: e.target.value })} style={{ border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "6px 8px", fontSize: 11.5 }} />
+            <select value={r.status || "planned"} onChange={e => setR(r.id, { status: e.target.value })} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11.5 }}>
+              <option>planned</option><option>sent</option>
+            </select>
+            {r.sender && /pm|project/i.test(r.sender) && <Chip bg={C.goldLt} color="#8A6200">sender should be a leader</Chip>}
+          </div>
+        </Card>
+      ))}
+      {cm.length > 0 && <div style={{ fontSize: 11, color: C.faint }}>Generate the T11 slide from Documents & exports; rows also travel in the Confluence export.</div>}
+    </div>
+  );
+}
+
+/* ================= T14 RETRO CANVAS ================= */
+function RetrosBuilder({ projects, project, setSel, update }) {
+  if (!project) return <Card>Add a project first.</Card>;
+  const rt = [...(project.retros || [])].sort((a, b) => (a.date || "") < (b.date || "") ? -1 : 1);
+  const set = v => update(project.id, { retros: v });
+  const setR = (id, patch) => set((project.retros || []).map(r => r.id === id ? { ...r, ...patch } : r));
+  const last = rt[rt.length - 1];
+  const pendingExp = last && last.experiment && !last.expReviewed;
+  return (
+    <div>
+      <BuilderHead projects={projects} project={project} setSel={setSel} title="T14 · Retro canvas — keep / change / stop + ONE experiment" blurb="Temperature first, one experiment per retro, and the previous experiment is reviewed before a new one starts." />
+      <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
+        <button onClick={() => set([...(project.retros || []), { id: uid(), date: today(), temp: 3, keep: "", change: "", stop: "", experiment: "", expReviewed: false }])}
+          style={{ border: `1px dashed ${C.line}`, background: "#fff", color: C.mul, borderRadius: 9, padding: "9px 16px", fontSize: 13, cursor: "pointer", fontWeight: 700, fontFamily: DISP }}>+ new retro</button>
+        {pendingExp && <Chip bg={C.goldLt} color="#8A6200">previous experiment not reviewed yet — open it first</Chip>}
+        {rt.length > 1 && (
+          <span style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 30 }} title="Temperature trend">
+            {rt.slice(-8).map((r, i) => <span key={i} style={{ width: 9, height: 4 + (r.temp || 3) * 5, background: (r.temp || 3) >= 4 ? C.lime : (r.temp || 3) >= 3 ? C.gold : C.red, borderRadius: 2 }} />)}
+            <span style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, marginLeft: 4 }}>temp 1–5</span>
+          </span>
+        )}
+      </div>
+      {rt.length === 0 && <Card style={{ color: C.mid, fontSize: 13 }}>The day-30 configuration retro lives in the Review Pack radar; this canvas is for the regular cadence retro (per sprint or month). Anti-pattern it kills: ten actions, zero owners, same list next retro.</Card>}
+      {rt.map(r => (
+        <Card key={r.id} style={{ marginBottom: 12, borderLeft: `4px solid ${(r.temp || 3) >= 4 ? C.lime : (r.temp || 3) >= 3 ? C.gold : C.red}` }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
+            <input type="date" value={r.date || ""} onChange={e => setR(r.id, { date: e.target.value })} style={{ border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "6px 8px", fontSize: 11.5 }} />
+            <label style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 11.5, color: C.mid }}>
+              Temperature <input type="range" min={1} max={5} value={r.temp || 3} onChange={e => setR(r.id, { temp: +e.target.value })} style={{ width: 110 }} />
+              <b style={{ fontFamily: MONO }}>{r.temp || 3}/5</b>
+            </label>
+            <button onClick={() => set((project.retros || []).filter(x => x.id !== r.id))} style={{ marginLeft: "auto", border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 8 }}>
+            <TArea v={r.keep} on={v => setR(r.id, { keep: v })} ph="KEEP — working, protect it" rows={2} />
+            <TArea v={r.change} on={v => setR(r.id, { change: v })} ph="CHANGE — friction + the mechanism to fix it" rows={2} />
+            <TArea v={r.stop} on={v => setR(r.id, { stop: v })} ph="STOP — costs effort, returns nothing" rows={2} />
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8, flexWrap: "wrap" }}>
+            <Inp v={r.experiment} on={v => setR(r.id, { experiment: v })} ph="THE experiment (one only) — owner + review date implied next retro" />
+            <label style={{ fontSize: 11.5, color: C.mid, display: "flex", gap: 5, alignItems: "center", whiteSpace: "nowrap" }}>
+              <input type="checkbox" checked={!!r.expReviewed} onChange={e => setR(r.id, { expReviewed: e.target.checked })} /> reviewed
+            </label>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+/* ================= T11 PPTX ================= */
+function buildT11(pptx, p) {
+  const cm = p.comms || [];
+  const s = pptx.addSlide();
+  azFrame(pptx, s, "T11 · Communications & engagement plan", "Comms", "plan", p);
+  const hdr = ["Audience", "Key message", "Channel", "Sender", "Date", "Status"].map(t => ({ text: t, options: { fill: { color: AZ.graph }, color: "FFFFFF", bold: true, fontFace: "Arial", fontSize: 9 } }));
+  const rows = [hdr];
+  (cm.length ? cm : [{ audience: "— add rows in Studio › T11 —" }]).slice(0, 8).forEach(r => {
+    rows.push([
+      { text: r.audience || "", options: { fontFace: "Calibri", fontSize: 9.5, bold: true } },
+      { text: r.message || "", options: { fontFace: "Calibri", fontSize: 9.5 } },
+      { text: r.channel || "", options: { fontFace: "Calibri", fontSize: 9 } },
+      { text: r.sender || "", options: { fontFace: "Calibri", fontSize: 9, color: AZ.mul, bold: true } },
+      { text: r.date || "", options: { fontFace: "Courier New", fontSize: 8.5 } },
+      { text: r.status || "", options: { fontFace: "Arial", fontSize: 8.5, bold: true, color: r.status === "sent" ? "2E7D32" : "C77800" } },
+    ]);
+  });
+  s.addTable(rows, { x: 0.55, y: 2.0, w: 12.23, colW: [2.2, 3.7, 2.0, 1.9, 1.13, 1.3], border: { pt: 0.5, color: AZ.line }, rowH: 0.5, valign: "middle", margin: 0.05 });
+  s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 6.25, w: 12.23, h: 0.7, rectRadius: 0.06, fill: { color: "FDF3DC" } });
+  s.addText([{ text: "Rule:  ", options: { bold: true, color: "8A6200" } }, { text: "senders are leaders — the project drafts, credible voices deliver. Sequence aware → trained → live; every T10 readiness gap has a row here before G3.", options: { color: "1C2222" } }],
+    { x: 0.8, y: 6.42, w: 11.7, h: 0.42, fontFace: "Calibri", fontSize: 10.5 });
+}
+
+/* ================= PORTFOLIO REVIEW PRINT PACK ================= */
+function buildReviewHtml(projects, attention, ranked, retros, people = [], assignments = []) {
+  const esc2 = s2 => String(s2 ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const buds = projects.map(p => budgetEval(p, people, assignments)).filter(Boolean);
+  const tot = buds.reduce((s, b) => ({ env: s.env + b.env, p50: s.p50 + b.p50, p80: s.p80 + b.p80 }), { env: 0, p50: 0, p80: 0 });
+  const reds = projects.reduce((n, p) => n + RAG_DIMS.filter(d => p.rag?.[d] === "R").length, 0);
+  const ambers = projects.reduce((n, p) => n + RAG_DIMS.filter(d => p.rag?.[d] === "A").length, 0);
+  const stat = (l, v, col = "#1C2222") => `<div style="flex:1;min-width:110px;background:#F6F4F2;border-radius:3mm;padding:3mm 4mm"><div style="font-family:'Courier New';font-size:6.5pt;letter-spacing:.12em;text-transform:uppercase;color:#9AA3A0">${l}</div><div style="font-family:Arial;font-weight:800;font-size:15pt;color:${col}">${v}</div></div>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Portfolio Review Pack — ${today()}</title><style>
+  @page{size:A4;margin:0} *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,'Segoe UI',Arial,sans-serif;color:#1C2222;background:#fff}
+  .page{position:relative;width:210mm;min-height:296mm;padding:10mm 14mm 16mm;page-break-after:always}
+  .page::before{content:"";position:absolute;top:0;left:0;right:0;height:3.5mm;background:#830051}
+  .page::after{content:"";position:absolute;bottom:0;left:0;right:0;height:3.5mm;background:#830051}
+  h1{font-family:Arial;font-size:19pt;margin-top:6mm}h1 .m{color:#830051}h1 .g{color:#3F4444}
+  .dash{width:13mm;height:1.2mm;background:#F0AB00;margin:2mm 0 4mm .5mm}
+  h2{font-family:Arial;font-size:10pt;letter-spacing:.18em;text-transform:uppercase;color:#830051;margin:6mm 0 2mm}
+  table{width:100%;border-collapse:collapse;font-size:9pt;margin-top:1.5mm}
+  th{background:#3F4444;color:#fff;font-family:Arial;font-size:7.5pt;text-align:left;padding:2mm 2.5mm}
+  td{padding:2mm 2.5mm;border-bottom:.2mm solid #ECE8E4;vertical-align:top}
+  .chip{display:inline-block;font-family:Arial;font-size:6.5pt;font-weight:700;border-radius:99px;padding:.8mm 2.5mm;margin:.3mm}
+  .foot{position:absolute;bottom:6mm;left:14mm;right:14mm;display:flex;justify-content:space-between;font-size:7pt;color:#9AA3A0;font-style:italic}
+  .hint{position:fixed;top:6px;right:8px;background:#2B3333;color:#fff;font:600 11px Arial;padding:6px 12px;border-radius:8px}
+  @media print{.hint{display:none}}</style></head><body>
+  <div class="hint">Ctrl/Cmd+P → Save as PDF</div>
+  <div class="page">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:4mm"><span style="color:#830051;font-weight:700;font-size:13pt">AstraZeneca</span><span style="font-family:Arial;font-size:7pt;letter-spacing:.2em;color:#9AA3A0;font-weight:700">PORTFOLIO REVIEW · ${today()}</span></div>
+    <h1><span class="g">Portfolio</span> <span class="m">Review Pack</span></h1><div class="dash"></div>
+    <div style="display:flex;gap:3mm;flex-wrap:wrap">
+      ${stat("Projects", projects.length)}${stat("Reds", reds, reds ? "#B3261E" : "#2E7D32")}${stat("Ambers", ambers, ambers ? "#C77800" : "#2E7D32")}${stat("Needs attention", attention.length, attention.length ? "#B3261E" : "#2E7D32")}${stat("Retros due", retros.length, retros.length ? "#C77800" : "#2E7D32")}
+    </div>
+    <h2>Needs attention first</h2>
+    ${attention.length ? attention.map(({ p, flags }) => `<div style="border-left:1.2mm solid #B3261E;background:#FBFAF8;padding:2.5mm 3.5mm;margin-bottom:2mm;border-radius:0 2mm 2mm 0"><b style="font-family:Arial;font-size:9.5pt">${esc2(p.name)}</b> <span style="font-family:'Courier New';font-size:7pt;color:#830051">${esc2(p.code)} · Tier ${p.tier} · ${esc2(p.phase)}</span><div style="margin-top:1mm">${flags.map(f => `<span class="chip" style="background:#F8E9E8;color:#B3261E">${esc2(f)}</span>`).join("")}</div></div>`).join("") : `<div style="font-size:9.5pt;font-style:italic;color:#6B6B6B">Nothing flagged — and this page saying so is itself the signal.</div>`}
+    <h2>Priority order (WSJF)</h2>
+    <table><tr><th style="width:8mm">#</th><th>Project</th><th style="width:14mm">Tier</th><th style="width:18mm">WSJF</th><th>Headline</th></tr>
+    ${ranked.slice(0, 8).map((p, i) => `<tr><td style="font-family:'Courier New';color:#8A6200;font-weight:700">${i + 1}</td><td><b>${esc2(p.name)}</b></td><td>${p.tier}</td><td style="font-family:'Courier New'">${p._wsjf}</td><td style="font-size:8.5pt;color:#6B6B6B">${esc2(p.keydata?.headline || "—")}</td></tr>`).join("")}</table>
+    <div class="foot"><span>Generated by DCOS Navigator — assembled from live project data, review before circulation</span><span>Page 1</span></div>
+  </div>
+  <div class="page">
+    <h2 style="margin-top:8mm">Day-30 configuration retros due</h2>
+    ${retros.length ? `<table><tr><th>Project</th><th style="width:24mm">Hypothesis date</th><th>Hypothesis (excerpt)</th></tr>${retros.map(p => `<tr><td><b>${esc2(p.name)}</b></td><td style="font-family:'Courier New';font-size:8pt">${esc2(p.hypothesis?.date || "")}</td><td style="font-size:8.5pt;color:#6B6B6B">${esc2((p.hypothesis?.text || "").slice(0, 180))}…</td></tr>`).join("")}</table>` : `<div style="font-size:9.5pt;font-style:italic;color:#6B6B6B">None due this cycle.</div>`}
+    <h2>Budget — portfolio roll-up (PERT)</h2>
+    <div style="display:flex;gap:3mm;flex-wrap:wrap">
+      ${stat("Envelopes", eur(tot.env))}${stat("Forecast P50", eur(tot.p50), tot.p50 > tot.env ? "#B3261E" : "#003865")}${stat("Forecast P80", eur(tot.p80), tot.p80 > tot.env ? "#B3261E" : "#8A6200")}
+    </div>
+    <table><tr><th>Project</th><th style="width:22mm">Envelope</th><th style="width:22mm">P50</th><th style="width:22mm">P80</th><th style="width:30mm">Verdict</th></tr>
+    ${projects.map(p => { const b = budgetEval(p, people, assignments); if (!b) return ""; const v = !b.env ? ["no envelope", "#9AA3A0"] : b.p80 <= b.env ? ["GREEN", "#2E7D32"] : b.p50 <= b.env ? ["AMBER — P80 over", "#C77800"] : ["RED — P50 over", "#B3261E"]; return `<tr><td><b>${esc2(p.name)}</b></td><td style="font-family:'Courier New'">${eur(b.env)}</td><td style="font-family:'Courier New'">${eur(b.p50)}</td><td style="font-family:'Courier New'">${eur(b.p80)}</td><td style="font-family:Arial;font-weight:700;color:${v[1]}">${v[0]}</td></tr>`; }).join("")}</table>
+    <div style="font-size:8pt;color:#6B6B6B;font-style:italic;margin-top:3mm">P80 is what we communicate upward; P50 is what we manage to. An envelope breached at P80 but not P50 is an honest amber.</div>
+    <div class="foot"><span>DCOS Navigator · Delivery &amp; Change Office</span><span>Page 2</span></div>
+  </div></body></html>`;
+}
+
+/* ================= FLOW ANALYTICS (Businessmap-style: WIP · blockers · CFD · Little's law) ================= */
+function pushFlow(p, nw) {
+  const counts = { backlog: 0, doing: 0, review: 0, done: 0 };
+  nw.forEach(c => { counts[c.col] = (counts[c.col] || 0) + 1; });
+  const d = today();
+  const log = (p.flowLog || []).filter(e => e.d !== d);
+  return [...log, { d, ...counts }].slice(-120);
+}
+function seedFlow() {
+  const dDay = n => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+  const traj = [[4, 1, 0, 0], [4, 1, 0, 0], [3, 2, 0, 0], [3, 2, 0, 0], [3, 1, 1, 0], [2, 2, 1, 0], [2, 2, 1, 0], [2, 2, 0, 1], [2, 2, 0, 1], [1, 3, 0, 1], [1, 3, 0, 1], [1, 2, 1, 1], [1, 2, 1, 1], [1, 2, 1, 1], [1, 2, 1, 1]];
+  return traj.map((t, i) => ({ d: dDay(i - traj.length), backlog: t[0], doing: t[1], review: t[2], done: t[3] }));
+}
+function FlowView({ project, update }) {
+  const work = project.work || [], log = project.flowLog || [];
+  const wip = project.wip || {};
+  const n = k => work.filter(c => c.col === k).length;
+  const wipNow = n("doing") + n("review");
+  const blocked = work.filter(c => c.blocked);
+  const ago = log.length > 1 ? log[Math.max(log.length - 15, 0)] : null;
+  const thr = ago ? Math.max((log[log.length - 1]?.done ?? 0) - (ago.done ?? 0), 0) : 0;
+  const days = ago ? Math.max(Math.round((new Date(log[log.length - 1].d) - new Date(ago.d)) / 86400000), 1) : 14;
+  const cycle = thr > 0 ? (wipNow / (thr / days)).toFixed(1) : null;
+  const bn = ["doing", "review"].map(k => ({ k, n: n(k), lim: wip[k] })).filter(x => x.lim).sort((a, b) => b.n / b.lim - a.n / a.lim)[0];
+  const setWip = (k, v) => update(project.id, { wip: { ...wip, [k]: v ? +v : undefined } });
+  const kpi = (l, v, col = C.ink, sub) => (
+    <Card style={{ flex: "1 1 140px", padding: "12px 16px" }}>
+      <div style={{ fontFamily: MONO, fontSize: 10, textTransform: "uppercase", color: C.faint }}>{l}</div>
+      <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 24, color: col }}>{v}</div>
+      {sub && <div style={{ fontSize: 10.5, color: C.faint }}>{sub}</div>}
+    </Card>
+  );
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
+        {kpi("WIP now", wipNow, bn && bn.n > bn.lim ? C.red : C.navy, "doing + review")}
+        {kpi("Blocked", blocked.length, blocked.length ? C.red : C.lime)}
+        {kpi("Throughput", thr + " items", C.ink, `last ${days} days → done`)}
+        {kpi("Cycle time est.", cycle ? cycle + " d" : "—", "#8A6200", "Little's law: WIP ÷ throughput rate")}
+      </div>
+      <Card style={{ marginBottom: 14 }}>
+        <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
+          <SectionLabel color={C.navy}>WIP limits</SectionLabel>
+          {["doing", "review"].map(k => (
+            <label key={k} style={{ fontSize: 12, color: C.mid, display: "flex", gap: 6, alignItems: "center" }}>
+              {k === "doing" ? "In progress" : "In review"} ≤
+              <input type="number" min={1} value={wip[k] ?? ""} placeholder="—" onChange={e => setWip(k, e.target.value)} style={{ width: 56, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "6px 8px", fontSize: 12, fontFamily: MONO }} />
+            </label>
+          ))}
+          {bn && bn.n > bn.lim && <Chip bg="#F8E9E8" color={C.red}>bottleneck: {bn.k} at {bn.n}/{bn.lim} — stop starting, start finishing</Chip>}
+          {bn && bn.n <= bn.lim && <Chip bg={C.limeLt} color={C.lime}>flow inside limits</Chip>}
+        </div>
+        <div style={{ fontSize: 11.5, color: C.faint }}>Limits show on the Board headers (⚠ WIP when breached). A breached limit is a pull-system signal, not a performance verdict: swarm the column, don't open new work.</div>
+      </Card>
+      <Card style={{ marginBottom: 14 }}>
+        <SectionLabel>Cumulative flow — where the work sits over time</SectionLabel>
+        {log.length > 2 ? (
+          <ResponsiveContainer width="100%" height={250}>
+            <AreaChart data={log} margin={{ top: 8, right: 10, left: -18, bottom: 0 }}>
+              <CartesianGrid stroke={C.soft} vertical={false} />
+              <XAxis dataKey="d" tick={{ fontSize: 9, fill: C.faint }} tickFormatter={v => v.slice(5)} />
+              <YAxis tick={{ fontSize: 9, fill: C.faint }} allowDecimals={false} />
+              <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8 }} />
+              <Area type="monotone" dataKey="done" stackId="1" stroke={C.lime} fill={C.limeLt} name="Done" />
+              <Area type="monotone" dataKey="review" stackId="1" stroke="#C77800" fill={C.goldLt} name="In review" />
+              <Area type="monotone" dataKey="doing" stackId="1" stroke={C.navy} fill={C.navyLt} name="In progress" />
+              <Area type="monotone" dataKey="backlog" stackId="1" stroke={C.faint} fill={C.soft} name="Backlog" />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : <div style={{ fontSize: 12.5, color: C.mid }}>The diagram draws itself as you move cards — every board move logs a daily snapshot. Reload demo data for a seeded history.</div>}
+        <div style={{ fontSize: 11, color: C.faint, marginTop: 6 }}>Read it like Businessmap: parallel bands = healthy flow · a widening band = the bottleneck · flat "Done" = nothing shipping while everything moves.</div>
+      </Card>
+      <Card>
+        <SectionLabel color={C.red}>Blocked items — every flag needs an owner and an unblock path</SectionLabel>
+        {blocked.length === 0 && <div style={{ fontSize: 12.5, color: C.mid }}>Nothing blocked. When something is, flag it on the Board (⚑) and capture the unblock note here.</div>}
+        {blocked.map(c => (
+          <div key={c.id} style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 7, flexWrap: "wrap" }}>
+            <Chip bg="#F8E9E8" color={C.red}>{(WCOLS.find(([k]) => k === c.col) || [])[1]}</Chip>
+            <span style={{ fontSize: 12.5, fontWeight: 600 }}>{c.title}</span>
+            <input value={c.blockNote || ""} onChange={e => update(project.id, { work: work.map(x => x.id === c.id ? { ...x, blockNote: e.target.value } : x) })} placeholder="Blocked by… → unblock action + owner" style={{ flex: 1, minWidth: 200, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "7px 9px", fontSize: 12 }} />
+          </div>
+        ))}
+        {blocked.length > 0 && <div style={{ fontSize: 11, color: C.faint, marginTop: 4 }}>A blocker older than one cycle is an escalation (T03 → SteerCo with options), not a status note.</div>}
+      </Card>
+    </div>
+  );
+}
+
+/* ================= WHITEBOARD (Miro-style canvas → tracked objects) ================= */
+const WB_COLORS = ["#FFF4B8", "#FFD6E7", "#D6E8FF", "#DFF5D8", "#F3E3FF"];
+function WhiteboardTab({ projects, project, setSel, update }) {
+  const [selId, setSelId] = useState(null);
+  const [editId, setEditId] = useState(null);
+  const [drag, setDrag] = useState(null);
+  const [live, setLive] = useState(null);
+  if (!project) return <Card>Add a project in Portfolio first.</Card>;
+  const notes = project.canvasNotes || [];
+  const mode = project.canvasMode || "free";
+  const setNotes = v => update(project.id, { canvasNotes: v });
+  const selNote = notes.find(x => x.id === selId);
+  const W2 = 1020, H2 = 540;
+  const addNote = () => {
+    const nn = { id: uid(), x: 60 + Math.random() * 300, y: 50 + Math.random() * 220, color: WB_COLORS[notes.length % WB_COLORS.length], text: "" };
+    setNotes([...notes, nn]); setSelId(nn.id); setEditId(nn.id);
+  };
+  const onDown = (e, nIt) => {
+    if (editId === nIt.id) return;
+    const rect = e.currentTarget.parentElement.getBoundingClientRect();
+    setDrag({ id: nIt.id, dx: e.clientX - rect.left - nIt.x, dy: e.clientY - rect.top - nIt.y });
+    setSelId(nIt.id);
+  };
+  const onMove = e => {
+    if (!drag) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    setLive({ id: drag.id, x: Math.min(Math.max(e.clientX - rect.left - drag.dx, 0), W2 - 150), y: Math.min(Math.max(e.clientY - rect.top - drag.dy, 0), H2 - 60) });
+  };
+  const onUp = () => {
+    if (drag && live && live.id === drag.id) setNotes(notes.map(x => x.id === live.id ? { ...x, x: live.x, y: live.y } : x));
+    setDrag(null); setLive(null);
+  };
+  const pos = nIt => (live && live.id === nIt.id) ? live : nIt;
+  const promote = (kind) => {
+    if (!selNote || selNote.promoted) return;
+    const text = (selNote.text || "Untitled").trim() || "Untitled";
+    const kd = { ...KD_DEFAULT, ...(project.keydata || {}) };
+    const patch =
+      kind === "work" ? { work: [...(project.work || []), { id: uid(), title: text, col: "backlog" }] }
+      : kind === "risk" ? { keydata: { ...kd, risks: [...kd.risks, { id: uid(), desc: text, owner: "", due: "" }] } }
+      : kind === "benefit" ? { keydata: { ...kd, benefits: [...kd.benefits, { id: uid(), name: text, baseline: "", target: "", owner: "", status: "on track" }] } }
+      : kind === "decision" ? { keydata: { ...kd, decisions: [...kd.decisions, { id: uid(), text, owner: "", status: "needed" }] } }
+      : { epics: [...(project.epics || []), { id: uid(), title: text, user: "", problem: "", hypothesis: "", acceptance: "", instrumentation: "" }] };
+    const label = { work: "Board item", risk: "Risk (T03)", benefit: "Benefit (T13)", decision: "Decision (T08)", epic: "Epic (T15)" }[kind];
+    update(project.id, { ...patch, canvasNotes: notes.map(x => x.id === selNote.id ? { ...x, promoted: label } : x), events: evPush(project, mkEv("artefact", `Whiteboard note promoted → ${label}`, text.slice(0, 120))) });
+  };
+  const quickWins = mode === "quad" ? notes.filter(nIt => nIt.x < W2 / 2 - 75 && nIt.y < H2 / 2 - 30).length : 0;
+  const lanes = ["Frame", "Mobilise", "Deliver", "Embed", "Realise"];
+  const btn = (label, on, dis, color = C.navy) => (
+    <button onClick={on} disabled={dis} style={{ border: `1px solid ${dis ? C.soft : color}`, background: "#fff", color: dis ? C.faint : color, borderRadius: 8, padding: "6px 11px", fontSize: 11.5, fontWeight: 700, fontFamily: DISP, cursor: dis ? "default" : "pointer" }}>{label}</button>
+  );
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+        <ProjectPicker projects={projects} project={project} setSel={setSel} />
+        <button onClick={addNote} style={{ background: C.mul, color: "#fff", border: "none", borderRadius: 8, padding: "9px 16px", fontFamily: DISP, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>+ Note</button>
+        <div style={{ display: "flex", gap: 6 }}>
+          {[["free", "Free"], ["quad", "Value / Effort"], ["lanes", "Stage lanes"]].map(([id, l]) => (
+            <button key={id} onClick={() => update(project.id, { canvasMode: id })} style={{ border: `1px solid ${mode === id ? C.navy : C.line}`, background: mode === id ? C.navy : "#fff", color: mode === id ? "#fff" : C.mid, borderRadius: 99, padding: "6px 13px", fontSize: 11.5, fontWeight: 600, cursor: "pointer" }}>{l}</button>
+          ))}
+        </div>
+        {mode === "quad" && <Chip bg={C.limeLt} color={C.lime}>quick wins (high value · low effort): {quickWins}</Chip>}
+      </div>
+      <Card style={{ marginBottom: 12, padding: "10px 16px", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <span style={{ fontFamily: MONO, fontSize: 10, textTransform: "uppercase", color: C.faint }}>Selected note →</span>
+        {WB_COLORS.map(col => <button key={col} onClick={() => selNote && setNotes(notes.map(x => x.id === selId ? { ...x, color: col } : x))} style={{ width: 20, height: 20, borderRadius: "50%", background: col, border: `2px solid ${selNote?.color === col ? C.graph : "#fff"}`, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,.15)" }} />)}
+        <span style={{ width: 1, height: 20, background: C.line, margin: "0 4px" }} />
+        {btn("→ Board", () => promote("work"), !selNote || selNote.promoted)}
+        {btn("→ Risk", () => promote("risk"), !selNote || selNote.promoted, C.red)}
+        {btn("→ Benefit", () => promote("benefit"), !selNote || selNote.promoted, C.lime)}
+        {btn("→ Epic", () => promote("epic"), !selNote || selNote.promoted, C.mul)}
+        {btn("→ Decision", () => promote("decision"), !selNote || selNote.promoted, "#8A6200")}
+        <span style={{ width: 1, height: 20, background: C.line, margin: "0 4px" }} />
+        {btn("Delete", () => { setNotes(notes.filter(x => x.id !== selId)); setSelId(null); }, !selNote, C.faint)}
+        {selNote?.promoted && <Chip bg={C.limeLt} color={C.lime}>tracked as {selNote.promoted} ✓</Chip>}
+      </Card>
+      <Card style={{ padding: 0, overflowX: "auto" }}>
+        <div onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp} onClick={e => { if (e.target === e.currentTarget) { setSelId(null); setEditId(null); } }}
+          style={{ position: "relative", width: W2, height: H2, background: "#FDFCFA", borderRadius: 12, touchAction: "none", backgroundImage: "radial-gradient(#E8E3DD 1px, transparent 1px)", backgroundSize: "22px 22px" }}>
+          {mode === "quad" && (<>
+            <div style={{ position: "absolute", left: W2 / 2, top: 0, bottom: 0, width: 1.5, background: C.line }} />
+            <div style={{ position: "absolute", top: H2 / 2, left: 0, right: 0, height: 1.5, background: C.line }} />
+            {[["HIGH VALUE · LOW EFFORT — do first", 10, 8, C.lime], ["HIGH VALUE · HIGH EFFORT — plan", W2 / 2 + 10, 8, C.navy], ["LOW VALUE · LOW EFFORT — maybe", 10, H2 / 2 + 8, "#8A6200"], ["LOW VALUE · HIGH EFFORT — kill", W2 / 2 + 10, H2 / 2 + 8, C.red]].map(([t2, x, y, col]) => (
+              <span key={t2} style={{ position: "absolute", left: x, top: y, fontFamily: MONO, fontSize: 9, letterSpacing: ".08em", color: col, pointerEvents: "none" }}>{t2}</span>
+            ))}
+          </>)}
+          {mode === "lanes" && lanes.map((l, i) => (
+            <div key={l} style={{ position: "absolute", left: i * (W2 / 5), top: 0, bottom: 0, width: W2 / 5, borderRight: i < 4 ? `1.5px solid ${C.line}` : "none", pointerEvents: "none" }}>
+              <span style={{ position: "absolute", top: 8, left: 10, fontFamily: MONO, fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase", color: C.mul }}>{l}</span>
+            </div>
+          ))}
+          {notes.map(nIt => {
+            const p2 = pos(nIt);
+            const isSel = nIt.id === selId;
+            return (
+              <div key={nIt.id} onPointerDown={e => onDown(e, nIt)} onDoubleClick={() => setEditId(nIt.id)}
+                style={{ position: "absolute", left: p2.x, top: p2.y, width: 150, minHeight: 56, background: nIt.color, borderRadius: 8, padding: "9px 11px", fontSize: 12, lineHeight: 1.45, boxShadow: isSel ? `0 0 0 2px ${C.mul}, 0 4px 12px rgba(0,0,0,.18)` : "0 3px 8px rgba(0,0,0,.14)", cursor: drag?.id === nIt.id ? "grabbing" : "grab", userSelect: "none", transform: "rotate(-0.4deg)" }}>
+                {editId === nIt.id ? (
+                  <textarea autoFocus defaultValue={nIt.text} onBlur={e => { setNotes(notes.map(x => x.id === nIt.id ? { ...x, text: e.target.value } : x)); setEditId(null); }}
+                    style={{ width: "100%", minHeight: 48, border: "none", background: "transparent", fontSize: 12, fontFamily: BODY, resize: "none", outline: "none" }} />
+                ) : (nIt.text || <span style={{ color: "#9A8F7E" }}>double-click to write…</span>)}
+                {nIt.promoted && <div style={{ fontFamily: MONO, fontSize: 8, color: C.lime, fontWeight: 700, marginTop: 4 }}>✓ {nIt.promoted}</div>}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+      <div style={{ fontSize: 11.5, color: C.faint, marginTop: 10 }}>Drag to position · double-click to write · click to select, then promote. <b>The point of the wall:</b> a sticky that matters doesn't stay a sticky — promoted notes become tracked objects (board, RAID, benefits, epics, decisions) and the promotion is logged in the ledger. In Value/Effort mode the wall is your next Priority Lab session; in Stage lanes it's a lightweight process map of the delivery path.</div>
+    </div>
+  );
+}
+
+/* ================= TEAM & AI OPERATING MODEL ================= */
+function agentReadiness(p) {
+  const kd = { ...KD_DEFAULT, ...(p.keydata || {}) };
+  const eps = p.epics || [];
+  const checks = [
+    ["Headline written (T04 seed)", !!kd.headline],
+    ["Risks carry owner + date", kd.risks.length > 0 && kd.risks.every(r => r.owner && r.due)],
+    ["Decisions carry decision-makers", kd.decisions.length > 0 && kd.decisions.every(d => d.owner)],
+    ["Benefits have business owners", kd.benefits.length > 0 && kd.benefits.every(b => b.owner)],
+    ["Plan ≥3 milestones with confidence", (p.plan || []).filter(m => m.due).length >= 3],
+    ["Stakeholder map exists (T09)", (p.stakeholders || []).length >= 3],
+    ["Epics carry instrumentation", eps.length === 0 || eps.every(e => e.instrumentation)],
+    ["Ledger alive (≥5 events)", (p.events || []).length >= 5],
+    ["Tier hypothesis on record", !!p.hypothesis?.text],
+    ["PM accountable named", !!p.pm],
+  ];
+  const score = Math.round(checks.filter(c => c[1]).length / checks.length * 100);
+  return { checks, score };
+}
+const AGENT_SPLIT = [
+  ["Status assembly (T04/T05)", "AG-01", "Drafts headline candidates + populates the deck from systems of record", "Sets the RAG, chooses the narrative, signs", "From author to editor-in-chief"],
+  ["RAID hygiene & mining", "AG-02", "Flags undated mitigations, ownerless risks, aging items; clusters patterns across projects", "Judges severity, owns escalations, brings options to the SteerCo", "From bookkeeper to risk strategist"],
+  ["Meeting capture (minutes, actions)", "AG-03", "Transcribes, drafts decisions/actions with owners, files to the ledger", "Confirms the decision actually taken; resolves ambiguity in the room", "Presence over note-taking"],
+  ["Plan & dependency upkeep", "AG-01", "Syncs dates from JIRA/Smartsheet, recomputes confidence signals, flags dep conflicts", "Re-baselines (with T08 entry), negotiates trade-offs", "From scheduler to negotiator"],
+  ["Stakeholder engagement", "—", "Surfaces stance-change signals from interaction data (future)", "All of it: trust, candour, the corridor conversation", "Untouched — and more valuable"],
+  ["Value narrative & benefits", "AG-04 assist", "Pulls telemetry, drafts the value story against T13 targets", "Owns the honest amber, the write-off call, the QBR defence", "From reporter to value steward"],
+  ["Tailoring & retro judgement", "Copilot", "Prepares evidence packs against pivot triggers", "Decides keep / adjust / change tier; coaches the team", "Hypothesis discipline is the job"],
+];
+function TeamAI({ projects, update, people, assignments, setTab, setSel }) {
+  const pmNames = [...new Set([...projects.map(p => p.pm).filter(Boolean), ...people.filter(p2 => /\bpm\b|project manager/i.test(p2.role || "")).map(p2 => p2.name)])];
+  const m0 = ymNow();
+  const loadOf = name => {
+    const per = people.find(x => x.name === name); if (!per) return null;
+    return assignments.filter(a => a.personId === per.id && a.from && a.to && a.from <= m0 && m0 <= a.to).reduce((s, a) => s + (+a.pct || 0), 0);
+  };
+  const rows = pmNames.map(name => {
+    const led = projects.filter(p => p.pm === name);
+    const reds = led.reduce((n, p) => n + RAG_DIMS.filter(d => p.rag?.[d] === "R").length, 0);
+    const ambers = led.reduce((n, p) => n + RAG_DIMS.filter(d => p.rag?.[d] === "A").length, 0);
+    const health = led.map(p => (p.snapshots || []).slice(-1)[0]?.score).filter(Boolean);
+    const retrosDue = led.filter(p => p.hypothesis?.date && !p.hypothesis.retroDone && (Date.now() - new Date(p.hypothesis.date)) / 86400000 >= 25).length;
+    const ready = led.length ? Math.round(led.reduce((s, p) => s + agentReadiness(p).score, 0) / led.length) : null;
+    return { name, led, reds, ambers, health: health.length ? Math.round(health.reduce((a, b) => a + b, 0) / health.length) : null, retrosDue, load: loadOf(name), ready };
+  });
+  const unassigned = projects.filter(p => !p.pm);
+  const portReady = projects.length ? Math.round(projects.reduce((s, p) => s + agentReadiness(p).score, 0) / projects.length) : 0;
+  const [openP, setOpenP] = useState(null);
+  return (
+    <div>
+      <Card style={{ marginBottom: 14 }}>
+        <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 18 }}>Team & AI operating model</div>
+        <div style={{ fontSize: 12.5, color: C.mid }}>Managing a PM team in a data & AI environment means three things: balanced spans of control with comparable signals, a portfolio whose data is clean enough for agents to draft from, and absolute clarity on what stays human. This space covers all three.</div>
+      </Card>
+
+      <SectionLabel>1 · The PM team — span, signal and load</SectionLabel>
+      <Card style={{ padding: 0, overflowX: "auto", marginBottom: 8 }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 720, fontSize: 12.5 }}>
+          <thead><tr>{["PM", "Projects led", "Reds / Ambers", "Avg health", "Retros due", "Load (this month)", "Agent-readiness"].map(h => <th key={h} style={{ textAlign: "left", padding: "9px 14px", fontFamily: DISP, fontSize: 10.5, color: "#fff", background: C.graph, whiteSpace: "nowrap" }}>{h}</th>)}</tr></thead>
+          <tbody>
+            {rows.map(r => (
+              <tr key={r.name}>
+                <td style={{ padding: "9px 14px", borderTop: `1px solid ${C.soft}`, fontFamily: DISP, fontWeight: 700 }}>{r.name}</td>
+                <td style={{ padding: "9px 14px", borderTop: `1px solid ${C.soft}` }}>{r.led.length ? r.led.map(p => <Chip key={p.id} bg={C.mulLt} color={C.mul} style={{ cursor: "pointer" }} onClick={() => { setSel(p.id); setTab("data"); }}>{p.code}</Chip>) : <span style={{ color: C.faint }}>—</span>}</td>
+                <td style={{ padding: "9px 14px", borderTop: `1px solid ${C.soft}`, fontFamily: MONO, fontSize: 11.5 }}><span style={{ color: r.reds ? C.red : C.faint, fontWeight: 700 }}>{r.reds}R</span> / <span style={{ color: r.ambers ? "#8A6200" : C.faint }}>{r.ambers}A</span></td>
+                <td style={{ padding: "9px 14px", borderTop: `1px solid ${C.soft}`, fontFamily: MONO }}>{r.health ?? "—"}</td>
+                <td style={{ padding: "9px 14px", borderTop: `1px solid ${C.soft}`, color: r.retrosDue ? "#8A6200" : C.faint, fontWeight: r.retrosDue ? 700 : 400 }}>{r.retrosDue || "—"}</td>
+                <td style={{ padding: "9px 14px", borderTop: `1px solid ${C.soft}` }}>{r.load === null ? <span style={{ color: C.faint }}>not in registry</span> : <Chip bg={r.load > 100 ? "#F8E9E8" : r.load > 85 ? C.goldLt : C.limeLt} color={r.load > 100 ? C.red : r.load > 85 ? "#8A6200" : C.lime}>{r.load}%</Chip>}</td>
+                <td style={{ padding: "9px 14px", borderTop: `1px solid ${C.soft}`, fontFamily: MONO, fontWeight: 700, color: r.ready === null ? C.faint : r.ready >= 80 ? C.lime : r.ready >= 60 ? "#8A6200" : C.red }}>{r.ready === null ? "—" : r.ready + "%"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+      <div style={{ fontSize: 11.5, color: C.faint, marginBottom: 14 }}>
+        {unassigned.length > 0 && <span style={{ color: "#8A6200", fontWeight: 600 }}>{unassigned.length} project(s) without a named PM ({unassigned.map(p => p.code).join(", ")}) — assign in Project Data. </span>}
+        Span of control doctrine: a PM carries what their signal quality can sustain — when reds pile up on one row, rebalance in Capacity before coaching in 1:1s.
+      </div>
+
+      <SectionLabel color={C.navy}>2 · Agent-readiness — can an agent draft from this portfolio?</SectionLabel>
+      <Card style={{ marginBottom: 8 }}>
+        <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+          <div>
+            <div style={{ fontFamily: MONO, fontSize: 10, textTransform: "uppercase", color: C.faint }}>Portfolio average</div>
+            <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 30, color: portReady >= 80 ? C.lime : portReady >= 60 ? "#8A6200" : C.red }}>{portReady}%</div>
+          </div>
+          <div style={{ flex: 1, minWidth: 240, fontSize: 12, color: C.mid }}>An agent can only draft from what exists: AG-01 can't write a status without a headline habit and dated risks; AG-02 can't mine RAID without owners. <b>Data hygiene is the AI strategy.</b> Each check below is a field the Blueprint agents will consume.</div>
+        </div>
+        {projects.map(p => {
+          const { checks, score } = agentReadiness(p);
+          return (
+            <div key={p.id} style={{ marginBottom: 8 }}>
+              <div onClick={() => setOpenP(openP === p.id ? null : p.id)} style={{ display: "flex", gap: 10, alignItems: "center", cursor: "pointer" }}>
+                <span style={{ fontFamily: DISP, fontWeight: 700, fontSize: 13, minWidth: 170 }}>{p.name}</span>
+                <div style={{ flex: 1, height: 9, background: C.soft, borderRadius: 99, overflow: "hidden" }}>
+                  <div style={{ width: score + "%", height: "100%", background: score >= 80 ? C.lime : score >= 60 ? C.gold : C.red }} />
+                </div>
+                <span style={{ fontFamily: MONO, fontSize: 11.5, fontWeight: 700, minWidth: 40 }}>{score}%</span>
+                <span style={{ color: C.faint }}>{openP === p.id ? "−" : "+"}</span>
+              </div>
+              {openP === p.id && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: "2px 18px", padding: "8px 4px 4px", fontSize: 11.5 }}>
+                  {checks.map(([l, ok]) => <div key={l} style={{ color: ok ? C.mid : C.red }}>{ok ? "✓" : "✗"} {l}</div>)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </Card>
+      <div style={{ fontSize: 11.5, color: C.faint, marginBottom: 14 }}>Run this before the agent pilot: the 60-day gates (≥1.5 h/week returned, ≥95% draft accuracy) are only winnable above ~80% readiness.</div>
+
+      <SectionLabel color={"#8A6200"}>3 · Who does what — agents draft, PMs dispose</SectionLabel>
+      <Card style={{ padding: 0, overflowX: "auto", marginBottom: 8 }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 860, fontSize: 12 }}>
+          <thead><tr>{["PM activity", "Agent", "The agent will…", "The PM keeps…", "Skill shift"].map(h => <th key={h} style={{ textAlign: "left", padding: "9px 13px", fontFamily: DISP, fontSize: 10.5, color: "#fff", background: C.graph }}>{h}</th>)}</tr></thead>
+          <tbody>
+            {AGENT_SPLIT.map(r => (
+              <tr key={r[0]}>
+                <td style={{ padding: "8px 13px", borderTop: `1px solid ${C.soft}`, fontWeight: 600 }}>{r[0]}</td>
+                <td style={{ padding: "8px 13px", borderTop: `1px solid ${C.soft}` }}><Chip bg={r[1] === "—" ? C.soft : C.mulLt} color={r[1] === "—" ? C.faint : C.mul}>{r[1]}</Chip></td>
+                <td style={{ padding: "8px 13px", borderTop: `1px solid ${C.soft}`, color: C.mid }}>{r[2]}</td>
+                <td style={{ padding: "8px 13px", borderTop: `1px solid ${C.soft}`, color: C.ink, fontWeight: 500 }}>{r[3]}</td>
+                <td style={{ padding: "8px 13px", borderTop: `1px solid ${C.soft}`, color: C.navy, fontStyle: "italic" }}>{r[4]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+      <Card style={{ borderLeft: `4px solid ${C.gold}`, background: C.goldLt }}>
+        <div style={{ fontSize: 12.5, color: C.ink }}>
+          <b>The role doesn't shrink — it concentrates.</b> Agents absorb assembly, hygiene and capture (~30–40% of a PM's week per the Blueprint baseline); what remains is the part that was always the job: judgement under uncertainty, stakeholder trust, honest narratives, and the signature. Develop the team accordingly: Academy L2/L3, eval discipline (reviewing agent drafts is a skill), and the tailoring/retro muscle. <b>The PM who only assembled status is exposed; the PM who decides well becomes the bottleneck worth paying for.</b>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* ================= BACKUP & RESTORE PANEL ================= */
+function BackupPanel({ onClose, current, onRestore }) {
+  const [snaps, setSnaps] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const fileRef = React.useRef(null);
+  React.useEffect(() => { loadSnapshots().then(s => setSnaps(s.slice().reverse())); }, []);
+  const curKb = (() => { try { return Math.round(JSON.stringify(current).length / 1024); } catch { return 0; } })();
+  const fmt = s => { try { const d = new Date(s); return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }); } catch { return s; } };
+  const summary = payload => { try { const b = JSON.parse(payload); return `${(b.projects || []).length} projects · ${(b.people || []).length} people · ${Math.round(payload.length / 1024)} KB`; } catch { return "—"; } };
+  const restore = payload => { try { onRestore(JSON.parse(payload)); } catch { alert("That snapshot is unreadable."); } };
+  const importFile = file => {
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => { try { const b = JSON.parse(r.result); if (Array.isArray(b.projects)) onRestore(b); else alert("That file has no 'projects' array."); } catch { alert("Couldn't parse that JSON file."); } };
+    r.readAsText(file);
+  };
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(28,34,34,.55)", zIndex: 60, display: "grid", placeItems: "center", padding: 18 }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: "min(640px,95vw)", maxHeight: "88vh", overflowY: "auto", background: "#fff", borderRadius: 14, boxShadow: "0 18px 50px rgba(0,0,0,.3)" }}>
+        <div style={{ background: C.graph, color: "#fff", padding: "12px 18px", borderRadius: "14px 14px 0 0", display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontFamily: DISP, fontWeight: 800, fontSize: 15 }}>Backups & restore</span>
+          <button onClick={onClose} style={{ marginLeft: "auto", border: "none", background: "rgba(255,255,255,.18)", color: "#fff", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 13 }}>×</button>
+        </div>
+        <div style={{ padding: 18 }}>
+          <Card style={{ marginBottom: 14, background: C.soft }}>
+            <SectionLabel>Your data &amp; how it's protected</SectionLabel>
+            <div style={{ fontSize: 12.5, color: C.mid, lineHeight: 1.6 }}>
+              Everything lives in this browser's local storage and saves automatically as you work (currently <b>{curKb} KB</b>). On top of that the app keeps the <b>last {SNAP_MAX} automatic snapshots</b> (one roughly every 20 minutes of changes) so you can roll back a mistake. For a backup that survives clearing the browser, <b>download a JSON file</b> and keep it safe — that's the portable copy you can re-import here or on another machine.
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+              <button onClick={() => exportJson(current)} style={{ background: C.mul, color: "#fff", border: "none", borderRadius: 8, padding: "9px 15px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Download JSON backup ↓</button>
+              <button onClick={() => fileRef.current?.click()} style={{ border: `1px solid ${C.navy}`, color: C.navy, background: "#fff", borderRadius: 8, padding: "9px 15px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Restore from a file ↑</button>
+              <input ref={fileRef} type="file" accept="application/json" style={{ display: "none" }} onChange={e => importFile(e.target.files?.[0])} />
+            </div>
+          </Card>
+          <SectionLabel color={C.navy}>Automatic snapshots</SectionLabel>
+          {snaps === null && <div style={{ fontSize: 12.5, color: C.faint }}>Loading…</div>}
+          {snaps && snaps.length === 0 && <div style={{ fontSize: 12.5, color: C.faint }}>No snapshots yet — they start accumulating as you make changes.</div>}
+          {snaps && snaps.map((s, i) => (
+            <div key={s.stamp} style={{ display: "flex", gap: 10, alignItems: "center", padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 9, marginBottom: 7, flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: 180 }}>
+                <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 13 }}>{fmt(s.stamp)} {i === 0 && <Chip bg={C.limeLt} color={C.lime}>latest</Chip>}</div>
+                <div style={{ fontSize: 11, color: C.faint, fontFamily: MONO }}>{summary(s.payload)}</div>
+              </div>
+              {confirm === s.stamp ? (
+                <>
+                  <span style={{ fontSize: 11.5, color: C.red }}>Replace current data?</span>
+                  <button onClick={() => restore(s.payload)} style={{ background: C.red, color: "#fff", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>Yes, restore</button>
+                  <button onClick={() => setConfirm(null)} style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 7, padding: "6px 12px", fontSize: 11.5, cursor: "pointer" }}>Cancel</button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => exportJson(JSON.parse(s.payload))} title="Download this snapshot" style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 7, padding: "6px 11px", fontSize: 11.5, cursor: "pointer", color: C.mid }}>↓</button>
+                  <button onClick={() => setConfirm(s.stamp)} style={{ border: `1px solid ${C.navy}`, color: C.navy, background: "#fff", borderRadius: 7, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>Restore</button>
+                </>
+              )}
+            </div>
+          ))}
+          <div style={{ fontSize: 11, color: C.faint, marginTop: 6 }}>Restoring replaces what's on screen now — download a backup of the current state first if unsure. Snapshots are kept in this browser; the JSON file is the copy that travels.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ================= TEAM CHARTER (North Star · principles · pain points · WoW · training · best practice · prioritisation · decision log) ================= */
+const CHARTER_DEFAULT = {
+  northStar: "", northMetrics: [],
+  principles: [], painPoints: [], wow: [], training: [], bestPractice: [],
+  priorities: [], log: [], appIdeas: [],
+};
+const PAIN_STATUS = { open: ["open", C.redLt || "#F8E9E8", C.red], addressing: ["addressing", C.goldLt, "#8A6200"], resolved: ["resolved", C.limeLt, C.lime] };
+const CHARTER_EXAMPLES = {
+  north: { title: "North Star — examples", apply: "Use as your North Star",
+    items: ["Every OBU data & AI initiative delivers value the business can measure, with governance it trusts — and we ship faster each year than the last.",
+      "We are the team that makes the right AI bets obvious and the wrong ones cheap to stop.",
+      "From request to trusted answer in days, not cycles — at portfolio scale, without heroics."],
+    note: "A good North Star is outcome-led, a little uncomfortable, and true a year from now. Pair it with 2-3 leading metrics (cycle time idea\u2192pilot, % benefits with a named owner, adoption at week 4)." },
+  principles: { title: "Principles — examples (belief \u2192 consequence)",
+    items: ["Honest ambers over green theatre \u2192 we surface bad news early and always bring options, never a naked problem.",
+      "Tailor the method to the risk \u2192 the wizard decides the tier; seniority and preference don't.",
+      "No telemetry, no Done \u2192 every epic ships with the instrumentation that proves its hypothesis.",
+      "Value is owned by the business \u2192 a benefit with no business owner is not a benefit.",
+      "Draft with AI, decide as humans \u2192 the agent assembles; the PM sets the RAG and signs.",
+      "Stewardship over speed-at-any-cost \u2192 we leave the codebase, the data and the team better than we found them."],
+    note: "Each line names what you'll actually do differently. A principle you never have to act on isn't one." },
+  pain: { title: "Pain points — examples to prompt the conversation",
+    items: ["Status reporting eats Friday afternoons; the same numbers get retyped into three tools.",
+      "Decisions get made in meetings but aren't logged, so we relitigate them a month later.",
+      "Adoption is treated as a comms afterthought instead of designed in from G2.",
+      "Vendor dependencies surface as surprises at the SteerCo, not as tracked risks.",
+      "Every PM formats their deck differently; leadership can't compare projects at a glance.",
+      "We discover data-access blockers only when we try to build, not when we plan."],
+    note: "Name the cost, not just the symptom. Then give it an owner and a countermeasure \u2014 several of these can become app ideas." },
+  wow: { title: "Ways of working — examples",
+    items: ["Cadence: biweekly delivery sync (Tue 30 min), monthly portfolio review, retro every 4 weeks.",
+      "Comms: decisions in the Decision Log within 24h; Teams for async, no status by email.",
+      "Definition of Done: merged + instrumented + page updated + benefit line touched.",
+      "Escalation: a blocker older than one cycle goes to the SteerCo with 2-3 costed options.",
+      "AI use: the Advisor drafts status and risk scans; the PM reviews every line before it leaves the team.",
+      "1:1s: monthly, agenda owned by the PM, health-scan trend reviewed together."],
+    note: "Make the implicit explicit so a new joiner is productive in a week. Keep each agreement testable." },
+  learn: { title: "Training & best practice — examples",
+    items: ["Training: eval discipline \u2014 how to review an AI draft well (whole team, this quarter).",
+      "Training: CPMAI lifecycle for AI projects \u2014 data understanding before modelling.",
+      "Training: stakeholder craft \u2014 turning a sceptic into a supporter.",
+      "Best practice: shadow five real users before writing a single comms (from Field Excellence).",
+      "Best practice: re-sequence around the dependency, don't push the date (from Insight Assistant).",
+      "Best practice: bring options + a recommendation to every escalation, never the problem alone."],
+    note: "Promote the durable best practices into Playbook patterns at the quarterly Framework Council." },
+  prioritise: { title: "Prioritisation canvas — how to run it",
+    items: ["Put each candidate (initiative or app idea) on the wall, then drag for value (up) and effort (right).",
+      "Do First = high value, low effort: commit this quarter.",
+      "Plan / Big bets = high value, high effort: needs a business case (T02).",
+      "Quick fillers = low value, low effort: only when there's slack.",
+      "Avoid = low value, high effort: say no out loud and move on."],
+    note: "The number in each bubble is value \u00f7 effort (a WSJF proxy). Drag as a team \u2014 the disagreement is the value of the session." },
+  ideas: { title: "App backlog — example improvements",
+    items: ["Two-way sync with JIRA & Smartsheet via the corporate connectors.",
+      "AG-01 pre-fills the weekly status from systems of record overnight.",
+      "Portfolio-level dependency alerts when two projects' go-lives hit the same user group.",
+      "A 'what changed since last review' digest for the Portfolio Review.",
+      "Capacity what-if: simulate moving a PM and see the load + budget impact."],
+    note: "This is the Navigator's own product backlog \u2014 dogfood the doctrine: prioritise it on the canvas, ship the top items." },
+  log: { title: "Decision log — what to capture",
+    items: ["Agreed the North Star and three leading metrics (2026-Q3).",
+      "Adopted 'no telemetry, no Done' as a hard gate from next sprint.",
+      "Decided to pilot the Advisor for status drafts with 3 PMs for one cycle.",
+      "Retired the weekly email status in favour of the Review Pack."],
+    note: "The audit trail of how the team's operating agreement evolved. Decisions, resolved pains and ideas raised all land here." },
+};
+function InspireDot({ topic, onUse }) {
+  const [open, setOpen] = useState(false);
+  const ex = CHARTER_EXAMPLES[topic];
+  if (!ex) return null;
+  return (
+    <span style={{ position: "relative", display: "inline-block" }}>
+      <button onClick={() => setOpen(o => !o)} title="Examples for inspiration"
+        style={{ width: 19, height: 19, borderRadius: "50%", border: `1.5px solid ${C.gold}`, background: open ? C.gold : "#fff", color: open ? "#fff" : "#8A6200", fontFamily: DISP, fontWeight: 800, fontSize: 12, lineHeight: 1, cursor: "pointer", padding: 0, verticalAlign: "middle" }}>?</button>
+      {open && (
+        <>
+          <span onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
+          <div style={{ position: "absolute", top: 26, left: 0, zIndex: 41, width: "min(420px, 80vw)", background: "#fff", border: `1px solid ${C.line}`, borderRadius: 12, boxShadow: "0 14px 40px rgba(0,0,0,.22)", padding: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <span style={{ fontFamily: DISP, fontWeight: 800, fontSize: 13, color: "#8A6200" }}>{ex.title}</span>
+              <button onClick={() => setOpen(false)} style={{ marginLeft: "auto", border: "none", background: "transparent", color: C.faint, cursor: "pointer", fontSize: 14 }}>\u00d7</button>
+            </div>
+            {ex.items.map((t, i) => (
+              <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", padding: "6px 0", borderTop: i ? `1px solid ${C.soft}` : "none" }}>
+                <span style={{ color: C.gold, fontWeight: 700, fontSize: 13, lineHeight: 1.5 }}>\u2022</span>
+                <span style={{ fontSize: 12.5, lineHeight: 1.5, color: C.ink, flex: 1 }}>{t}</span>
+                {onUse && <button onClick={() => { onUse(t); setOpen(false); }} title="Use this" style={{ border: `1px solid ${C.mul}`, color: C.mul, background: "#fff", borderRadius: 6, padding: "2px 8px", fontSize: 10.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>use</button>}
+              </div>
+            ))}
+            <div style={{ fontSize: 11, color: C.mid, marginTop: 8, fontStyle: "italic", borderTop: `1px solid ${C.soft}`, paddingTop: 8 }}>{ex.note}</div>
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+function TeamCharter({ charter, setCharter, people }) {
+  const c = { ...CHARTER_DEFAULT, ...(charter || {}) };
+  const [sub, setSub] = useState("north");
+  const set = patch => setCharter({ ...c, ...patch });
+  const addTo = (k, row) => set({ [k]: [...(c[k] || []), { id: uid(), ...row }] });
+  const editIn = (k, id, patch) => set({ [k]: c[k].map(r => r.id === id ? { ...r, ...patch } : r) });
+  const delIn = (k, id) => set({ [k]: c[k].filter(r => r.id !== id) });
+  const logEvent = (text, tag) => set({ log: [...(c.log || []), { id: uid(), date: today(), ts: Date.now(), text, tag }] });
+
+  const SUBS = [["north", "North Star"], ["principles", "Principles"], ["pain", "Pain points"], ["wow", "Ways of working"], ["learn", "Training & best practice"], ["prioritise", "Prioritisation canvas"], ["ideas", "App backlog"], ["log", "Decision log"]];
+  const Line = ({ k, row, fields, accent = C.mul }) => (
+    <div style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center", flexWrap: "wrap" }}>
+      {fields.map(f => f.type === "select"
+        ? <select key={f.key} value={row[f.key] || f.opts[0]} onChange={e => editIn(k, row.id, { [f.key]: e.target.value })} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11.5 }}>{f.opts.map(o => <option key={o}>{o}</option>)}</select>
+        : <input key={f.key} value={row[f.key] || ""} onChange={e => editIn(k, row.id, { [f.key]: e.target.value })} placeholder={f.ph} style={{ flex: f.w ? `0 0 ${f.w}px` : 1, minWidth: 90, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "7px 9px", fontSize: 12 }} />)}
+      <button onClick={() => delIn(k, row.id)} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+    </div>
+  );
+  const AddBtn = ({ k, row, label, color = C.mul }) => (
+    <button onClick={() => addTo(k, row)} style={{ border: `1px dashed ${C.line}`, background: "#fff", color, borderRadius: 8, padding: "8px 14px", fontSize: 12.5, cursor: "pointer", fontWeight: 600, fontFamily: DISP }}>{label}</button>
+  );
+
+  return (
+    <div>
+      <Card style={{ marginBottom: 14 }}>
+        <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 18 }}>Team Charter — the team's operating agreement</div>
+        <div style={{ fontSize: 12.5, color: C.mid }}>The living document the Director and the PM team shape together: where we're heading, what we believe, what hurts, how we work, how we grow — and how this very app should evolve. Everything here persists, exports with your JSON backup, and writes to the decision log. This is the seed of the next version of the Navigator.</div>
+      </Card>
+      <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+        {SUBS.map(([id, l]) => (
+          <button key={id} onClick={() => setSub(id)} style={{ border: `1px solid ${sub === id ? C.mul : C.line}`, background: sub === id ? C.mul : "#fff", color: sub === id ? "#fff" : C.mid, borderRadius: 99, padding: "8px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>{l}</button>
+        ))}
+      </div>
+
+      {sub === "north" && (
+        <div>
+          <Card style={{ marginBottom: 12, borderTop: `3px solid ${C.gold}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><SectionLabel color={"#8A6200"}>North Star — the one sentence everything serves</SectionLabel><InspireDot topic="north" onUse={t => set({ northStar: t })} /></div>
+            <textarea value={c.northStar} onChange={e => set({ northStar: e.target.value })} rows={2} placeholder="e.g. Every OBU data & AI initiative delivers measurable value with governance the business trusts — faster than last year, and visibly."
+              style={{ width: "100%", border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 8, padding: "10px 12px", fontSize: 15, lineHeight: 1.5, fontFamily: DISP, fontWeight: 600, color: C.ink }} />
+          </Card>
+          <Card>
+            <SectionLabel>How we'll know we're moving toward it — leading metrics</SectionLabel>
+            {(c.northMetrics || []).map(r => <Line key={r.id} k="northMetrics" row={r} fields={[{ key: "name", ph: "Metric (e.g. cycle time idea→pilot, % benefits with owner)" }, { key: "baseline", ph: "baseline", w: 110 }, { key: "target", ph: "target", w: 110 }]} />)}
+            <AddBtn k="northMetrics" row={{ name: "", baseline: "", target: "" }} label="+ metric" />
+          </Card>
+        </div>
+      )}
+
+      {sub === "principles" && (
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}><SectionLabel>Principles — what we hold true even when it's inconvenient</SectionLabel><InspireDot topic="principles" onUse={t => { const [b, ...rest] = t.split(" → "); addTo("principles", { belief: b, consequence: rest.join(" → ") }); }} /></div>
+          <div style={{ fontSize: 12, color: C.faint, marginBottom: 10 }}>Each principle pairs a belief with its consequence — a principle you never have to act on isn't one. Examples seeded from DCOS: "Honest ambers over green theatre — we surface bad news early and bring options."</div>
+          {(c.principles || []).map((r, i) => (
+            <div key={r.id} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "flex-start" }}>
+              <span style={{ fontFamily: MONO, fontSize: 11, color: C.mul, fontWeight: 700, marginTop: 8 }}>{String(i + 1).padStart(2, "0")}</span>
+              <div style={{ flex: 1, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <input value={r.belief || ""} onChange={e => editIn("principles", r.id, { belief: e.target.value })} placeholder="We believe…" style={{ flex: "1 1 220px", border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, fontWeight: 600 }} />
+                <input value={r.consequence || ""} onChange={e => editIn("principles", r.id, { consequence: e.target.value })} placeholder="…so we always / never…" style={{ flex: "1 1 220px", border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "8px 10px", fontSize: 12.5 }} />
+              </div>
+              <button onClick={() => delIn("principles", r.id)} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer", marginTop: 6 }}>×</button>
+            </div>
+          ))}
+          <AddBtn k="principles" row={{ belief: "", consequence: "" }} label="+ principle" />
+        </Card>
+      )}
+
+      {sub === "pain" && (
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}><SectionLabel color={C.red}>Pain points — name them to fix them</SectionLabel><InspireDot topic="pain" onUse={t => addTo("painPoints", { text: t, status: "open" })} /></div>
+          <div style={{ fontSize: 12, color: C.faint, marginBottom: 10 }}>Raised in retros and 1:1s; tracked to resolution. A pain point with no owner is just a complaint.</div>
+          {(c.painPoints || []).map(r => (
+            <div key={r.id} style={{ borderLeft: `3px solid ${(PAIN_STATUS[r.status] || PAIN_STATUS.open)[2]}`, background: "#FBFAF8", borderRadius: "0 8px 8px 0", padding: "8px 12px", marginBottom: 8 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                <input value={r.text || ""} onChange={e => editIn("painPoints", r.id, { text: e.target.value })} placeholder="The pain — concrete, with the cost it imposes" style={{ flex: 1, minWidth: 220, border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 7, padding: "7px 9px", fontSize: 12.5 }} />
+                <select value={r.status || "open"} onChange={e => { editIn("painPoints", r.id, { status: e.target.value }); if (e.target.value === "resolved") logEvent(`Pain point resolved: ${(r.text || "").slice(0, 70)}`, "pain"); }} style={{ border: `1px solid ${C.soft}`, borderRadius: 7, padding: "6px", fontSize: 11.5 }}>{Object.keys(PAIN_STATUS).map(s => <option key={s}>{s}</option>)}</select>
+                <button onClick={() => delIn("painPoints", r.id)} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+              </div>
+              <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                <input value={r.owner || ""} onChange={e => editIn("painPoints", r.id, { owner: e.target.value })} placeholder="Owner" style={{ flex: "0 0 150px", border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 7, padding: "6px 9px", fontSize: 12 }} />
+                <input value={r.fix || ""} onChange={e => editIn("painPoints", r.id, { fix: e.target.value })} placeholder="Countermeasure / experiment → could become an app idea" style={{ flex: 1, minWidth: 180, border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 7, padding: "6px 9px", fontSize: 12 }} />
+                <button onClick={() => { addTo("appIdeas", { text: r.fix || r.text, value: 3, effort: 2, from: "pain point" }); logEvent(`App idea raised from pain point: ${(r.text || "").slice(0, 60)}`, "idea"); }} title="Promote to App backlog" style={{ border: `1px solid ${C.navy}`, color: C.navy, background: "#fff", borderRadius: 7, padding: "6px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>→ app idea</button>
+              </div>
+            </div>
+          ))}
+          <AddBtn k="painPoints" row={{ text: "", owner: "", fix: "", status: "open" }} label="+ pain point" color={C.red} />
+        </Card>
+      )}
+
+      {sub === "wow" && (
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}><SectionLabel color={C.navy}>Ways of working — the team's explicit agreements</SectionLabel><InspireDot topic="wow" onUse={t => { const [a, ...rest] = t.split(": "); addTo("wow", { area: a, agreement: rest.join(": ") }); }} /></div>
+          <div style={{ fontSize: 12, color: C.faint, marginBottom: 10 }}>Cadence, channels, definition of done, how we escalate, how we use the Advisor and review its drafts. Make the implicit explicit so a new joiner is productive in a week.</div>
+          {(c.wow || []).map(r => <Line key={r.id} k="wow" row={r} fields={[{ key: "area", ph: "Area (cadence, comms, DoD, escalation, AI use…)", w: 220 }, { key: "agreement", ph: "Our agreement — specific and testable" }]} accent={C.navy} />)}
+          <AddBtn k="wow" row={{ area: "", agreement: "" }} label="+ agreement" color={C.navy} />
+        </Card>
+      )}
+
+      {sub === "learn" && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: 14 }}>
+          <Card>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}><SectionLabel color={"#8A6200"}>Training plan — capability we're building</SectionLabel><InspireDot topic="learn" onUse={t => addTo("training", { topic: t.replace(/^(Training|Best practice): /, ""), status: "planned" })} /></div>
+            {(c.training || []).map(r => <Line key={r.id} k="training" row={r} fields={[{ key: "topic", ph: "Topic (e.g. eval discipline, CPMAI, stakeholder craft)" }, { key: "who", ph: "who", w: 110 }, { key: "when", ph: "when", w: 90 }, { key: "status", type: "select", opts: ["planned", "in progress", "done"] }]} />)}
+            <AddBtn k="training" row={{ topic: "", who: "", when: "", status: "planned" }} label="+ training" color={"#8A6200"} />
+            <div style={{ fontSize: 11, color: C.faint, marginTop: 8 }}>Links to the Academy (Resources): L1 Foundation → L2 Practitioner → L3 Coach.</div>
+          </Card>
+          <Card>
+            <SectionLabel color={C.lime}>Best practices — what worked, captured before we forget</SectionLabel>
+            {(c.bestPractice || []).map(r => <Line key={r.id} k="bestPractice" row={r} fields={[{ key: "text", ph: "The practice — and the evidence it works" }, { key: "source", ph: "from (project/retro)", w: 130 }]} accent={C.lime} />)}
+            <AddBtn k="bestPractice" row={{ text: "", source: "" }} label="+ best practice" color={C.lime} />
+            <div style={{ fontSize: 11, color: C.faint, marginTop: 8 }}>Promote the durable ones into the Playbook patterns at the quarterly Framework Council.</div>
+          </Card>
+        </div>
+      )}
+
+      {sub === "prioritise" && <PrioritiseCanvas c={c} set={set} addTo={addTo} editIn={editIn} delIn={delIn} logEvent={logEvent} />}
+
+      {sub === "ideas" && (
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}><SectionLabel color={C.navy}>App backlog — how the Navigator itself should evolve</SectionLabel><InspireDot topic="ideas" onUse={t => addTo("appIdeas", { text: t, value: 3, effort: 2 })} /></div>
+          <div style={{ fontSize: 12, color: C.faint, marginBottom: 10 }}>The team's own product backlog for this tool. Ideas flow in from pain points; the prioritisation canvas ranks them; the top ones become the next version. Dogfooding the doctrine on ourselves.</div>
+          {(c.appIdeas || []).map(r => (
+            <div key={r.id} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center", flexWrap: "wrap" }}>
+              <input value={r.text || ""} onChange={e => editIn("appIdeas", r.id, { text: e.target.value })} placeholder="Idea / improvement for the Navigator" style={{ flex: 1, minWidth: 220, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "7px 9px", fontSize: 12.5 }} />
+              {r.from && <Chip bg={C.soft} color={C.faint}>{r.from}</Chip>}
+              <label style={{ fontSize: 10.5, color: C.faint }}>value <input type="number" min={1} max={5} value={r.value || 3} onChange={e => editIn("appIdeas", r.id, { value: +e.target.value })} style={{ width: 46, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 6, padding: "5px", fontSize: 11.5, fontFamily: MONO }} /></label>
+              <label style={{ fontSize: 10.5, color: C.faint }}>effort <input type="number" min={1} max={5} value={r.effort || 2} onChange={e => editIn("appIdeas", r.id, { effort: +e.target.value })} style={{ width: 46, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 6, padding: "5px", fontSize: 11.5, fontFamily: MONO }} /></label>
+              <button onClick={() => delIn("appIdeas", r.id)} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+            </div>
+          ))}
+          <AddBtn k="appIdeas" row={{ text: "", value: 3, effort: 2 }} label="+ app idea" color={C.navy} />
+        </Card>
+      )}
+
+      {sub === "log" && (
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}><SectionLabel>Decision & evolution log</SectionLabel><InspireDot topic="log" onUse={t => logEvent(t, "decision")} /></div>
+          <div style={{ fontSize: 12, color: C.faint, marginBottom: 10 }}>The audit trail of how the team's operating agreement evolved — decisions, resolved pains, ideas raised. Add a manual entry, or let actions here log themselves.</div>
+          <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+            <input id="logIn" placeholder="Decision the team took today…" onKeyDown={e => { if (e.key === "Enter" && e.target.value.trim()) { logEvent(e.target.value.trim(), "decision"); e.target.value = ""; } }} style={{ flex: 1, minWidth: 240, border: `1px solid ${C.line}`, borderRadius: 8, padding: "9px 12px", fontSize: 13 }} />
+            <span style={{ fontSize: 11, color: C.faint, alignSelf: "center" }}>Enter to log</span>
+          </div>
+          {[...(c.log || [])].reverse().map(e => (
+            <div key={e.id} style={{ display: "flex", gap: 10, alignItems: "baseline", padding: "8px 0", borderTop: `1px solid ${C.soft}` }}>
+              <span style={{ fontFamily: MONO, fontSize: 10.5, color: C.faint, minWidth: 78 }}>{e.date}</span>
+              <Chip bg={e.tag === "decision" ? C.mulLt : e.tag === "pain" ? C.limeLt : C.navyLt} color={e.tag === "decision" ? C.mul : e.tag === "pain" ? C.lime : C.navy}>{e.tag}</Chip>
+              <span style={{ flex: 1, fontSize: 12.5 }}>{e.text}</span>
+              <button onClick={() => delIn("log", e.id)} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+            </div>
+          ))}
+          {(!c.log || c.log.length === 0) && <div style={{ fontSize: 12.5, color: C.faint }}>No entries yet.</div>}
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function PrioritiseCanvas({ c, set, addTo, editIn, delIn, logEvent }) {
+  const items = c.priorities || [];
+  const [drag, setDrag] = useState(null);
+  const [live, setLive] = useState(null);
+  const W2 = 1000, H2 = 520, pad = 44;
+  const X = v => pad + (v / 100) * (W2 - 2 * pad);
+  const Y = v => H2 - pad - (v / 100) * (H2 - 2 * pad);
+  const pos = it => (live && live.id === it.id) ? live : it;
+  const onMove = e => { if (!drag) return; const r = e.currentTarget.getBoundingClientRect(); setLive({ id: drag.id, ex: Math.min(Math.max((e.clientX - r.left - pad) / (W2 - 2 * pad) * 100, 0), 100), ey: Math.min(Math.max((1 - (e.clientY - r.top - pad) / (H2 - 2 * pad)) * 100, 0), 100) }); };
+  const onUp = () => { if (drag && live && live.id === drag.id) editIn("priorities", drag.id, { ex: Math.round(live.ex), ey: Math.round(live.ey) }); setDrag(null); setLive(null); };
+  const wsjf = it => ((it.ey || 50) / Math.max((it.effort || 3), 1)).toFixed(1);
+  const ranked = [...items].sort((a, b) => wsjf(b) - wsjf(a));
+  return (
+    <div>
+      <Card style={{ marginBottom: 12, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <SectionLabel>Prioritisation canvas — value vs effort, dragged by the team</SectionLabel><InspireDot topic="prioritise" />
+        <button onClick={() => addTo("priorities", { text: "New item", ex: 30, ey: 70, effort: 3 })} style={{ marginLeft: "auto", background: C.mul, color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>+ item</button>
+        <button onClick={() => { (c.appIdeas || []).forEach(i => { if (!items.some(p => p.srcId === i.id)) addTo("priorities", { text: i.text, ex: (i.effort || 2) / 5 * 60 + 10, ey: (i.value || 3) / 5 * 70 + 15, effort: i.effort || 2, srcId: i.id }); }); }} style={{ border: `1px solid ${C.navy}`, color: C.navy, background: "#fff", borderRadius: 8, padding: "8px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>pull app ideas ↓</button>
+      </Card>
+      <Card style={{ padding: 0, overflowX: "auto" }}>
+        <svg viewBox={`0 0 ${W2} ${H2}`} style={{ width: "100%", minWidth: 680, touchAction: "none" }} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
+          <line x1={W2 / 2} y1={pad} x2={W2 / 2} y2={H2 - pad} stroke={C.line} strokeDasharray="4 4" />
+          <line x1={pad} y1={H2 / 2} x2={W2 - pad} y2={H2 / 2} stroke={C.line} strokeDasharray="4 4" />
+          {[["DO FIRST", pad + 8, pad + 16, C.lime], ["PLAN / BIG BETS", W2 / 2 + 8, pad + 16, C.navy], ["QUICK FILLERS", pad + 8, H2 - pad - 6, "#8A6200"], ["AVOID", W2 / 2 + 8, H2 - pad - 6, C.red]].map(([t, x, y, col]) => <text key={t} x={x} y={y} fontSize="11" fontFamily={MONO} fill={col} fontWeight="700">{t}</text>)}
+          <text x={W2 / 2} y={H2 - 12} textAnchor="middle" fontSize="10" fontFamily={MONO} fill={C.faint}>EFFORT →</text>
+          <text x={14} y={H2 / 2} textAnchor="middle" fontSize="10" fontFamily={MONO} fill={C.faint} transform={`rotate(-90 14 ${H2 / 2})`}>VALUE →</text>
+          {items.map(it => { const p = pos(it); const x = X(p.ex ?? 50), y = Y(p.ey ?? 50); return (
+            <g key={it.id} onPointerDown={e => { setDrag({ id: it.id }); }} style={{ cursor: "grab" }}>
+              <circle cx={x} cy={y} r={13} fill={C.mul} opacity={0.9} />
+              <text x={x} y={y + 4} textAnchor="middle" fontSize="9" fill="#fff" fontFamily={MONO} fontWeight="700">{wsjf(it)}</text>
+              <text x={x + 17} y={y + 4} fontSize="11" fill={C.ink} fontFamily={BODY}>{(it.text || "").slice(0, 30)}</text>
+            </g>
+          ); })}
+        </svg>
+      </Card>
+      <Card style={{ marginTop: 12 }}>
+        <SectionLabel color={C.navy}>Ranked (value ÷ effort) — the team's agreed order</SectionLabel>
+        {ranked.map((it, i) => (
+          <div key={it.id} style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6, flexWrap: "wrap" }}>
+            <span style={{ fontFamily: MONO, fontSize: 11, color: "#8A6200", fontWeight: 700, minWidth: 20 }}>{i + 1}</span>
+            <input value={it.text || ""} onChange={e => editIn("priorities", it.id, { text: e.target.value })} style={{ flex: 1, minWidth: 200, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "7px 9px", fontSize: 12.5 }} />
+            <label style={{ fontSize: 10.5, color: C.faint }}>effort <input type="number" min={1} max={5} value={it.effort || 3} onChange={e => editIn("priorities", it.id, { effort: +e.target.value })} style={{ width: 44, border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 6, padding: "5px", fontSize: 11.5, fontFamily: MONO }} /></label>
+            <Chip bg={C.mulLt} color={C.mul}>WSJF {wsjf(it)}</Chip>
+            <button onClick={() => delIn("priorities", it.id)} style={{ border: "none", background: "transparent", color: C.faint, cursor: "pointer" }}>×</button>
+          </div>
+        ))}
+        {items.length === 0 && <div style={{ fontSize: 12.5, color: C.faint }}>Add items or pull the app ideas in — then drag them on the canvas to agree value and effort as a team.</div>}
+      </Card>
+    </div>
+  );
 }
