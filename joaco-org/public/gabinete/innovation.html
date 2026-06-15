@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Briefing Dossier · Director, EAI Process &amp; Innovation · v2.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1b1f2a; --ink-soft: #3f4756; --slate: #6b7280; --faint: #9ca3af;
+  --paper: #fbf9f4; --surface: #ffffff; --cream: #f8f6f1; --cream-deep: #f1ede2;
+  --rule: #e5e1d8; --rule-soft: #f1efe7;
+  --crimson: #9e2a2b; --crimson-soft: #c84b4d; --crimson-pale: #f7e2e3; --crimson-bg: #fbeded;
+  --gold: #b68b3f; --gold-soft: #d9b870; --gold-pale: #f5ecd8; --gold-bg: #faf3e1; --gold-dk: #8c6a2c;
+  --navy: #21304d; --navy-soft: #3a4d70; --teal: #2c6e7b; --sage: #748a6d;
+  --code: #1a3a52;
+  --font-head: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+#top, #candidate, #m1, #m2, #m3, #m4, #m5, #m6, #m7, #m8, #m9 { scroll-margin-top: 80px; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 15.5px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(158, 42, 43, 0.025) 0, transparent 50%), radial-gradient(circle at 80% 70%, rgba(182, 139, 63, 0.020) 0, transparent 50%); }
+
+.topbar { position: sticky; top: 0; z-index: 100; background: rgba(251, 249, 244, 0.92); backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%); border-bottom: 1px solid var(--rule); }
+.topbar-inner { max-width: 1380px; margin: 0 auto; padding: 14px 36px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); }
+.brand-mark { width: 32px; height: 32px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-family: var(--font-head); font-weight: 600; font-size: 16px; }
+.brand-text { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); }
+.brand-text strong { color: var(--ink); }
+.module-nav { display: flex; gap: 4px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+.module-nav a { display: grid; place-items: center; width: 32px; height: 32px; color: var(--slate); text-decoration: none; border: 1px solid transparent; transition: all 0.18s ease; }
+.module-nav a:hover { color: var(--crimson); border-color: var(--rule); background: var(--surface); }
+.topbar-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); letter-spacing: 0.10em; text-transform: uppercase; text-align: right; }
+
+.container { max-width: 1280px; margin: 0 auto; padding: 0 48px; position: relative; z-index: 1; }
+.module { padding: 88px 0 56px; position: relative; }
+.module + .module { border-top: 1px solid var(--rule); }
+.module-head { display: grid; grid-template-columns: 220px 1fr; gap: 40px; margin-bottom: 56px; align-items: start; }
+.module-tag { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--crimson); border-top: 2px solid var(--crimson); padding-top: 14px; position: sticky; top: 88px; transition: color 0.2s ease, border-color 0.2s ease; }
+.module-tag .roman { display: block; font-family: var(--font-head); font-size: 64px; font-weight: 300; color: var(--ink); margin-top: 8px; line-height: 1; font-style: italic; }
+.module-title { font-family: var(--font-head); font-size: 56px; font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; }
+.module-lede { font-family: var(--font-head); font-size: 21px; font-weight: 300; font-style: italic; color: var(--ink-soft); line-height: 1.45; max-width: 720px; margin-bottom: 24px; }
+
+.level-toggle { display: inline-flex; background: var(--cream-deep); border: 1px solid var(--rule); padding: 4px; gap: 2px; }
+.level-btn { padding: 10px 18px; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); background: transparent; border: none; cursor: pointer; transition: all 0.18s ease; display: flex; align-items: center; gap: 8px; }
+.level-btn:hover { color: var(--ink); background: rgba(255, 255, 255, 0.5); }
+.level-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); transition: background 0.18s ease; }
+.level-btn[data-level="foundations"] .dot { background: var(--crimson-soft); }
+.level-btn[data-level="expert"] .dot { background: var(--gold-soft); }
+.level-btn[data-level="foundations"].active { background: var(--crimson); color: white; }
+.level-btn[data-level="expert"].active { background: var(--gold); color: white; }
+.level-btn.active .dot { background: white; }
+.module[data-active-level="expert"] .module-tag { color: var(--gold); border-top-color: var(--gold); }
+
+.subsection { padding: 36px 0; border-top: 1px solid var(--rule-soft); }
+.subsection:first-of-type { border-top: none; }
+.subsection[data-level="expert"] { display: none; }
+.module[data-active-level="expert"] .subsection[data-level="foundations"] { display: none; }
+.module[data-active-level="expert"] .subsection[data-level="expert"] { display: block; }
+.module[data-active-level="expert"] .subsection[data-level="expert"]:first-of-type { border-top: none; }
+.subsection[data-level="expert"] .subsection-number, .subsection[data-level="expert"] .subsection-number strong { color: var(--gold); }
+.subsection-meta { display: grid; grid-template-columns: 220px 1fr; gap: 40px; margin-bottom: 28px; align-items: start; }
+.subsection-number { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); }
+.subsection-number strong { display: block; font-family: var(--font-head); font-size: 32px; font-weight: 300; font-style: italic; color: var(--ink); margin-top: 6px; line-height: 1; }
+.level-badge { display: inline-block; margin-top: 8px; padding: 2px 8px; font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--crimson); color: var(--crimson); }
+.subsection[data-level="expert"] .level-badge { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+.action-title { font-family: var(--font-head); font-size: 30px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 12px; }
+.lede { font-family: var(--font-head); font-size: 16px; font-style: italic; color: var(--ink-soft); line-height: 1.55; max-width: 760px; }
+.subsection-body { margin-left: 260px; max-width: 980px; }
+@media (max-width: 1100px) { .subsection-meta { grid-template-columns: 1fr; } .subsection-body { margin-left: 0; } .module-head { grid-template-columns: 1fr; } .module-tag { position: static; } }
+
+.takeaway { background: var(--cream); border-left: 4px solid var(--crimson); padding: 18px 24px; margin: 28px 0; display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
+.subsection[data-level="expert"] .takeaway { border-left-color: var(--gold); }
+.takeaway-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--crimson); }
+.subsection[data-level="expert"] .takeaway-label { color: var(--gold-dk); }
+.takeaway-text { font-family: var(--font-head); font-size: 15px; font-style: italic; line-height: 1.55; color: var(--ink-soft); }
+
+.quote-block { display: grid; grid-template-columns: 6px 1fr; gap: 24px; margin: 32px 0; align-items: start; }
+.quote-bar { background: var(--crimson); height: 100%; }
+.subsection[data-level="expert"] .quote-bar { background: var(--gold); }
+.quote-text { font-family: var(--font-head); font-size: 28px; font-weight: 300; font-style: italic; line-height: 1.35; letter-spacing: -0.01em; color: var(--ink); }
+.quote-text.small { font-size: 22px; }
+
+.card-grid { display: grid; gap: 16px; margin: 24px 0; }
+.card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 880px) { .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .card-grid.cols-2, .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: 1fr; } }
+.ncard { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--crimson); padding: 18px 20px; }
+.ncard.gold { border-left-color: var(--gold); }
+.ncard.navy { border-left-color: var(--navy); }
+.ncard.teal { border-left-color: var(--teal); }
+.ncard.sage { border-left-color: var(--sage); }
+.subsection[data-level="expert"] .ncard:not(.gold):not(.navy):not(.teal):not(.sage) { border-left-color: var(--gold); }
+.ncard-num { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--crimson); letter-spacing: 0.12em; margin-bottom: 8px; }
+.ncard.gold .ncard-num { color: var(--gold); }
+.ncard.navy .ncard-num { color: var(--navy); }
+.ncard.teal .ncard-num { color: var(--teal); }
+.subsection[data-level="expert"] .ncard:not(.gold):not(.navy):not(.teal):not(.sage) .ncard-num { color: var(--gold); }
+.ncard-title { font-family: var(--font-head); font-size: 17px; font-weight: 500; line-height: 1.25; margin-bottom: 8px; color: var(--ink); }
+.ncard-body { font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); }
+.ncard-body em { font-family: var(--font-head); font-style: italic; }
+
+.stat-grid { display: grid; gap: 12px; margin: 24px 0; }
+.stat-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 880px) { .stat-grid.cols-3 { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { background: var(--cream); border: 1px solid var(--rule); padding: 24px 20px; }
+.stat-card-number { font-family: var(--font-head); font-size: 44px; font-weight: 400; line-height: 1; color: var(--crimson); letter-spacing: -0.02em; margin-bottom: 10px; }
+.stat-card.gold .stat-card-number { color: var(--gold); }
+.stat-card.navy .stat-card-number { color: var(--navy); }
+.stat-card-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--slate); margin-bottom: 6px; }
+.stat-card-detail { font-family: var(--font-head); font-size: 13.5px; font-style: italic; color: var(--ink-soft); line-height: 1.5; }
+
+.ctable { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 24px 0; }
+.ctable thead { background: var(--ink); color: var(--paper); }
+.ctable thead th { padding: 12px 14px; text-align: left; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.ctable tbody tr { background: var(--surface); border-bottom: 1px solid var(--rule-soft); }
+.ctable tbody tr:nth-child(even) { background: var(--rule-soft); }
+.ctable tbody td { padding: 12px 14px; vertical-align: top; color: var(--ink-soft); }
+.ctable tbody td.col-key { font-family: var(--font-head); font-weight: 500; color: var(--ink); font-size: 14.5px; }
+.ctable tbody td.col-az { color: var(--crimson); font-weight: 500; }
+.subsection[data-level="expert"] .ctable tbody td.col-az { color: var(--gold); }
+.ctable tbody td.muted { color: var(--slate); font-style: italic; }
+
+.chart { background: var(--surface); border: 1px solid var(--rule); padding: 24px; margin: 24px 0; }
+.chart-title { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--crimson); margin-bottom: 4px; }
+.subsection[data-level="expert"] .chart-title { color: var(--gold); }
+.chart-subtitle { font-family: var(--font-head); font-size: 16px; color: var(--ink); margin-bottom: 16px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart-source { font-family: var(--font-mono); font-size: 9.5px; color: var(--faint); margin-top: 8px; letter-spacing: 0.06em; }
+
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+@media (max-width: 880px) { .three-col { grid-template-columns: 1fr; } }
+.tc-card { background: var(--surface); border: 1px solid var(--rule); display: flex; flex-direction: column; }
+.tc-card-head { background: var(--crimson); color: white; padding: 14px 18px; }
+.tc-card.gold .tc-card-head { background: var(--gold); }
+.tc-card.navy .tc-card-head { background: var(--navy); }
+.subsection[data-level="expert"] .tc-card:not(.gold):not(.navy):not(.teal):not(.muted) .tc-card-head { background: var(--gold); }
+.tc-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.9; margin-bottom: 4px; }
+.tc-head-title { font-family: var(--font-head); font-size: 18px; font-weight: 500; line-height: 1.2; }
+.tc-card-body { padding: 18px 20px 22px; flex: 1; }
+.tc-section { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); margin: 12px 0 6px; }
+.tc-section:first-child { margin-top: 0; }
+.tc-list { list-style: none; padding: 0; }
+.tc-list li { padding-left: 16px; position: relative; font-size: 13px; line-height: 1.5; color: var(--ink-soft); margin-bottom: 6px; }
+.tc-list li::before { content: ""; position: absolute; left: 0; top: 0.65em; width: 6px; height: 6px; border-radius: 50%; background: var(--crimson); }
+.tc-card.gold .tc-list li::before { background: var(--gold); }
+.tc-card.navy .tc-list li::before { background: var(--navy); }
+.subsection[data-level="expert"] .tc-card:not(.gold):not(.navy):not(.teal):not(.muted) .tc-list li::before { background: var(--gold); }
+.tc-body-text { font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 8px; }
+.tc-body-text em { font-family: var(--font-head); font-style: italic; }
+
+.pillar-card { background: var(--surface); border: 1px solid var(--rule); overflow: hidden; display: flex; flex-direction: column; }
+.pillar-card-head { background: var(--crimson); color: white; padding: 12px 20px; }
+.pillar-card.gold .pillar-card-head { background: var(--gold); }
+.pillar-card.navy .pillar-card-head { background: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-card-head { background: var(--gold); }
+.pillar-card-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.9; }
+.pillar-card-body { padding: 22px 24px; flex: 1; display: flex; flex-direction: column; }
+.pillar-card-title { font-family: var(--font-head); font-size: 22px; font-weight: 500; line-height: 1.2; margin-bottom: 12px; color: var(--ink); }
+.pillar-card-claim { font-family: var(--font-head); font-size: 14px; font-style: italic; color: var(--crimson); line-height: 1.5; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+.pillar-card.gold .pillar-card-claim { color: var(--gold); }
+.pillar-card.navy .pillar-card-claim { color: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-card-claim { color: var(--gold); }
+.pillar-section-label { font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--slate); margin-bottom: 6px; }
+.pillar-evidence { list-style: none; padding: 0; margin-bottom: 18px; }
+.pillar-evidence li { padding-left: 14px; position: relative; font-size: 12.5px; line-height: 1.45; color: var(--ink-soft); margin-bottom: 4px; }
+.pillar-evidence li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 5px; height: 5px; border-radius: 50%; background: var(--crimson); }
+.pillar-card.gold .pillar-evidence li::before { background: var(--gold); }
+.pillar-card.navy .pillar-evidence li::before { background: var(--navy); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-evidence li::before { background: var(--gold); }
+.pillar-bet { font-family: var(--font-head); font-size: 14px; font-weight: 500; color: var(--crimson); margin-top: auto; padding-top: 12px; border-top: 1px solid var(--rule); }
+.pillar-card.gold .pillar-bet { color: var(--gold); }
+.subsection[data-level="expert"] .pillar-card:not(.gold):not(.navy) .pillar-bet { color: var(--gold); }
+
+.hero { background: var(--ink); color: var(--paper); padding: 88px 0 96px; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(182, 139, 63, 0.10) 0, transparent 50%), radial-gradient(circle at 15% 80%, rgba(158, 42, 43, 0.12) 0, transparent 50%); pointer-events: none; }
+.hero-inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; position: relative; }
+.hero-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-soft); margin-bottom: 20px; }
+.hero-title { font-family: var(--font-head); font-size: clamp(48px, 7vw, 96px); font-weight: 300; line-height: 0.96; letter-spacing: -0.025em; margin-bottom: 32px; max-width: 1100px; }
+.hero-title em { font-style: italic; font-weight: 300; color: var(--gold-soft); }
+.hero-dek { font-family: var(--font-head); font-size: clamp(18px, 1.8vw, 22px); font-style: italic; color: #c7ccd6; max-width: 720px; margin-bottom: 40px; line-height: 1.45; }
+.hero-meta { display: grid; grid-template-columns: auto auto auto auto; gap: 64px; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 32px; max-width: 1100px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; color: #a8b0bd; }
+.hero-meta strong { display: block; color: var(--gold-soft); font-size: 22px; font-weight: 400; font-family: var(--font-head); margin-top: 6px; text-transform: none; letter-spacing: 0; font-style: italic; }
+@media (max-width: 880px) { .hero-meta { grid-template-columns: 1fr 1fr; gap: 24px; } }
+
+.footer { background: var(--ink); color: var(--paper); padding: 64px 0 48px; margin-top: 80px; }
+.footer-inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+.footer-rule { height: 1px; background: var(--gold-soft); width: 120px; margin-bottom: 24px; }
+.footer-title { font-family: var(--font-head); font-size: 28px; font-weight: 400; margin-bottom: 12px; }
+.footer-meta { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #a8b0bd; }
+
+.candidate-section { background: linear-gradient(180deg, #f4eee0 0%, #f8f3e7 60%, var(--paper) 100%); padding: 96px 0 88px; position: relative; border-bottom: 1px solid var(--rule); overflow: hidden; }
+.candidate-section::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--gold) 0%, var(--crimson) 50%, var(--navy) 100%); }
+.candidate-head { max-width: 1100px; margin-bottom: 56px; position: relative; z-index: 1; }
+.candidate-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+.candidate-eyebrow::before { content: ""; width: 36px; height: 1px; background: var(--gold); }
+.candidate-title { font-family: var(--font-head); font-size: clamp(48px, 6.5vw, 84px); font-weight: 300; line-height: 0.98; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 32px; }
+.candidate-title em { font-style: italic; font-weight: 400; color: var(--crimson); }
+.candidate-dek { font-family: var(--font-head); font-size: clamp(18px, 1.7vw, 21px); font-style: italic; line-height: 1.6; color: var(--ink-soft); max-width: 920px; }
+.candidate-dek strong { font-style: normal; font-weight: 500; color: var(--ink); background: linear-gradient(180deg, transparent 60%, var(--gold-pale) 60%); padding: 0 2px; }
+.candidate-sub { margin: 64px 0; position: relative; z-index: 1; }
+.candidate-sub-head { display: grid; grid-template-columns: 80px 1fr; gap: 28px; margin-bottom: 28px; align-items: baseline; }
+.candidate-sub-num { font-family: var(--font-head); font-size: 36px; font-weight: 300; font-style: italic; color: var(--crimson); line-height: 1; text-align: right; border-right: 2px solid var(--crimson); padding-right: 16px; }
+.candidate-sub-title { font-family: var(--font-head); font-size: clamp(24px, 2.4vw, 32px); font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); }
+.candidate-sub-lede { font-family: var(--font-head); font-size: 16px; font-style: italic; color: var(--ink-soft); margin: 8px 0 0 108px; max-width: 820px; }
+.candidate-sub-body { margin-left: 108px; margin-top: 28px; }
+@media (max-width: 1100px) { .candidate-sub-head { grid-template-columns: 1fr; } .candidate-sub-num { text-align: left; border-right: none; border-bottom: 2px solid var(--crimson); padding-right: 0; padding-bottom: 4px; display: inline-block; } .candidate-sub-lede, .candidate-sub-body { margin-left: 0; } }
+.career-tl { background: white; border: 1px solid var(--rule); padding: 28px 24px; margin: 24px 0; }
+.career-tl svg { display: block; width: 100%; height: auto; }
+.combo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 24px 0; }
+@media (max-width: 980px) { .combo-grid { grid-template-columns: 1fr; } }
+.combo-card { background: white; border: 1px solid var(--rule); padding: 28px 26px 30px; position: relative; display: flex; flex-direction: column; }
+.combo-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--crimson); }
+.combo-card.gold::before { background: var(--gold); }
+.combo-card.navy::before { background: var(--navy); }
+.combo-num { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; color: var(--crimson); margin: 6px 0 14px; }
+.combo-card.gold .combo-num { color: var(--gold); }
+.combo-card.navy .combo-num { color: var(--navy); }
+.combo-title { font-family: var(--font-head); font-size: 22px; font-weight: 500; line-height: 1.22; margin-bottom: 16px; color: var(--ink); }
+.combo-formula { font-family: var(--font-head); font-size: 17px; font-style: italic; font-weight: 400; color: var(--crimson); margin: 14px 0; padding: 14px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); text-align: center; }
+.combo-card.gold .combo-formula { color: var(--gold); }
+.combo-card.navy .combo-formula { color: var(--navy); }
+.combo-body { font-size: 13.5px; line-height: 1.62; color: var(--ink-soft); margin-top: 4px; }
+.combo-body strong { color: var(--ink); font-weight: 600; }
+
+.both-sides { background: white; border: 1px solid var(--rule); padding: 32px 28px; margin: 24px 0; display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; align-items: stretch; }
+@media (max-width: 880px) { .both-sides { grid-template-columns: 1fr; padding: 24px; gap: 24px; } }
+.bs-col { padding: 4px 24px; }
+.bs-col.left { border-right: 1px dashed var(--rule); }
+@media (max-width: 880px) { .bs-col.left { border-right: none; border-bottom: 1px dashed var(--rule); padding-bottom: 24px; } }
+.bs-bridge { display: grid; place-items: center; position: relative; }
+.bs-bridge-circle { width: 64px; height: 64px; border-radius: 50%; background: var(--ink); color: white; display: grid; place-items: center; font-family: var(--font-head); font-size: 30px; font-style: italic; }
+.bs-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.16em; color: var(--crimson); margin-bottom: 10px; }
+.bs-col.right .bs-tag { color: var(--gold); }
+.bs-title { font-family: var(--font-head); font-size: 20px; font-weight: 500; line-height: 1.2; margin-bottom: 8px; color: var(--ink); }
+.bs-years { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--slate); letter-spacing: 0.08em; margin-bottom: 16px; }
+.bs-list { list-style: none; padding: 0; }
+.bs-list li { padding-left: 18px; position: relative; font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 8px; }
+.bs-list li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 10px; height: 1.5px; background: var(--crimson); }
+.bs-col.right .bs-list li::before { background: var(--gold); }
+.bs-list li strong { color: var(--ink); font-weight: 600; }
+.bs-quote { font-family: var(--font-head); font-size: 19px; font-style: italic; line-height: 1.4; color: var(--crimson); text-align: center; grid-column: 1 / -1; margin: 32px 8px 8px; padding-top: 24px; border-top: 1px solid var(--rule); }
+
+.fit-map .ctable td.col-key { font-size: 14px; }
+.fit-map .ctable td.col-az { font-style: italic; }
+
+/* Builder portfolio specific */
+.builder-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin: 24px 0; }
+@media (max-width: 880px) { .builder-grid { grid-template-columns: 1fr; } }
+.build-card {
+  background: white; border: 1px solid var(--rule);
+  padding: 24px 26px;
+  position: relative;
+}
+.build-card::before {
+  content: ""; position: absolute;
+  top: 0; left: 0; width: 4px; height: 100%;
+  background: var(--code);
+}
+.build-tag {
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+  color: var(--code); letter-spacing: 0.14em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.build-title {
+  font-family: var(--font-head); font-size: 19px; font-weight: 500;
+  line-height: 1.2; color: var(--ink); margin-bottom: 8px;
+}
+.build-stack {
+  font-family: var(--font-mono); font-size: 10.5px;
+  color: var(--slate); margin-bottom: 12px;
+  letter-spacing: 0.04em;
+}
+.build-body {
+  font-size: 13px; line-height: 1.55; color: var(--ink-soft);
+}
+.build-body strong { color: var(--ink); }
+
+/* Motivation block */
+.motivation-block {
+  background: linear-gradient(135deg, var(--gold-bg) 0%, var(--cream) 100%);
+  border: 1px solid var(--gold-soft);
+  padding: 36px 40px;
+  margin: 24px 0;
+}
+.motivation-tag {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.20em; text-transform: uppercase;
+  color: var(--gold-dk); margin-bottom: 18px;
+}
+.motivation-text {
+  font-family: var(--font-head); font-size: 22px;
+  font-style: italic; line-height: 1.45;
+  color: var(--ink); margin-bottom: 16px;
+}
+.motivation-text strong {
+  font-style: normal; font-weight: 500;
+  color: var(--gold-dk);
+}
+.motivation-sub {
+  font-family: var(--font-head); font-size: 14px;
+  font-style: italic; color: var(--ink-soft);
+  border-top: 1px solid var(--gold-soft);
+  padding-top: 14px; margin-top: 14px;
+}
+
+/* Code-flavoured block */
+.code-block {
+  background: #1a1f2a; color: #e2e8f0;
+  font-family: var(--font-mono); font-size: 12px;
+  padding: 18px 22px;
+  border-left: 3px solid var(--gold);
+  margin: 18px 0;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.code-block .comment { color: #6b7280; font-style: italic; }
+.code-block .keyword { color: #c084fc; }
+.code-block .string { color: #d9b870; }
+.code-block .fn { color: #67e8f9; }
+
+/* ============ v2 · INTERACTIVE COMPONENTS ============ */
+.check-progress { background: var(--cream-deep); border: 1px solid var(--rule); padding: 16px 20px; margin: 0 0 24px; display: flex; align-items: center; gap: 18px; }
+.check-progress-bar { flex: 1; height: 10px; background: var(--rule-soft); position: relative; overflow: hidden; }
+.check-progress-fill { position: absolute; inset: 0 auto 0 0; width: 0%; background: linear-gradient(90deg, var(--crimson) 0%, var(--gold) 100%); transition: width 0.35s ease; }
+.check-progress-num { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink); min-width: 110px; text-align: right; letter-spacing: 0.06em; }
+.check-group { margin: 22px 0; }
+.check-group-title { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--crimson); border-bottom: 1px solid var(--rule); padding-bottom: 8px; margin-bottom: 10px; }
+.check-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border: 1px solid transparent; cursor: pointer; transition: background 0.15s ease; }
+.check-item:hover { background: var(--surface); border-color: var(--rule-soft); }
+.check-item input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--crimson); cursor: pointer; flex-shrink: 0; }
+.check-item span { font-size: 14.5px; color: var(--ink-soft); line-height: 1.5; }
+.check-item input:checked + span { color: var(--faint); text-decoration: line-through; text-decoration-color: var(--rule); }
+.check-reset { margin-top: 10px; background: transparent; border: 1px solid var(--rule); padding: 8px 16px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); cursor: pointer; transition: all 0.18s ease; }
+.check-reset:hover { color: var(--crimson); border-color: var(--crimson); }
+
+.drill-controls { display: flex; gap: 8px; margin: 0 0 18px; flex-wrap: wrap; }
+.drill-ctl { background: var(--surface); border: 1px solid var(--rule); padding: 9px 16px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); cursor: pointer; transition: all 0.18s ease; }
+.drill-ctl:hover { color: var(--crimson); border-color: var(--crimson); }
+.drill-grid { display: grid; gap: 12px; }
+.drill-card { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--crimson); padding: 16px 20px; }
+.subsection[data-level="expert"] .drill-card { border-left-color: var(--gold); }
+.drill-top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.drill-num { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; color: var(--faint); }
+.drill-q { font-family: var(--font-head); font-size: 18px; font-style: italic; color: var(--ink); line-height: 1.4; margin: 4px 0 10px; }
+.drill-btn { background: transparent; border: 1px solid var(--rule); padding: 6px 14px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--crimson); cursor: pointer; white-space: nowrap; transition: all 0.18s ease; }
+.drill-btn:hover { background: var(--crimson-bg); border-color: var(--crimson-soft); }
+.subsection[data-level="expert"] .drill-btn { color: var(--gold-dk); }
+.subsection[data-level="expert"] .drill-btn:hover { background: var(--gold-bg); border-color: var(--gold-soft); }
+.drill-a { display: none; border-top: 1px dashed var(--rule); margin-top: 6px; padding-top: 12px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
+.drill-card.open .drill-a { display: block; }
+.drill-a strong { color: var(--ink); }
+
+.flash-stage { display: grid; gap: 14px; max-width: 720px; }
+.flash-card { background: var(--surface); border: 1px solid var(--rule); min-height: 240px; cursor: pointer; position: relative; display: grid; place-items: center; padding: 36px 44px; text-align: center; transition: border-color 0.2s ease; }
+.flash-card:hover { border-color: var(--gold-soft); }
+.flash-card::after { content: "tap to flip"; position: absolute; bottom: 12px; right: 16px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint); }
+.flash-side-label { position: absolute; top: 12px; left: 16px; font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dk); }
+.flash-front-text { font-family: var(--font-head); font-size: 32px; font-weight: 400; color: var(--ink); line-height: 1.2; }
+.flash-back-text { font-size: 15px; color: var(--ink-soft); line-height: 1.6; text-align: left; }
+.flash-back-text .director-angle { display: block; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--rule); font-family: var(--font-head); font-style: italic; font-size: 14px; color: var(--gold-dk); }
+.flash-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.flash-counter { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.10em; color: var(--slate); }
+.flash-btns { display: flex; gap: 8px; }
+
+.pitch-script { background: var(--surface); border: 1px solid var(--rule); border-top: 3px solid var(--crimson); padding: 28px 34px; margin: 20px 0; }
+.pitch-script-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--crimson); margin-bottom: 14px; }
+.pitch-script p { font-family: var(--font-head); font-size: 18.5px; font-weight: 300; line-height: 1.65; color: var(--ink); }
+.pitch-script p + p { margin-top: 14px; }
+.pitch-script em { color: var(--crimson); font-style: italic; }
+
+.plan-col-head { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+@media (max-width: 600px) { .flash-card { padding: 28px 22px; min-height: 200px; } .flash-front-text { font-size: 24px; } }
+/* ============ end v2 additions ============ */
+
+/* ============ v2.1 · ROBUST LEVELS (no-JS safe) ============ */
+.subsection[data-level="expert"] { display: block; }
+.module[data-active-level="foundations"] .subsection[data-level="expert"] { display: none; }
+.module[data-active-level="all"] .subsection[data-level="foundations"],
+.module[data-active-level="all"] .subsection[data-level="expert"] { display: block; }
+.level-btn[data-level="all"] .dot { background: var(--navy-soft); }
+.level-btn[data-level="all"].active { background: var(--ink); color: white; }
+/* ============ end v2.1 ============ */
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark">J</span>
+      <span class="brand-text">EAI Process &amp; Innovation · <strong>v2.1</strong></span>
+    </a>
+    <div class="module-nav">
+      <a href="#candidate" style="color: var(--gold); border-color: var(--gold-pale); background: var(--gold-pale);">§</a>
+      <a href="#m1">I</a><a href="#m2">II</a><a href="#m3">III</a><a href="#m4">IV</a>
+      <a href="#m5">V</a><a href="#m6">VI</a><a href="#m7">VII</a><a href="#m8">VIII</a><a href="#m9">IX</a>
+    </div>
+    <div class="topbar-meta">Director · EAI Process &amp; Innovation<br/>Two-tier · Foundations · Expert</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Briefing dossier · v2.1 · June 2026 · Two-tier · Interactive</div>
+    <h1 class="hero-title">From idea <em>to</em><br/>production.</h1>
+    <p class="hero-dek">The role asks for strategy, code, and scale — in one operator. A career built on Business Operations, Lean transformation, and AI delivery from day one. The continuation of why I joined AZ.</p>
+    <div class="hero-meta">
+      <div>Role<strong>Director, EAI Process &amp; Innovation</strong></div>
+      <div>Unit<strong>Enterprise AI · #EAI</strong></div>
+      <div>Posture<strong>Hands-on technical leadership</strong></div>
+      <div>Prepared for<strong>Joaquín · Barcelona</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- CANDIDATE PROLOGUE -->
+<section class="candidate-section" id="candidate">
+  <div class="container">
+
+    <header class="candidate-head">
+      <div class="candidate-eyebrow">Prologue · the candidate</div>
+      <h1 class="candidate-title">Twenty years of <em>process × code × scale.</em></h1>
+      <p class="candidate-dek">This role asks for a Director who can write code on a Monday, chair a steering committee on a Tuesday, and present strategic vision to the C-suite on a Wednesday. <strong>Business Operations</strong> at IQVIA. <strong>Advanced Lean certified</strong>. <strong>13 years</strong> consulting + transformation in pharma. <strong>AI delivery from day one</strong> — US patent. Current <strong>DS&amp;AI</strong> role. Plus a portfolio of personal builds that proves the "hands-on" claim is verifiable, not aspirational.</p>
+    </header>
+
+    <!-- 01 · Career arc -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">01</div>
+        <h2 class="candidate-sub-title">Five eras · one throughline · process transformation at scale.</h2>
+      </div>
+      <p class="candidate-sub-lede">From legal foundation through commercial P&amp;L through analytics + AI delivery through enterprise operating discipline.</p>
+
+      <div class="candidate-sub-body">
+        <div class="career-tl">
+          <svg viewBox="0 0 1240 480" xmlns="http://www.w3.org/2000/svg">
+            <line x1="80" y1="280" x2="1180" y2="280" stroke="#1b1f2a" stroke-width="2"/>
+            <g>
+              <line x1="80" y1="275" x2="80" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="80" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2005</text>
+              <line x1="330" y1="275" x2="330" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="330" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2010</text>
+              <line x1="580" y1="275" x2="580" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="580" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2015</text>
+              <line x1="830" y1="275" x2="830" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="830" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2020</text>
+              <line x1="1080" y1="275" x2="1080" y2="290" stroke="#1b1f2a" stroke-width="1.5"/>
+              <text x="1080" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1b1f2a">2025</text>
+            </g>
+            <rect x="80" y="252" width="50" height="22" fill="#b68b3f"/>
+            <rect x="130" y="252" width="150" height="22" fill="#c84b4d"/>
+            <rect x="280" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="430" y="252" width="150" height="22" fill="#21304d"/>
+            <rect x="580" y="252" width="100" height="22" fill="#c84b4d"/>
+            <rect x="680" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="780" y="252" width="100" height="22" fill="#9e2a2b"/>
+            <rect x="880" y="252" width="150" height="22" fill="#6d1a1b"/>
+            <rect x="1030" y="252" width="100" height="22" fill="#1b1f2a"/>
+
+            <line x1="105" y1="252" x2="105" y2="220" stroke="#b68b3f" stroke-width="0.8"/>
+            <text x="105" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">Garrigues</text>
+            <text x="105" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Audit-by-training</text>
+
+            <line x1="505" y1="252" x2="505" y2="220" stroke="#21304d" stroke-width="0.8"/>
+            <text x="505" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">L'Oréal · Head BI</text>
+            <text x="505" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">€90M P&amp;L · BI</text>
+
+            <line x1="730" y1="252" x2="730" y2="220" stroke="#9e2a2b" stroke-width="0.8"/>
+            <text x="730" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">Spain ACOE Lead</text>
+            <text x="730" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">US patent · AI</text>
+
+            <line x1="955" y1="252" x2="955" y2="220" stroke="#6d1a1b" stroke-width="0.8"/>
+            <text x="955" y="208" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">OE Director · IQVIA</text>
+            <text x="955" y="194" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">$15M+ · Lean × Ops</text>
+
+            <line x1="205" y1="252" x2="205" y2="148" stroke="#c84b4d" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="205" y="138" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">IMS · Junior</text>
+            <text x="205" y="124" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">SFE · process</text>
+
+            <line x1="330" y1="252" x2="330" y2="100" stroke="#9e2a2b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="330" y="90" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">IMS · Senior</text>
+            <text x="330" y="76" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">Brussels · consulting</text>
+
+            <line x1="830" y1="252" x2="830" y2="148" stroke="#9e2a2b" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <text x="830" y="138" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="500" fill="#1b1f2a">Europe ACOE</text>
+            <text x="830" y="124" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b7280">20+ team · AI ops</text>
+
+            <line x1="1080" y1="252" x2="1080" y2="80" stroke="#1b1f2a" stroke-width="1.2"/>
+            <rect x="970" y="48" width="220" height="36" fill="#1b1f2a"/>
+            <text x="1080" y="66" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="15" font-weight="600" fill="#b68b3f">AstraZeneca · DS&amp;AI</text>
+            <text x="1080" y="78" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="500" fill="white" letter-spacing="1.2">PORTFOLIO + AI · NOW</text>
+
+            <g transform="translate(0, 340)">
+              <line x1="80" y1="0" x2="380" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="230" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#9e2a2b">ERA I · LEGAL + STRATEGY</text>
+              <text x="230" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">Process discipline foundation</text>
+
+              <line x1="430" y1="0" x2="580" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="505" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#21304d">ERA II · COMMERCIAL P&amp;L</text>
+              <text x="505" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">BI + business case craft</text>
+
+              <line x1="580" y1="0" x2="880" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="730" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#9e2a2b">ERA III · AI DELIVERY</text>
+              <text x="730" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">US patent · AI productionised</text>
+
+              <line x1="880" y1="0" x2="1030" y2="0" stroke="#6b7280" stroke-width="1"/>
+              <text x="955" y="22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#6d1a1b">ERA IV · OE DIRECTOR</text>
+              <text x="955" y="36" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#6b7280">$15M+ · Lean × Ops at scale</text>
+
+              <line x1="1030" y1="56" x2="1130" y2="56" stroke="#1b1f2a" stroke-width="2"/>
+              <text x="1080" y="78" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="2" fill="#1b1f2a">ERA V · AZ DS&amp;AI</text>
+              <text x="1080" y="92" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11.5" font-style="italic" fill="#1b1f2a">EAI engaged · hands-on builder</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The throughline</div>
+          <div class="takeaway-text">Every era trained one layer of what this role asks for. Era IV (Operational Effectiveness at scale, $15M+ delivered, Lean transformation craft) is the spine; Era III (AI productionised, US patent) is the proof; Era V (DS&amp;AI inside, EAI-engaged, hands-on building outside) is the immediacy.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 · Numbers -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">02</div>
+        <h2 class="candidate-sub-title">Six outcomes — each maps directly to a JD accountability.</h2>
+      </div>
+      <p class="candidate-sub-lede">Verifiable. Specific. At scale.</p>
+
+      <div class="candidate-sub-body">
+        <div class="stat-grid cols-3">
+          <div class="stat-card">
+            <div class="stat-card-label">Delivery scale</div>
+            <div class="stat-card-number">$15M+</div>
+            <div class="stat-card-detail">IQVIA Operational Effectiveness Director · Org Deep Dive · Lean × process × ops applied globally with full benefit realisation.</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-card-label">Cross-country team</div>
+            <div class="stat-card-number">20+</div>
+            <div class="stat-card-detail">Consultants led across <strong>7 countries</strong> · Europe ACOE · matrix delivery against SLA + KPI bars.</div>
+          </div>
+          <div class="stat-card navy">
+            <div class="stat-card-label">P&amp;L + BI</div>
+            <div class="stat-card-number">€90M</div>
+            <div class="stat-card-detail">L'Oréal Pharma Beauty · Head of BI · brand-level forecasting · finance partnership · business-case craft.</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">AI productionised</div>
+            <div class="stat-card-number" style="font-size: 38px;">US patent</div>
+            <div class="stat-card-detail">Investigator + Site ID AI · co-inventor · concept → prototype → production → adoption · full lifecycle.</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-card-label">Pharma tenure</div>
+            <div class="stat-card-number">15+</div>
+            <div class="stat-card-detail">Years in pharma (IMS, IQVIA, AZ). Continuous transformation, analytics + AI delivery — across vendor + client side.</div>
+          </div>
+          <div class="stat-card navy">
+            <div class="stat-card-label">Builder output</div>
+            <div class="stat-card-number">~14.5K</div>
+            <div class="stat-card-detail">Lines of code in one personal build alone (Spanish macro simulator v2.8). One of ~10 substantial hands-on apps shipped in the last 18 months.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 · Four combinations -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">03</div>
+        <h2 class="candidate-sub-title">Four combinations the JD asks for — together, exceptionally rare.</h2>
+      </div>
+      <p class="candidate-sub-lede">Most candidates have two. The intersection of all four is the differentiator for hands-on Director-level EAI work.</p>
+
+      <div class="candidate-sub-body">
+        <div class="combo-grid">
+          <div class="combo-card">
+            <div class="combo-num">COMBINATION 01</div>
+            <h3 class="combo-title">Transform × Lean × Consulting</h3>
+            <div class="combo-formula">$15M+ delivered · Advanced Lean cert · 13 yrs consulting</div>
+            <p class="combo-body"><strong>Operational Effectiveness Director</strong> at IQVIA (global Org Deep Dive · $15M+ savings) · <strong>Advanced Lean certified</strong> with operational rigour built on a legal foundation · 13 years IMS/IQVIA <strong>transformation consulting</strong> at top pharma clients. End-to-end process transformation is not a competency to grow into — it is the spine of the career.</p>
+          </div>
+          <div class="combo-card gold">
+            <div class="combo-num">COMBINATION 02</div>
+            <h3 class="combo-title">AI delivery from day one</h3>
+            <div class="combo-formula">US patent · ACOE Europe · current DS&amp;AI</div>
+            <p class="combo-body"><strong>US patent</strong> on AI Site ID — co-inventor on a production-deployed AI system. <strong>Europe ACOE</strong> ran AI/analytics use cases across 7 countries. <strong>Current AZ DS&amp;AI</strong> Director role gives day-to-day exposure to ML lifecycle, model governance, GenAI architectures from inside. AI is not a recent pivot — it is a 10+ year continuous arc.</p>
+          </div>
+          <div class="combo-card navy">
+            <div class="combo-num">COMBINATION 03</div>
+            <h3 class="combo-title">Business Ops × Director scale</h3>
+            <div class="combo-formula">OE Director · 20+ team · 7 countries</div>
+            <p class="combo-body">Three consecutive <strong>Director-level</strong> roles (IQVIA OE · AZ DS&amp;AI · this target) with <strong>multi-disciplinary team leadership</strong> across business, engineering, data, change and risk. Operating effectiveness Director means leading transformation programmes against SLA + KPI bars with Finance partnership. The JD's "delivery leadership" is exactly this work.</p>
+          </div>
+        </div>
+
+        <div class="combo-grid" style="margin-top: 0;">
+          <div class="combo-card" style="grid-column: 1 / -1; grid-template-columns: 1fr;">
+            <div class="combo-num">COMBINATION 04 · THE BUILDER DIMENSION</div>
+            <h3 class="combo-title">Hands-on technical credibility — provable, not claimed.</h3>
+            <div class="combo-formula">~10 substantial shipped builds · React · Python · APIs · Supabase · Streamlit · multi-agent design · ~14.5K LoC one project alone</div>
+            <p class="combo-body">The JD asks for someone who can "dive into code and data when it accelerates delivery." The portfolio in <strong>Section 04 below</strong> shows ten substantial personal builds shipped in 18 months — including a 14,500-line Spanish macroeconomic simulator, a React healthcare investment thesis tool, an Atlas multi-agent design, a Spanish mortgage simulator with ECB API + Supabase auth, and a Streamlit/Snowflake pharmaceutical analytics platform (Insight Explorer). <strong>This is not a Director who "supervises code" — this is a Director who writes it.</strong></p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The integration</div>
+          <div class="takeaway-text">Most candidates have one or two of these. The JD requires all four working together — strategic transformation + hands-on builder + Director-scale delivery + ongoing AI fluency. The combinations stack precisely against the role's accountability set.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 · Builder portfolio -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">04</div>
+        <h2 class="candidate-sub-title">The builder portfolio — proof of hands-on, ready to demonstrate.</h2>
+      </div>
+      <p class="candidate-sub-lede">Eight substantial personal builds shipped in the last 18 months. Each tested by usage. Each viewable on request.</p>
+
+      <div class="candidate-sub-body">
+        <div class="builder-grid">
+
+          <div class="build-card">
+            <div class="build-tag">SIMULATION · ECONOMIC MODEL</div>
+            <div class="build-title">Blondie Macro España (v2.8)</div>
+            <div class="build-stack">React · TypeScript · D3 · custom economic model · ~14,500 lines</div>
+            <div class="build-body">Spanish macroeconomic simulator with an Austrian economics lens. Iterated to v2.8 across multiple modelling sessions. <strong>Demonstrates</strong>: large-scale code authorship, model architecture decisions, iteration discipline, domain-modelling depth.</div>
+          </div>
+
+          <div class="build-card">
+            <div class="build-tag">ANALYTICS · PHARMA</div>
+            <div class="build-title">Insight Explorer</div>
+            <div class="build-stack">Streamlit · Snowflake · 10 modules · AI30 vision framing</div>
+            <div class="build-body">Pharmaceutical analytics platform built for AZ EA Hackathon with Axial Ventures team, reaching v11 with 10 modules. <strong>Demonstrates</strong>: Snowflake fluency, Streamlit production, enterprise analytics design — directly inside the AZ context.</div>
+          </div>
+
+          <div class="build-card">
+            <div class="build-tag">MULTI-AGENT · DESIGN</div>
+            <div class="build-title">Atlas — portfolio intelligence layer</div>
+            <div class="build-stack">Multi-agent architecture · multi-source intelligence concept</div>
+            <div class="build-body">Enterprise-wide multi-agent, multi-source portfolio intelligence concept developed for AZ. <strong>Demonstrates</strong>: agentic workflow fluency, enterprise data integration thinking — at exactly the architecture sophistication this role demands.</div>
+          </div>
+
+          <div class="build-card">
+            <div class="build-tag">FULL-STACK · API + AUTH</div>
+            <div class="build-title">Spanish mortgage simulator</div>
+            <div class="build-stack">React · ECB API integration · Supabase auth · persisted state</div>
+            <div class="build-body">End-to-end production-flavoured app with external API integration, auth layer, and persisted user state. <strong>Demonstrates</strong>: full-stack delivery, API integration, auth + persistence patterns — the same vocabulary as enterprise web applications.</div>
+          </div>
+
+          <div class="build-card">
+            <div class="build-tag">FINANCIAL · DECISION SUPPORT</div>
+            <div class="build-title">Healthcare investment thesis simulator</div>
+            <div class="build-stack">React · 12 assumptions · 22 sub-industries · 43 companies · scenario comparison · radar charts</div>
+            <div class="build-body">Decision-support tool with complex scenario logic, multi-dimensional comparison, and dynamic visualisation. <strong>Demonstrates</strong>: decision-support system design, multi-dimensional UX, complex state management.</div>
+          </div>
+
+          <div class="build-card">
+            <div class="build-tag">URBAN · GIS · DATA</div>
+            <div class="build-title">Cybercab Madrid robotaxi simulator</div>
+            <div class="build-stack">React · dual Leaflet maps · verified official data integration</div>
+            <div class="build-body">Economic impact simulator with dual interactive maps and verified data sourcing discipline. <strong>Demonstrates</strong>: GIS data integration, data-honesty tiering, complex visualisation — the kind of "advanced analytics" the JD names.</div>
+          </div>
+
+          <div class="build-card">
+            <div class="build-tag">EDUCATION · DEPLOYED APK</div>
+            <div class="build-title">Robot Programador · party games suite</div>
+            <div class="build-stack">HTML/JS · block-coding · physical mBot2 robot bridge · Android APK packaged</div>
+            <div class="build-body">Bridge between block-coding software and a physical mBot2 robot · party games suite packaged for Android TV. <strong>Demonstrates</strong>: hardware bridge work, packaging for deployment, end-user shipping discipline.</div>
+          </div>
+
+          <div class="build-card">
+            <div class="build-tag">CONTENT · DATABASE</div>
+            <div class="build-title">Sevillian genealogy web app</div>
+            <div class="build-stack">React · database of 150+ verified individuals · multi-family graph</div>
+            <div class="build-body">Genealogical web application covering Sevillian aristocratic families with verified individual records. <strong>Demonstrates</strong>: data-modelling discipline, content-database design, sustained personal-quality build.</div>
+          </div>
+
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"Director-level hands-on" is not an aspiration — it is what I do on evenings and weekends. The JD's question is whether the interviewer will believe it. The portfolio is the evidence pack.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">How to deploy this</div>
+          <div class="takeaway-text">In any round where coding capability is probed: offer to walk through one build (Macro España or Insight Explorer are the best). Live demo if remote; URL share if asynchronous. Most Director candidates cannot do this. The asymmetric signal is real and immediate.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 · Motivation continuity -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">05</div>
+        <h2 class="candidate-sub-title">Why this role is the continuation of why I joined AstraZeneca.</h2>
+      </div>
+      <p class="candidate-sub-lede">The motivation stated when joining AZ in 2024 — and how this role is the explicit continuation of it.</p>
+
+      <div class="candidate-sub-body">
+
+        <div class="motivation-block">
+          <div class="motivation-tag">The motivation, stated</div>
+          <p class="motivation-text">When I joined AstraZeneca, the case was simple: <strong>move from advising on transformation to delivering it</strong>, in a company with the <strong>ambition and infrastructure to scale AI</strong> for real patient impact. Two years inside, the case has held — and this role is the next logical layer.</p>
+          <div class="motivation-sub">From "advise the transformation" (IQVIA) → "operate the transformation" (AZ DS&amp;AI today) → "lead the transformation across enterprise processes" (this role). The continuity is what makes the candidacy coherent — not opportunistic.</div>
+        </div>
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">CONTINUITY 01</div>
+            <div class="ncard-title">Patient impact at scale</div>
+            <div class="ncard-body">The reason for the move from IQVIA to AZ was direct, not advisory. This role extends that: enterprise AI scaled across processes that touch patients faster, more reliably, at higher quality.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">CONTINUITY 02</div>
+            <div class="ncard-title">Strategy + delivery + code, in one role</div>
+            <div class="ncard-body">My two AZ years standardised PM and portfolio practices in DS&amp;AI — strategy and delivery. This role adds the hands-on technical layer back in. The triangle (strategy · delivery · build) is what makes EAI roles distinctive at AZ.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">CONTINUITY 03</div>
+            <div class="ncard-title">EAI is the system the AZ thesis lives in</div>
+            <div class="ncard-body">Already engaged on the #EAI agenda at N+2 leadership · already known to the central team · already operating in the org context. This is not a re-onboarding; it is a function shift inside a known system.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The interview move</div>
+          <div class="takeaway-text">If asked "why this role" — refuse the standard tactical answer. Anchor to the joining motivation: "When I joined AZ in 2024, the case was move from advising transformation to delivering it. This role is that case, extended to enterprise scale and hands-on technical depth. The thread is continuous."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 · Both sides -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">06</div>
+        <h2 class="candidate-sub-title">Vendor delivery side · client transformation side · already on both.</h2>
+      </div>
+      <p class="candidate-sub-lede">15+ years in pharma split across vendor delivery (IMS / IQVIA) and client transformation (AZ today). The seam IS the asset.</p>
+
+      <div class="candidate-sub-body">
+        <div class="both-sides">
+          <div class="bs-col left">
+            <div class="bs-tag">VENDOR DELIVERY · TRANSFORM AT SCALE</div>
+            <div class="bs-title">IMS Consulting · IQVIA · L'Oréal</div>
+            <div class="bs-years">2005 — 2024 · 19 years (13 in pharma at IMS/IQVIA)</div>
+            <ul class="bs-list">
+              <li><strong>Consulting</strong>: 13 yrs designing + delivering transformation at top pharma clients</li>
+              <li><strong>L'Oréal Head of BI</strong>: €90M P&amp;L · finance partnership · business-case craft</li>
+              <li><strong>ACOE Europe</strong>: 20+ team · 7 countries · AI/analytics use case factory</li>
+              <li><strong>OE Director</strong>: $15M+ delivered · Lean × process at enterprise scale</li>
+              <li><strong>AI production</strong>: US patent · concept → prototype → adoption</li>
+            </ul>
+          </div>
+          <div class="bs-bridge">
+            <div class="bs-bridge-circle">↔</div>
+          </div>
+          <div class="bs-col right">
+            <div class="bs-tag">CLIENT TRANSFORMATION · DS&amp;AI INSIDE</div>
+            <div class="bs-title">AstraZeneca · DS&amp;AI</div>
+            <div class="bs-years">2024 — NOW · 2 years · Barcelona · EAI engaged</div>
+            <ul class="bs-list">
+              <li>Director · DSAI Business Planning &amp; Operations</li>
+              <li><strong>Standardised portfolio + PM practices</strong> across DSAI function</li>
+              <li>Supporting R&amp;D across <strong>BBU and OBU</strong> — cross-BU exposure</li>
+              <li>Presented on #EAI agenda at <strong>N+2 leadership</strong></li>
+              <li><strong>Active builder</strong>: Insight Explorer, Atlas multi-agent concept, evening builds</li>
+            </ul>
+          </div>
+          <div class="bs-quote">15+ years pharma · vendor + client · delivered + currently operating. The transformation seam is the operating ground, not the stretch.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 · Fit map -->
+    <div class="candidate-sub">
+      <div class="candidate-sub-head">
+        <div class="candidate-sub-num">07</div>
+        <h2 class="candidate-sub-title">Every JD requirement to career evidence — the trace is clean.</h2>
+      </div>
+      <p class="candidate-sub-lede">Eight JD-named requirements. Eight evidence points.</p>
+
+      <div class="candidate-sub-body fit-map">
+        <table class="ctable">
+          <thead><tr><th style="width: 36%;">JD requirement</th><th>Career evidence</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">Extensive AI products + transformation in regulated enterprise</td><td class="col-az">$15M+ Org Deep Dive at IQVIA OE Director · US patent on AI Site ID · current DSAI inside AZ</td></tr>
+            <tr><td class="col-key">Business and executive-facing senior context</td><td class="col-az">VP/President presentations at IQVIA · #EAI N+2 leadership presentations at AZ · 13 yrs consulting at C-level</td></tr>
+            <tr><td class="col-key">Cross-functional enterprise work</td><td class="col-az">ACOE Europe 20+ team · 7 countries · current DSAI cross-BU · global Lean rollout at IQVIA</td></tr>
+            <tr><td class="col-key">Hands-on coding (Python / JS / Java)</td><td class="col-az">Builder portfolio (Section 04): ~14.5K LoC simulator · Streamlit/Snowflake · React full-stack · multi-agent design</td></tr>
+            <tr><td class="col-key">ML lifecycle, GenAI, RAG, agentic</td><td class="col-az">US patent on AI productionised · Atlas multi-agent design · current DSAI exposure to GenAI in pharma</td></tr>
+            <tr><td class="col-key">Data platforms, pipelines, monitoring</td><td class="col-az">Snowflake fluency (Insight Explorer) · ECB API integration · API design · production data pipelines from ACOE era</td></tr>
+            <tr><td class="col-key">Business model + business case</td><td class="col-az">€90M L'Oréal P&amp;L · IQVIA €350K/yr proposals · current AZ portfolio governance</td></tr>
+            <tr><td class="col-key">Governance, RAI, regulated environments</td><td class="col-az">Law degree foundation · GDPR/AI Act fluency · current AZ governance work · IQVIA compliance experience</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The compact case</div>
+          <div class="takeaway-text">There is no row in this table that requires a stretch. Each JD line item has been lived and measured — many at Director scale, all with verifiable evidence. The candidacy is fit by accumulation, with an unusually strong hands-on builder dimension.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE I — Decoding the role -->
+<section class="module" id="m1" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · I<span class="roman">I</span></div>
+      <div>
+        <h2 class="module-title">Decoding the role.</h2>
+        <p class="module-lede">Six accountabilities · three operating modes simultaneously · one Director who must hold them together.</p>
+        <div class="level-toggle" data-module="m1">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Six accountabilities · read them as a system, not as a list.</h3>
+          <p class="lede">Each accountability has a distinct stakeholder cluster and a distinct artefact set. The role asks for all six concurrently.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">PILLAR 01</div>
+            <div class="ncard-title">Business partnership &amp; solution shaping</div>
+            <div class="ncard-body">Senior trusted partner to business leaders · translate challenges into outcome-led use cases · advise on technical trade-offs.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">PILLAR 02</div>
+            <div class="ncard-title">Enterprise process transformation</div>
+            <div class="ncard-body">Design + deliver AI-enabled improvements across end-to-end processes · speed · quality · cost · decision effectiveness.</div>
+          </div>
+          <div class="ncard navy">
+            <div class="ncard-num">PILLAR 03</div>
+            <div class="ncard-title">Technical leadership · hands-on</div>
+            <div class="ncard-body">Engage with AI solutions through lifecycle · build prototypes · review code · diagnose technical challenges. The differentiator.</div>
+          </div>
+          <div class="ncard teal">
+            <div class="ncard-num">PILLAR 04</div>
+            <div class="ncard-title">Delivery leadership</div>
+            <div class="ncard-body">Lead multi-disciplinary teams (business · engineering · data · risk · change) from concept to production deployment + adoption.</div>
+          </div>
+          <div class="ncard sage">
+            <div class="ncard-num">PILLAR 05</div>
+            <div class="ncard-title">Governance, risk &amp; compliance</div>
+            <div class="ncard-body">Enterprise governance · Responsible AI · privacy · regulatory · embed controls + monitoring with Legal/Risk/Quality.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">PILLAR 06</div>
+            <div class="ncard-title">Capability building</div>
+            <div class="ncard-body">Grow AI literacy across business + transformation communities · coach teams · role-model rigorous value-led delivery.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"This is a hands-on leadership role. You will set direction, dive into code and data when it accelerates delivery." — the JD's central sentence, and the entire interview rests on whether the candidate can do both.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The framing discipline</div>
+          <div class="takeaway-text">Refuse the binary. The role is not "Director who codes" OR "Director who manages" — it is the Director who alternates fluently between both modes, depending on what accelerates delivery. Frame answers to demonstrate the alternation, not the side.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three operating modes — strategy · build · scale · ALL active simultaneously.</h3>
+          <p class="lede">No mode can be deferred. Mismatching mode to context is the most common Director-level failure.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="three-col">
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">MODE 01</div><div class="tc-head-title">Strategist</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Audience</div>
+              <ul class="tc-list">
+                <li>C-suite · business leaders</li>
+                <li>Senior governance forums</li>
+                <li>Sponsor + investment cases</li>
+              </ul>
+              <div class="tc-section">Artefacts</div>
+              <p class="tc-body-text"><em>Use case shaping · roadmaps · business cases · executive presentations.</em></p>
+            </div>
+          </div>
+          <div class="tc-card gold">
+            <div class="tc-card-head"><div class="tc-tag">MODE 02 — DIFFERENTIATOR</div><div class="tc-head-title">Builder</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Audience</div>
+              <ul class="tc-list">
+                <li>AI engineering + data teams</li>
+                <li>Prototype + PoC iterations</li>
+                <li>Architecture + quality reviews</li>
+              </ul>
+              <div class="tc-section">Artefacts</div>
+              <p class="tc-body-text"><em>Code · notebooks · pipelines · configuration · prototypes that move conversations.</em></p>
+            </div>
+          </div>
+          <div class="tc-card navy">
+            <div class="tc-card-head"><div class="tc-tag">MODE 03</div><div class="tc-head-title">Scaler</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Audience</div>
+              <ul class="tc-list">
+                <li>Cross-functional delivery teams</li>
+                <li>Risk · Legal · Quality · Compliance</li>
+                <li>Adoption + change communities</li>
+              </ul>
+              <div class="tc-section">Artefacts</div>
+              <p class="tc-body-text"><em>Production deployment plans · governance gates · adoption metrics · sustainability frameworks.</em></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The Director test</div>
+          <div class="takeaway-text">A Director in this role must shift mode within the same week — sometimes within the same meeting. The strategist-builder-scaler triangle IS the role. Single-mode candidates underperform regardless of how strong their dominant mode is.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">What "hands-on Director" actually means in practice — five operating signals, each codified.</h3>
+          <p class="lede">A Director who claims hands-on but cannot demonstrate it loses the interview at the technical screen. These are the signals the EAI panel will check.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">SIGNAL 01</div>
+            <div class="ncard-title">Reads code fluently</div>
+            <div class="ncard-body">When a technical PR or notebook is presented, the Director can review it, suggest changes, ask the right questions. Not necessarily author it — but read it as a peer.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">SIGNAL 02</div>
+            <div class="ncard-title">Prototypes when it unlocks</div>
+            <div class="ncard-body">When a stakeholder conversation is stuck, the Director can ship a working prototype within hours-to-days that moves the conversation. The Atlas concept is precisely this pattern.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">SIGNAL 03</div>
+            <div class="ncard-title">Diagnoses production issues</div>
+            <div class="ncard-body">When a model misbehaves in production, the Director can sit with the engineer, read the dashboards, ask the data quality questions, narrow the failure mode.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">SIGNAL 04</div>
+            <div class="ncard-title">Knows the architecture trade-offs</div>
+            <div class="ncard-body">RAG vs fine-tune · agentic vs deterministic · model card vs eval suite · latency vs cost · the Director can hold an architecture conversation at peer level.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">SIGNAL 05</div>
+            <div class="ncard-title">Calibrated on what to build vs buy vs delegate</div>
+            <div class="ncard-body">The Director knows when their hands on the keyboard accelerate the team vs when it slows the team. This calibration is the seniority.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">THE TEST</div>
+            <div class="ncard-title">All five together · the floor</div>
+            <div class="ncard-body">A Director who has 4/5 is hireable. A Director who has 5/5 is the one who scales the function. The candidacy must demonstrate all five concretely.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">The interview risk is not that the Director claims "hands-on" — it is that the panel asks "show me." Bring the builder portfolio (Section 04). It IS the show.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE II — Hands-on technical leadership -->
+<section class="module" id="m2" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · II<span class="roman">II</span></div>
+      <div>
+        <h2 class="module-title">Hands-on technical leadership.</h2>
+        <p class="module-lede">The JD's explicit differentiator. The tech surface · the languages · the lifecycle · the builder credentials.</p>
+        <div class="level-toggle" data-module="m2">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three languages named in the JD · the realistic Director-level surface for each.</h3>
+          <p class="lede">Python is the centre of gravity. JavaScript is the delivery layer. Java is the legacy / enterprise integration layer. A Director needs reading fluency in all three and writing fluency in Python + JS.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="three-col">
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">PYTHON · CORE</div><div class="tc-head-title">The AI / data centre of gravity</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Director-level surface</div>
+              <ul class="tc-list">
+                <li>Notebooks · pandas · numpy fluency</li>
+                <li>scikit-learn for classical ML</li>
+                <li>Hugging Face / OpenAI / Anthropic SDKs</li>
+                <li>LangChain · LlamaIndex · agent frameworks</li>
+                <li>FastAPI for service layer</li>
+                <li>Streamlit for rapid prototypes</li>
+              </ul>
+              <div class="tc-section">What to demonstrate</div>
+              <p class="tc-body-text"><em>Insight Explorer (Streamlit + Snowflake) is the direct demo. Atlas multi-agent design extends it.</em></p>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">JAVASCRIPT · DELIVERY</div><div class="tc-head-title">The application layer</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Director-level surface</div>
+              <ul class="tc-list">
+                <li>React + TypeScript fluency</li>
+                <li>Node.js for API + middleware</li>
+                <li>API integration (REST · GraphQL)</li>
+                <li>Auth patterns (OAuth · JWT · Supabase-class)</li>
+                <li>State management · component design</li>
+              </ul>
+              <div class="tc-section">What to demonstrate</div>
+              <p class="tc-body-text"><em>Spanish macro simulator (14.5K LoC React) · mortgage simulator (ECB API + Supabase) · healthcare investment thesis tool.</em></p>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">JAVA · ENTERPRISE</div><div class="tc-head-title">The legacy / integration layer</div></div>
+            <div class="tc-card-body">
+              <div class="tc-section">Director-level surface</div>
+              <ul class="tc-list">
+                <li>Reading existing Java codebases</li>
+                <li>Spring / Spring Boot familiarity</li>
+                <li>Integration patterns with Java services</li>
+                <li>Enterprise build + deploy systems</li>
+                <li>Honest gap acknowledgement: less personal output</li>
+              </ul>
+              <div class="tc-section">What to demonstrate</div>
+              <p class="tc-body-text"><em>Honest: less personal-build output in Java. Open to learn fast · IQVIA enterprise exposure helps · reading fluency is the realistic ask.</em></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The honest signal</div>
+          <div class="takeaway-text">Python + JavaScript are demonstrable through the builder portfolio. Java is the honest gap — but the JD lists it as "e.g." not as primary. A Director who is strong in Python + JS and reads Java fluently meets the bar; the JD does not require Java authorship.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The technical surface beyond languages — what the JD's "deep practical understanding" means in 2026.</h3>
+          <p class="lede">ML lifecycle · GenAI architectures · data platforms · failure modes · monitoring. Each has a Director-grade definition.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-4">
+          <div class="ncard">
+            <div class="ncard-num">DOMAIN 01</div>
+            <div class="ncard-title">ML lifecycle</div>
+            <div class="ncard-body">Data → feature → train → eval → deploy → monitor → retrain. Director knows the loop, the typical failure points, the cost levers.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">DOMAIN 02</div>
+            <div class="ncard-title">GenAI architectures</div>
+            <div class="ncard-body">RAG patterns · agentic workflows · fine-tuning vs prompting · multi-step reasoning · evaluation methodology.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">DOMAIN 03</div>
+            <div class="ncard-title">Data platforms</div>
+            <div class="ncard-body">Cloud data warehouses (Snowflake · BigQuery · Databricks) · vector DBs · feature stores · query patterns · cost economics.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">DOMAIN 04</div>
+            <div class="ncard-title">Monitoring &amp; failure modes</div>
+            <div class="ncard-body">Drift · degradation · hallucination · latency · cost spikes · data quality breaks · the Director knows what dashboards to read.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The reading list</div>
+          <div class="takeaway-text">Before the technical screen, refresh: RAG patterns (2025-26 best practices), agentic frameworks (LangGraph, AutoGen), Anthropic + OpenAI SDK current state, LLMOps maturity (eval, observability, prompt versioning). The current AZ DS&amp;AI work covers most; the gaps are 1-2 evenings of reading.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The builder credentials, deployed — how to walk a technical panel through the portfolio.</h3>
+          <p class="lede">Not the portfolio itself (that's prologue §04). This is the deployment playbook: which build for which audience, what to say, what to demo, what to refuse to claim.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead>
+            <tr>
+              <th style="width: 22%;">Audience</th>
+              <th style="width: 22%;">Lead build</th>
+              <th>How to walk it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-key">HR / recruiter</td>
+              <td class="col-az">Insight Explorer</td>
+              <td>Tied to AZ context (EA Hackathon). Recognisable. Don't go deep technical — emphasise the cross-functional team + 10 modules.</td>
+            </tr>
+            <tr>
+              <td class="col-key">Hiring manager</td>
+              <td class="col-az">Atlas multi-agent design</td>
+              <td>Architecture-level. Multi-agent, multi-source intelligence. Frame as "the kind of system I'd design at AZ" — direct architectural conversation.</td>
+            </tr>
+            <tr>
+              <td class="col-key">Technical screen</td>
+              <td class="col-az">Macro España + mortgage</td>
+              <td>Code-level depth. ~14.5K LoC React shows authorship; mortgage shows API + auth + persistence. Offer URL or live walkthrough.</td>
+            </tr>
+            <tr>
+              <td class="col-key">Cross-functional panel</td>
+              <td class="col-az">Cybercab Madrid + Robot Programador</td>
+              <td>Breadth signal. GIS data, urban economics, physical robotics bridge. Demonstrates that "hands-on" is genuinely a habit, not a single project.</td>
+            </tr>
+            <tr>
+              <td class="col-key">C-level</td>
+              <td class="col-az">Healthcare investment + Atlas</td>
+              <td>Strategic-build dual. Decision-support system design + agentic architecture. Land on: "I bring this same builder-strategist combination to every team I lead."</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="card-grid cols-2">
+          <div class="ncard">
+            <div class="ncard-num">REFUSAL 01</div>
+            <div class="ncard-title">Do not claim production-engineer experience</div>
+            <div class="ncard-body">The portfolio is "builder-grade" not "production-engineer-grade." Don't overclaim CI/CD, k8s, infra-as-code unless directly asked. The JD doesn't require it; the EAI engineering teams do that.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">REFUSAL 02</div>
+            <div class="ncard-title">Do not retrofit personal builds as professional</div>
+            <div class="ncard-body">Be honest: these are personal builds in evenings/weekends. Not deployed at AZ scale. They demonstrate <em>capability</em>, not <em>experience</em>. Calibration IS the seniority signal.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The closing line for the technical screen</div>
+          <div class="takeaway-text">"At Director level, hands-on means I can build the prototype that unblocks the team's conversation — and I do, in evenings if needed. I don't claim to be the production engineer; I claim to be the Director who reads the code and ships the bridge build when it accelerates delivery. The portfolio is the evidence."</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE III — Enterprise process transformation -->
+<section class="module" id="m3" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · III<span class="roman">III</span></div>
+      <div>
+        <h2 class="module-title">Enterprise process transformation.</h2>
+        <p class="module-lede">"Speed · quality · cost · decision effectiveness." Four levers. Lean × AI as the operating model. This is where Era IV of the career carries the most weight.</p>
+        <div class="level-toggle" data-module="m3">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Four levers the JD names — every transformation should declare itself against at least two.</h3>
+          <p class="lede">Speed · quality · cost · decision effectiveness. Each lever has a different measurement spine and a different stakeholder voice.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-4">
+          <div class="ncard">
+            <div class="ncard-num">LEVER 01</div>
+            <div class="ncard-title">Speed</div>
+            <div class="ncard-body">Cycle time · time-to-decision · time-to-deploy · throughput. AI compresses queues + automates routing.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 02</div>
+            <div class="ncard-title">Quality</div>
+            <div class="ncard-body">Error rate · accuracy · completeness · timeliness · rework reduction. AI improves consistency + catches edge cases.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 03</div>
+            <div class="ncard-title">Cost</div>
+            <div class="ncard-body">FTE freed · automation depth · cost avoidance · unit economics. The Lean classic, now AI-enabled.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">LEVER 04</div>
+            <div class="ncard-title">Decision effectiveness</div>
+            <div class="ncard-body">Decision quality · confidence · explainability · trust. AI brings the data + context to decisions previously made on intuition.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"Two-lever minimum at G1." Any transformation case claiming only one lever is too narrow; any claiming all four is too vague. Director discipline forces the focus.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The Era IV continuity</div>
+          <div class="takeaway-text">IQVIA OE Director worked exactly this surface — $15M+ savings was cost + quality + speed across global operations. The JD's "speed · quality · cost · decision effectiveness" is not new framing — it is the operating language of Era IV applied to enterprise AI.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Five candidate end-to-end pharma processes — where AI process transformation lives.</h3>
+          <p class="lede">A Director should be able to map any of these in 5 minutes with current pain points + AI opportunities.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">PROCESS 01</div>
+            <div class="ncard-title">Pipeline-to-launch</div>
+            <div class="ncard-body">Discovery → trials → submission → launch. AI in target ID, trial efficiency, regulatory writing, launch readiness.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">PROCESS 02</div>
+            <div class="ncard-title">Clinical-to-commercial</div>
+            <div class="ncard-body">Phase 3 → Brand → Launch sequencing. AI in evidence-to-narrative, payer engagement, field readiness.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">PROCESS 03</div>
+            <div class="ncard-title">Customer engagement E2E</div>
+            <div class="ncard-body">HCP signal → Brand strategy → Field execution → Patient impact. AI in next-best-action, agentic engagement, RWE.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">PROCESS 04</div>
+            <div class="ncard-title">Supply &amp; manufacturing intelligence</div>
+            <div class="ncard-body">Demand → production → distribution → patient. AI in forecasting, batch optimisation, supply resilience.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">PROCESS 05</div>
+            <div class="ncard-title">Corporate / enterprise services</div>
+            <div class="ncard-body">Finance close · HR · legal · procurement · compliance. AI in document processing, query handling, exception routing.</div>
+          </div>
+          <div class="ncard navy">
+            <div class="ncard-num">SCOPE NOTE</div>
+            <div class="ncard-title">Which processes does this role own?</div>
+            <div class="ncard-body">JD says "across the company's most critical end-to-end processes." Likely portfolio includes 2-3 of the above plus enterprise services. Confirm scope in early rounds.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Lean × AI synthesis — how Lean operating discipline accelerates AI transformation, and how AI extends Lean's reach.</h3>
+          <p class="lede">Most AI programmes fail not on the AI but on the operating discipline around it. Lean-trained Directors are structurally advantaged here.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead>
+            <tr><th style="width: 22%;">Lean concept</th><th>AI application</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="col-key">Value stream mapping</td><td class="col-az">Map the end-to-end process before scoping AI. Identify decision points, queues, handoffs — the AI candidate moments are visible only after the map.</td></tr>
+            <tr><td class="col-key">Eight wastes (muda)</td><td class="col-az">AI primarily eliminates Defects, Waiting, Overprocessing, and Underutilised Talent. Mapping AI use cases to specific waste types disciplines the business case.</td></tr>
+            <tr><td class="col-key">Pull system / kanban</td><td class="col-az">AI feeds pull-based work routing. Demand signal → AI prioritisation → human work queue. Lean-compatible from day one if designed this way.</td></tr>
+            <tr><td class="col-key">Kaizen (continuous improvement)</td><td class="col-az">Model monitoring + drift detection IS kaizen for AI. Schedule formal improvement cycles per model · weekly + quarterly cadence.</td></tr>
+            <tr><td class="col-key">Standard work</td><td class="col-az">Use case intake templates · DPIA templates · model card templates. Standard work IS the AI governance discipline.</td></tr>
+            <tr><td class="col-key">Gemba (go &amp; see)</td><td class="col-az">Director-level "gemba" for AI: sit with the user · watch the model behave in real workflow · diagnose adoption friction at the point of use.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">Lean is the operating discipline that turns AI from a portfolio of pilots into a system of compounding transformation. Most pharmas miss this; the few that get it are the ones that scale.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The interview leverage</div>
+          <div class="takeaway-text">Lead with Lean × AI in the strategic round. "I am Advanced Lean certified · I have delivered $15M+ on classic Lean transformation · I now apply the same operating discipline to AI portfolios." Few candidates will arrive with both. The combination IS the contrarian frame.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE IV — AI architectures & lifecycle -->
+<section class="module" id="m4" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · IV<span class="roman">IV</span></div>
+      <div>
+        <h2 class="module-title">AI architectures &amp; lifecycle.</h2>
+        <p class="module-lede">The technical surface the JD names explicitly — what to know fluently, what to know enough to interrogate, what to leave to the engineering team.</p>
+        <div class="level-toggle" data-module="m4">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The ML / AI lifecycle — seven stages a Director must read fluently.</h3>
+          <p class="lede">Not to author each stage — but to interrogate quality, identify the failure modes, and shape the operating model around them.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-4">
+          <div class="ncard"><div class="ncard-num">STAGE 01</div><div class="ncard-title">Problem framing</div><div class="ncard-body">Business problem → ML problem. Where most projects fail before stage 2.</div></div>
+          <div class="ncard"><div class="ncard-num">STAGE 02</div><div class="ncard-title">Data engineering</div><div class="ncard-body">Sourcing · pipelines · feature engineering · governance. 70% of the cost.</div></div>
+          <div class="ncard"><div class="ncard-num">STAGE 03</div><div class="ncard-title">Modelling</div><div class="ncard-body">Architecture choice · training · iteration. Where engineers concentrate.</div></div>
+          <div class="ncard"><div class="ncard-num">STAGE 04</div><div class="ncard-title">Evaluation</div><div class="ncard-body">Offline + online eval · benchmark · A/B · clinical validation if applicable.</div></div>
+          <div class="ncard gold"><div class="ncard-num">STAGE 05</div><div class="ncard-title">Deployment</div><div class="ncard-body">Inference · serving · scaling · API design · cost economics.</div></div>
+          <div class="ncard gold"><div class="ncard-num">STAGE 06</div><div class="ncard-title">Monitoring</div><div class="ncard-body">Drift · performance · cost · usage anomalies. The Director's primary attention.</div></div>
+          <div class="ncard gold"><div class="ncard-num">STAGE 07</div><div class="ncard-title">Retraining / sunset</div><div class="ncard-body">Triggered cycles · model retirement · graceful handover. Often skipped.</div></div>
+          <div class="ncard navy"><div class="ncard-num">RULE</div><div class="ncard-title">Director attention scales right</div><div class="ncard-body">Stage 1, 5, 6 demand most Director time. Stages 2-3 mostly engineering ownership.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">GenAI architectures · five patterns to discuss fluently.</h3>
+          <p class="lede">Each pattern has a use case sweet spot, a known failure mode, and a 2026-best-practice eval methodology.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="three-col">
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 01</div><div class="tc-head-title">Prompting + few-shot</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text"><em>Off-the-shelf model · domain prompts · few-shot examples.</em></p>
+              <p class="tc-body-text">Fastest to ship. Cheapest. Hardest to control behaviour at scale.</p>
+            </div>
+          </div>
+          <div class="tc-card gold">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 02 · DOMINANT</div><div class="tc-head-title">RAG (retrieval-augmented)</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text"><em>Vector DB + retrieval + LLM generation.</em></p>
+              <p class="tc-body-text">The pharma sweet spot — grounded responses, attribution, domain-current. Most AZ commercial use cases sit here.</p>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 03</div><div class="tc-head-title">Fine-tuning</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text"><em>Domain-specific model adaptation.</em></p>
+              <p class="tc-body-text">Stronger task fit · higher cost · governance demands (model card, eval, drift).</p>
+            </div>
+          </div>
+          <div class="tc-card navy">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 04</div><div class="tc-head-title">Agentic workflows</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text"><em>Multi-step reasoning · tool use · planning.</em></p>
+              <p class="tc-body-text">Highest potential, highest governance bar. Atlas multi-agent design directly applies here. The 2026 frontier.</p>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 05</div><div class="tc-head-title">Knowledge graphs + LLM</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text"><em>Structured knowledge + LLM reasoning.</em></p>
+              <p class="tc-body-text">Pharma biological knowledge graphs (BIKG-class) · GraphRAG · structured grounding.</p>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="tc-tag">PATTERN 06</div><div class="tc-head-title">Hybrid · classical ML + LLM</div></div>
+            <div class="tc-card-body">
+              <p class="tc-body-text"><em>Deterministic classical ML for structured · LLM for unstructured.</em></p>
+              <p class="tc-body-text">Most production systems are hybrid. The Director's job is the boundary design.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The signal</div>
+          <div class="takeaway-text">A Director who can discuss these six patterns at peer level with engineering — when to choose each, what fails — passes the technical screen with confidence. The vocabulary IS the credential.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Failure modes and monitoring — what a Director's dashboard actually contains.</h3>
+          <p class="lede">An AI portfolio that cannot be monitored cannot be governed. The Director's monitoring discipline IS the audit posture.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width: 22%;">Failure mode</th><th style="width: 22%;">Signal</th><th>Director action</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">Data drift</td><td class="col-az">Distribution change · input statistics</td><td>Trigger retraining cycle · investigate data source change</td></tr>
+            <tr><td class="col-key">Model drift</td><td class="col-az">Performance degradation over time</td><td>Eval refresh · retraining trigger · investigate concept change</td></tr>
+            <tr><td class="col-key">Hallucination (GenAI)</td><td class="col-az">Confident-wrong rate · grounding violation</td><td>RAG quality review · prompt refinement · human-in-the-loop escalation</td></tr>
+            <tr><td class="col-key">Latency degradation</td><td class="col-az">P95 / P99 latency spike</td><td>Engineering review · cost vs quality trade-off · architecture decision</td></tr>
+            <tr><td class="col-key">Cost explosion</td><td class="col-az">Token cost · API call volume</td><td>Caching · prompt optimisation · model tier review · usage policy</td></tr>
+            <tr><td class="col-key">Adoption stall</td><td class="col-az">Usage decline · user feedback negative</td><td>Workflow review · change pillar engagement · use case re-shaping</td></tr>
+          </tbody>
+        </table>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"What does your dashboard contain?" is a Director-level trap question. The candidate who lists these six fluently signals operational maturity; the candidate who lists "accuracy" alone signals immaturity.</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The Director's discipline</div>
+          <div class="takeaway-text">Weekly review: drift, hallucination, cost. Monthly: adoption, value realisation. Quarterly: model retirement candidates. Annual: portfolio re-baseline. The cadence IS the operating system.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE V — Governance, RAI, compliance -->
+<section class="module" id="m5" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · V<span class="roman">V</span></div>
+      <div>
+        <h2 class="module-title">Governance, Responsible AI, compliance.</h2>
+        <p class="module-lede">The JD's pillar 05 · the regulatory geometry · the pharma-specific layer.</p>
+        <div class="level-toggle" data-module="m5">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Five Responsible AI principles · the JD-named bar.</h3>
+          <p class="lede">Fairness · accountability · transparency · privacy · safety. Each has a Director-level operationalisation pattern.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-3">
+          <div class="ncard"><div class="ncard-num">RAI 01</div><div class="ncard-title">Fairness</div><div class="ncard-body">Bias evaluation across populations · disparate impact testing · documentation. Specific to use case context.</div></div>
+          <div class="ncard"><div class="ncard-num">RAI 02</div><div class="ncard-title">Accountability</div><div class="ncard-body">Clear ownership · decision rights · audit trail · human-in-the-loop at the right gates.</div></div>
+          <div class="ncard"><div class="ncard-num">RAI 03</div><div class="ncard-title">Transparency</div><div class="ncard-body">Model cards · data cards · explainability methods · user-facing disclosure.</div></div>
+          <div class="ncard"><div class="ncard-num">RAI 04</div><div class="ncard-title">Privacy</div><div class="ncard-body">DPIAs · purpose limitation · minimum necessary data · PII handling · GDPR alignment.</div></div>
+          <div class="ncard"><div class="ncard-num">RAI 05</div><div class="ncard-title">Safety</div><div class="ncard-body">Failure handling · graceful degradation · human override · red-team / adversarial testing.</div></div>
+          <div class="ncard gold"><div class="ncard-num">INTEGRATION</div><div class="ncard-title">Embed at G1 · audit at G3 · review quarterly</div><div class="ncard-body">RAI is not a separate workstream — it is woven into the lifecycle stages from problem framing onward.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The regulatory geometry — four frames that shape every enterprise AI programme.</h3>
+          <p class="lede">EU AI Act · GDPR · pharma sector-specific · internal AZ governance. The Director must navigate all four concurrently.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-4">
+          <div class="ncard"><div class="ncard-num">FRAME 01</div><div class="ncard-title">EU AI Act</div><div class="ncard-body">Risk-tier classification · high-risk obligations · Annex III · December 2027 + August 2028 milestones.</div></div>
+          <div class="ncard"><div class="ncard-num">FRAME 02</div><div class="ncard-title">GDPR + privacy</div><div class="ncard-body">DPIAs · purpose limitation · cross-border transfer · consent + lawful basis · DPO partnership.</div></div>
+          <div class="ncard"><div class="ncard-num">FRAME 03</div><div class="ncard-title">Pharma sector</div><div class="ncard-body">GxP applicability · validation · audit-readiness · PV · clinical decision tier · SaMD where applicable.</div></div>
+          <div class="ncard"><div class="ncard-num">FRAME 04</div><div class="ncard-title">Internal AZ governance</div><div class="ncard-body">EAI governance framework · model registry · approval gates · risk + quality partnership.</div></div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The Era I leverage</div>
+          <div class="takeaway-text">Law degree + Garrigues training means the legal vocabulary is native. Most candidates need to learn the regulatory map; the candidate who already reads it accelerates governance partnership from day one.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The risk register a Director-level EAI programme actually maintains.</h3>
+          <p class="lede">Codified risk categories · likelihood / impact scoring · mitigation owner · review cadence. The discipline most pharmas wish they had earlier.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width: 24%;">Risk category</th><th style="width: 22%;">Example</th><th>Mitigation pattern</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">Data integrity</td><td>Stale data · pipeline break · lineage gap</td><td class="col-az">Continuous data quality monitoring · lineage tooling · escalation thresholds</td></tr>
+            <tr><td class="col-key">Model performance</td><td>Drift · degradation · adversarial attack</td><td class="col-az">Monitoring dashboards · retraining triggers · adversarial eval</td></tr>
+            <tr><td class="col-key">Compliance / regulatory</td><td>AI Act risk tier breach · GDPR violation</td><td class="col-az">Pre-G1 classification · DPIA-by-template · joint legal review</td></tr>
+            <tr><td class="col-key">Adoption / change</td><td>Low usage · workflow friction · stakeholder pushback</td><td class="col-az">Change pillar partnership · adoption KPI tracking · workflow review</td></tr>
+            <tr><td class="col-key">Cost / unit economics</td><td>Token cost spike · API volume surge</td><td class="col-az">Cost monitoring · caching · model tier review · usage policy</td></tr>
+            <tr><td class="col-key">Technical debt</td><td>Brittle architecture · unsupported dependencies</td><td class="col-az">Architectural review cadence · refactor budget · sunset criteria</td></tr>
+            <tr><td class="col-key">Talent / capability</td><td>Key engineer dependency · skill gap</td><td class="col-az">Cross-training · documentation · capability building partnership</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">Day-90 deliverable</div>
+          <div class="takeaway-text">A live risk register covering all seven categories for the inherited portfolio, with named owners, scored items, and a quarterly review rhythm. The artefact IS the governance posture.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VI — AZ EAI context -->
+<section class="module" id="m6" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VI<span class="roman">VI</span></div>
+      <div>
+        <h2 class="module-title">AstraZeneca EAI context.</h2>
+        <p class="module-lede">The unit · the agenda · the people · the bridge from current DS&amp;AI role to this one.</p>
+        <div class="level-toggle" data-module="m6">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The EAI org map · seven unit acronyms · know them, name them, partner with them.</h3>
+          <p class="lede">As an internal candidate already engaged on #EAI, the acronyms should be effortless. They are the partnership topology.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width: 14%;">Acronym</th><th style="width: 30%;">What it does</th><th>Partnership angle</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">EAI</td><td>Enterprise AI Unit — the parent</td><td class="col-az">The home unit · #EAI agenda · Hoots-sponsored</td></tr>
+            <tr><td class="col-key">AIC</td><td>AI Commercial</td><td class="col-az">Sister unit · commercial use cases · separate role exists there</td></tr>
+            <tr><td class="col-key">AISI</td><td>AI Strategy &amp; Innovation</td><td class="col-az">Top-of-funnel · enterprise scouting · AI30 focus areas</td></tr>
+            <tr><td class="col-key">AITC</td><td>AI Technology &amp; Compute</td><td class="col-az">Platform partner · infrastructure · model serving</td></tr>
+            <tr><td class="col-key">AICA</td><td>AI Customer Analytics</td><td class="col-az">Commercial delivery partner · HCP + patient + payer</td></tr>
+            <tr><td class="col-key">AITT</td><td>AI Talent &amp; Training</td><td class="col-az">Capability building partner · AI literacy · HR-adjacent</td></tr>
+            <tr><td class="col-key">EDE</td><td>Enterprise Demand Excellence</td><td class="col-az">Data + governance partner · AI-readiness · compliance</td></tr>
+          </tbody>
+        </table>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"This role sits inside EAI's Process &amp; Innovation pillar — the part that translates strategy into scaled outcomes across enterprise processes. Adjacent to AIC (commercial) and AISI (strategy)."</div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The insider signal</div>
+          <div class="takeaway-text">As an internal candidate already engaged at #EAI level, demonstrate the org map fluently in round 1. The conversation about who you'd partner with first should be specific by name, not generic by function.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three C-level reference points · the agenda this role contributes to.</h3>
+          <p class="lede">Read their recent public talks before the interview. Each has stated priorities; the candidate ladders to them.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="three-col">
+          <div class="pillar-card">
+            <div class="pillar-card-head"><div class="pillar-card-tag">CDTO</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Cindy Hoots</h4>
+              <div class="pillar-section-label">Stated priorities</div>
+              <p style="font-size:13px; color:var(--ink-soft);"><em>Microsoft Fabric adoption · enterprise AI consolidation · cross-functional scale.</em></p>
+              <div class="pillar-section-label">Ladder for this role</div>
+              <p style="font-size:13px; color:var(--ink-soft);">Enterprise process transformation IS the agenda. Direct sponsor.</p>
+            </div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-card-head"><div class="pillar-card-tag">CEO</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Pascal Soriot</h4>
+              <div class="pillar-section-label">Stated priorities</div>
+              <p style="font-size:13px; color:var(--ink-soft);"><em>$80B revenue 2030 · AI as moat infrastructure · Cambridge anchoring.</em></p>
+              <div class="pillar-section-label">Ladder for this role</div>
+              <p style="font-size:13px; color:var(--ink-soft);">Process transformation enables the revenue ambition.</p>
+            </div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-card-head"><div class="pillar-card-tag">EVP ONCOLOGY R&amp;D</div></div>
+            <div class="pillar-card-body">
+              <h4 class="pillar-card-title">Susan Galbraith</h4>
+              <div class="pillar-section-label">Stated priorities</div>
+              <p style="font-size:13px; color:var(--ink-soft);"><em>Pipeline acceleration · multimodal endpoints · AI-discovered targets.</em></p>
+              <div class="pillar-section-label">Ladder for this role</div>
+              <p style="font-size:13px; color:var(--ink-soft);">R&amp;D-side process transformation directly relevant.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">From DS&amp;AI to EAI Process &amp; Innovation — three direct bridges, not adjacencies.</h3>
+          <p class="lede">The current role and the target role are not a leap — they are a structural step-up inside the same operating system. Spell out the bridges explicitly.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">BRIDGE 01</div>
+            <div class="ncard-title">Portfolio + PM practices already standardised</div>
+            <div class="ncard-body">Current AZ DS&amp;AI work has codified PM + portfolio standards across the function. This role extends the same discipline to enterprise-process portfolios. The methodology IS the carry-over.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">BRIDGE 02</div>
+            <div class="ncard-title">EAI N+2 engagement is live</div>
+            <div class="ncard-body">Presented at #EAI N+2 leadership level from current role. The decision-makers are not new audiences — they are existing relationships. Onboarding compression is real.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">BRIDGE 03</div>
+            <div class="ncard-title">Cross-BU exposure across BBU + OBU</div>
+            <div class="ncard-body">Current DSAI for R&amp;D supports both BUs. Enterprise process transformation is by definition cross-BU. The cross-functional reflex IS already operational.</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div class="quote-bar"></div>
+          <div class="quote-text small">"This is not a job change — it is the next layer of the same job, with explicit hands-on technical leadership added back."</div>
+        </div>
+
+        <div class="card-grid cols-2">
+          <div class="ncard gold">
+            <div class="ncard-num">INSIDER ASSET 01</div>
+            <div class="ncard-title">Onboarding compression</div>
+            <div class="ncard-body">Month 1 operational on AZ stakeholder map, governance cadence, EAI vocabulary. External hire month 1 is still being briefed. Quantifiable cost saved.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">INSIDER ASSET 02</div>
+            <div class="ncard-title">Active builder evidence inside</div>
+            <div class="ncard-body">Insight Explorer + Atlas concept were built in AZ context — they are not just personal projects, they are demonstrations of operating fit. Bring them up by name.</div>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The framing for "why this role"</div>
+          <div class="takeaway-text">"I am already inside the EAI operating system. This role asks me to extend the work I have been doing — adding back the explicit hands-on technical layer — at the scale of enterprise process transformation. The continuation is structural."</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VII — Interview mechanics -->
+<section class="module" id="m7" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VII<span class="roman">VII</span></div>
+      <div>
+        <h2 class="module-title">Interview mechanics.</h2>
+        <p class="module-lede">Five rounds · three anchor STARs · twelve trap questions · the offer levers. For this role the technical screen is the heaviest gate.</p>
+        <div class="level-toggle" data-module="m7">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Five rounds · each tests a different cluster · the technical screen is the heaviest single gate.</h3>
+          <p class="lede">For this Director role, the technical conversation is not a checkbox — it is the differentiator. Prepare for it like the C-level round.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <table class="ctable">
+          <thead><tr><th style="width:90px;">Round</th><th>Who</th><th>What's tested</th><th>Your posture</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01 · HR</td><td class="muted">Recruiter</td><td>Motivation · band · raise joining-motivation thread</td><td class="col-az">Concise · anchor to AZ joining continuity</td></tr>
+            <tr><td class="col-key">02 · Hiring</td><td class="muted">Direct manager</td><td>Operational + builder competence · style fit</td><td class="col-az">3 STARs (delivery + transform + build) · land on Reflection</td></tr>
+            <tr><td class="col-key">03 · Technical</td><td class="muted">EAI engineering / data lead</td><td>Hands-on credibility · architecture fluency · diagnosis ability</td><td class="col-az">Walk the builder portfolio (Macro España + Atlas) · discuss patterns fluently</td></tr>
+            <tr><td class="col-key">04 · C-level</td><td class="muted">Hoots · N+2</td><td>Strategic vision · Lean × AI · enterprise scale</td><td class="col-az">Lean × AI contrarian frame · 18-month vision</td></tr>
+            <tr><td class="col-key">05 · Cross-functional</td><td class="muted">Risk · Legal · Quality peers</td><td>Governance posture · regulatory fluency · partnership style</td><td class="col-az">RAI fluency · law-degree leverage · pre-existing relationships</td></tr>
+          </tbody>
+        </table>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The technical screen weight</div>
+          <div class="takeaway-text">Round 3 will likely decide the interview. Most "hands-on Director" candidates fail it because they cannot show code in real time. Bring the builder portfolio · offer URLs · offer a live walkthrough. Asymmetric advantage available — take it.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Three STARs that anchor the role — delivery + transformation + build.</h3>
+          <p class="lede">Each ~2 minutes. Each lands on Reflection. Pre-rehearse aloud.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">STAR 01 · DELIVERY</div>
+            <div class="ncard-title">OE Director · $15M+</div>
+            <div class="ncard-body"><strong>S</strong>: IQVIA needed global operations right-sized. <strong>T</strong>: Owned Org Deep Dive methodology globally. <strong>A</strong>: Designed methodology · ran governance · drove benefit tracking. <strong>R</strong>: $15M+ savings tracked. <strong>R</strong>: The same operating discipline applies to enterprise AI portfolio.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">STAR 02 · TRANSFORM</div>
+            <div class="ncard-title">ACOE Europe · 7 countries</div>
+            <div class="ncard-body"><strong>S</strong>: IQVIA had fragmented EU analytics delivery. <strong>T</strong>: Build ACOE Europe with 20+ team. <strong>A</strong>: Standardised methodology · KPIs · use case factory. <strong>R</strong>: Unified delivery · cost-per-analytic improved &gt;50%. <strong>R</strong>: Multi-disciplinary leadership at scale.</div>
+          </div>
+          <div class="ncard">
+            <div class="ncard-num">STAR 03 · BUILD</div>
+            <div class="ncard-title">Atlas multi-agent concept</div>
+            <div class="ncard-body"><strong>S</strong>: AZ portfolio intelligence was fragmented. <strong>T</strong>: Designed multi-agent multi-source concept. <strong>A</strong>: Built architecture · prototyped agents · framed governance. <strong>R</strong>: Concept evaluated at #EAI. <strong>R</strong>: The hands-on builder reflex IS already operational inside AZ.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Twelve trap questions specific to this role · each with a prepared frame.</h3>
+          <p class="lede">For this role the technical traps are the most loaded. Prepare them carefully.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+
+        <table class="ctable">
+          <thead><tr><th style="width:50px;">#</th><th>Question</th><th>Your frame</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01</td><td><em>"Walk me through your CV."</em></td><td>Two minutes. Process × code × scale framing. Land on builder dimension.</td></tr>
+            <tr><td class="col-key">02</td><td><em>"Show me you can code."</em></td><td>Live walkthrough of Macro España or Atlas. Offer URLs. Discuss architecture choices openly.</td></tr>
+            <tr><td class="col-key">03</td><td><em>"Why this role over Senior Director AIC?"</em></td><td>Honest comparison: AIC is commercial translator; this is hands-on enterprise process transformer. This role plays to Era IV + builder dimension.</td></tr>
+            <tr><td class="col-key">04</td><td><em>"How do you stay hands-on as a Director?"</em></td><td>Show the portfolio. Frame as "evenings + weekends + accelerating delivery on demand." Calibrated, not unlimited.</td></tr>
+            <tr><td class="col-key">05</td><td><em>"What's the right level of AI literacy for a CFO?"</em></td><td>Operating model literacy: when AI helps decision quality + speed + cost. Not technical literacy. Frame Lean × AI for finance partnership.</td></tr>
+            <tr><td class="col-key">06</td><td><em>"What's your monitoring dashboard?"</em></td><td>Module IV §3 six items: drift · hallucination · latency · cost · adoption · technical debt. Specific.</td></tr>
+            <tr><td class="col-key">07</td><td><em>"How would you design a multi-agent system for X?"</em></td><td>Atlas concept template. Agent decomposition · routing · governance · human-in-the-loop · evaluation methodology.</td></tr>
+            <tr><td class="col-key">08</td><td><em>"What's wrong with RAG today?"</em></td><td>Real answer: retrieval quality · grounding evaluation · provenance · cost at scale · failure mode visibility. Director-grade not generic.</td></tr>
+            <tr><td class="col-key">09</td><td><em>"Tell me about a failure."</em></td><td>One STAR with clean reflection. Failure → learning → application. Don't fake.</td></tr>
+            <tr><td class="col-key">10</td><td><em>"Why you over external?"</em></td><td>Module VI §3 three bridges. Insider compression. Active builder evidence inside AZ.</td></tr>
+            <tr><td class="col-key">11</td><td><em>"What's one contrarian view on enterprise AI?"</em></td><td>Lean × AI — most pharmas miss the operating discipline. Or: builder-strategist combination is structurally undersupplied.</td></tr>
+            <tr><td class="col-key">12</td><td><em>"Where will enterprise AI be in 5 years?"</em></td><td>Agentic-first · process-embedded · governance-as-moat · hybrid architecture default. Director-grade.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Offer negotiation — Director level · internal candidate · same-band move.</h3>
+          <p class="lede">For an internal Director → Director move into a different unit, the levers are mandate, scope, headcount, and the builder calibration.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-2">
+          <div class="ncard gold">
+            <div class="ncard-num">LEVER 01</div>
+            <div class="ncard-title">Mandate before money</div>
+            <div class="ncard-body">Internal same-band moves rarely shift base compensation. The negotiable asset is the <strong>written mandate</strong>: which end-to-end processes the role owns in year one, what decision rights come with them, and the direct line to the executive sponsor. Ask for it explicitly — a Director role without a written process portfolio is a coordination role.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">LEVER 02</div>
+            <div class="ncard-title">Scope &amp; lighthouse selection rights</div>
+            <div class="ncard-body">Confirm the role selects (or co-selects) the lighthouse use cases, rather than inheriting a pre-committed pipeline. The first 90 days succeed or fail on lighthouse choice. Trade flexibility elsewhere to protect this: <em>"I will take the portfolio you assign — but I choose the first prototype."</em></div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">LEVER 03</div>
+            <div class="ncard-title">Engineering pairing &amp; experimentation budget</div>
+            <div class="ncard-body">"Hands-on Director" only works with paired AI engineering capacity and a sandboxed experimentation environment. Negotiate: dedicated (or first-call) engineering bandwidth, cloud experimentation budget, and access to the enterprise data platforms from week one — not after the first business case.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">LEVER 04</div>
+            <div class="ncard-title">The builder calibration — protected</div>
+            <div class="ncard-body">The differentiator of this candidacy is the builder dimension. Agree how it operates in the role: prototype sprints, code review participation, architecture sign-off. If the operating model quietly turns the role into pure programme management, the differentiator is managed away within two quarters. Put the calibration in the goals letter.</div>
+          </div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway-label">The negotiation frame</div>
+          <div class="takeaway-text">For an internal Director → Director move, the real negotiation is the operating contract, not the salary letter: mandate, lighthouse rights, engineering pairing, and the protected builder calibration. Get all four reflected in writing — goals letter or role charter — inside the first 30 days.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE VIII — Active practice -->
+<section class="module" id="m8" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · VIII<span class="roman">VIII</span></div>
+      <div>
+        <h2 class="module-title">Active practice.</h2>
+        <p class="module-lede">Reading is preparation theatre. Performance comes from repetitions — checklist, drills, a reading plan, flashcards. This module is interactive: work it, don't read it.</p>
+        <div class="level-toggle" data-module="m8">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The readiness checklist — sixteen items, four clusters, one bar.</h3>
+          <p class="lede">Interview-ready means every box ticked having done the thing — aloud, timed, tested. The bar persists between sessions; reset before each new interview cycle.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="check-progress">
+          <div class="check-progress-bar"><div class="check-progress-fill" id="check-fill"></div></div>
+          <div class="check-progress-num" id="check-num">0 / 16 · 0%</div>
+        </div>
+
+        <div class="check-group">
+          <div class="check-group-title">Narrative</div>
+          <label class="check-item"><input type="checkbox" data-check="n1"><span>60-second opening pitch (Module IX §1) delivered aloud three times — timed, no notes.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="n2"><span>Three anchor STARs (Module VII §2) rehearsed aloud, each under two minutes, each landing on Reflection.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="n3"><span>"Why this role" anchored to the 2024 joining motivation (Module 05 of the prologue) — one continuous thread, no tactical answer.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="n4"><span>One failure STAR prepared with a clean failure → learning → application arc. Real, not cosmetic.</span></label>
+        </div>
+
+        <div class="check-group">
+          <div class="check-group-title">Technical</div>
+          <label class="check-item"><input type="checkbox" data-check="t1"><span>Macro España architecture walkthrough rehearsed — five minutes: model design, state management, iteration discipline, what I'd refactor.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="t2"><span>Insight Explorer walkthrough rehearsed — five minutes: Streamlit/Snowflake stack, module design, what production-hardening would require.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="t3"><span>RAG vs fine-tune vs agentic decision logic fluent — can route any use case in 30 seconds with the reasoning visible.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="t4"><span>Monitoring dashboard six items recalled cold: drift · hallucination · latency · cost · adoption · technical debt.</span></label>
+        </div>
+
+        <div class="check-group">
+          <div class="check-group-title">Context</div>
+          <label class="check-item"><input type="checkbox" data-check="c1"><span>EAI org map (Module VI §1) — seven unit acronyms named without looking.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="c2"><span>Three C-level reference points (Module VI §2) and how this role contributes to that agenda.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="c3"><span>Six JD accountabilities recited as a system — stakeholder cluster + artefact set for each.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="c4"><span>Five candidate end-to-end processes (Module III §2) mapped — pain points + AI opportunity each, five minutes max.</span></label>
+        </div>
+
+        <div class="check-group">
+          <div class="check-group-title">Mechanics</div>
+          <label class="check-item"><input type="checkbox" data-check="m1"><span>Demo URLs tested on the machine and network that will be used in the interview. Backup screenshots exported.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="m2"><span>Three panel questions selected from the six (Module IX §4) — matched to who is actually in the room.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="m3"><span>Four negotiation levers (Module VII §4) reviewed — mandate, lighthouse rights, engineering pairing, builder calibration.</span></label>
+          <label class="check-item"><input type="checkbox" data-check="m4"><span>Round schedule and panel names confirmed; LinkedIn pass on each interviewer; one tailored hook per person.</span></label>
+        </div>
+
+        <button class="check-reset" id="check-reset">Reset checklist</button>
+
+        <div class="takeaway">
+          <div class="takeaway-label">The standard</div>
+          <div class="takeaway-text">A box is ticked only when the action happened in the physical world — spoken aloud, timed, tested on the real machine. Mental rehearsal does not count. Sixteen ticks ≈ four to six focused hours.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Trap-question drill — answer aloud first, then reveal the frame.</h3>
+          <p class="lede">The twelve traps from Module VII, now as a drill. Discipline: speak your answer before revealing. Shuffle to break order-memory.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="drill-controls">
+          <button class="drill-ctl" data-drill-action="shuffle" data-drill-target="trap-drill">Shuffle</button>
+          <button class="drill-ctl" data-drill-action="hide" data-drill-target="trap-drill">Hide all</button>
+          <button class="drill-ctl" data-drill-action="reveal" data-drill-target="trap-drill">Reveal all</button>
+        </div>
+        <div class="drill-grid" id="trap-drill">
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 01</div><div class="drill-q">"Walk me through your CV."</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Two minutes, process × code × scale.</strong> Five eras compressed: legal foundation → consulting transformation → €90M P&amp;L → AI productionised (US patent) → OE Director $15M+ → AZ DS&amp;AI inside. Land deliberately on the builder dimension: "and I still ship code — ten builds in eighteen months."</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 02</div><div class="drill-q">"Show me you can code."</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Don't describe — demonstrate.</strong> Offer a live walkthrough of Macro España or Insight Explorer on the spot. Discuss architecture choices openly, including what you'd refactor. The willingness to open the code IS the answer; most Director candidates cannot.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 03</div><div class="drill-q">"Why this role over Senior Director AIC?"</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Honest comparison, no hedging.</strong> AIC is a commercial translator role; this is a hands-on enterprise process transformer. This role plays to the strongest combination in the career: Era IV operating discipline + the builder dimension. Choosing it is a statement of self-knowledge, not of rejection.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 04</div><div class="drill-q">"How do you stay hands-on as a Director?"</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Show, then calibrate.</strong> The portfolio is the proof: evenings and weekends, ten shipped builds. In role: prototype when it unblocks a stuck conversation, review code when it raises quality, step back when my hands slow the team. Calibrated, not unlimited — that calibration is the seniority.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 05</div><div class="drill-q">"What's the right level of AI literacy for a CFO?"</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Operating-model literacy, not technical literacy.</strong> A CFO needs to know when AI changes decision quality, speed, and cost — and how benefits get baselined and banked. Frame Lean × AI for finance partnership: the L'Oréal P&amp;L years are the credibility anchor here.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 06</div><div class="drill-q">"What's on your monitoring dashboard?"</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Six items, no hesitation:</strong> drift (data + concept) · hallucination / grounding rate · latency · cost per task · adoption + acceptance rate · technical debt register. Then one sentence on cadence: weekly operational review, quarterly kaizen per model.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 07</div><div class="drill-q">"How would you design a multi-agent system for X?"</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Atlas as the template.</strong> Agent decomposition by task boundary → routing layer → human-in-the-loop checkpoints by risk tier → evaluation harness before scale → governance gates as standard work. Always close with: "and I'd prototype the riskiest agent first, in days."</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 08</div><div class="drill-q">"What's wrong with RAG today?"</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Director-grade, not generic.</strong> Retrieval quality is the real bottleneck (not the LLM); grounding evaluation is immature; provenance breaks across document versions; cost at scale is underestimated; failure modes are invisible without explicit instrumentation. Hybrid retrieval + reranking + eval gates is the current honest answer.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 09</div><div class="drill-q">"Tell me about a failure."</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>One STAR, clean reflection.</strong> Real failure → what it cost → what changed in how you operate → where you've applied the lesson since. Do not fake a strength-disguised-as-weakness; the panel has heard a thousand of those.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 10</div><div class="drill-q">"Why you over an external hire?"</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Insider compression.</strong> Three bridges (Module VI §3): already operating in the AZ system, already engaged on the #EAI agenda at N+2, already building inside the context (Insight Explorer, Atlas). An external hire spends six months learning what I can execute on from day one.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 11</div><div class="drill-q">"Give me one contrarian view on enterprise AI."</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Pick one, hold it.</strong> Option A: most AI programmes fail on operating discipline, not on the AI — Lean × AI is the structurally missed lever. Option B: the builder-strategist combination is structurally undersupplied because careers force a choice at the senior-manager level. Both are defensible from lived evidence.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TRAP 12</div><div class="drill-q">"Where will enterprise AI be in five years?"</div></div><button class="drill-btn">Reveal frame</button></div><div class="drill-a"><strong>Four claims, Director-grade:</strong> agentic-first architectures as default · AI embedded in processes rather than bolted-on tools · governance maturity as competitive moat in regulated industry · hybrid architectures (deterministic + generative) as the standard pattern. One sentence each, no futurology theatre.</div></div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Pre-screen refresh — the reading plan before the technical round.</h3>
+          <p class="lede">Four topics, ~5 focused hours total: one to two evenings. The current DS&amp;AI work covers most of the ground — the gaps are vocabulary currency, not concepts. Read each block with the TECH drill (next section) open, and end every session by re-answering it aloud.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-2">
+          <div class="ncard">
+            <div class="ncard-num">READ 01 · ~1 HOUR · MOSTLY COVERED</div>
+            <div class="ncard-title">RAG patterns, 2025–26 state</div>
+            <div class="ncard-body"><strong>The current baseline:</strong> hybrid retrieval (keyword + vector) with a reranking stage is the production default — pure vector search is now a junior tell. Know the newer layers: <strong>GraphRAG</strong> (knowledge graph + retrieval for multi-hop questions — the JD names knowledge graphs), <strong>agentic RAG</strong> (retrieval as a tool inside a reasoning loop, not a fixed pipeline), and the <strong>long-context vs RAG economics</strong> argument — when a million-token window replaces retrieval and when it just multiplies cost.<br><br><strong>Read:</strong> one current RAG-survey post end to end, then re-read Module IV §2 of this dossier. <strong>Gap check:</strong> can you defend hybrid + reranking against "why not just bigger context?" in 60 seconds?</div>
+          </div>
+          <div class="ncard navy">
+            <div class="ncard-num">READ 02 · ~1.5 HOURS · REAL GAP</div>
+            <div class="ncard-title">Agentic frameworks — the names changed</div>
+            <div class="ncard-body"><strong>The 2026 map:</strong> <strong>LangGraph</strong> is the production default in regulated industry — graph-based state machines, checkpointing, durable execution; know those three words. <strong>AutoGen has been consolidated into Microsoft Agent Framework</strong> (merged with Semantic Kernel, v1.0 GA in 2026) — citing "AutoGen" as a current choice dates the answer; cite the consolidation instead. <strong>CrewAI</strong> = fastest prototype path, role-based crews. And <strong>MCP</strong> (Model Context Protocol) is now the open interoperability layer under Linux Foundation stewardship, supported across frameworks — name it as how tools plug into agents without vendor lock-in.<br><br><strong>Read:</strong> LangGraph concepts page (langchain.com/langgraph) + MCP introduction (modelcontextprotocol.io). <strong>Gap check:</strong> Atlas was designed before the consolidation — refresh the framework names in that story.</div>
+          </div>
+          <div class="ncard teal">
+            <div class="ncard-num">READ 03 · ~1 HOUR · ONE-EVENING GAP</div>
+            <div class="ncard-title">Vendor SDK current state — Anthropic + OpenAI</div>
+            <div class="ncard-body"><strong>Anthropic:</strong> Messages API with native tool use, the Claude Agent SDK for agent loops, MCP-native tooling. <strong>OpenAI:</strong> the Responses API + Agents SDK is the current trajectory (the old Assistants framing is legacy). For each, know <strong>one concrete thing</strong>: what a tool-use call actually looks like — request, tool result, second turn. That single concrete beats an hour of generalities in a technical screen.<br><br><strong>Read:</strong> both quickstarts — docs.claude.com/en/api/overview and platform.openai.com/docs. Run one tool-use call in each if time allows; "I ran it last week" is an unanswerable credential. <strong>Gap check:</strong> can you sketch the tool-use message flow on a whiteboard?</div>
+          </div>
+          <div class="ncard sage">
+            <div class="ncard-num">READ 04 · ~1.5 HOURS · VOCABULARY REFRESH</div>
+            <div class="ncard-title">LLMOps maturity — eval, observability, prompt versioning</div>
+            <div class="ncard-body"><strong>The 2026 stack, by layer:</strong> <strong>evals</strong> as regression tests — golden sets + LLM-as-judge calibrated to humans (promptfoo / Ragas class of tooling); <strong>observability</strong> — full-trace logging of every LLM call with cost and latency (LangSmith / Langfuse class); <strong>prompt versioning</strong> — prompts treated as deployable artefacts with diffs, rollback, and experiment tracking; <strong>cost monitoring</strong> as a first-class SLO, not a finance afterthought. The concepts are already in Module IV — the refresh is tool-name fluency.<br><br><strong>Read:</strong> pick ONE observability tool's docs end to end (Langfuse is open-source and fast to grasp) rather than three landing pages. <strong>Gap check:</strong> describe what changes in your six-item dashboard when the workload is LLM rather than classical ML.</div>
+          </div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway-label">The honest sizing</div>
+          <div class="takeaway-text">Total: ~5 focused hours — one to two evenings. The DS&amp;AI day job covers the concepts; what ages fastest is the proper nouns (framework consolidations, SDK names, tooling). Refresh those the week of the screen, not a month before. Rule: every reading session ends by re-answering TECH 01–08 aloud with the new vocabulary in place.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Technical screen drill — eight questions at the level the heaviest gate will probe.</h3>
+          <p class="lede">The technical screen is the differentiating round for this role. These eight go deeper than the traps: answer aloud at whiteboard pace, then compare against the model answer.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="drill-controls">
+          <button class="drill-ctl" data-drill-action="shuffle" data-drill-target="tech-drill">Shuffle</button>
+          <button class="drill-ctl" data-drill-action="hide" data-drill-target="tech-drill">Hide all</button>
+          <button class="drill-ctl" data-drill-action="reveal" data-drill-target="tech-drill">Reveal all</button>
+        </div>
+        <div class="drill-grid" id="tech-drill">
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TECH 01</div><div class="drill-q">"Design a RAG system over our SOP and quality documents. Walk me through it."</div></div><button class="drill-btn">Model answer</button></div><div class="drill-a"><strong>Pipeline:</strong> document ingestion with version control → structure-aware chunking (SOPs have sections; respect them) → embeddings + hybrid retrieval (keyword + vector; pure vector underperforms on regulated terminology) → reranking stage → generation with enforced citations → grounding evaluation gate before any answer ships. <strong>The pharma layer:</strong> provenance to the exact SOP version is non-negotiable; stale-document detection; access control inherited from the source system; validation posture agreed with Quality up front (CSA mindset). <strong>Close:</strong> "I'd prototype retrieval quality first — it's where these systems actually fail."</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TECH 02</div><div class="drill-q">"Your production model's acceptance rate dropped 20% in two weeks. Diagnose it."</div></div><button class="drill-btn">Model answer</button></div><div class="drill-a"><strong>Segment first:</strong> all users or a cohort? All task types or one? Gradual or step change? A step change points to a deployment event — upstream pipeline change, prompt/config change, UI change, model version bump. Gradual points to drift: data drift (input distribution moved) vs concept drift (the world changed). <strong>Then:</strong> read the dashboards in that order, check the change log, and do the Lean move — gemba: sit with three users and watch the model in their real workflow. Adoption drops are as often workflow friction as model degradation. <strong>Close:</strong> hypothesis → cheapest test → fix → add the missing monitor so it never surprises us again.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TECH 03</div><div class="drill-q">"Fine-tune or RAG for a pharmacovigilance triage assistant?"</div></div><button class="drill-btn">Model answer</button></div><div class="drill-a"><strong>Decompose the task.</strong> The knowledge component (current product labels, evolving regulations, case precedents) → RAG: auditable provenance, instant updates, no retraining cycle. The classification component (seriousness triage, fixed taxonomy, stable labels) → a fine-tuned or even classical supervised model can outperform and is cheaper per call. <strong>So: hybrid</strong> — RAG for knowledge, tuned classifier for routing, human-in-the-loop mandatory because PV is as high-stakes as it gets. <strong>The Director point:</strong> the framing "fine-tune OR RAG" is itself the trap; production systems compose.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TECH 04</div><div class="drill-q">"How do you evaluate an LLM workflow before letting it into production?"</div></div><button class="drill-btn">Model answer</button></div><div class="drill-a"><strong>Layers:</strong> golden dataset built with the business (not by engineering alone) → task-level metrics defined before building (accuracy, grounding rate, harmful-output rate, latency, cost per task) → LLM-as-judge for scale, calibrated against human raters on a sample → red-teaming for the failure modes that matter in this domain → acceptance thresholds agreed with the risk owner, in writing. <strong>Then it never stops:</strong> the eval suite becomes the regression test for every prompt, model, or pipeline change. <strong>Close:</strong> "no eval suite, no production — that's a standard-work rule, not a preference."</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TECH 05</div><div class="drill-q">"Agentic or deterministic automation — how do you decide?"</div></div><button class="drill-btn">Model answer</button></div><div class="drill-a"><strong>Three axes:</strong> input variability (uniform → deterministic wins on cost and auditability; messy/unstructured → agentic earns its complexity) · error tolerance (regulated transactional steps → deterministic with full audit trail; research, triage, synthesis → agentic with HITL) · explainability requirement (if every decision must be reconstructable, deterministic core + generative assist at the edges). <strong>Pattern:</strong> most real enterprise processes end up hybrid — deterministic backbone, agentic handling of the unstructured edges. <strong>Close with an example</strong> mapped to one of the five candidate processes from Module III.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TECH 06</div><div class="drill-q">"What does 'production-ready' actually mean for an AI process change?"</div></div><button class="drill-btn">Model answer</button></div><div class="drill-a"><strong>Ten-item bar:</strong> SLOs defined · monitoring live (the six dashboard items) · rollback path tested · model card + decision log complete · named business owner and support model · data pipeline contracts versioned · security + privacy review closed · change management executed (training, comms, workflow redesign) · benefit-tracking baselined with Finance · technical debt register opened honestly. <strong>The point:</strong> "production-ready" is mostly organisational, not technical — which is exactly why a transformation Director owns it and not only an ML engineer.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TECH 07</div><div class="drill-q">"Walk me through how you'd review a data pipeline PR."</div></div><button class="drill-btn">Model answer</button></div><div class="drill-a"><strong>Reading order:</strong> the tests first (what does the author think can break?) → schema contracts and null/edge handling → idempotency (can it rerun safely after partial failure?) → secrets and credentials out of code → logging and lineage (can we trace a bad output back?) → cost (full scans? unbounded joins?) → then style, last. <strong>The Director posture:</strong> review as a peer, ask questions rather than dictate, and know when to approve-with-comments versus block. The goal of the review is the team's quality bar, not my fingerprints on the code.</div></div>
+          <div class="drill-card"><div class="drill-top"><div><div class="drill-num">TECH 08</div><div class="drill-q">"GenAI cost at scale is exploding. What are your levers?"</div></div><button class="drill-btn">Model answer</button></div><div class="drill-a"><strong>Seven levers, in rough ROI order:</strong> model routing (small model by default, escalate on complexity) · caching of repeated queries and intermediate results · context discipline (most token waste is prompt bloat) · batch processing for non-interactive workloads · distillation of stable, high-volume tasks into small tuned models · usage governance (who can call what, with budgets) · architecture review — sometimes the honest answer is that a step shouldn't use an LLM at all. <strong>Close:</strong> cost per task on the dashboard from day one, never discovered in the invoice.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>05</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Concept flashcards — twenty terms, each with the Director angle.</h3>
+          <p class="lede">Front: the term. Back: the crisp definition plus the one sentence a Director adds that an engineer wouldn't. Shuffle and run the deck until misses hit zero.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="flash-stage">
+          <div class="flash-card" id="flash-card">
+            <div class="flash-side-label" id="flash-side">TERM</div>
+            <div id="flash-content" class="flash-front-text">Loading…</div>
+          </div>
+          <div class="flash-controls">
+            <div class="flash-counter" id="flash-counter">1 / 20</div>
+            <div class="flash-btns">
+              <button class="drill-ctl" id="flash-prev">← Prev</button>
+              <button class="drill-ctl" id="flash-shuffle">Shuffle</button>
+              <button class="drill-ctl" id="flash-next">Next →</button>
+            </div>
+          </div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway-label">How to run it</div>
+          <div class="takeaway-text">Say the definition aloud before flipping. A card counts as known only when the Director angle comes out too — the definition gets you to par; the angle is what the panel is listening for.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODULE IX — The point of view -->
+<section class="module" id="m9" data-active-level="all">
+  <div class="container">
+    <header class="module-head">
+      <div class="module-tag">Module · IX<span class="roman">IX</span></div>
+      <div>
+        <h2 class="module-title">The point of view.</h2>
+        <p class="module-lede">Candidates answer questions. The Director who gets hired arrives with an agenda — a pitch, a thesis on where to point the role, a first-90-days plan, and sharp questions back.</p>
+        <div class="level-toggle" data-module="m9">
+          <button class="level-btn active" data-level="all"><span class="dot"></span>Both</button>
+          <button class="level-btn" data-level="foundations"><span class="dot"></span>Foundations</button>
+          <button class="level-btn" data-level="expert"><span class="dot"></span>Expert</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>01</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">The 60-second opening — verbatim, memorised, delivered like it isn't.</h3>
+          <p class="lede">"Walk me through your background" opens every round. This is the answer: ~150 words, five eras compressed, landing on the builder dimension. Rehearse until the timing is automatic and the delivery is conversational.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="pitch-script">
+          <div class="pitch-script-label">The opening · ~60 seconds</div>
+          <p>Twenty years building exactly the intersection this role names. I started in <em>process</em> — legal training at Garrigues, then thirteen years of transformation consulting at IMS and IQVIA for Europe's top pharma companies. I've owned a €90M P&amp;L at L'Oréal, so I know what a business case has to survive contact with Finance.</p>
+          <p>I co-invented a <em>US-patented AI system</em> that went from concept to production — so AI delivery isn't a recent pivot for me; it's a ten-year arc. As IQVIA's Operational Effectiveness Director I delivered over $15M with Lean discipline at global scale. Today I'm inside AstraZeneca, in DS&amp;AI, standardising how we deliver — and in the evenings I still ship code: ten substantial builds in eighteen months, one of them fourteen and a half thousand lines.</p>
+          <p>This role asks for strategy, code, and scale in one operator. <em>That's not something I'm reaching for — it's what I already do.</em></p>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway-label">Delivery notes</div>
+          <div class="takeaway-text">Three breaths, one per paragraph. The italicised phrases carry slight emphasis — nothing theatrical. If interrupted, the structure survives truncation: each paragraph is a complete claim. Never extend past 75 seconds; the panel's first impression of judgement is whether the candidate respects time.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="foundations">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>02</strong><span class="level-badge">Foundations</span></div>
+        <div>
+          <h3 class="action-title">Where I'd point the role — three lighthouse candidates and an operating model.</h3>
+          <p class="lede">Of the five candidate processes in Module III, these three offer the best first-year geometry: data readiness, sponsor energy, provable ROI, and adjacency to lived evidence. Offered as a thesis to test in the room — not a presumption.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="card-grid cols-3">
+          <div class="ncard">
+            <div class="ncard-num">LIGHTHOUSE A</div>
+            <div class="ncard-title">Customer engagement E2E</div>
+            <div class="ncard-body">HCP signal → brand strategy → field execution. <strong>Why first:</strong> highest data readiness, direct DS&amp;AI adjacency (insider compression), and agentic engagement is exactly where the architecture conversation is in 2026. Fastest path from prototype to measurable field impact.</div>
+          </div>
+          <div class="ncard navy">
+            <div class="ncard-num">LIGHTHOUSE B</div>
+            <div class="ncard-title">Clinical-to-commercial seam</div>
+            <div class="ncard-body">Evidence-to-narrative, payer engagement, launch sequencing. <strong>Why:</strong> direct patent adjacency — the site-ID heritage proves the pattern of AI applied to clinical operations. The seam between functions is where value leaks and where an enterprise role (vs a functional one) is uniquely positioned.</div>
+          </div>
+          <div class="ncard teal">
+            <div class="ncard-num">LIGHTHOUSE C</div>
+            <div class="ncard-title">Enterprise services</div>
+            <div class="ncard-body">Finance close · procurement · legal · compliance ops. <strong>Why:</strong> highest automation density, cleanest baselines, fastest provable ROI — the ideal proving ground for the governance pattern and the reuse library before pointing them at the scientific value chain.</div>
+          </div>
+        </div>
+        <div class="card-grid cols-2" style="margin-top:14px;">
+          <div class="ncard gold">
+            <div class="ncard-num">OPERATING MODEL · THE FOUR RULES</div>
+            <div class="ncard-title">How the function runs</div>
+            <div class="ncard-body"><strong>Value-led intake</strong> — every use case enters with a baseline and an owner, or it doesn't enter. <strong>Dual-track</strong> — discovery sprints (days, prototype-first) feeding a scale factory (production discipline). <strong>Reuse-first</strong> — patterns, eval suites, and governance templates as a library; the second use case must be cheaper than the first. <strong>Governance as accelerant</strong> — pre-cleared standard work with Risk/Legal/Quality so compliance is a fast lane, not a queue.</div>
+          </div>
+          <div class="ncard gold">
+            <div class="ncard-num">THE FRAMING IN THE ROOM</div>
+            <div class="ncard-title">Thesis, held lightly</div>
+            <div class="ncard-body">Present this as a hypothesis with explicit unknowns: <em>"From the outside, the geometry favours these three — but the scope question I'd want to resolve in week one is which processes this role actually owns, and where the in-flight portfolio already stands."</em> A POV with declared uncertainty reads as judgement; a POV without it reads as presumption.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>03</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">The first 90 days — listen &amp; map · prove · scale decision.</h3>
+          <p class="lede">Three phases, one deliverable each. The plan signals operating discipline; the hands-on prototype in phase two signals the differentiator. Close the final round with this.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <div class="three-col">
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="plan-col-head" style="color:white;">Days 0–30 · Listen &amp; map</div></div>
+            <div class="tc-card-body">
+              <ul class="tc-list">
+                <li>Stakeholder tour: sponsors, Risk / Legal / Quality, AI engineering leads, in-flight initiative owners.</li>
+                <li>Value-stream map two candidate processes — decision points, queues, handoffs (the Lean reflex).</li>
+                <li>Inventory in-flight AI: what's deployed, what's stuck, where the technical debt sits.</li>
+                <li>Baseline metrics with Finance before touching anything.</li>
+              </ul>
+              <div class="tc-body-text"><strong>Deliverable:</strong> process heatmap + lighthouse recommendation with sponsor sign-off.</div>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="plan-col-head" style="color:white;">Days 31–60 · Prove</div></div>
+            <div class="tc-card-body">
+              <ul class="tc-list">
+                <li>Ship one working prototype on the lighthouse — hands-on, days not months. The builder calibration, demonstrated in-role.</li>
+                <li>Pre-clear the governance pattern with Risk / Legal / Quality as standard work — templates, not negotiations.</li>
+                <li>Define benefit tracking with Finance: baseline → tracked → banked.</li>
+                <li>Establish the weekly build cadence with the engineering pairing.</li>
+              </ul>
+              <div class="tc-body-text"><strong>Deliverable:</strong> working prototype in front of the sponsor + signed success metrics.</div>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="tc-card-head"><div class="plan-col-head" style="color:white;">Days 61–90 · Scale decision</div></div>
+            <div class="tc-card-body">
+              <ul class="tc-list">
+                <li>Production-path decision on the lighthouse: MLOps, monitoring, support model, rollback — the ten-item bar.</li>
+                <li>Lock the operating cadence: intake, dual-track, reuse library v0.</li>
+                <li>Start the capability plan — AI literacy curriculum for business and transformation communities.</li>
+                <li>Executive readout: what was learned, what scales, what stops.</li>
+              </ul>
+              <div class="tc-body-text"><strong>Deliverable:</strong> 90-day readout + year-one roadmap.</div>
+            </div>
+          </div>
+        </div>
+        <div class="takeaway">
+          <div class="takeaway-label">The signal inside the plan</div>
+          <div class="takeaway-text">Most Director candidates present a 90-day plan of meetings. The differentiating line is in phase two: a working prototype shipped by the Director's own hands inside the first 60 days. Say it explicitly — it is the JD's central sentence, operationalised.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" data-level="expert">
+      <div class="subsection-meta">
+        <div class="subsection-number">Section<strong>04</strong><span class="level-badge">Expert</span></div>
+        <div>
+          <h3 class="action-title">Questions for the panel — and the 30-second close.</h3>
+          <p class="lede">Pick three of the six, matched to who is in the room. Then close every final round the same way: one memorable claim, one continuity, one forward commitment.</p>
+        </div>
+      </div>
+      <div class="subsection-body">
+        <table class="ctable">
+          <thead><tr><th style="width:60px;">#</th><th>Question</th><th>What it signals · who to ask</th></tr></thead>
+          <tbody>
+            <tr><td class="col-key">01</td><td><em>"Which end-to-end processes does this role own in year one — and who is the executive sponsor for each?"</em></td><td>Scope discipline. Ask the hiring manager. Also feeds the negotiation levers directly.</td></tr>
+            <tr><td class="col-key">02</td><td><em>"What does the engineering pairing look like — dedicated capacity, or brokered per initiative?"</em></td><td>Operating realism; tests whether "hands-on" is structurally supported. Ask the technical lead.</td></tr>
+            <tr><td class="col-key">03</td><td><em>"What's the strongest AI-to-production example EAI has shipped so far — and what made it work?"</em></td><td>Learns the real maturity level; lets the panel show pride. Ask anyone — it always lands.</td></tr>
+            <tr><td class="col-key">04</td><td><em>"Where does this role's governance authority start and stop relative to Risk, Quality, and Legal — advisory, or gate-owning?"</em></td><td>Regulated-environment fluency. Ask the senior-most interviewer.</td></tr>
+            <tr><td class="col-key">05</td><td><em>"How is success measured at twelve months — benefit realisation, deployments, or capability metrics?"</em></td><td>Value-led framing; signals the Finance partnership reflex. Ask the hiring manager.</td></tr>
+            <tr><td class="col-key">06</td><td><em>"What broke in previous attempts to scale AI across these processes?"</em></td><td>The bravest question on the list. Signals a Director who diagnoses before prescribing. Use when rapport is established.</td></tr>
+          </tbody>
+        </table>
+        <div class="pitch-script" style="margin-top:28px;">
+          <div class="pitch-script-label">The close · ~30 seconds</div>
+          <p>If you remember one thing: most candidates for this role are strong in one mode — strategist, builder, or scaler. My career is the rare case where all three are evidenced at Director scale, in pharma, and currently active inside AstraZeneca.</p>
+          <p>I joined AZ to move from <em>advising</em> transformation to <em>delivering</em> it. This role is that decision, extended. I'm ready to start where the JD starts: pick the lighthouse, ship the first prototype, and prove the operating model.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-rule"></div>
+    <div class="footer-title">Briefing dossier · Director, EAI Process &amp; Innovation</div>
+    <div class="footer-meta">v2.1 · June 2026 · Prepared for Joaquín · Nine modules · Two-tier · Interactive practice layer · Private working document</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  /* ---------- Level toggles (Foundations / Expert) ---------- */
+  document.querySelectorAll('.level-toggle').forEach(function (toggle) {
+    var mod = toggle.closest('.module');
+    if (!mod) return;
+    toggle.querySelectorAll('.level-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        mod.setAttribute('data-active-level', btn.getAttribute('data-level'));
+        toggle.querySelectorAll('.level-btn').forEach(function (b) {
+          b.classList.toggle('active', b === btn);
+        });
+      });
+    });
+  });
+
+  /* ---------- Drill cards: reveal / hide / shuffle ---------- */
+  document.querySelectorAll('.drill-card .drill-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var card = btn.closest('.drill-card');
+      card.classList.toggle('open');
+      btn.textContent = card.classList.contains('open') ? 'Hide' : btn.getAttribute('data-label') || 'Reveal frame';
+    });
+  });
+  document.querySelectorAll('.drill-card .drill-btn').forEach(function (btn) {
+    btn.setAttribute('data-label', btn.textContent);
+  });
+  document.querySelectorAll('.drill-ctl[data-drill-action]').forEach(function (ctl) {
+    ctl.addEventListener('click', function () {
+      var grid = document.getElementById(ctl.getAttribute('data-drill-target'));
+      if (!grid) return;
+      var action = ctl.getAttribute('data-drill-action');
+      if (action === 'reveal' || action === 'hide') {
+        grid.querySelectorAll('.drill-card').forEach(function (card) {
+          card.classList.toggle('open', action === 'reveal');
+          var b = card.querySelector('.drill-btn');
+          if (b) b.textContent = action === 'reveal' ? 'Hide' : b.getAttribute('data-label');
+        });
+      } else if (action === 'shuffle') {
+        var cards = Array.prototype.slice.call(grid.children);
+        for (var i = cards.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          grid.insertBefore(cards[j], cards[i].nextSibling);
+          var t = cards[i]; cards[i] = cards[j]; cards[j] = t;
+        }
+      }
+    });
+  });
+
+  /* ---------- Checklist with progress + safe persistence ---------- */
+  var store = (function () {
+    try { var k = '__t'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return localStorage; }
+    catch (e) { return null; }
+  })();
+  var CHECK_KEY = 'eai-dossier-v2-checklist';
+  var boxes = document.querySelectorAll('.check-item input[data-check]');
+  var fill = document.getElementById('check-fill');
+  var num = document.getElementById('check-num');
+  function loadChecks() {
+    if (!store) return {};
+    try { return JSON.parse(store.getItem(CHECK_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function saveChecks(state) {
+    if (!store) return;
+    try { store.setItem(CHECK_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function renderProgress() {
+    var done = 0;
+    boxes.forEach(function (b) { if (b.checked) done++; });
+    var total = boxes.length;
+    var pct = total ? Math.round((done / total) * 100) : 0;
+    if (fill) fill.style.width = pct + '%';
+    if (num) num.textContent = done + ' / ' + total + ' · ' + pct + '%';
+  }
+  var state = loadChecks();
+  boxes.forEach(function (b) {
+    b.checked = !!state[b.getAttribute('data-check')];
+    b.addEventListener('change', function () {
+      state[b.getAttribute('data-check')] = b.checked;
+      saveChecks(state);
+      renderProgress();
+    });
+  });
+  var reset = document.getElementById('check-reset');
+  if (reset) reset.addEventListener('click', function () {
+    state = {};
+    saveChecks(state);
+    boxes.forEach(function (b) { b.checked = false; });
+    renderProgress();
+  });
+  renderProgress();
+
+  /* ---------- Flashcards ---------- */
+  var DECK = [
+    ["RAG", "Retrieval-augmented generation: ground LLM answers in retrieved enterprise documents at query time instead of relying on model weights.", "Provenance and auditability make RAG pharma's default knowledge pattern — and retrieval quality, not the LLM, is where it succeeds or fails."],
+    ["Fine-tuning", "Adapting model weights on domain data. Strong for stable format, style, and classification tasks with reliable labels.", "Weak for fast-changing knowledge — every update is a retraining cycle. Route knowledge to RAG, behaviour to tuning."],
+    ["Agentic workflow", "LLM-driven planning plus tool use plus iteration toward a goal, rather than single-shot generation.", "The Director questions: agent decomposition, routing, human-in-the-loop placement by risk tier, and the eval harness before scale."],
+    ["MLOps vs LLMOps", "Lifecycle automation for models: versioning, CI/CD, monitoring, retraining. LLMOps adds prompt versioning, eval suites, token-cost management, guardrails.", "The budget conversation changed: LLMOps cost is per-call and visible monthly — governance of usage is now an operating discipline."],
+    ["Data drift vs concept drift", "Data drift: the input distribution moves. Concept drift: the input→output relationship itself changes.", "Different detectors, different fixes — drift type determines whether you fix the pipeline, retrain, or redesign. Diagnose before prescribing."],
+    ["Hallucination mitigation", "Stack: grounding via retrieval, constrained generation, enforced citations, eval gates, human review at risk-tiered checkpoints.", "Never promise zero hallucination — promise instrumented detection and a designed containment path. That's the credible regulated-industry answer."],
+    ["Eval suite", "Golden datasets + task-level metrics + LLM-as-judge calibrated against human raters. Gate before production, regression test after.", "Standard-work rule: no eval suite, no production. The eval suite is to GenAI what the test pyramid is to software."],
+    ["Model card", "Documented purpose, training data, performance, limitations, and owners of a model.", "Model cards are Lean standard work for AI governance — they make the audit a read, not an investigation."],
+    ["EU AI Act risk tiers", "Prohibited / high-risk / limited / minimal — obligations scale with tier; high-risk demands documentation, oversight, and monitoring.", "Pharma workflows are often high-risk-adjacent: classify early, because the tier decides the delivery cost and timeline."],
+    ["GxP & validation", "Quality-regulated processes require validated, auditable systems; the industry shift is CSV → CSA (critical thinking over blanket documentation).", "Engage Quality at design time, not at release — validation posture decided late is the classic six-month delay."],
+    ["Vector database", "Stores embeddings for similarity search — the retrieval layer of RAG.", "In enterprise content, hybrid retrieval (keyword + vector + reranking) beats pure vector — regulated terminology is too precise for embeddings alone."],
+    ["Reranking", "A second-stage model re-orders retrieved candidates by relevance before generation.", "The cheapest quality lever in a RAG stack — often worth more than a bigger LLM."],
+    ["Prompt injection", "Adversarial instructions smuggled in via user input or retrieved documents to hijack model behaviour.", "Treat every retrieved document as untrusted input: privilege separation, output validation, and tool-permission boundaries are the mitigations."],
+    ["Cost levers at scale", "Routing, caching, context discipline, batching, distillation, usage governance, and removing LLM calls that shouldn't exist.", "Cost per task belongs on the dashboard from day one — discovered in the invoice means discovered too late."],
+    ["Knowledge graph", "Entities and relations as structured data — powers grounded reasoning, lineage, and multi-hop questions.", "GraphRAG (graph + retrieval) is the pattern for questions that span documents — the JD names knowledge graphs explicitly."],
+    ["Human-in-the-loop", "Designed human review checkpoints inside an automated workflow, placed by risk tier.", "Design for queue economics: a HITL step that becomes a bottleneck quietly kills adoption. Measure review latency like any SLO."],
+    ["Value stream mapping", "Lean's end-to-end map of a process: flow, decision points, queues, handoffs.", "The AI-candidate moments only become visible after the map — VSM before use-case scoping is the discipline most AI programmes skip."],
+    ["Eight wastes × AI", "AI primarily attacks defects, waiting, overprocessing, and underutilised talent.", "Mapping each use case to a named waste disciplines the business case — and gives Finance a language it already trusts."],
+    ["Benefit realisation", "Baseline → tracked → banked, in partnership with Finance, with named owners.", "The $15M+ method: benefits that aren't baselined before the change are opinions, not savings."],
+    ["Build · buy · delegate", "The capability sourcing decision: rarity of the capability, integration depth, speed to value.", "Same calibration applies to the Director's own hands — build when it accelerates the team, delegate when it would slow it. That judgement is the seniority."]
+  ];
+  var order = DECK.map(function (_, i) { return i; });
+  var pos = 0, showingBack = false;
+  var cardEl = document.getElementById('flash-card');
+  var contentEl = document.getElementById('flash-content');
+  var sideEl = document.getElementById('flash-side');
+  var counterEl = document.getElementById('flash-counter');
+  function renderFlash() {
+    if (!cardEl) return;
+    var c = DECK[order[pos]];
+    if (showingBack) {
+      sideEl.textContent = 'DEFINITION + DIRECTOR ANGLE';
+      contentEl.className = 'flash-back-text';
+      contentEl.innerHTML = '';
+      var d = document.createElement('span'); d.textContent = c[1];
+      var a = document.createElement('span'); a.className = 'director-angle'; a.textContent = c[2];
+      contentEl.appendChild(d); contentEl.appendChild(a);
+    } else {
+      sideEl.textContent = 'TERM';
+      contentEl.className = 'flash-front-text';
+      contentEl.textContent = c[0];
+    }
+    counterEl.textContent = (pos + 1) + ' / ' + DECK.length;
+  }
+  if (cardEl) {
+    cardEl.addEventListener('click', function () { showingBack = !showingBack; renderFlash(); });
+    document.getElementById('flash-next').addEventListener('click', function () {
+      pos = (pos + 1) % DECK.length; showingBack = false; renderFlash();
+    });
+    document.getElementById('flash-prev').addEventListener('click', function () {
+      pos = (pos - 1 + DECK.length) % DECK.length; showingBack = false; renderFlash();
+    });
+    document.getElementById('flash-shuffle').addEventListener('click', function () {
+      for (var i = order.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = order[i]; order[i] = order[j]; order[j] = t;
+      }
+      pos = 0; showingBack = false; renderFlash();
+    });
+    renderFlash();
+  }
+})();
+</script>
+</body>
+</html>
