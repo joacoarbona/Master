@@ -57,6 +57,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "iq-markets", emoji: "🧠", title: "IQ Markets", description: "Panel de mercados e inteligencia", color: "c2", href: "#/app/iq-markets" },
   { id: "hipoteca", emoji: "🏠", title: "Simulador Hipotecario", description: "Hipotecas España con datos BCE", color: "c3", href: "#/app/hipoteca" },
   { id: "tycoon", emoji: "🎮", title: "AI Product Tycoon", description: "Imperio Agéntico — estrategia PMO/IA", color: "c4", href: "#/app/tycoon" },
+  { id: "innovation", emoji: "🧠", title: "Innovation position training", description: "Innovation position training", color: "c3", href: "#/app/innovation" },
   placeholderSlot(7, "c1"),
 ];
 
