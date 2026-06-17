@@ -23,8 +23,8 @@ const DISP = "'Archivo', sans-serif", BODY = "'Inter', sans-serif", MONO = "'IBM
 
 /* ---- i18n (UI chrome; generated documents stay in corporate English) ---- */
 const I18N = {
-  en: { portfolio: "Portfolio", week: "This Week", workspace: "Workspace", data: "Project Data", studio: "PPT Studio", health: "Health Scan", priority: "Priority Lab", canvas: "Delivery Canvas", review: "Review Pack", govyear: "Governance Year", timeline: "Timeline", advisor: "Advisor", capacity: "Capacity & Budget", whiteboard: "Whiteboard", team: "Team & AI Model", charter: "Team Charter", resources: "Resources", gRun: "RUN", gGovern: "GOVERN", gGenerate: "GENERATE", gLearn: "LEARN", subtitle: "delivery intelligence cockpit", persists: "data persists across sessions", saving: "saving\u2026", saved: "saved \u2713", saveerr: "save failed \u2014 retrying on next change", export: "Export JSON", import: "Import", langnote: "" },
-  es: { portfolio: "Portafolio", week: "Esta Semana", workspace: "Espacio de Trabajo", data: "Datos del Proyecto", studio: "Estudio PPT", health: "Diagn\u00f3stico", priority: "Lab de Prioridades", canvas: "Canvas de Entrega", review: "Pack de Revisi\u00f3n", govyear: "A\u00f1o de Gobierno", timeline: "L\u00ednea de Tiempo", advisor: "Asesor IA", capacity: "Capacidad y Presupuesto", whiteboard: "Pizarra", team: "Equipo e IA", charter: "Carta del Equipo", resources: "Recursos", gRun: "EJECUTA", gGovern: "GOBIERNA", gGenerate: "GENERA", gLearn: "APRENDE", subtitle: "cockpit de inteligencia de delivery", persists: "los datos persisten entre sesiones", saving: "guardando\u2026", saved: "guardado \u2713", saveerr: "fallo al guardar \u2014 reintenta en el pr\u00f3ximo cambio", export: "Exportar JSON", import: "Importar", langnote: "Los documentos generados mantienen el ingl\u00e9s corporativo (est\u00e1ndar de entregables)." },
+  en: { intro: "Home", graph: "Knowledge Graph", gStart: "START", portfolio: "Portfolio", week: "This Week", workspace: "Workspace", data: "Project Data", studio: "PPT Studio", health: "Health Scan", priority: "Priority Lab", canvas: "Delivery Canvas", review: "Review Pack", govyear: "Governance Year", timeline: "Timeline", advisor: "Advisor", capacity: "Capacity & Budget", whiteboard: "Whiteboard", team: "Team & AI Model", charter: "Team Charter", resources: "Resources", gRun: "RUN", gGovern: "GOVERN", gGenerate: "GENERATE", gLearn: "LEARN", subtitle: "delivery intelligence cockpit", persists: "data persists across sessions", saving: "saving\u2026", saved: "saved \u2713", saveerr: "save failed \u2014 retrying on next change", export: "Export JSON", import: "Import", langnote: "" },
+  es: { intro: "Inicio", graph: "Grafo de Conocimiento", gStart: "INICIO", portfolio: "Portafolio", week: "Esta Semana", workspace: "Espacio de Trabajo", data: "Datos del Proyecto", studio: "Estudio PPT", health: "Diagn\u00f3stico", priority: "Lab de Prioridades", canvas: "Canvas de Entrega", review: "Pack de Revisi\u00f3n", govyear: "A\u00f1o de Gobierno", timeline: "L\u00ednea de Tiempo", advisor: "Asesor IA", capacity: "Capacidad y Presupuesto", whiteboard: "Pizarra", team: "Equipo e IA", charter: "Carta del Equipo", resources: "Recursos", gRun: "EJECUTA", gGovern: "GOBIERNA", gGenerate: "GENERA", gLearn: "APRENDE", subtitle: "cockpit de inteligencia de delivery", persists: "los datos persisten entre sesiones", saving: "guardando\u2026", saved: "guardado \u2713", saveerr: "fallo al guardar \u2014 reintenta en el pr\u00f3ximo cambio", export: "Exportar JSON", import: "Importar", langnote: "Los documentos generados mantienen el ingl\u00e9s corporativo (est\u00e1ndar de entregables)." },
 };
 
 const TIERS = { A: "Full Agile", B: "Hybrid", C: "Waterfall", D: "Light Touch" };
@@ -330,7 +330,7 @@ function importJson(file, api) {
 }
 
 export default function App() {
-  const [tab, setTab] = useState("portfolio");
+  const [tab, setTab] = useState("intro");
   const [projects, setProjects] = useState(null);
   const [sel, setSel] = useState(null);
   const [saveState, setSaveState] = useState("idle");
@@ -378,6 +378,7 @@ export default function App() {
   const project = projects?.find(p => p.id === sel) || null;
 
   const TAB_GROUPS = [
+    ["gStart", ["intro", "graph"]],
     ["gRun", ["portfolio", "week", "workspace", "data", "canvas", "whiteboard"]],
     ["gGovern", ["review", "health", "priority", "capacity", "team", "govyear", "timeline"]],
     ["gGenerate", ["studio", "advisor"]],
@@ -413,9 +414,15 @@ export default function App() {
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <button onClick={() => {
             if (projects.some(p => p.isDemo)) return;
-            const dp = seedProjects().map(p => ({ ...p, isDemo: true }));
-            const hr = seedHR(dp);
-            const dpe = hr.people.map(x => ({ ...x, isDemo: true }));
+            // Build demos with ORIGINAL codes first (seedHR links assignments by code),
+            // then tag names/codes/PM with "(demo)" so they can never collide with real
+            // projects in name/code-based analyses (graph, filters, lookups). IDs are
+            // fresh uid()s and are left untouched, so id-based links stay intact.
+            const TAG = " (demo)";
+            const dpRaw = seedProjects().map(p => ({ ...p, isDemo: true }));
+            const hr = seedHR(dpRaw);
+            const dp = dpRaw.map(p => ({ ...p, name: p.name + TAG, code: "D-" + p.code, pm: p.pm ? p.pm + TAG : p.pm }));
+            const dpe = hr.people.map(x => ({ ...x, isDemo: true, name: x.name + TAG }));
             const dpa = hr.assignments.map(x => ({ ...x, isDemo: true }));
             setProjects(prev => [...prev, ...dp]);
             setPeople(prev => [...(prev || []), ...dpe]);
@@ -468,6 +475,8 @@ export default function App() {
 
       {lang === "es" && <div style={{ maxWidth: 1180, margin: "0 auto", padding: "10px 22px 0", fontSize: 11, color: C.faint }}>{I18N.es.langnote}</div>}
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 22px 60px" }}>
+        {tab === "intro" && <IntroPage setTab={setTab} />}
+        {tab === "graph" && <KnowledgeGraph projects={projects} people={people} assignments={assignments} setSel={setSel} setTab={setTab} />}
         {tab === "portfolio" && <Portfolio projects={projects} setProjects={setProjects} update={update} setSel={setSel} setTab={setTab} programLinks={programLinks} setProgramLinks={setProgramLinks} />}
         {tab === "week" && <WeekView projects={projects} />}
         {tab === "workspace" && <Workspace projects={projects} project={project} setSel={setSel} update={update} people={people} assignments={assignments} />}
@@ -493,6 +502,252 @@ export default function App() {
 }
 
 /* ================= PORTFOLIO ================= */
+
+/* ============================================================================
+   Guidance document (self-contained HTML, opened in a new tab) + Intro page
+   ========================================================================== */
+function openGuidance() {
+  const css = "body{font-family:'Inter',Calibri,Arial,sans-serif;color:#1C2222;max-width:860px;margin:0 auto;padding:48px 32px;line-height:1.55}h1{font-family:Archivo,Arial,sans-serif;color:#830051;font-size:30px;margin:0 0 4px}.k{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:#9AA3A0;text-transform:uppercase}h2{font-family:Archivo,Arial;color:#3F4444;font-size:19px;margin:30px 0 8px;border-bottom:2px solid #F0AB00;display:inline-block;padding-bottom:3px}h3{font-family:Archivo,Arial;color:#830051;font-size:14px;margin:18px 0 4px}p,li{font-size:14.5px;color:#3F4444}.tag{display:inline-block;background:#F6E9F1;color:#830051;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}.bar{height:8px;background:#830051;margin:-48px -32px 32px}.foot{margin-top:40px;border-top:1px solid #D9D6D2;padding-top:12px;font-size:11px;color:#9AA3A0;font-family:'IBM Plex Mono',monospace}";
+  const html = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>DCOS Navigator — Guidance</title><style>" + css + "</style></head><body><div class='bar'></div>"
+    + "<div class='k'>AstraZeneca · OBU DSAI</div><h1>DCOS Navigator — Guidance</h1>"
+    + "<p>The Delivery &amp; Change Operating System is one place to run, govern, generate and learn across your portfolio. This guide explains the spaces and the working doctrine.</p>"
+    + "<h2>The doctrine</h2><p><span class='tag'>Tailor to risk</span><span class='tag'>Honest amber</span><span class='tag'>Value visible</span><span class='tag'>Agents draft, humans decide</span></p>"
+    + "<p>P80 is what you communicate upward; P50 is what you manage to. AI/tool-drafted artefacts are always reviewed and signed by the PM. Numbers trace to the Health Scan, Priority Lab and the systems of record — DCOS supports them, it never replaces them.</p>"
+    + "<h2>The four jobs</h2>"
+    + "<h3>▶ Run</h3><p>Portfolio &amp; RAG board, This Week, Workspace (Jira-like board with epics, resources and dates), Project Data, Delivery Canvas, Whiteboard.</p>"
+    + "<h3>◆ Govern</h3><p>Review Pack (incl. Benefits portfolio &amp; budget roll-up), Health Scan, Priority Lab, Capacity &amp; Budget, Team &amp; AI, Governance Year, Timeline.</p>"
+    + "<h3>▲ Generate</h3><p>PPT Studio (branded artefacts &amp; deck JSON/HTML), AI Advisor.</p>"
+    + "<h3>● Learn</h3><p>Team Charter, Resources &amp; playbook.</p>"
+    + "<h2>Knowledge Graph</h2><p>A live map of the portfolio. Filter by PM or project, then explore how each project connects to its risks, resources, benefits, decisions and logs. A resource on more than one project shows as a connector between them. Select a risk to reveal similar risks in other projects — so a single mitigation can be reused, and systemic issues surface.</p>"
+    + "<h2>Getting started</h2><ol><li>Run the tailoring wizard on 2–3 live projects.</li><li>Work the board; read the Review Pack weekly, Health Scan monthly.</li><li>Open the Benefits portfolio at the SteerCo; generate the branded pack from live data.</li><li>Use the Knowledge Graph to spot shared resources and repeated risks across the portfolio.</li></ol>"
+    + "<div class='foot'>AstraZeneca · OBU DSAI · DCOS Navigator · AI/tool-drafted, unconfirmed — review and sign</div></body></html>";
+  const w = window.open("", "_blank");
+  if (w) { w.document.write(html); w.document.close(); }
+  else { const b = new Blob([html], { type: "text/html" }); window.open(URL.createObjectURL(b), "_blank"); }
+}
+
+function IntroPage({ setTab }) {
+  const card = (accent, kicker, title, body, cta, onClick) => (
+    <div onClick={onClick} style={{ flex: 1, minWidth: 260, background: "#fff", border: `1px solid ${C.line}`, borderTop: `4px solid ${accent}`, borderRadius: 14, padding: "24px 26px", cursor: "pointer", transition: "box-shadow .15s" }}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 26px rgba(0,0,0,.10)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
+      <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".16em", color: accent, textTransform: "uppercase" }}>{kicker}</div>
+      <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 20, color: C.ink, marginTop: 6 }}>{title}</div>
+      <div style={{ fontSize: 13.5, color: C.mid, marginTop: 10, lineHeight: 1.5 }}>{body}</div>
+      <div style={{ marginTop: 16, display: "inline-block", background: accent, color: "#fff", borderRadius: 8, padding: "9px 16px", fontFamily: DISP, fontWeight: 700, fontSize: 13 }}>{cta}</div>
+    </div>
+  );
+  return (
+    <div>
+      <div style={{ background: C.graph, borderRadius: 16, padding: "38px 40px", color: "#fff", marginBottom: 22 }}>
+        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".2em", color: C.gold }}>ASTRAZENECA · OBU DSAI</div>
+        <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 34, marginTop: 8 }}>DCOS <span style={{ color: C.gold }}>Navigator</span></div>
+        <div style={{ fontSize: 17, color: "#D7DCDA", marginTop: 10, maxWidth: 760 }}>One cockpit to run, govern, generate and learn across the portfolio — tailored to risk, with value made visible and agents that draft what humans decide.</div>
+      </div>
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+        {card(C.mul, "Read first", "Guidance document", "The working doctrine, the four jobs, every space, and how to get started — as a printable HTML you can share.", "Open guidance ↗", openGuidance)}
+        {card(C.navy, "Explore", "Knowledge graph", "A live map of the portfolio: how projects connect to their risks, resources, benefits and logs — and where risks repeat across projects.", "Open the graph →", () => setTab("graph"))}
+        {card(C.lime, "Jump in", "Portfolio board", "Go straight to the RAG board — every project, comparable at a glance, with WSJF priority and value vs effort.", "Go to portfolio →", () => setTab("portfolio"))}
+      </div>
+      <div style={{ marginTop: 22, fontSize: 12, color: C.faint, fontFamily: MONO }}>Tip: the Knowledge Graph is also the fastest way to find a shared resource or a recurring risk across teams.</div>
+    </div>
+  );
+}
+
+/* ============================================================================
+   Knowledge Graph — projects ↔ risks / resources / benefits / logs / decisions
+   ========================================================================== */
+function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
+  const [pmF, setPmF] = useState("all");
+  const [projF, setProjF] = useState("all");
+  const [show, setShow] = useState({ risks: true, resources: true, benefits: true, logs: false, decisions: false });
+  const [node, setNode] = useState(null);
+
+  const pms = [...new Set(projects.map(p => p.pm).filter(Boolean))];
+  let vis = projects.filter(p => pmF === "all" || p.pm === pmF);
+  if (projF !== "all") vis = vis.filter(p => p.id === projF);
+
+  const resByProj = {};
+  vis.forEach(p => { resByProj[p.id] = assignments.filter(a => a.projectId === p.id).map(a => people.find(x => x.id === a.personId)).filter(Boolean); });
+  const personProjs = {};
+  Object.entries(resByProj).forEach(([pid, list]) => list.forEach(per => { (personProjs[per.id] = personProjs[per.id] || { name: per.name, pids: [] }).pids.push(pid); }));
+  const sharedPersons = Object.entries(personProjs).filter(([, v]) => v.pids.length > 1);
+
+  const STOP = new Set("the and for with that this from because may leading lower scope team capacity pending will project delay risk could would been have into when over more less than each their there which while".split(" "));
+  const tok = s => [...new Set(String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w.length > 3 && !STOP.has(w)))];
+  const allRisks = [];
+  vis.forEach(p => (p.keydata?.risks || []).forEach(r => allRisks.push({ id: r.id, desc: r.desc || r.title || r.cause || "", owner: r.owner, due: r.due, projId: p.id, projName: p.name, toks: tok(r.desc || r.title || r.cause) })));
+  const similarTo = risk => { const me = allRisks.find(r => r.id === risk.id); if (!me) return []; return allRisks.filter(o => o.id !== me.id && o.projId !== me.projId && o.toks.filter(t => me.toks.includes(t)).length >= 2).map(o => ({ ...o, shared: o.toks.filter(t => me.toks.includes(t)) })); };
+
+  const W = 1000, H = 640, cx = W / 2, cy = H / 2;
+  const n = vis.length;
+  const PR = n === 1 ? 0 : Math.min(W, H) * 0.30;
+  const projPos = {};
+  vis.forEach((p, i) => { const ang = -Math.PI / 2 + 2 * Math.PI * i / Math.max(n, 1); projPos[p.id] = n === 1 ? { x: cx, y: cy, ang: 0 } : { x: cx + PR * Math.cos(ang), y: cy + PR * Math.sin(ang), ang }; });
+
+  const sat = [];
+  vis.forEach(p => {
+    const items = [];
+    if (show.risks) (p.keydata?.risks || []).forEach(r => items.push({ kind: "risk", data: r, label: r.desc || r.title || "risk" }));
+    if (show.resources) (resByProj[p.id] || []).forEach(r => items.push({ kind: "resource", data: r, label: r.name }));
+    if (show.benefits) (p.keydata?.benefits || []).forEach(b => items.push({ kind: "benefit", data: b, label: b.name }));
+    if (show.decisions) (p.keydata?.decisions || []).forEach(d => items.push({ kind: "decision", data: d, label: d.text }));
+    if (show.logs) (p.events || []).slice(-4).forEach(e => items.push({ kind: "log", data: e, label: e.title }));
+    const base = projPos[p.id], m = items.length;
+    items.forEach((it, j) => {
+      const spread = n === 1 ? 2 * Math.PI : Math.PI * 1.05;
+      const a = (n === 1 ? 0 : base.ang) + (m <= 1 ? 0 : spread * (j / (m - 1) - 0.5));
+      const SR = 92 + (j % 3) * 26;
+      sat.push({ key: `${p.id}-${it.kind}-${j}`, kind: it.kind, projId: p.id, data: it.data, label: it.label, riskId: it.kind === "risk" ? it.data.id : null, x: base.x + SR * Math.cos(a), y: base.y + SR * Math.sin(a) });
+    });
+  });
+  const riskPos = {}; sat.forEach(s => { if (s.riskId) riskPos[s.riskId] = { x: s.x, y: s.y }; });
+
+  const NODE = { project: C.mul, risk: C.red, resource: C.navy, benefit: C.lime, decision: "#8A6200", log: C.graph };
+  const selRisk = node?.kind === "risk" ? node : null;
+  const simIds = selRisk ? new Set(similarTo(selRisk.data).map(s => s.id)) : new Set();
+
+  const filt = (k, label) => (
+    <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: C.ink, cursor: "pointer", marginBottom: 6 }}>
+      <input type="checkbox" checked={show[k]} onChange={e => setShow({ ...show, [k]: e.target.checked })} />
+      <span style={{ width: 9, height: 9, borderRadius: "50%", background: NODE[k === "risks" ? "risk" : k === "resources" ? "resource" : k === "benefits" ? "benefit" : k === "decisions" ? "decision" : "log"] }} />{label}
+    </label>
+  );
+
+  return (
+    <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+      {/* left filters */}
+      <div style={{ flex: "0 0 220px", minWidth: 200 }}>
+        <Card>
+          <SectionLabel color={C.navy}>Filters</SectionLabel>
+          <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em", margin: "6px 0 3px" }}>PM</div>
+          <select value={pmF} onChange={e => { setPmF(e.target.value); setProjF("all"); setNode(null); }} style={{ width: "100%", border: `1px solid ${C.line}`, borderRadius: 7, padding: "8px 9px", fontSize: 12.5, background: "#fff", color: C.ink }}>
+            <option value="all">All PMs</option>
+            {pms.map(pm => <option key={pm} value={pm}>{pm}</option>)}
+          </select>
+          <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em", margin: "12px 0 3px" }}>Project</div>
+          <select value={projF} onChange={e => { setProjF(e.target.value); setNode(null); }} style={{ width: "100%", border: `1px solid ${C.line}`, borderRadius: 7, padding: "8px 9px", fontSize: 12.5, background: "#fff", color: C.ink }}>
+            <option value="all">All projects</option>
+            {projects.filter(p => pmF === "all" || p.pm === pmF).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <div style={{ height: 1, background: C.soft, margin: "14px 0" }} />
+          <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Show on graph</div>
+          {filt("risks", "Risks")}{filt("resources", "Resources")}{filt("benefits", "Benefits")}{filt("decisions", "Decisions")}{filt("logs", "Logs")}
+          <div style={{ height: 1, background: C.soft, margin: "12px 0" }} />
+          <div style={{ fontSize: 11, color: C.mid, lineHeight: 1.45 }}><b style={{ color: C.ink }}>{vis.length}</b> project(s) · <b style={{ color: C.ink }}>{allRisks.length}</b> risk(s)</div>
+          {sharedPersons.length > 0 && <div style={{ fontSize: 11, color: C.navy, marginTop: 6, lineHeight: 1.4 }}>◢ {sharedPersons.length} resource(s) shared across projects (dashed links)</div>}
+        </Card>
+      </div>
+
+      {/* graph */}
+      <div style={{ flex: "1 1 520px", minWidth: 360 }}>
+        <Card style={{ padding: 6 }}>
+          <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+            {/* shared-resource connectors between project centres */}
+            {sharedPersons.map(([pid, v]) => v.pids.slice(1).map((to, i) => {
+              const a = projPos[v.pids[0]], b = projPos[to]; if (!a || !b) return null;
+              return <line key={`sh-${pid}-${i}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={C.navy} strokeWidth="1.2" strokeDasharray="3 4" opacity="0.35" />;
+            }))}
+            {/* project → satellite edges */}
+            {sat.map(s => { const b = projPos[s.projId]; const hot = simIds.has(s.riskId); return <line key={`e-${s.key}`} x1={b.x} y1={b.y} x2={s.x} y2={s.y} stroke={hot ? C.red : C.line} strokeWidth={hot ? 1.6 : 0.8} opacity={hot ? 0.9 : 0.6} />; })}
+            {/* similar-risk connectors from selected risk */}
+            {selRisk && riskPos[selRisk.data.id] && [...simIds].map(id => { const a = riskPos[selRisk.data.id], b = riskPos[id]; if (!a || !b) return null; return <line key={`sim-${id}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={C.red} strokeWidth="1.8" strokeDasharray="5 4" opacity="0.85" />; })}
+            {/* project nodes */}
+            {vis.map(p => { const b = projPos[p.id]; const on = node?.kind === "project" && node.data.id === p.id; return (
+              <g key={`p-${p.id}`} onClick={() => setNode({ kind: "project", data: p })} style={{ cursor: "pointer" }}>
+                <circle cx={b.x} cy={b.y} r="26" fill={NODE.project} stroke={on ? C.gold : "#fff"} strokeWidth={on ? 3 : 2} />
+                <text x={b.x} y={b.y + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff" fontFamily="Archivo, Arial">{(p.code || p.name || "").slice(0, 6)}</text>
+                <text x={b.x} y={b.y + 42} textAnchor="middle" fontSize="10.5" fill={C.ink} fontFamily="Inter">{(p.name || "").slice(0, 22)}</text>
+              </g>
+            ); })}
+            {/* satellite nodes */}
+            {sat.map(s => { const on = node && node.kind === s.kind && node.data === s.data; const hot = simIds.has(s.riskId); const r = s.kind === "resource" ? 11 : 9; return (
+              <g key={s.key} onClick={() => setNode({ kind: s.kind, data: s.data, projId: s.projId })} style={{ cursor: "pointer" }}>
+                <circle cx={s.x} cy={s.y} r={hot ? r + 3 : r} fill={NODE[s.kind]} stroke={on ? C.gold : hot ? C.red : "#fff"} strokeWidth={on ? 3 : hot ? 2.5 : 1.5} opacity={selRisk && !hot && s.kind === "risk" ? 0.45 : 1} />
+                <text x={s.x} y={s.y - (hot ? r + 7 : r + 4)} textAnchor="middle" fontSize="8.5" fill={C.mid} fontFamily="Inter">{String(s.label || "").slice(0, 16)}</text>
+              </g>
+            ); })}
+          </svg>
+          {/* legend */}
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", padding: "4px 10px 8px" }}>
+            {Object.entries({ Project: NODE.project, Risk: NODE.risk, Resource: NODE.resource, Benefit: NODE.benefit, Decision: NODE.decision, Log: NODE.log }).map(([k, c]) => (
+              <span key={k} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: C.mid }}><span style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />{k}</span>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* right detail panel */}
+      <div style={{ flex: "0 0 260px", minWidth: 230 }}>
+        <Card>
+          {!node ? (
+            <div style={{ color: C.mid, fontSize: 13 }}><SectionLabel color={C.mul}>Detail</SectionLabel>Click any node to inspect it. Click a <b style={{ color: C.red }}>risk</b> to reveal similar risks in other projects.</div>
+          ) : node.kind === "project" ? (
+            <div>
+              <SectionLabel color={C.mul}>{node.data.code} · Project</SectionLabel>
+              <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 16, color: C.ink }}>{node.data.name}</div>
+              <div style={{ fontSize: 12.5, color: C.mid, marginTop: 6 }}>PM: {node.data.pm || "—"} · Tier {node.data.tier || "—"} · {node.data.phase || "—"}</div>
+              <div style={{ fontSize: 12.5, color: C.ink, marginTop: 8 }}>{node.data.keydata?.headline || ""}</div>
+              <div style={{ display: "flex", gap: 10, marginTop: 10, fontSize: 11.5, color: C.mid }}>
+                <span>{(node.data.keydata?.risks || []).length} risks</span><span>{(resByProj[node.data.id] || []).length} resources</span><span>{(node.data.keydata?.benefits || []).length} benefits</span>
+              </div>
+              <button onClick={() => { setSel(node.data.id); setTab("data"); }} style={{ marginTop: 14, width: "100%", background: C.mul, color: "#fff", border: "none", borderRadius: 8, padding: "9px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Open in Project Data →</button>
+            </div>
+          ) : node.kind === "risk" ? (
+            <div>
+              <SectionLabel color={C.red}>Risk</SectionLabel>
+              <div style={{ fontSize: 13, color: C.ink, lineHeight: 1.4 }}>{node.data.desc || node.data.title || node.data.cause}</div>
+              <div style={{ fontSize: 12, color: C.mid, marginTop: 8 }}>Owner: {node.data.owner || "—"}{node.data.due ? ` · due ${node.data.due}` : ""}</div>
+              {(() => { const sims = similarTo(node.data); return (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em" }}>Similar risks elsewhere ({sims.length})</div>
+                  {sims.length === 0 ? <div style={{ fontSize: 12, color: C.mid, marginTop: 6 }}>None detected across the visible projects.</div> :
+                    sims.map(s => (
+                      <div key={s.id} onClick={() => setNode({ kind: "risk", data: { id: s.id, desc: s.desc, owner: s.owner, due: s.due }, projId: s.projId })} style={{ marginTop: 8, padding: "7px 9px", background: C.redLt || "#F8E9E8", borderRadius: 8, cursor: "pointer" }}>
+                        <div style={{ fontFamily: MONO, fontSize: 9, color: C.red, fontWeight: 700 }}>{s.projName}</div>
+                        <div style={{ fontSize: 11.5, color: C.ink, lineHeight: 1.35 }}>{(s.desc || "").slice(0, 90)}</div>
+                        <div style={{ fontSize: 9.5, color: C.mid, marginTop: 3 }}>shared: {s.shared.slice(0, 4).join(", ")}</div>
+                      </div>
+                    ))}
+                  {sims.length > 0 && <div style={{ fontSize: 11, color: C.mid, marginTop: 8, fontStyle: "italic" }}>A repeated risk is a portfolio risk — consider one shared mitigation.</div>}
+                </div>
+              ); })()}
+            </div>
+          ) : node.kind === "resource" ? (
+            <div>
+              <SectionLabel color={C.navy}>Resource</SectionLabel>
+              <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 15, color: C.ink }}>{node.data.name}</div>
+              <div style={{ fontSize: 12.5, color: C.mid, marginTop: 6 }}>{node.data.role || "—"}{node.data.team ? ` · ${node.data.team}` : ""}</div>
+              {(() => { const pp = personProjs[node.data.id]; return pp && pp.pids.length > 1 ? (
+                <div style={{ marginTop: 10, fontSize: 12, color: C.navy }}>◢ On {pp.pids.length} projects: {pp.pids.map(id => (projects.find(p => p.id === id) || {}).code).filter(Boolean).join(", ")}</div>
+              ) : <div style={{ marginTop: 10, fontSize: 12, color: C.mid }}>On this project.</div>; })()}
+            </div>
+          ) : node.kind === "benefit" ? (
+            <div>
+              <SectionLabel color={C.lime}>Benefit</SectionLabel>
+              <div style={{ fontSize: 13.5, color: C.ink, fontWeight: 600 }}>{node.data.name}</div>
+              <div style={{ fontSize: 12, color: C.mid, marginTop: 8 }}>{node.data.baseline || "?"} → {node.data.target || "?"}</div>
+              <div style={{ fontSize: 12, color: C.mid, marginTop: 4 }}>Owner: {node.data.owner || "no owner"} · {node.data.status || "on track"}</div>
+            </div>
+          ) : node.kind === "decision" ? (
+            <div>
+              <SectionLabel color={"#8A6200"}>Decision</SectionLabel>
+              <div style={{ fontSize: 13, color: C.ink, lineHeight: 1.4 }}>{node.data.text}</div>
+              <div style={{ fontSize: 12, color: C.mid, marginTop: 8 }}>Owner: {node.data.owner || "—"} · {node.data.status || "—"}</div>
+            </div>
+          ) : (
+            <div>
+              <SectionLabel color={C.graph}>Log</SectionLabel>
+              <div style={{ fontSize: 13, color: C.ink }}>{node.data.title}</div>
+              <div style={{ fontSize: 11.5, color: C.faint, marginTop: 4 }}>{node.data.date} · {node.data.type}</div>
+              {node.data.detail && <div style={{ fontSize: 12, color: C.mid, marginTop: 8, lineHeight: 1.4 }}>{node.data.detail}</div>}
+            </div>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 function Portfolio({ projects, setProjects, update, setSel, setTab, programLinks, setProgramLinks }) {
   const [pview, setPview] = useState("cards");
   const [name, setName] = useState("");
