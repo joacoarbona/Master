@@ -117,7 +117,7 @@ export const DEFAULT_WORKS: Work[] = [
     href: "/gabinete/innovation.html",
   },
     {
-    id: "Python_Lean",
+    id: "python_lean",
     title: "Python and Lean",
     description: "Python learning and Lean basics",
     kind: "dossier",
