@@ -122,7 +122,7 @@ export const DEFAULT_WORKS: Work[] = [
     description: "Python learning and Lean basics",
     kind: "dossier",
     initial: "P",
-    href: "/gabinete/python.html",
+    href: "/gabinete/python_lean.html",
   },
   slot(3),
   slot(4),
