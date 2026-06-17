@@ -412,9 +412,25 @@ export default function App() {
         </div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <button onClick={() => {
-            if (confirmAct !== "demo") { setConfirmAct("demo"); setTimeout(() => setConfirmAct(c => c === "demo" ? null : c), 3000); return; }
-            const s2 = seedProjects(); setProjects(s2); setSel(s2[0].id); const hr2 = seedHR(s2); setPeople(hr2.people); setAssignments(hr2.assignments); setConfirmAct(null);
-          }} style={{ border: "1px solid #4A5757", background: confirmAct === "demo" ? C.gold : "transparent", color: confirmAct === "demo" ? C.ink : "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>{confirmAct === "demo" ? "Replace all with demo?" : "⟳ Demo data"}</button>
+            if (projects.some(p => p.isDemo)) return;
+            const dp = seedProjects().map(p => ({ ...p, isDemo: true }));
+            const hr = seedHR(dp);
+            const dpe = hr.people.map(x => ({ ...x, isDemo: true }));
+            const dpa = hr.assignments.map(x => ({ ...x, isDemo: true }));
+            setProjects(prev => [...prev, ...dp]);
+            setPeople(prev => [...(prev || []), ...dpe]);
+            setAssignments(prev => [...(prev || []), ...dpa]);
+            setSel(s => s || dp[0].id);
+          }} disabled={projects.some(p => p.isDemo)} title="Add 3 fully-populated demo projects alongside your data (removable, won't touch the rest)" style={{ border: "1px solid #4A5757", background: "transparent", color: projects.some(p => p.isDemo) ? "#5E6A6A" : "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: projects.some(p => p.isDemo) ? "default" : "pointer", fontFamily: DISP, fontWeight: 600 }}>+ Demo (3)</button>
+          {projects.some(p => p.isDemo) && (
+            <button onClick={() => {
+              const remaining = projects.filter(p => !p.isDemo);
+              setProjects(prev => prev.filter(p => !p.isDemo));
+              setPeople(prev => (prev || []).filter(x => !x.isDemo));
+              setAssignments(prev => (prev || []).filter(x => !x.isDemo));
+              setSel(s => (remaining.some(p => p.id === s) ? s : (remaining[0]?.id || null)));
+            }} title="Remove only the demo projects — your real data stays untouched" style={{ border: "1px solid #4A5757", background: "transparent", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>− Demo</button>
+          )}
           <button onClick={() => {
             if (confirmAct !== "clear") { setConfirmAct("clear"); setTimeout(() => setConfirmAct(c => c === "clear" ? null : c), 3000); return; }
             setProjects([]); setSel(null); setConfirmAct(null);
@@ -454,7 +470,7 @@ export default function App() {
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 22px 60px" }}>
         {tab === "portfolio" && <Portfolio projects={projects} setProjects={setProjects} update={update} setSel={setSel} setTab={setTab} programLinks={programLinks} setProgramLinks={setProgramLinks} />}
         {tab === "week" && <WeekView projects={projects} />}
-        {tab === "workspace" && <Workspace projects={projects} project={project} setSel={setSel} update={update} />}
+        {tab === "workspace" && <Workspace projects={projects} project={project} setSel={setSel} update={update} people={people} assignments={assignments} />}
         {tab === "data" && <ProjectData projects={projects} project={project} setSel={setSel} update={update} people={people} />}
         {tab === "studio" && <PptStudio projects={projects} project={project} setSel={setSel} update={update} />}
         {tab === "health" && <HealthScan projects={projects} project={project} setSel={setSel} update={update} setTab={setTab} />}
@@ -904,6 +920,19 @@ function ReviewPack({ projects, update, people = [], assignments = [] }) {
     .filter(x => x.days >= 25)
     .sort((a, b) => b.days - a.days);
 
+  // Benefits portfolio — every benefit across every project (value roll-up)
+  const allBenefits = projects.flatMap(p => (p.keydata?.benefits || []).map(b => ({ ...b, projName: p.name, projCode: p.code })));
+  const BEN_STATUS = ["on track", "at risk", "realised", "written off"];
+  const BEN_COL = { "on track": C.lime, "at risk": "#8A6200", "realised": C.navy, "written off": C.red };
+  const benCount = s => allBenefits.filter(b => (b.status || "on track") === s).length;
+  const benAtRisk = allBenefits.filter(b => ["at risk", "written off"].includes(b.status));
+  const benNoOwner = allBenefits.filter(b => !b.owner || !String(b.owner).trim());
+
+  // Budget roll-up — portfolio cost picture (labour + non-labour, PERT P50/P80)
+  const budgetRows = projects.map(p => ({ p, be: budgetEval(p, people, assignments) })).filter(x => x.be);
+  const budTotals = budgetRows.reduce((a, { be }) => ({ env: a.env + (be.env || 0), p50: a.p50 + be.p50, p80: a.p80 + be.p80 }), { env: 0, p50: 0, p80: 0 });
+  const budVerdict = be => !be.env ? ["no envelope", C.faint] : be.p80 <= be.env ? ["GREEN", C.lime] : be.p50 <= be.env ? ["AMBER", "#8A6200"] : ["RED", C.red];
+
   const md = () => {
     let m = `# Portfolio Review pre-pack — ${today()}\n\n## Snapshot\n${projects.length} projects · attention needed on ${attention.length}\n\n## Needs attention\n`;
     attention.forEach(({ p, flags }) => { m += `- **${p.name}** (${p.code}, Tier ${p.tier}, ${p.phase}): ${flags.join(" · ")}\n`; });
@@ -913,6 +942,16 @@ function ReviewPack({ projects, update, people = [], assignments = [] }) {
     if (retros.length) {
       m += `\n## Day-30 configuration retros due\n`;
       retros.forEach(({ p, days }) => { m += `- **${p.name}**: hypothesis from ${p.hypothesis.date} (${days} days old, Tier ${p.tier}) — retro pending\n`; });
+    }
+    if (allBenefits.length) {
+      m += `\n## Benefits portfolio (${allBenefits.length})\n`;
+      m += BEN_STATUS.map(s => `${s}: ${benCount(s)}`).join(" · ") + "\n";
+      allBenefits.forEach(b => { m += `- ${b.projCode} · ${b.name} — ${b.baseline || "?"} → ${b.target || "?"} (${b.owner || "no owner"}, ${b.status || "on track"})\n`; });
+    }
+    if (budgetRows.length) {
+      m += `\n## Budget roll-up\n`;
+      m += `Envelopes ${eur(budTotals.env)} · P50 ${eur(budTotals.p50)} · P80 ${eur(budTotals.p80)}\n`;
+      budgetRows.forEach(({ p, be }) => { m += `- ${p.code} · ${p.name}: env ${eur(be.env)}, P50 ${eur(be.p50)}, P80 ${eur(be.p80)} — ${budVerdict(be)[0]}\n`; });
     }
     m += `\n_Generated by DCOS Navigator. Numbers trace to the Health Scan and Priority Lab; this pack supports, never replaces, the systems of record._\n`;
     return m;
@@ -971,6 +1010,76 @@ function ReviewPack({ projects, update, people = [], assignments = [] }) {
               <div style={{ fontSize: 10.5, color: C.faint, marginTop: 4 }}>Retro script: re-read the hypothesis · evidence per pivot trigger · friction round · keep / adjust / change tier → T08.</div>
             </div>
           ))}
+        </Card>
+        <Card style={{ gridColumn: "1/-1", borderTop: `3px solid ${C.lime}` }}>
+          <SectionLabel color={C.lime}>Benefits portfolio — value across every project</SectionLabel>
+          {allBenefits.length === 0 ? (
+            <div style={{ fontSize: 13, color: C.mid }}>No benefits captured yet. Add them per project in Project Data; they roll up here so value is visible across the whole portfolio.</div>
+          ) : (
+            <>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+                {BEN_STATUS.map(s => (
+                  <Chip key={s} bg={"#fff"} color={BEN_COL[s]} style={{ border: `1px solid ${BEN_COL[s]}33`, fontWeight: 700 }}>{s}: {benCount(s)}</Chip>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(90px,0.8fr) minmax(160px,2fr) 1fr 1fr 1.1fr auto", gap: 4, fontSize: 12 }}>
+                {["Project", "Benefit", "Baseline", "Target", "Business owner", "Status"].map(h => (
+                  <div key={h} style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: ".05em", color: C.faint, textTransform: "uppercase", paddingBottom: 4, borderBottom: `1px solid ${C.line}` }}>{h}</div>
+                ))}
+                {allBenefits.map((b, i) => (
+                  <React.Fragment key={b.id || i}>
+                    <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, fontFamily: MONO, fontSize: 10.5, color: C.mul }}>{b.projCode}</div>
+                    <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, fontWeight: 600 }}>{b.name}</div>
+                    <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, color: C.mid }}>{b.baseline || "—"}</div>
+                    <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, color: C.mid }}>{b.target || "—"}</div>
+                    <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, color: b.owner ? C.ink : C.red }}>{b.owner || "no owner"}</div>
+                    <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}` }}><Chip bg={"#fff"} color={BEN_COL[b.status || "on track"]} style={{ border: `1px solid ${BEN_COL[b.status || "on track"]}33` }}>{b.status || "on track"}</Chip></div>
+                  </React.Fragment>
+                ))}
+              </div>
+              {benAtRisk.length > 0 && (
+                <div style={{ marginTop: 12, fontSize: 12.5, color: C.ink }}><b style={{ color: C.red }}>Value needing attention:</b> {benAtRisk.map(b => `${b.projCode} — ${b.name} (${b.status})`).join(" · ")}</div>
+              )}
+              {benNoOwner.length > 0 && (
+                <div style={{ marginTop: 8, fontSize: 12, color: "#8A6200", background: C.goldLt, borderRadius: 8, padding: "8px 12px" }}>{benNoOwner.length} benefit{benNoOwner.length > 1 ? "s" : ""} with no business owner — a benefit with no owner is not a benefit.</div>
+              )}
+            </>
+          )}
+        </Card>
+        <Card style={{ gridColumn: "1/-1", borderTop: `3px solid ${C.navy}` }}>
+          <SectionLabel color={C.navy}>Budget roll-up — labour + non-labour, P50 / P80 vs envelope</SectionLabel>
+          {budgetRows.length === 0 ? (
+            <div style={{ fontSize: 13, color: C.mid }}>No budgets set yet. Add an envelope and cost lines per project in Capacity &amp; Budget; the portfolio picture appears here.</div>
+          ) : (
+            <>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+                {[["Envelopes", budTotals.env, C.ink], ["Forecast P50", budTotals.p50, C.navy], ["Forecast P80", budTotals.p80, budTotals.p80 > budTotals.env && budTotals.env > 0 ? C.red : C.lime]].map(([l, v, col]) => (
+                  <div key={l} style={{ border: `1px solid ${C.line}`, borderRadius: 10, padding: "8px 14px", minWidth: 120 }}>
+                    <div style={{ fontFamily: MONO, fontSize: 9.5, textTransform: "uppercase", color: C.faint, letterSpacing: ".05em" }}>{l}</div>
+                    <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 18, color: col }}>{eur(v)}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(140px,2fr) 1fr 1fr 1fr auto", gap: 4, fontSize: 12 }}>
+                {["Project", "Envelope", "P50", "P80", "Verdict"].map(h => (
+                  <div key={h} style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: ".05em", color: C.faint, textTransform: "uppercase", paddingBottom: 4, borderBottom: `1px solid ${C.line}` }}>{h}</div>
+                ))}
+                {budgetRows.map(({ p, be }) => {
+                  const [vt, vc] = budVerdict(be);
+                  return (
+                    <React.Fragment key={p.id}>
+                      <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, fontWeight: 600 }}>{p.name} <span style={{ fontFamily: MONO, fontSize: 10, color: C.faint }}>{p.code}</span></div>
+                      <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, fontFamily: MONO, fontSize: 11.5, color: C.mid }}>{eur(be.env)}</div>
+                      <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, fontFamily: MONO, fontSize: 11.5, color: C.mid }}>{eur(be.p50)}</div>
+                      <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}`, fontFamily: MONO, fontSize: 11.5, color: C.mid }}>{eur(be.p80)}</div>
+                      <div style={{ padding: "6px 0", borderBottom: `1px solid ${C.soft}` }}><Chip bg={"#fff"} color={vc} style={{ border: `1px solid ${vc}33`, fontWeight: 700 }}>{vt}</Chip></div>
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 10, fontSize: 11.5, fontStyle: "italic", color: C.mid }}>Doctrine: P80 is what you commit upward; P50 is what you manage to. Forecast combines labour (from assignments) and non-labour cost lines.</div>
+            </>
+          )}
         </Card>
       </div>
     </div>
@@ -1691,16 +1800,26 @@ function ProjectData({ projects, project, setSel, update, people = [] }) {
 
 /* ================= WORKSPACE — mini Jira · Smartsheet · Confluence ================= */
 const WCOLS = [["backlog", "Backlog"], ["doing", "In progress"], ["review", "In review"], ["done", "Done"]];
-function Workspace({ projects, project, setSel, update }) {
+function Workspace({ projects, project, setSel, update, people = [], assignments = [] }) {
   const [view, setView] = useState("board");
   const [planTime, setPlanTime] = useState(false);
   const [newCard, setNewCard] = useState("");
   const [pageSel, setPageSel] = useState(null);
+  const [newEpic, setNewEpic] = useState("");
+  const [newDue, setNewDue] = useState("");
+  const [grpEpic, setGrpEpic] = useState(false);
+  const [fEpic, setFEpic] = useState("all");
+  const [fDue, setFDue] = useState("");
+  const [fAssignee, setFAssignee] = useState("all");
+  const [newAssignee, setNewAssignee] = useState("");
+  const [editId, setEditId] = useState(null);
   if (!project) return <Card>Add a project in Portfolio first.</Card>;
   const work = project.work || [], plan = project.plan || [], pages = project.pages || [];
   const setWork = w => update(project.id, { work: w });
   const setPlan = p => update(project.id, { plan: p });
   const setPages = p => update(project.id, { pages: p });
+  const teamNames = [...new Set(assignments.filter(a => a.projectId === project.id).map(a => (people.find(x => x.id === a.personId) || {}).name).filter(Boolean))];
+  const assigneeOpts = teamNames.length ? teamNames : people.map(p => p.name).filter(Boolean);
   const move = (id, dir) => {
     const nw = work.map(c => {
       if (c.id !== id) return c;
@@ -1721,59 +1840,190 @@ function Workspace({ projects, project, setSel, update }) {
         {donePct !== null && <Chip bg={C.navyLt} color={C.navy} style={{ fontSize: 11, padding: "5px 12px" }}>{donePct}% work done</Chip>}
         {plan.length > 0 && <Chip bg={C.goldLt} color={"#8A6200"} style={{ fontSize: 11, padding: "5px 12px" }}>{plan.filter(m => m.status !== "done").length} open milestones</Chip>}
         <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
-          {[["board", "Board"], ["flow", "Flow"], ["plan", "Plan"], ["pages", "Pages"]].map(([id, l]) => (
+          {[["board", "Board"], ["dates", "Dates"], ["flow", "Flow"], ["plan", "Plan"], ["pages", "Pages"]].map(([id, l]) => (
             <button key={id} onClick={() => setView(id)} style={{ border: `1px solid ${view === id ? C.mul : C.line}`, background: view === id ? C.mul : "#fff", color: view === id ? "#fff" : C.mid, borderRadius: 99, padding: "7px 15px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>{l}</button>
           ))}
         </div>
       </div>
       <div style={{ fontSize: 11.5, color: C.faint, marginBottom: 12 }}>For portfolios under ~100 projects this workspace replaces the tool sprawl: Board = the work of record · Plan = the plan of record · Pages = the memory of record. One project, one place, zero duplicated truth.</div>
 
-      {view === "board" && (
-        <div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-            <input value={newCard} onChange={e => setNewCard(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && newCard.trim()) { setWork([...work, { id: uid(), title: newCard.trim(), col: "backlog" }]); setNewCard(""); } }} placeholder="New work item — Enter to add to Backlog" style={{ flex: 1, minWidth: 220, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 13px", fontSize: 13 }} />
-            <label style={{ border: `1px solid ${C.navy}`, color: C.navy, background: "#fff", borderRadius: 8, padding: "10px 14px", fontSize: 12, fontFamily: DISP, fontWeight: 700, cursor: "pointer" }}>
-              Import JIRA CSV ↑
-              <input type="file" accept=".csv,text/csv" style={{ display: "none" }} onChange={e => {
-                const f = e.target.files?.[0]; if (!f) return;
-                Papa.parse(f, { header: true, skipEmptyLines: true, complete: res => {
-                  try {
-                    const REV = { "to do": "backlog", "open": "backlog", "backlog": "backlog", "in progress": "doing", "doing": "doing", "in review": "review", "review": "review", "done": "done", "closed": "done", "resolved": "done" };
-                    const rows = res.data.map(r => {
-                      const title = r.Summary || r.summary || r["Issue key"] || r.Title || "";
-                      const st = String(r.Status || r.status || "").toLowerCase().trim();
-                      return title ? { id: uid(), title: String(title).slice(0, 120), col: REV[st] || "backlog" } : null;
-                    }).filter(Boolean);
-                    if (rows.length) setWork([...work, ...rows]);
-                    else alert("No rows with a Summary column found — export from JIRA with Summary and Status fields.");
-                  } catch { alert("Couldn't parse that CSV."); }
-                }});
-                e.target.value = "";
-              }} />
-            </label>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 10 }}>
-            {WCOLS.map(([k, label]) => (
-              <div key={k} style={{ background: k === "done" ? C.limeLt : C.soft, borderRadius: 12, padding: 10, minHeight: 160 }}>
-                {(() => { const n = work.filter(c => c.col === k).length, lim = project.wip?.[k]; const over = lim && n > lim; return (
-                  <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: over ? C.red : k === "done" ? C.lime : C.faint, margin: "2px 4px 8px", fontWeight: over ? 700 : 500 }}>{label} · {n}{lim ? `/${lim}` : ""}{over ? " ⚠ WIP" : ""}</div>
-                ); })()}
-                {work.filter(c => c.col === k).map(c => (
-                  <div key={c.id} style={{ background: "#fff", border: `1px solid ${c.blocked ? C.red : C.line}`, borderLeft: c.blocked ? `4px solid ${C.red}` : `1px solid ${C.line}`, borderRadius: 9, padding: "9px 11px", marginBottom: 7, fontSize: 12.5 }}>
-                    {c.title} {c.blocked && <span style={{ fontFamily: MONO, fontSize: 8.5, color: C.red, fontWeight: 700 }}>BLOCKED</span>}
-                    <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-                      <button onClick={() => setWork(work.map(x => x.id === c.id ? { ...x, blocked: !x.blocked } : x))} title={c.blocked ? "Unblock" : "Mark blocked"} style={{ border: `1px solid ${c.blocked ? C.red : C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 7px", cursor: "pointer", color: c.blocked ? C.red : C.faint, fontSize: 11 }}>⚑</button>
-                      <button onClick={() => move(c.id, -1)} disabled={k === "backlog"} style={{ border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 8px", cursor: "pointer", color: C.mid, fontSize: 11 }}>◀</button>
-                      <button onClick={() => move(c.id, 1)} disabled={k === "done"} style={{ border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 8px", cursor: "pointer", color: C.mid, fontSize: 11 }}>▶</button>
-                      <button onClick={() => setWork(work.filter(x => x.id !== c.id))} style={{ marginLeft: "auto", border: "none", background: "transparent", color: C.faint, cursor: "pointer", fontSize: 12 }}>×</button>
-                    </div>
-                  </div>
-                ))}
+      {(() => {
+        // ---- epic + date helpers shared by Board and Dates views ----
+        const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+        const daysTo = d => d ? Math.round((new Date(d + "T00:00:00") - today0) / 86400000) : null;
+        const EPIC_COL = [C.mul, C.navy, C.lime, "#8A6200", C.mulDk, "#0F6F6A", "#9A3B8C"];
+        const epicList = [...new Set(work.map(c => c.epic).filter(Boolean))];
+        const epicColor = e => EPIC_COL[Math.max(0, epicList.indexOf(e)) % EPIC_COL.length];
+        const setCard = (id, patch) => setWork(work.map(x => x.id === id ? { ...x, ...patch } : x));
+        const dueChip = c => {
+          if (!c.due) return null;
+          const dt = daysTo(c.due), done = c.col === "done";
+          const col = done ? C.lime : dt < 0 ? C.red : dt <= 7 ? "#8A6200" : C.faint;
+          const lab = dt < 0 && !done ? `${-dt}d overdue` : dt === 0 ? "today" : dt > 0 ? `${dt}d` : "met";
+          return <span style={{ fontFamily: MONO, fontSize: 9, color: col, fontWeight: 700 }} title={c.due}>◷ {c.due} · {lab}</span>;
+        };
+        const cardEl = (c, showMove = true) => (
+          <div key={c.id} style={{ background: "#fff", border: `1px solid ${c.blocked ? C.red : C.line}`, borderLeft: c.epic ? `4px solid ${epicColor(c.epic)}` : (c.blocked ? `4px solid ${C.red}` : `1px solid ${C.line}`), borderRadius: 9, padding: "9px 11px", marginBottom: 7, fontSize: 12.5 }}>
+            <div>{c.title} {c.blocked && <span style={{ fontFamily: MONO, fontSize: 8.5, color: C.red, fontWeight: 700 }}>BLOCKED</span>}</div>
+            <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap", marginTop: 5 }}>
+              {c.epic && <span style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: "#fff", background: epicColor(c.epic), borderRadius: 4, padding: "1px 6px" }}>{c.epic}</span>}
+              {c.assignee && <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, color: C.navy, background: C.navyLt, borderRadius: 10, padding: "1px 8px" }}>◢ {c.assignee}</span>}
+              {c.points ? <span style={{ fontFamily: MONO, fontSize: 9, color: C.navy, fontWeight: 700 }}>{c.points} pt</span> : null}
+              {dueChip(c)}
+            </div>
+            {editId === c.id && (
+              <div style={{ display: "flex", gap: 5, marginTop: 7, flexWrap: "wrap" }}>
+                <select value={c.assignee || ""} onChange={e => setCard(c.id, { assignee: e.target.value || undefined })} style={{ flex: "0 0 130px", border: `1px solid ${C.soft}`, background: "#FBFAF8", borderRadius: 7, padding: "7px 6px", fontSize: 12, color: C.ink }}>
+                  <option value="">— resource —</option>
+                  {assigneeOpts.map(nm => <option key={nm} value={nm}>{nm}</option>)}
+                </select>
+                {inp(c.epic, v => setCard(c.id, { epic: v }), "Epic", "text", 100)}
+                {inp(c.due, v => setCard(c.id, { due: v }), "Due", "date", 130)}
+                {inp(c.points, v => setCard(c.id, { points: v }), "Pts", "number", 56)}
               </div>
-            ))}
+            )}
+            <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+              <button onClick={() => setEditId(editId === c.id ? null : c.id)} title="Edit epic / due / points" style={{ border: `1px solid ${editId === c.id ? C.mul : C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 7px", cursor: "pointer", color: editId === c.id ? C.mul : C.faint, fontSize: 11 }}>✎</button>
+              <button onClick={() => setCard(c.id, { blocked: !c.blocked })} title={c.blocked ? "Unblock" : "Mark blocked"} style={{ border: `1px solid ${c.blocked ? C.red : C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 7px", cursor: "pointer", color: c.blocked ? C.red : C.faint, fontSize: 11 }}>⚑</button>
+              {showMove && <button onClick={() => move(c.id, -1)} disabled={c.col === "backlog"} style={{ border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 8px", cursor: "pointer", color: C.mid, fontSize: 11 }}>◀</button>}
+              {showMove && <button onClick={() => move(c.id, 1)} disabled={c.col === "done"} style={{ border: `1px solid ${C.soft}`, background: "#fff", borderRadius: 6, padding: "2px 8px", cursor: "pointer", color: C.mid, fontSize: 11 }}>▶</button>}
+              <button onClick={() => setWork(work.filter(x => x.id !== c.id))} style={{ marginLeft: "auto", border: "none", background: "transparent", color: C.faint, cursor: "pointer", fontSize: 12 }}>×</button>
+            </div>
           </div>
-        </div>
-      )}
+        );
+        const passFilter = c => (fEpic === "all" || c.epic === fEpic || (fEpic === "(none)" && !c.epic)) && (!fDue || (c.due && c.due <= fDue)) && (fAssignee === "all" || c.assignee === fAssignee || (fAssignee === "(none)" && !c.assignee));
+        const fwork = work.filter(passFilter);
+
+        return (<>
+          {view === "board" && (
+            <div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                <input value={newCard} onChange={e => setNewCard(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && newCard.trim()) { setWork([...work, { id: uid(), title: newCard.trim(), col: "backlog", epic: newEpic.trim() || undefined, due: newDue || undefined, assignee: newAssignee || undefined }]); setNewCard(""); } }} placeholder="New work item — Enter to add to Backlog" style={{ flex: 1, minWidth: 190, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 13px", fontSize: 13 }} />
+                <select value={newAssignee} onChange={e => setNewAssignee(e.target.value)} title="Assign a resource" style={{ flex: "0 0 140px", border: `1px solid ${C.line}`, borderRadius: 8, padding: "9px 8px", fontSize: 12.5, background: "#fff", color: newAssignee ? C.ink : C.faint }}>
+                  <option value="">Resource…</option>
+                  {assigneeOpts.map(nm => <option key={nm} value={nm}>{nm}</option>)}
+                </select>
+                {inp(newEpic, setNewEpic, "Epic (optional)", "text", 130)}
+                {inp(newDue, setNewDue, "Due", "date", 140)}
+                <label style={{ border: `1px solid ${C.navy}`, color: C.navy, background: "#fff", borderRadius: 8, padding: "10px 14px", fontSize: 12, fontFamily: DISP, fontWeight: 700, cursor: "pointer" }}>
+                  Import JIRA CSV ↑
+                  <input type="file" accept=".csv,text/csv" style={{ display: "none" }} onChange={e => {
+                    const f = e.target.files?.[0]; if (!f) return;
+                    Papa.parse(f, { header: true, skipEmptyLines: true, complete: res => {
+                      try {
+                        const REV = { "to do": "backlog", "open": "backlog", "backlog": "backlog", "in progress": "doing", "doing": "doing", "in review": "review", "review": "review", "done": "done", "closed": "done", "resolved": "done" };
+                        const norm = d => { if (!d) return undefined; const m = String(d).match(/(\d{4})-(\d{2})-(\d{2})/); if (m) return m[0]; const dt = new Date(d); return isNaN(dt) ? undefined : dt.toISOString().slice(0, 10); };
+                        const rows = res.data.map(r => {
+                          const title = r.Summary || r.summary || r["Issue key"] || r.Title || "";
+                          const st = String(r.Status || r.status || "").toLowerCase().trim();
+                          const epic = r["Epic Link"] || r["Epic Name"] || r.Epic || r.epic || undefined;
+                          const due = norm(r["Due date"] || r["Due Date"] || r.Due || r.due);
+                          const pts = r["Story Points"] || r["Story point estimate"] || r.Points || undefined;
+                          const asg = r.Assignee || r.assignee || r["Assigned To"] || undefined;
+                          return title ? { id: uid(), title: String(title).slice(0, 120), col: REV[st] || "backlog", epic: epic ? String(epic).slice(0, 40) : undefined, due, points: pts ? Number(pts) || undefined : undefined, assignee: asg ? String(asg).slice(0, 40) : undefined } : null;
+                        }).filter(Boolean);
+                        if (rows.length) setWork([...work, ...rows]);
+                        else alert("No rows with a Summary column found — export from JIRA with Summary and Status (and optionally Epic Link, Due date, Story Points).");
+                      } catch { alert("Couldn't parse that CSV."); }
+                    }});
+                    e.target.value = "";
+                  }} />
+                </label>
+              </div>
+              {/* filter / group bar */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
+                <span style={{ fontFamily: MONO, fontSize: 10, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em" }}>Resource</span>
+                <select value={fAssignee} onChange={e => setFAssignee(e.target.value)} style={{ border: `1px solid ${C.line}`, borderRadius: 7, padding: "6px 9px", fontSize: 12, background: "#fff", color: C.ink }}>
+                  <option value="all">All resources</option>
+                  {assigneeOpts.map(nm => <option key={nm} value={nm}>{nm}</option>)}
+                  <option value="(none)">— unassigned —</option>
+                </select>
+                <span style={{ fontFamily: MONO, fontSize: 10, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em" }}>Epic</span>
+                <select value={fEpic} onChange={e => setFEpic(e.target.value)} style={{ border: `1px solid ${C.line}`, borderRadius: 7, padding: "6px 9px", fontSize: 12, background: "#fff", color: C.ink }}>
+                  <option value="all">All epics</option>
+                  {epicList.map(e => <option key={e} value={e}>{e}</option>)}
+                  <option value="(none)">— no epic —</option>
+                </select>
+                <span style={{ fontFamily: MONO, fontSize: 10, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em" }}>Due ≤</span>
+                {inp(fDue, setFDue, "any date", "date", 140)}
+                {(fEpic !== "all" || fDue || fAssignee !== "all") && <button onClick={() => { setFEpic("all"); setFDue(""); setFAssignee("all"); }} style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 7, padding: "6px 11px", fontSize: 11.5, color: C.mid, cursor: "pointer" }}>Clear</button>}
+                <label style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: C.mid, cursor: "pointer" }}>
+                  <input type="checkbox" checked={grpEpic} onChange={e => setGrpEpic(e.target.checked)} /> Swimlanes by epic
+                </label>
+              </div>
+
+              {!grpEpic ? (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 10 }}>
+                  {WCOLS.map(([k, label]) => {
+                    const inCol = fwork.filter(c => c.col === k); const lim = project.wip?.[k]; const over = lim && inCol.length > lim;
+                    return (
+                      <div key={k} style={{ background: k === "done" ? C.limeLt : C.soft, borderRadius: 12, padding: 10, minHeight: 160 }}>
+                        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: over ? C.red : k === "done" ? C.lime : C.faint, margin: "2px 4px 8px", fontWeight: over ? 700 : 500 }}>{label} · {inCol.length}{lim ? `/${lim}` : ""}{over ? " ⚠ WIP" : ""}</div>
+                        {inCol.map(c => cardEl(c))}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[...epicList, "(no epic)"].map(ep => {
+                    const lane = fwork.filter(c => (ep === "(no epic)" ? !c.epic : c.epic === ep));
+                    if (!lane.length) return null;
+                    const col = ep === "(no epic)" ? C.faint : epicColor(ep);
+                    return (
+                      <div key={ep} style={{ border: `1px solid ${C.line}`, borderRadius: 12, overflow: "hidden" }}>
+                        <div style={{ background: col, color: "#fff", padding: "6px 12px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, display: "flex", justifyContent: "space-between" }}>
+                          <span>{ep}</span><span style={{ fontFamily: MONO, fontSize: 10, opacity: .85 }}>{lane.filter(c => c.col === "done").length}/{lane.length} done</span>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 8, padding: 8, background: "#fff" }}>
+                          {WCOLS.map(([k, label]) => (
+                            <div key={k} style={{ background: k === "done" ? C.limeLt : C.soft, borderRadius: 10, padding: 8, minHeight: 70 }}>
+                              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: ".08em", textTransform: "uppercase", color: C.faint, margin: "0 2px 6px" }}>{label} · {lane.filter(c => c.col === k).length}</div>
+                              {lane.filter(c => c.col === k).map(c => cardEl(c))}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {view === "dates" && (
+            <div>
+              <div style={{ fontSize: 11.5, color: C.faint, marginBottom: 12 }}>Work items by due date. Set dates on cards in the Board view (✎) or import them from JIRA. Overdue items that aren't Done are flagged.</div>
+              {(() => {
+                const buckets = [["Overdue", c => c.due && c.col !== "done" && daysTo(c.due) < 0, C.red],
+                                 ["This week", c => c.due && c.col !== "done" && daysTo(c.due) >= 0 && daysTo(c.due) <= 7, "#8A6200"],
+                                 ["Next 30 days", c => c.due && c.col !== "done" && daysTo(c.due) > 7 && daysTo(c.due) <= 30, C.navy],
+                                 ["Later", c => c.due && c.col !== "done" && daysTo(c.due) > 30, C.mid],
+                                 ["Done", c => c.col === "done", C.lime],
+                                 ["No date", c => !c.due && c.col !== "done", C.faint]];
+                const used = new Set();
+                return buckets.map(([label, test, col]) => {
+                  const items = fwork.filter(c => !used.has(c.id) && test(c)); items.forEach(c => used.add(c.id));
+                  if (!items.length) return null;
+                  const sorted = [...items].sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"));
+                  return (
+                    <div key={label} style={{ marginBottom: 16 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                        <span style={{ width: 10, height: 10, borderRadius: "50%", background: col }} />
+                        <span style={{ fontFamily: DISP, fontWeight: 700, fontSize: 14, color: C.ink }}>{label}</span>
+                        <span style={{ fontFamily: MONO, fontSize: 11, color: C.faint }}>{items.length}</span>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 8 }}>
+                        {sorted.map(c => cardEl(c, true))}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          )}
+        </>);
+      })()}
 
       {view === "flow" && <FlowView project={project} update={update} />}
 
@@ -4279,6 +4529,20 @@ function buildReviewHtml(projects, attention, ranked, retros, people = [], assig
     <table><tr><th>Project</th><th style="width:22mm">Envelope</th><th style="width:22mm">P50</th><th style="width:22mm">P80</th><th style="width:30mm">Verdict</th></tr>
     ${projects.map(p => { const b = budgetEval(p, people, assignments); if (!b) return ""; const v = !b.env ? ["no envelope", "#9AA3A0"] : b.p80 <= b.env ? ["GREEN", "#2E7D32"] : b.p50 <= b.env ? ["AMBER — P80 over", "#C77800"] : ["RED — P50 over", "#B3261E"]; return `<tr><td><b>${esc2(p.name)}</b></td><td style="font-family:'Courier New'">${eur(b.env)}</td><td style="font-family:'Courier New'">${eur(b.p50)}</td><td style="font-family:'Courier New'">${eur(b.p80)}</td><td style="font-family:Arial;font-weight:700;color:${v[1]}">${v[0]}</td></tr>`; }).join("")}</table>
     <div style="font-size:8pt;color:#6B6B6B;font-style:italic;margin-top:3mm">P80 is what we communicate upward; P50 is what we manage to. An envelope breached at P80 but not P50 is an honest amber.</div>
+    ${(() => {
+      const allB = projects.flatMap(p => (p.keydata?.benefits || []).map(b => ({ ...b, code: p.code })));
+      if (!allB.length) return "";
+      const SC = { "on track": "#2E7D32", "at risk": "#C77800", "realised": "#003865", "written off": "#B3261E" };
+      const cnt = s => allB.filter(b => (b.status || "on track") === s).length;
+      const noOwn = allB.filter(b => !b.owner || !String(b.owner).trim()).length;
+      return `<h2>Benefits — portfolio value roll-up</h2>
+      <div style="display:flex;gap:3mm;flex-wrap:wrap">
+        ${["on track", "at risk", "realised", "written off"].map(s => stat(s, cnt(s), SC[s])).join("")}
+      </div>
+      <table><tr><th style="width:18mm">Project</th><th>Benefit</th><th style="width:24mm">Baseline</th><th style="width:24mm">Target</th><th style="width:30mm">Owner</th><th style="width:22mm">Status</th></tr>
+      ${allB.map(b => `<tr><td style="font-family:'Courier New';font-size:8pt;color:#830051">${esc2(b.code)}</td><td><b>${esc2(b.name)}</b></td><td style="font-size:8.5pt;color:#6B6B6B">${esc2(b.baseline || "—")}</td><td style="font-size:8.5pt;color:#6B6B6B">${esc2(b.target || "—")}</td><td style="font-size:8.5pt;color:${b.owner ? "#1C2222" : "#B3261E"}">${esc2(b.owner || "no owner")}</td><td style="font-family:Arial;font-weight:700;font-size:8.5pt;color:${SC[b.status || "on track"]}">${esc2(b.status || "on track")}</td></tr>`).join("")}</table>
+      <div style="font-size:8pt;color:#6B6B6B;font-style:italic;margin-top:3mm">A benefit with no owner is not a benefit.${noOwn ? ` ${noOwn} currently unowned.` : ""} Value status traces to each project's T02 hypotheses.</div>`;
+    })()}
     <div class="foot"><span>DCOS Navigator · Delivery &amp; Change Office</span><span>Page 2</span></div>
   </div></body></html>`;
 }
