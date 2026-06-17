@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyQuest — learn Python by running it</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+:root{
+  --ink:#11141b; --ink-2:#1a1f29; --ink-3:#222936;
+  --paper:#f4f7fa; --paper-2:#ffffff;
+  --line:#e3e8ef; --line-dark:#2b3340;
+  --text:#1b2230; --muted:#69748a; --muted-dark:#8b97ab;
+  --py-blue:#3b6fb5; --py-blue-2:#2c5a98;
+  --py-yellow:#ffd43b; --py-yellow-deep:#cc9f00;
+  --green:#2e9e6b; --red:#d65a5a;
+  --mono: ui-monospace,'SF Mono','Cascadia Code','JetBrains Mono',Consolas,monospace;
+  --sans: -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:var(--text);background:var(--paper);
+  -webkit-font-smoothing:antialiased;line-height:1.55}
+button{font-family:var(--mono);cursor:pointer;border:none;background:none}
+code{font-family:var(--mono);font-size:.86em;background:#eef1f6;padding:1px 5px;border-radius:4px;color:#2c3850}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;gap:18px;height:58px;padding:0 18px;
+  background:var(--ink);color:#fff;position:sticky;top:0;z-index:40;
+  border-bottom:1px solid var(--line-dark)}
+.brand{font-family:var(--mono);font-weight:700;font-size:16px;letter-spacing:.02em;display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.brand .prompt{color:var(--py-yellow);font-weight:700}
+.brand-sub{font-weight:400;font-size:11px;color:var(--muted-dark);letter-spacing:.04em}
+.progress-wrap{flex:1;display:flex;align-items:center;gap:12px;min-width:0}
+.bar{flex:1;max-width:340px;height:7px;background:var(--ink-3);border-radius:99px;overflow:hidden}
+.bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--py-blue),var(--py-yellow));transition:width .4s ease}
+.pmeta{font-family:var(--mono);font-size:12px;color:var(--muted-dark);white-space:nowrap}
+.pmeta b{color:#fff;font-weight:600}
+.xp{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--py-yellow);padding:3px 9px;border-radius:99px;font-weight:700;white-space:nowrap}
+.topbar-actions{display:flex;gap:8px}
+.tb-btn{color:#cdd6e4;font-size:12px;padding:7px 12px;border:1px solid var(--line-dark);border-radius:7px;transition:.15s}
+.tb-btn:hover{color:#fff;border-color:#3a455a;background:var(--ink-2)}
+.tb-btn.on{color:var(--ink);background:var(--py-yellow);border-color:var(--py-yellow)}
+
+/* ---------- layout ---------- */
+.layout{display:flex;align-items:flex-start;max-width:1240px;margin:0 auto}
+.sidebar{width:268px;flex:0 0 268px;position:sticky;top:58px;height:calc(100vh - 58px);
+  overflow-y:auto;padding:18px 12px 60px;border-right:1px solid var(--line);background:var(--paper)}
+.track-group{margin-bottom:18px}
+.track-label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);padding:0 10px 6px;display:flex;align-items:center;gap:7px}
+.track-label::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--py-blue)}
+.track-group.t-Pythonic .track-label::before{background:var(--py-yellow-deep)}
+.track-group.t-Projects .track-label::before{background:var(--green)}
+.lnav{display:block;width:100%;text-align:left;font-family:var(--sans);font-size:13.5px;color:var(--text);
+  padding:8px 10px 8px 34px;border-radius:8px;position:relative;line-height:1.35;transition:.12s}
+.lnav:hover{background:#e9eef5}
+.lnav.active{background:var(--ink);color:#fff}
+.lnav.active .lcode{color:var(--py-yellow)}
+.lcode{font-family:var(--mono);font-size:10.5px;color:var(--muted);position:absolute;left:9px;top:9px;font-weight:600}
+.lnav .tick{position:absolute;left:11px;top:8px;color:var(--green);font-size:13px;display:none}
+.lnav.done .tick{display:block}
+.lnav.done .lcode{display:none}
+.lnav.done{color:var(--muted)}
+.lnav.active.done{color:#fff}
+
+/* ---------- content ---------- */
+.content{flex:1;min-width:0;padding:32px 40px 90px;max-width:840px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--py-blue);font-weight:600;display:flex;align-items:center;gap:10px}
+.eyebrow .dot{color:var(--muted)}
+h1.l-title{font-size:30px;line-height:1.15;margin:10px 0 6px;letter-spacing:-.01em;font-weight:750}
+.l-sub{color:var(--muted);font-size:14px;margin-bottom:24px;display:flex;align-items:center;gap:14px}
+.mark{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--py-blue);border:1px solid var(--line);padding:6px 12px;border-radius:7px;transition:.15s}
+.mark:hover{border-color:var(--py-blue);background:#eef3fa}
+.mark.done{background:var(--green);color:#fff;border-color:var(--green)}
+
+.concept{font-size:15.5px;color:#2a3344}
+.concept p{margin:0 0 14px}
+.concept ul{margin:0 0 14px;padding-left:22px}
+.concept li{margin-bottom:5px}
+pre.cc{background:var(--ink);color:#e7ecf3;font-family:var(--mono);font-size:13px;line-height:1.6;
+  padding:14px 16px;border-radius:10px;overflow-x:auto;margin:0 0 16px;border:1px solid var(--line-dark)}
+pre.cc{tab-size:4}
+
+/* ---------- code block (editor) ---------- */
+.block{margin:22px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper-2)}
+.block-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#eef2f7;border-bottom:1px solid var(--line)}
+.block-head .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.block-head .tag .prompt{color:var(--py-blue);font-weight:700}
+.ex-prompt{padding:14px 16px;font-size:14.5px;color:#27313f}
+.ex-prompt code{background:#eaf0fb}
+.editor{width:100%;border:none;outline:none;resize:vertical;display:block;
+  font-family:var(--mono);font-size:13.5px;line-height:1.55;tab-size:4;
+  background:var(--ink);color:#e9eef5;padding:14px 16px;min-height:96px;caret-color:var(--py-yellow)}
+.editor::selection{background:#39507a}
+.block-actions{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#eef2f7;border-top:1px solid var(--line)}
+.run{font-size:13px;font-weight:700;color:#fff;background:var(--py-blue);padding:8px 16px;border-radius:7px;transition:.15s;display:flex;align-items:center;gap:7px}
+.run:hover{background:var(--py-blue-2)}
+.run:disabled{opacity:.5;cursor:not-allowed}
+.run.check{background:var(--green)}
+.run.check:hover{filter:brightness(.93)}
+.ghost{font-size:12.5px;color:var(--muted);padding:8px 10px;border-radius:7px}
+.ghost:hover{color:var(--text);background:#e4eaf2}
+.result{margin-left:auto;font-family:var(--mono);font-size:12.5px;font-weight:600}
+.result.ok{color:var(--green)}
+.result.no{color:var(--red)}
+.console{font-family:var(--mono);font-size:13px;line-height:1.5;background:#0d1016;color:#cfe3d6;
+  padding:0;max-height:0;overflow:hidden;transition:max-height .25s ease;white-space:pre-wrap;word-break:break-word}
+.console.show{padding:13px 16px;max-height:420px;overflow:auto;border-top:1px solid var(--line-dark)}
+.console .err{color:#ff9a9a}
+.console .sys{color:#7d8aa0}
+.hintbox{margin:0 16px 14px;padding:11px 14px;background:#fff8e1;border:1px solid #f0e0a8;border-radius:9px;
+  font-size:13.5px;color:#6b5a16;display:none}
+.hintbox.show{display:block}
+.hintbox code{background:#f6edc8;color:#5a4b12}
+
+/* ---------- footer nav ---------- */
+.lfoot{display:flex;justify-content:space-between;margin-top:40px;padding-top:22px;border-top:1px solid var(--line)}
+.navbtn{font-family:var(--sans);font-size:13.5px;color:var(--text);padding:11px 18px;border:1px solid var(--line);border-radius:9px;transition:.15s;max-width:46%;text-align:left}
+.navbtn:hover{border-color:var(--py-blue);background:#eef3fa}
+.navbtn small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.navbtn:disabled{opacity:.35;cursor:default}
+.navbtn.next{text-align:right;margin-left:auto}
+
+/* ---------- repl drawer ---------- */
+.repl-drawer{position:fixed;right:0;bottom:0;width:min(440px,92vw);max-height:62vh;background:var(--ink);
+  border-left:1px solid var(--line-dark);border-top:1px solid var(--line-dark);border-top-left-radius:14px;
+  box-shadow:0 -10px 40px rgba(8,12,20,.35);transform:translateY(102%);transition:transform .28s ease;z-index:45;
+  display:flex;flex-direction:column}
+.repl-drawer.open{transform:translateY(0)}
+.repl-head{display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid var(--line-dark);color:#fff;font-family:var(--mono);font-size:12.5px}
+.repl-head .prompt{color:var(--py-yellow);font-weight:700}
+.repl-head .x{margin-left:auto;color:var(--muted-dark);font-size:16px;padding:2px 8px;border-radius:6px}
+.repl-head .x:hover{color:#fff;background:var(--ink-2)}
+.repl-out{flex:1;overflow:auto;font-family:var(--mono);font-size:12.5px;color:#cfe3d6;padding:12px 15px;white-space:pre-wrap;word-break:break-word;min-height:60px}
+.repl-out .err{color:#ff9a9a}
+.repl-out .in{color:#8fb4e6}
+.repl-in{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line-dark);background:var(--ink-2)}
+.repl-in textarea{flex:1;background:#0d1016;border:1px solid var(--line-dark);border-radius:8px;color:#e9eef5;
+  font-family:var(--mono);font-size:13px;padding:9px 11px;resize:none;outline:none;min-height:38px;max-height:120px}
+.repl-in button{background:var(--py-yellow);color:var(--ink);font-weight:700;font-size:12px;padding:0 14px;border-radius:8px}
+
+/* ---------- status pill ---------- */
+.pystatus{position:fixed;left:14px;bottom:14px;z-index:50;font-family:var(--mono);font-size:11.5px;
+  padding:8px 13px;border-radius:99px;background:var(--ink);color:#cdd6e4;border:1px solid var(--line-dark);
+  display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(8,12,20,.25)}
+.pystatus .led{width:8px;height:8px;border-radius:99px;background:var(--py-yellow);animation:pulse 1.1s infinite}
+.pystatus.ready .led{background:var(--green);animation:none}
+.pystatus.error{background:#3a1f22;color:#ffc9c9;border-color:#5a2e2e}
+.pystatus.error .led{background:var(--red);animation:none}
+.pystatus.ready{opacity:0;pointer-events:none;transition:opacity .6s .8s}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+.menu-toggle{display:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:880px){
+  .layout{flex-direction:column}
+  .sidebar{position:fixed;left:0;top:58px;z-index:38;width:284px;height:calc(100vh - 58px);
+    transform:translateX(-104%);transition:transform .25s ease;box-shadow:6px 0 30px rgba(8,12,20,.25)}
+  .sidebar.open{transform:translateX(0)}
+  .content{padding:24px 20px 80px;max-width:100%;width:100%}
+  .menu-toggle{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;
+    color:#cdd6e4;border:1px solid var(--line-dark);font-size:16px}
+  .menu-toggle:hover{background:var(--ink-2);color:#fff}
+  .brand-sub{display:none}
+  .bar{max-width:none}
+  .pmeta{display:none}
+  .tb-btn.opt{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle lessons">☰</button>
+  <div class="brand"><span class="prompt">&gt;&gt;&gt;</span>PyQuest<span class="brand-sub" id="brandSub">learn by running it</span></div>
+  <div class="progress-wrap">
+    <div class="bar"><i id="barFill"></i></div>
+    <span class="pmeta"><b id="doneCount">0</b> / 22 lessons</span>
+  </div>
+  <span class="xp" id="xpPill">0 XP</span>
+  <div class="topbar-actions">
+    <button class="tb-btn opt" id="refBtn">Reference</button>
+    <button class="tb-btn opt" id="dashBtn">Progress</button>
+    <button class="tb-btn" id="replBtn">&gt;&gt;&gt; REPL</button>
+    <button class="tb-btn" id="langBtn">ES</button>
+    <button class="tb-btn" id="resetBtn">Reset</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="content" id="content"></main>
+</div>
+
+<div class="repl-drawer" id="replDrawer">
+  <div class="repl-head"><span class="prompt">&gt;&gt;&gt;</span> Scratch REPL — run any Python <span class="x" id="replClose">×</span></div>
+  <div class="repl-out" id="replOut"><span class="sys"># Type Python below and press Run (Ctrl/Cmd+Enter). State persists while this tab is open.</span></div>
+  <div class="repl-in">
+    <textarea id="replInput" placeholder="e.g.  sum(range(101))" spellcheck="false"></textarea>
+    <button id="replRun">Run</button>
+  </div>
+</div>
+
+<div class="pystatus" id="pyStatus"><span class="led"></span><span id="pyStatusText">Booting Python…</span></div>
+
+<script>
+/* ============ CURRICULUM (injected) ============ */
+// PyQuest curriculum — 22 lessons across 3 tracks.
+// Each lesson: { id, track, title, min (minutes), concept (HTML), example (py code),
+//   exercises: [{ prompt, starter, hint, check }] }
+// check kinds:
+//   { kind:'output', match:(out)=>bool }      // checks captured stdout
+//   { kind:'py', test:`assert ...` }          // runs after user code in same namespace; __output__ holds stdout
+
+const CURRICULUM = [
+/* ================= TRACK A — FOUNDATIONS ================= */
+{
+  id:'a1', track:'Foundations', title:'Running Python & print()', min:25,
+  concept:`<p>Python runs top to bottom. The workhorse for showing results is <code>print()</code>.</p>
+  <p>You can print several values at once — they're joined with a space — and you can change the separator and the line ending.</p>
+  <pre class="cc">print("Hello", "Python")        # Hello Python
+print(1, 2, 3, sep="-")         # 1-2-3
+print("no newline", end=" ")    # stays on the same line
+print("...continued")</pre>
+  <p>Anything after <code>#</code> is a comment and is ignored. There's no semicolon needed at the end of a line.</p>`,
+  example:`print("Hello, Python!")
+print("Today's lesson:", "running code")
+print("a", "b", "c", sep=", ")`,
+  exercises:[
+    { prompt:'Print exactly: <code>Hello, world!</code>', starter:'# Write one print statement\n',
+      hint:'print("Hello, world!")', check:{kind:'output', match:o=>o.trim()==='Hello, world!'} },
+    { prompt:'Print the three values <code>3</code>, <code>2</code>, <code>1</code> on one line separated by an arrow, like <code>3->2->1</code>',
+      starter:'', hint:'Use sep="->" with print(3, 2, 1, sep="->")',
+      check:{kind:'output', match:o=>o.trim()==='3->2->1'} },
+  ]
+},
+{
+  id:'a2', track:'Foundations', title:'Variables & types', min:30,
+  concept:`<p>A variable is a name bound to a value. No declaration keyword — just assign.</p>
+  <pre class="cc">name = "Ada"      # str
+age  = 36         # int
+pi   = 3.14       # float
+ok   = True       # bool</pre>
+  <p>Python is dynamically typed: the same name can later point to a different type. Inspect a type with <code>type(x)</code>, and convert with <code>int()</code>, <code>float()</code>, <code>str()</code>, <code>bool()</code>.</p>
+  <pre class="cc">x = "42"
+n = int(x) + 1     # 43  (str -> int)
+s = str(n)         # "43"</pre>`,
+  example:`name = "Ada"
+age = 36
+print(name, "is", age)
+print(type(age))
+print(int("10") + int("5"))`,
+  exercises:[
+    { prompt:'Create a variable <code>celsius = 25</code>, convert it to Fahrenheit (C*9/5 + 32), store it in <code>f</code>, and print <code>f</code>.',
+      starter:'celsius = 25\n# compute f and print it\n',
+      hint:'f = celsius * 9/5 + 32 ; print(f)',
+      check:{kind:'py', test:`assert abs(f - 77.0) < 1e-9, "f should be 77.0 for 25C"`} },
+    { prompt:'Given the string <code>qty = "8"</code>, turn it into a number and print double its value (an integer 16).',
+      starter:'qty = "8"\n',
+      hint:'print(int(qty) * 2)',
+      check:{kind:'output', match:o=>o.trim()==='16'} },
+  ]
+},
+{
+  id:'a3', track:'Foundations', title:'Numbers & arithmetic', min:25,
+  concept:`<p>Operators: <code>+ - * /</code>, plus <code>//</code> (floor division), <code>%</code> (remainder) and <code>**</code> (power).</p>
+  <pre class="cc">7 / 2     # 3.5   (always float)
+7 // 2    # 3     (floor)
+7 % 2     # 1     (remainder)
+2 ** 10   # 1024
+round(3.14159, 2)   # 3.14</pre>
+  <p>Normal math precedence applies; parentheses override it.</p>`,
+  example:`print(7 / 2, 7 // 2, 7 % 2)
+print(2 ** 8)
+print(round(22/7, 3))`,
+  exercises:[
+    { prompt:'A circle has radius <code>r = 5</code>. Print its area rounded to 2 decimals (use 3.14159 for π).',
+      starter:'r = 5\n',
+      hint:'print(round(3.14159 * r ** 2, 2))',
+      check:{kind:'output', match:o=>o.trim()==='78.54'} },
+    { prompt:'You have <code>97</code> minutes. Print how many whole hours and leftover minutes, like <code>1 h 37 m</code>.',
+      starter:'mins = 97\n',
+      hint:'Use // for hours and % for minutes; print(mins//60, "h", mins%60, "m")',
+      check:{kind:'output', match:o=>o.trim()==='1 h 37 m'} },
+  ]
+},
+{
+  id:'a4', track:'Foundations', title:'Strings', min:40,
+  concept:`<p>Strings support indexing and slicing. Indices start at 0; negative indices count from the end.</p>
+  <pre class="cc">s = "python"
+s[0]      # 'p'
+s[-1]     # 'n'
+s[0:3]    # 'pyt'   (start inclusive, stop exclusive)
+s[::-1]   # 'nohtyp' (reversed)</pre>
+  <p>Build strings with <strong>f-strings</strong> and use methods freely:</p>
+  <pre class="cc">name = "ada"
+f"Hi {name.title()}, len={len(name)}"   # 'Hi Ada, len=3'
+"  trim  ".strip()                       # 'trim'
+"a,b,c".split(",")                       # ['a','b','c']
+"one two".replace(" ", "_")              # 'one_two'</pre>`,
+  example:`s = "python"
+print(s[0], s[-1], s[:3], s[::-1])
+name = "ada lovelace"
+print(f"Hello, {name.title()}!")
+print("a,b,c".split(","))`,
+  exercises:[
+    { prompt:'Given <code>email = "Ada@Example.COM"</code>, print it fully lowercased.',
+      starter:'email = "Ada@Example.COM"\n',
+      hint:'print(email.lower())',
+      check:{kind:'output', match:o=>o.trim()==='ada@example.com'} },
+    { prompt:'Given <code>word = "level"</code>, print <code>True</code> if it is a palindrome (reads the same backwards), else <code>False</code>.',
+      starter:'word = "level"\n',
+      hint:'print(word == word[::-1])',
+      check:{kind:'output', match:o=>o.trim()==='True'} },
+    { prompt:'Given <code>full = "Joaquin Garcia"</code>, build and print initials with dots: <code>J.G.</code>',
+      starter:'full = "Joaquin Garcia"\n',
+      hint:'parts = full.split(); print(parts[0][0] + "." + parts[1][0] + ".")',
+      check:{kind:'output', match:o=>o.trim()==='J.G.'} },
+  ]
+},
+{
+  id:'a5', track:'Foundations', title:'Booleans & comparisons', min:25,
+  concept:`<p>Comparisons return <code>True</code>/<code>False</code>: <code>== != &lt; &gt; &lt;= &gt;=</code>. Combine with <code>and</code>, <code>or</code>, <code>not</code>.</p>
+  <pre class="cc">3 &lt; 5 and 5 &lt;= 5     # True
+not (1 == 2)         # True
+"a" in "cat"         # True (membership)</pre>
+  <p><strong>Truthiness:</strong> empty things are falsy — <code>0</code>, <code>""</code>, <code>[]</code>, <code>{}</code>, <code>None</code> — everything else is truthy. Python also allows chained comparisons: <code>0 &lt; x &lt; 10</code>.</p>`,
+  example:`x = 7
+print(0 < x < 10)
+print(bool(""), bool("hi"), bool([]), bool([0]))
+print("py" in "python")`,
+  exercises:[
+    { prompt:'Set <code>age = 20</code>. Print <code>True</code> if age is between 18 and 65 inclusive, else <code>False</code>. Use a chained comparison.',
+      starter:'age = 20\n',
+      hint:'print(18 <= age <= 65)',
+      check:{kind:'output', match:o=>o.trim()==='True'} },
+    { prompt:'Given <code>s = ""</code>, print <code>"empty"</code> using truthiness in one line (no <code>==</code>). It should print <code>empty</code>.',
+      starter:'s = ""\n',
+      hint:'print("empty" if not s else "full")',
+      check:{kind:'output', match:o=>o.trim()==='empty'} },
+  ]
+},
+{
+  id:'a6', track:'Foundations', title:'Conditionals: if / elif / else', min:30,
+  concept:`<p>Blocks are defined by <strong>indentation</strong> (4 spaces), not braces. The colon starts a block.</p>
+  <pre class="cc">score = 82
+if score >= 90:
+    grade = "A"
+elif score >= 80:
+    grade = "B"
+else:
+    grade = "C"
+print(grade)   # B</pre>
+  <p>A compact one-line form (ternary): <code>label = "pass" if score >= 60 else "fail"</code>.</p>`,
+  example:`for score in (95, 82, 50):
+    if score >= 90:
+        print(score, "A")
+    elif score >= 80:
+        print(score, "B")
+    else:
+        print(score, "F")`,
+  exercises:[
+    { prompt:'Write a function <code>fizzbuzz(n)</code> that <em>returns</em> "Fizz" if n is divisible by 3, "Buzz" if by 5, "FizzBuzz" if by both, else the number itself.',
+      starter:'def fizzbuzz(n):\n    # return the right value\n    pass\n',
+      hint:'Check n%15==0 first, then n%3, then n%5, else return n.',
+      check:{kind:'py', test:`assert fizzbuzz(9)=="Fizz"\nassert fizzbuzz(10)=="Buzz"\nassert fizzbuzz(15)=="FizzBuzz"\nassert fizzbuzz(7)==7`} },
+    { prompt:'Write <code>sign(x)</code> returning <code>-1</code>, <code>0</code>, or <code>1</code> for negative, zero, or positive x.',
+      starter:'def sign(x):\n    pass\n',
+      hint:'if x>0 return 1 elif x<0 return -1 else 0',
+      check:{kind:'py', test:`assert sign(5)==1 and sign(-3)==-1 and sign(0)==0`} },
+  ]
+},
+{
+  id:'a7', track:'Foundations', title:'Lists', min:40,
+  concept:`<p>Lists are ordered, mutable sequences.</p>
+  <pre class="cc">nums = [3, 1, 4, 1, 5]
+nums.append(9)        # add to end
+nums.insert(0, 0)     # insert at index
+nums.pop()            # remove & return last
+nums.remove(1)        # remove first matching value
+len(nums)             # count
+nums[1:3]             # slice
+sorted(nums)          # new sorted list
+nums.sort()           # sort in place
+4 in nums             # membership</pre>`,
+  example:`nums = [3, 1, 4, 1, 5, 9, 2]
+nums.append(6)
+print(nums, "len:", len(nums))
+print("sorted:", sorted(nums))
+print("max:", max(nums), "sum:", sum(nums))`,
+  exercises:[
+    { prompt:'Write <code>second_largest(xs)</code> returning the second-largest value of a list of distinct numbers.',
+      starter:'def second_largest(xs):\n    pass\n',
+      hint:'sorted(xs)[-2] returns the second largest.',
+      check:{kind:'py', test:`assert second_largest([3,1,4,1,5,9,2])==5\nassert second_largest([10,20])==10`} },
+    { prompt:'Write <code>without_dupes(xs)</code> returning a list with duplicates removed, keeping first-seen order.',
+      starter:'def without_dupes(xs):\n    pass\n',
+      hint:'Loop, append to a result list only if value not already in it.',
+      check:{kind:'py', test:`assert without_dupes([1,1,2,3,3,3,2])==[1,2,3]\nassert without_dupes([])==[]`} },
+  ]
+},
+{
+  id:'a8', track:'Foundations', title:'Loops', min:40,
+  concept:`<p><code>for</code> iterates over any sequence. <code>range(start, stop, step)</code> produces numbers (stop exclusive).</p>
+  <pre class="cc">for i in range(3):       # 0,1,2
+    print(i)
+
+for ch in "hi":
+    print(ch)
+
+for i, v in enumerate(["a","b"]):
+    print(i, v)          # 0 a / 1 b</pre>
+  <p><code>while</code> repeats while a condition holds. <code>break</code> exits, <code>continue</code> skips to the next iteration.</p>`,
+  example:`total = 0
+for n in range(1, 6):
+    total += n
+print("sum 1..5 =", total)
+
+for i, c in enumerate("abc", start=1):
+    print(i, c)`,
+  exercises:[
+    { prompt:'Write <code>factorial(n)</code> using a loop. <code>factorial(5)</code> → 120, <code>factorial(0)</code> → 1.',
+      starter:'def factorial(n):\n    pass\n',
+      hint:'result=1; loop i in range(1,n+1): result*=i',
+      check:{kind:'py', test:`assert factorial(5)==120 and factorial(0)==1 and factorial(1)==1`} },
+    { prompt:'Write <code>count_vowels(s)</code> returning how many vowels (a,e,i,o,u) are in a lowercase string.',
+      starter:'def count_vowels(s):\n    pass\n',
+      hint:'Loop chars, count if ch in "aeiou".',
+      check:{kind:'py', test:`assert count_vowels("python")==1\nassert count_vowels("aeiou")==5\nassert count_vowels("xyz")==0`} },
+  ]
+},
+{
+  id:'a9', track:'Foundations', title:'Tuples & sets', min:30,
+  concept:`<p><strong>Tuples</strong> are immutable sequences, great for fixed records and multiple return values.</p>
+  <pre class="cc">point = (3, 4)
+x, y = point        # unpacking
+a, b = b, a         # swap</pre>
+  <p><strong>Sets</strong> are unordered collections of unique items, with fast membership and set algebra.</p>
+  <pre class="cc">s = {1, 2, 2, 3}     # {1, 2, 3}
+{1,2,3} & {2,3,4}    # intersection {2,3}
+{1,2,3} | {3,4}      # union
+set([1,1,2])         # dedup a list</pre>`,
+  example:`p = (3, 4)
+x, y = p
+print("x", x, "y", y)
+print(set("banana"))
+print({1,2,3} & {2,3,4})`,
+  exercises:[
+    { prompt:'Write <code>common(a, b)</code> returning a <em>sorted list</em> of values present in both lists.',
+      starter:'def common(a, b):\n    pass\n',
+      hint:'return sorted(set(a) & set(b))',
+      check:{kind:'py', test:`assert common([1,2,3,4],[2,4,6])==[2,4]\nassert common([1],[2])==[]`} },
+    { prompt:'Write <code>unique_count(xs)</code> returning the number of distinct items in a list.',
+      starter:'def unique_count(xs):\n    pass\n',
+      hint:'return len(set(xs))',
+      check:{kind:'py', test:`assert unique_count([1,1,2,3,3])==3 and unique_count([])==0`} },
+  ]
+},
+{
+  id:'a10', track:'Foundations', title:'Dictionaries', min:40,
+  concept:`<p>Dictionaries map keys to values.</p>
+  <pre class="cc">user = {"name": "Ada", "age": 36}
+user["name"]          # 'Ada'
+user.get("city", "?") # safe access with default
+user["city"] = "London"
+"age" in user         # True
+
+for k, v in user.items():
+    print(k, v)
+list(user.keys()), list(user.values())</pre>`,
+  example:`prices = {"apple": 0.5, "bread": 1.2, "milk": 0.9}
+print("bread costs", prices["bread"])
+print("eggs:", prices.get("eggs", "n/a"))
+for item, price in prices.items():
+    print(item, "->", price)`,
+  exercises:[
+    { prompt:'Write <code>word_count(text)</code> returning a dict mapping each word to how many times it appears. Split on spaces.',
+      starter:'def word_count(text):\n    pass\n',
+      hint:'counts={}; for w in text.split(): counts[w]=counts.get(w,0)+1; return counts',
+      check:{kind:'py', test:`assert word_count("a b a c a")=={"a":3,"b":1,"c":1}\nassert word_count("")=={}`} },
+    { prompt:'Write <code>top_key(d)</code> returning the key with the largest value in a non-empty dict.',
+      starter:'def top_key(d):\n    pass\n',
+      hint:'return max(d, key=d.get)',
+      check:{kind:'py', test:`assert top_key({"a":3,"b":9,"c":1})=="b"`} },
+  ]
+},
+{
+  id:'a11', track:'Foundations', title:'Functions', min:45,
+  concept:`<p>Define with <code>def</code>; <code>return</code> sends a value back. Parameters can have defaults and be passed by keyword.</p>
+  <pre class="cc">def greet(name, greeting="Hello"):
+    return f"{greeting}, {name}!"
+
+greet("Ada")                 # 'Hello, Ada!'
+greet("Ada", greeting="Hi")  # 'Hi, Ada!'</pre>
+  <p>Collect extra positional args with <code>*args</code> and keyword args with <code>**kwargs</code>.</p>
+  <pre class="cc">def total(*nums):
+    return sum(nums)
+total(1, 2, 3)               # 6</pre>
+  <p>Names assigned inside a function are local. A function with no <code>return</code> yields <code>None</code>.</p>`,
+  example:`def power(base, exp=2):
+    return base ** exp
+
+print(power(5))        # 25
+print(power(2, 10))    # 1024
+
+def total(*nums):
+    return sum(nums)
+print(total(1, 2, 3, 4))`,
+  exercises:[
+    { prompt:'Write <code>average(*nums)</code> returning the mean of any number of arguments. <code>average(2,4,6)</code> → 4.0. Return 0 for no args.',
+      starter:'def average(*nums):\n    pass\n',
+      hint:'if not nums: return 0; return sum(nums)/len(nums)',
+      check:{kind:'py', test:`assert average(2,4,6)==4.0\nassert average()==0\nassert average(10)==10.0`} },
+    { prompt:'Write <code>greet(name, excited=False)</code> returning <code>"Hi, X"</code> normally, or <code>"Hi, X!"</code> when excited is True.',
+      starter:'def greet(name, excited=False):\n    pass\n',
+      hint:'base = "Hi, " + name ; return base + "!" if excited else base',
+      check:{kind:'py', test:`assert greet("Ada")=="Hi, Ada"\nassert greet("Ada", excited=True)=="Hi, Ada!"`} },
+  ]
+},
+{
+  id:'a12', track:'Foundations', title:'Comprehensions', min:35,
+  concept:`<p>Comprehensions build collections in one expressive line.</p>
+  <pre class="cc">[x*x for x in range(5)]              # [0,1,4,9,16]
+[x for x in range(10) if x % 2 == 0] # evens
+{c for c in "banana"}                # set {'b','a','n'}
+{k: len(k) for k in ["a","bb"]}      # {'a':1,'bb':2}</pre>
+  <p>Read it as: <em>expression</em> for <em>item</em> in <em>iterable</em> [if <em>condition</em>].</p>`,
+  example:`squares = [n*n for n in range(1, 6)]
+print(squares)
+evens = [n for n in range(10) if n % 2 == 0]
+print(evens)
+lengths = {w: len(w) for w in ["hi", "world"]}
+print(lengths)`,
+  exercises:[
+    { prompt:'Use a comprehension in <code>cubes(n)</code> to return a list of cubes from 1 to n inclusive. <code>cubes(3)</code> → [1, 8, 27].',
+      starter:'def cubes(n):\n    return []  # replace with a comprehension\n',
+      hint:'return [i**3 for i in range(1, n+1)]',
+      check:{kind:'py', test:`assert cubes(3)==[1,8,27]\nassert cubes(1)==[1]`} },
+    { prompt:'Write <code>long_words(words)</code> returning a list of words longer than 4 characters, using a comprehension.',
+      starter:'def long_words(words):\n    pass\n',
+      hint:'return [w for w in words if len(w) > 4]',
+      check:{kind:'py', test:`assert long_words(["hi","hello","yes","python"])==["hello","python"]`} },
+  ]
+},
+{
+  id:'a13', track:'Foundations', title:'Errors & exceptions', min:35,
+  concept:`<p>When something goes wrong Python raises an exception. Handle it with <code>try/except</code>.</p>
+  <pre class="cc">try:
+    n = int("abc")
+except ValueError:
+    n = 0          # fallback
+finally:
+    print("done")  # always runs</pre>
+  <p>Raise your own with <code>raise ValueError("message")</code>. Common types: <code>ValueError</code>, <code>TypeError</code>, <code>KeyError</code>, <code>IndexError</code>, <code>ZeroDivisionError</code>.</p>`,
+  example:`def safe_div(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return None
+
+print(safe_div(10, 2))
+print(safe_div(10, 0))`,
+  exercises:[
+    { prompt:'Write <code>to_int(s)</code> that returns <code>int(s)</code>, or <code>-1</code> if the string is not a valid integer.',
+      starter:'def to_int(s):\n    pass\n',
+      hint:'try: return int(s) except ValueError: return -1',
+      check:{kind:'py', test:`assert to_int("42")==42\nassert to_int("oops")==-1`} },
+    { prompt:'Write <code>get(d, key)</code> that returns the value for key, or the string <code>"missing"</code> if the key is absent — using try/except KeyError (not .get).',
+      starter:'def get(d, key):\n    pass\n',
+      hint:'try: return d[key] except KeyError: return "missing"',
+      check:{kind:'py', test:`assert get({"a":1},"a")==1\nassert get({"a":1},"z")=="missing"`} },
+  ]
+},
+
+/* ================= TRACK B — PYTHONIC & INTERMEDIATE ================= */
+{
+  id:'b14', track:'Pythonic', title:'Modules & the standard library', min:40,
+  concept:`<p>Import code from the standard library. Python "comes with batteries included".</p>
+  <pre class="cc">import math
+math.sqrt(16)            # 4.0
+math.pi                  # 3.1415...
+
+from random import randint, choice
+randint(1, 6)            # dice
+choice(["a","b","c"])    # random item
+
+from collections import Counter
+Counter("banana")        # {'a':3,'n':2,'b':1}
+
+from datetime import date
+date(2026, 6, 16).weekday()  # 0=Mon</pre>`,
+  example:`import math
+from collections import Counter
+print(math.factorial(5), round(math.pi, 4))
+print(Counter("mississippi"))`,
+  exercises:[
+    { prompt:'Use <code>collections.Counter</code> in <code>most_common_char(s)</code> to return the single most frequent character of a string.',
+      starter:'from collections import Counter\n\ndef most_common_char(s):\n    pass\n',
+      hint:'return Counter(s).most_common(1)[0][0]',
+      check:{kind:'py', test:`assert most_common_char("mississippi")=="s" or most_common_char("mississippi")=="i"\nassert most_common_char("aaab")=="a"`} },
+    { prompt:'Use <code>math</code> in <code>hypotenuse(a, b)</code> to return the hypotenuse length, rounded to 2 decimals. <code>hypotenuse(3,4)</code> → 5.0.',
+      starter:'import math\n\ndef hypotenuse(a, b):\n    pass\n',
+      hint:'return round(math.sqrt(a*a + b*b), 2)',
+      check:{kind:'py', test:`assert hypotenuse(3,4)==5.0\nassert hypotenuse(5,12)==13.0`} },
+  ]
+},
+{
+  id:'b15', track:'Pythonic', title:'Classes & OOP', min:50,
+  concept:`<p>A class bundles data (attributes) and behaviour (methods). <code>__init__</code> runs on creation; <code>self</code> is the instance.</p>
+  <pre class="cc">class Dog:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return f"{self.name} says woof"
+
+d = Dog("Rex")
+d.speak()        # 'Rex says woof'</pre>
+  <p>Inheritance and friendly printing via <code>__str__</code>/<code>__repr__</code>:</p>
+  <pre class="cc">class Puppy(Dog):
+    def speak(self):
+        return f"{self.name} says yip"</pre>`,
+  example:`class Account:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+    def deposit(self, amt):
+        self.balance += amt
+        return self.balance
+    def __str__(self):
+        return f"{self.owner}: {self.balance}"
+
+a = Account("Ada", 100)
+a.deposit(50)
+print(a)`,
+  exercises:[
+    { prompt:'Write a class <code>Counter2</code> with a method <code>inc()</code> that increases an internal count by 1 and an attribute <code>count</code> starting at 0.',
+      starter:'class Counter2:\n    def __init__(self):\n        pass\n    def inc(self):\n        pass\n',
+      hint:'self.count = 0 in __init__; inc does self.count += 1',
+      check:{kind:'py', test:`c=Counter2()\nassert c.count==0\nc.inc(); c.inc()\nassert c.count==2`} },
+    { prompt:'Write a class <code>Rect</code> taking width and height, with a method <code>area()</code> returning width*height.',
+      starter:'class Rect:\n    def __init__(self, w, h):\n        pass\n    def area(self):\n        pass\n',
+      hint:'store self.w, self.h; area returns self.w*self.h',
+      check:{kind:'py', test:`r=Rect(3,4)\nassert r.area()==12`} },
+  ]
+},
+{
+  id:'b16', track:'Pythonic', title:'Iterators & generators', min:40,
+  concept:`<p>A generator function uses <code>yield</code> to produce values lazily, one at a time, without building a whole list in memory.</p>
+  <pre class="cc">def countdown(n):
+    while n > 0:
+        yield n
+        n -= 1
+
+list(countdown(3))     # [3, 2, 1]
+for x in countdown(3):
+    print(x)</pre>
+  <p>Generator expressions look like comprehensions with parentheses: <code>sum(x*x for x in range(1000))</code> — computed on the fly.</p>`,
+  example:`def evens(limit):
+    n = 0
+    while n < limit:
+        yield n
+        n += 2
+
+print(list(evens(10)))
+print(sum(x*x for x in range(5)))`,
+  exercises:[
+    { prompt:'Write a generator <code>first_n(n)</code> that yields the squares 0,1,4,9,... for the first n integers. <code>list(first_n(4))</code> → [0,1,4,9].',
+      starter:'def first_n(n):\n    pass\n',
+      hint:'for i in range(n): yield i*i',
+      check:{kind:'py', test:`assert list(first_n(4))==[0,1,4,9]\nassert list(first_n(0))==[]`} },
+    { prompt:'Write a generator <code>fib(n)</code> yielding the first n Fibonacci numbers starting 0, 1. <code>list(fib(6))</code> → [0,1,1,2,3,5].',
+      starter:'def fib(n):\n    pass\n',
+      hint:'a,b=0,1; loop n times: yield a; a,b = b, a+b',
+      check:{kind:'py', test:`assert list(fib(6))==[0,1,1,2,3,5]\nassert list(fib(1))==[0]`} },
+  ]
+},
+{
+  id:'b17', track:'Pythonic', title:'Decorators & closures', min:45,
+  concept:`<p>Functions are objects: you can pass them around and define them inside other functions. A <strong>closure</strong> remembers variables from its enclosing scope.</p>
+  <pre class="cc">def multiplier(factor):
+    def mult(x):
+        return x * factor
+    return mult
+
+double = multiplier(2)
+double(10)     # 20</pre>
+  <p>A <strong>decorator</strong> wraps a function to add behaviour:</p>
+  <pre class="cc">def shout(fn):
+    def wrapper(*a, **k):
+        return fn(*a, **k).upper()
+    return wrapper
+
+@shout
+def greet(name):
+    return f"hi {name}"
+
+greet("ada")   # 'HI ADA'</pre>`,
+  example:`def logged(fn):
+    def wrapper(*args, **kwargs):
+        result = fn(*args, **kwargs)
+        print(f"{fn.__name__}{args} = {result}")
+        return result
+    return wrapper
+
+@logged
+def add(a, b):
+    return a + b
+
+add(2, 3)`,
+  exercises:[
+    { prompt:'Write a closure <code>adder(n)</code> that returns a function adding n to its argument. <code>adder(5)(10)</code> → 15.',
+      starter:'def adder(n):\n    pass\n',
+      hint:'def inner(x): return x + n ; return inner',
+      check:{kind:'py', test:`assert adder(5)(10)==15\nassert adder(0)(7)==7`} },
+    { prompt:'Write a decorator <code>double_result</code> that doubles whatever number a function returns. Decorate <code>get_five</code> (returns 5) so calling it returns 10.',
+      starter:'def double_result(fn):\n    pass\n\n@double_result\ndef get_five():\n    return 5\n',
+      hint:'wrapper returns fn(*a,**k) * 2',
+      check:{kind:'py', test:`assert get_five()==10`} },
+  ]
+},
+{
+  id:'b18', track:'Pythonic', title:'Functional tools', min:35,
+  concept:`<p><code>lambda</code> makes a tiny anonymous function. Pair it with <code>sorted(key=...)</code>, <code>map</code>, <code>filter</code>.</p>
+  <pre class="cc">sorted(["bb","a","ccc"], key=len)   # ['a','bb','ccc']
+list(map(lambda x: x*2, [1,2,3]))    # [2,4,6]
+list(filter(lambda x: x>0, [-1,2,-3,4]))  # [2,4]
+list(zip([1,2],[ "a","b"]))          # [(1,'a'),(2,'b')]
+any([0,0,1]), all([1,1,0])           # True, False</pre>
+  <p>Often a comprehension is more readable than map/filter — both are valid.</p>`,
+  example:`pairs = [("Ada", 36), ("Bob", 22), ("Cy", 29)]
+by_age = sorted(pairs, key=lambda p: p[1])
+print(by_age)
+print(list(map(lambda x: x.upper(), ["a","b"])))`,
+  exercises:[
+    { prompt:'Write <code>sort_by_last(names)</code> that sorts full names by the <em>last</em> word (surname). Use sorted with a key.',
+      starter:'def sort_by_last(names):\n    pass\n',
+      hint:'return sorted(names, key=lambda n: n.split()[-1])',
+      check:{kind:'py', test:`assert sort_by_last(["Ada Byron","Bob Aaron"])==["Bob Aaron","Ada Byron"]`} },
+    { prompt:'Write <code>positives(xs)</code> returning only the values greater than 0, using filter (or a comprehension).',
+      starter:'def positives(xs):\n    pass\n',
+      hint:'return [x for x in xs if x > 0]',
+      check:{kind:'py', test:`assert positives([-2,0,3,-1,5])==[3,5]`} },
+  ]
+},
+{
+  id:'b19', track:'Pythonic', title:'Working with data: JSON & context managers', min:40,
+  concept:`<p>The <code>json</code> module converts between Python objects and JSON text.</p>
+  <pre class="cc">import json
+data = {"name": "Ada", "tags": ["math", "code"]}
+text = json.dumps(data)          # -> string
+back = json.loads(text)          # -> dict
+back["tags"][0]                  # 'math'</pre>
+  <p>The <code>with</code> statement (context manager) cleanly manages resources like files: <code>with open("f.txt") as fh: data = fh.read()</code> — the file closes automatically. (File I/O is limited in the browser, but the pattern is the same everywhere.)</p>`,
+  example:`import json
+record = {"user": "ada", "scores": [90, 82, 77]}
+text = json.dumps(record)
+print("as text:", text)
+parsed = json.loads(text)
+print("avg:", sum(parsed["scores"]) / len(parsed["scores"]))`,
+  exercises:[
+    { prompt:'Write <code>parse_avg(text)</code> that takes a JSON string like <code>{"scores":[1,2,3]}</code> and returns the average of the scores.',
+      starter:'import json\n\ndef parse_avg(text):\n    pass\n',
+      hint:'d = json.loads(text); xs = d["scores"]; return sum(xs)/len(xs)',
+      check:{kind:'py', test:`assert parse_avg('{"scores":[2,4,6]}')==4.0`} },
+    { prompt:'Write <code>roundtrip(d)</code> that converts a dict to JSON text and back, returning the resulting dict (should equal the input).',
+      starter:'import json\n\ndef roundtrip(d):\n    pass\n',
+      hint:'return json.loads(json.dumps(d))',
+      check:{kind:'py', test:`assert roundtrip({"a":1,"b":[1,2]})=={"a":1,"b":[1,2]}`} },
+  ]
+},
+
+/* ================= TRACK C — PROJECTS ================= */
+{
+  id:'c20', track:'Projects', title:'Project: Text analyzer', min:50,
+  concept:`<p>Time to combine strings, loops, dicts and the stdlib. You'll build a small text analytics function — the kind of thing you'd reach for to profile a document.</p>
+  <p>Given raw text, you'll report total words, unique words, and the most frequent word. Lowercase everything and split on whitespace. <code>collections.Counter</code> will help.</p>`,
+  example:`from collections import Counter
+text = "the cat sat on the mat the cat"
+words = text.lower().split()
+c = Counter(words)
+print("total:", len(words))
+print("unique:", len(c))
+print("top:", c.most_common(1)[0])`,
+  exercises:[
+    { prompt:'Write <code>analyze(text)</code> returning a dict with keys <code>"total"</code> (word count), <code>"unique"</code> (distinct words), and <code>"top"</code> (most frequent word, lowercased). Split on whitespace, lowercase first.',
+      starter:'from collections import Counter\n\ndef analyze(text):\n    pass\n',
+      hint:'words = text.lower().split(); c = Counter(words); return {"total":len(words),"unique":len(c),"top":c.most_common(1)[0][0]}',
+      check:{kind:'py', test:`r = analyze("The cat sat on the mat the cat")
+assert r["total"]==8
+assert r["unique"]==5
+assert r["top"]=="the"`} },
+  ]
+},
+{
+  id:'c21', track:'Projects', title:'Project: A tiny state machine', min:50,
+  concept:`<p>Interactive <code>input()</code> isn't ideal in the browser, so we model a game as a pure function — a clean design pattern you can reuse anywhere.</p>
+  <p>You'll implement one step of a number-guessing game: given a secret and a guess, return <code>"low"</code>, <code>"high"</code>, or <code>"correct"</code>. Then a function that plays a whole list of guesses and returns how many it took to win (or -1).</p>`,
+  example:`def step(secret, guess):
+    if guess < secret: return "low"
+    if guess > secret: return "high"
+    return "correct"
+
+print(step(50, 30))   # low
+print(step(50, 50))   # correct`,
+  exercises:[
+    { prompt:'Write <code>step(secret, guess)</code> returning "low", "high", or "correct".',
+      starter:'def step(secret, guess):\n    pass\n',
+      hint:'compare guess to secret',
+      check:{kind:'py', test:`assert step(50,30)=="low"\nassert step(50,80)=="high"\nassert step(50,50)=="correct"`} },
+    { prompt:'Write <code>play(secret, guesses)</code> that returns the 1-based position of the first correct guess in the list, or -1 if none match.',
+      starter:'def play(secret, guesses):\n    pass\n',
+      hint:'enumerate(guesses, 1); if g==secret return i; else return -1 after loop',
+      check:{kind:'py', test:`assert play(7, [3, 9, 7, 1])==3\nassert play(7, [1, 2, 3])==-1`} },
+  ]
+},
+{
+  id:'c22', track:'Projects', title:'Project: Mini data pipeline', min:55,
+  concept:`<p>The capstone: parse a small CSV-like string and aggregate it — exactly how a lot of real Python data work begins before pandas enters the picture.</p>
+  <p>Input is lines of <code>name,department,salary</code>. You'll compute total salary per department. Use <code>splitlines()</code>, <code>split(",")</code>, and a dict.</p>`,
+  example:`raw = """Ada,Eng,100
+Bob,Eng,120
+Cy,Sales,90"""
+totals = {}
+for line in raw.splitlines():
+    name, dept, salary = line.split(",")
+    totals[dept] = totals.get(dept, 0) + int(salary)
+print(totals)`,
+  exercises:[
+    { prompt:'Write <code>salary_by_dept(raw)</code> that parses lines of <code>name,dept,salary</code> and returns a dict of total salary per department.',
+      starter:'def salary_by_dept(raw):\n    pass\n',
+      hint:'loop raw.splitlines(); _, dept, sal = line.split(","); totals[dept]=totals.get(dept,0)+int(sal)',
+      check:{kind:'py', test:`raw = "Ada,Eng,100\\nBob,Eng,120\\nCy,Sales,90"
+r = salary_by_dept(raw)
+assert r=={"Eng":220,"Sales":90}, r`} },
+    { prompt:'Write <code>headcount(raw)</code> returning a dict of how many people are in each department (same input format).',
+      starter:'def headcount(raw):\n    pass\n',
+      hint:'count per dept with counts.get(dept,0)+1',
+      check:{kind:'py', test:`raw = "Ada,Eng,100\\nBob,Eng,120\\nCy,Sales,90"
+assert headcount(raw)=={"Eng":2,"Sales":1}`} },
+  ]
+},
+
+/* ================= TRACK D — DATA (numpy / pandas) ================= */
+{
+  id:'d23', track:'Data', title:'NumPy arrays', min:40,
+  concept:`<p><strong>NumPy</strong> is the foundation of Python's data stack: fast, vectorised arrays. Operations apply to the whole array at once — no loops.</p>
+  <pre class="cc">import numpy as np
+a = np.array([1, 2, 3, 4])
+a * 2                 # array([2, 4, 6, 8])
+a.mean(), a.sum()     # 2.5, 10
+np.arange(0, 10, 2)   # array([0,2,4,6,8])
+a.reshape(2, 2)       # 2x2 matrix</pre>
+  <p>The default standard deviation <code>np.std</code> is the population version (ddof=0). These lessons load numpy &amp; pandas on first Run — give them a few seconds.</p>`,
+  example:`import numpy as np
+a = np.array([10, 20, 30, 40, 50])
+print(a * 2)
+print("mean:", a.mean(), "std:", round(a.std(), 3))
+print(np.arange(1, 6) ** 2)`,
+  exercises:[
+    { prompt:'Write <code>normalize(x)</code> returning the array standardised to mean 0 and std 1: <code>(x - mean) / std</code>.',
+      starter:'import numpy as np\n\ndef normalize(x):\n    pass\n',
+      hint:'return (x - x.mean()) / x.std()',
+      check:{kind:'py', test:`import numpy as np
+r = normalize(np.array([1.,2.,3.,4.,5.]))
+assert np.allclose(r.mean(), 0.0, atol=1e-9)
+assert np.allclose(r.std(), 1.0, atol=1e-9)`} },
+    { prompt:'Write <code>running_total(x)</code> returning the cumulative sum as an array. <code>[1,2,3]</code> → <code>[1,3,6]</code>.',
+      starter:'import numpy as np\n\ndef running_total(x):\n    pass\n',
+      hint:'return np.cumsum(x)',
+      check:{kind:'py', test:`import numpy as np
+assert running_total(np.array([1,2,3])).tolist()==[1,3,6]
+assert running_total(np.array([5,0,5])).tolist()==[5,5,10]`} },
+  ]
+},
+{
+  id:'d24', track:'Data', title:'NumPy indexing & masks', min:40,
+  concept:`<p>Boolean masks select elements by condition — the workhorse of array analysis.</p>
+  <pre class="cc">import numpy as np
+a = np.array([5, 12, 7, 20, 3])
+a[a > 10]              # array([12, 20])
+np.where(a > 10, 1, 0) # array([0,1,0,1,0])
+m = np.array([[1,2,3],[4,5,6]])
+m.sum(axis=0)          # columns -> [5,7,9]
+m.sum(axis=1)          # rows    -> [6,15]</pre>`,
+  example:`import numpy as np
+a = np.array([5, 12, 7, 20, 3])
+print("over 10:", a[a > 10])
+print("count over 10:", (a > 10).sum())
+m = np.array([[1, 2], [3, 4]])
+print("col sums:", m.sum(axis=0), "row sums:", m.sum(axis=1))`,
+  exercises:[
+    { prompt:'Write <code>count_above(x, t)</code> returning how many elements are strictly greater than <code>t</code>.',
+      starter:'import numpy as np\n\ndef count_above(x, t):\n    pass\n',
+      hint:'return int((x > t).sum())',
+      check:{kind:'py', test:`import numpy as np
+assert count_above(np.array([1,5,9,2,8]), 4)==3
+assert count_above(np.array([1,2,3]), 10)==0`} },
+    { prompt:'Write <code>clip_negative(x)</code> returning the array with every negative value replaced by 0.',
+      starter:'import numpy as np\n\ndef clip_negative(x):\n    pass\n',
+      hint:'return np.where(x < 0, 0, x)',
+      check:{kind:'py', test:`import numpy as np
+assert clip_negative(np.array([-1,2,-3,4])).tolist()==[0,2,0,4]`} },
+  ]
+},
+{
+  id:'d25', track:'Data', title:'pandas: Series & DataFrames', min:45,
+  concept:`<p><strong>pandas</strong> adds labelled tables (DataFrames) on top of NumPy — the everyday tool for tabular data.</p>
+  <pre class="cc">import pandas as pd
+df = pd.DataFrame({
+    "product": ["A", "B", "C"],
+    "units":   [120, 80, 200],
+    "region":  ["EU", "EU", "US"],
+})
+df["units"].sum()        # 400
+df[df["units"] > 100]    # rows where units > 100
+df["units"].mean()       # 133.3</pre>`,
+  example:`import pandas as pd
+df = pd.DataFrame({"product":["A","B","C"], "units":[120,80,200], "region":["EU","EU","US"]})
+print(df)
+print("total units:", df["units"].sum())
+print(df[df["units"] > 100])`,
+  exercises:[
+    { prompt:'Write <code>total_units(df)</code> returning the sum of the <code>"units"</code> column.',
+      starter:'import pandas as pd\n\ndef total_units(df):\n    pass\n',
+      hint:'return df["units"].sum()',
+      check:{kind:'py', test:`import pandas as pd
+df = pd.DataFrame({"units":[120,80,200]})
+assert total_units(df)==400`} },
+    { prompt:'Write <code>big_products(df)</code> returning a list of <code>"product"</code> values where <code>units &gt; 100</code>, keeping order.',
+      starter:'import pandas as pd\n\ndef big_products(df):\n    pass\n',
+      hint:'return df[df["units"] > 100]["product"].tolist()',
+      check:{kind:'py', test:`import pandas as pd
+df = pd.DataFrame({"product":["A","B","C"], "units":[120,80,200]})
+assert big_products(df)==["A","C"]`} },
+  ]
+},
+{
+  id:'d26', track:'Data', title:'pandas: groupby & aggregation', min:45,
+  concept:`<p><code>groupby</code> splits rows into groups and aggregates each — the heart of analytics.</p>
+  <pre class="cc">import pandas as pd
+df = pd.DataFrame({"region":["EU","EU","US","US"], "sales":[100,150,200,50]})
+df.groupby("region")["sales"].sum()
+# region
+# EU    250
+# US    250
+df.groupby("region")["sales"].sum().idxmax()   # 'EU' (tie -> first)</pre>
+  <p><code>.to_dict()</code> turns a grouped result into a plain dict; <code>.sort_values()</code> orders it.</p>`,
+  example:`import pandas as pd
+df = pd.DataFrame({"region":["EU","EU","US"], "sales":[100,150,200]})
+totals = df.groupby("region")["sales"].sum()
+print(totals)
+print("top region:", totals.idxmax())`,
+  exercises:[
+    { prompt:'Write <code>sales_by_region(df)</code> returning a dict mapping region → total sales.',
+      starter:'import pandas as pd\n\ndef sales_by_region(df):\n    pass\n',
+      hint:'return df.groupby("region")["sales"].sum().to_dict()',
+      check:{kind:'py', test:`import pandas as pd
+df = pd.DataFrame({"region":["EU","EU","US"], "sales":[100,150,200]})
+assert sales_by_region(df)=={"EU":250,"US":200}`} },
+    { prompt:'Write <code>top_region(df)</code> returning the region with the highest total sales.',
+      starter:'import pandas as pd\n\ndef top_region(df):\n    pass\n',
+      hint:'return df.groupby("region")["sales"].sum().idxmax()',
+      check:{kind:'py', test:`import pandas as pd
+df = pd.DataFrame({"region":["EU","EU","US"], "sales":[100,150,200]})
+assert top_region(df)=="EU"`} },
+  ]
+},
+{
+  id:'d27', track:'Data', title:'Project: a mini sales analysis', min:55,
+  concept:`<p>Capstone for the data track: take a list of records, build a DataFrame, derive a revenue column, and report KPIs — exactly the shape of a real commercial-analytics task.</p>
+  <p>Each record is a dict: <code>{"product", "region", "units", "price"}</code>. Revenue per row = units × price.</p>`,
+  example:`import pandas as pd
+recs = [
+  {"product":"A","region":"EU","units":10,"price":5.0},
+  {"product":"B","region":"EU","units":4,"price":20.0},
+]
+df = pd.DataFrame(recs)
+df["revenue"] = df["units"] * df["price"]
+print(df)
+print("total:", df["revenue"].sum())`,
+  exercises:[
+    { prompt:'Write <code>analyze(records)</code> returning a dict with <code>"total_revenue"</code>, <code>"by_region"</code> (dict region→revenue) and <code>"top_product"</code> (product with highest revenue).',
+      starter:'import pandas as pd\n\ndef analyze(records):\n    pass\n',
+      hint:'df=pd.DataFrame(records); df["rev"]=df["units"]*df["price"]; build dict with df["rev"].sum(), df.groupby("region")["rev"].sum().to_dict(), df.groupby("product")["rev"].sum().idxmax()',
+      check:{kind:'py', test:`import pandas as pd
+recs=[{"product":"A","region":"EU","units":10,"price":5.0},
+      {"product":"B","region":"EU","units":4,"price":20.0},
+      {"product":"C","region":"US","units":3,"price":10.0}]
+r=analyze(recs)
+assert round(r["total_revenue"],2)==160.0
+assert r["by_region"]["EU"]==130.0 and r["by_region"]["US"]==30.0
+assert r["top_product"]=="B"`} },
+  ]
+},
+{
+  id:'d28', track:'Data', title:'Case study: a commercial dataset', min:55,
+  concept:`<p>A realistic mini-EDA on an embedded sales dataset (oncology brands, two regions, three months). You'll load CSV text into a DataFrame, derive revenue, and answer business questions — the everyday loop of commercial analytics.</p>
+  <pre class="cc">date,product,region,units,price
+2026-01,Onco-A,EU,120,540
+2026-01,Onco-A,US,90,560
+2026-01,Onco-B,EU,60,820
+2026-02,Onco-A,EU,140,540
+2026-02,Onco-B,EU,75,820
+2026-02,Onco-B,US,50,840
+2026-03,Onco-A,US,110,560
+2026-03,Onco-B,EU,80,820</pre>
+  <p>Read CSV text with <code>pd.read_csv(io.StringIO(text))</code>. Revenue per row = units × price.</p>`,
+  example:`import pandas as pd, io
+csv = "date,product,region,units,price\\n2026-01,Onco-A,EU,120,540\\n2026-01,Onco-B,EU,60,820"
+df = pd.read_csv(io.StringIO(csv))
+df["revenue"] = df["units"] * df["price"]
+print(df)
+print("total revenue:", df["revenue"].sum())`,
+  exercises:[
+    { prompt:'Write <code>load(csv)</code> returning a DataFrame from CSV text with an added <code>"revenue"</code> column (units × price).',
+      starter:'import pandas as pd, io\n\ndef load(csv):\n    pass\n',
+      hint:'df = pd.read_csv(io.StringIO(csv)); df["revenue"] = df["units"]*df["price"]; return df',
+      check:{kind:'py', test:`import pandas as pd, io
+CSV="date,product,region,units,price\\n2026-01,Onco-A,EU,120,540\\n2026-01,Onco-A,US,90,560\\n2026-01,Onco-B,EU,60,820\\n2026-02,Onco-A,EU,140,540\\n2026-02,Onco-B,EU,75,820\\n2026-02,Onco-B,US,50,840\\n2026-03,Onco-A,US,110,560\\n2026-03,Onco-B,EU,80,820"
+df=load(CSV)
+assert "revenue" in df.columns
+assert int(df.loc[0,"revenue"])==120*540`} },
+    { prompt:'Write <code>revenue_by_region(df)</code> returning a dict region → total revenue (df already has a revenue column).',
+      starter:'def revenue_by_region(df):\n    pass\n',
+      hint:'return df.groupby("region")["revenue"].sum().to_dict()',
+      check:{kind:'py', test:`import pandas as pd, io
+CSV="date,product,region,units,price\\n2026-01,Onco-A,EU,120,540\\n2026-01,Onco-A,US,90,560\\n2026-01,Onco-B,EU,60,820\\n2026-02,Onco-A,EU,140,540\\n2026-02,Onco-B,EU,75,820\\n2026-02,Onco-B,US,50,840\\n2026-03,Onco-A,US,110,560\\n2026-03,Onco-B,EU,80,820"
+df=pd.read_csv(io.StringIO(CSV)); df["revenue"]=df["units"]*df["price"]
+assert revenue_by_region(df)=={"EU":316700,"US":154000}`} },
+    { prompt:'Write <code>top_product(df)</code> returning the product with the highest total revenue.',
+      starter:'def top_product(df):\n    pass\n',
+      hint:'return df.groupby("product")["revenue"].sum().idxmax()',
+      check:{kind:'py', test:`import pandas as pd, io
+CSV="date,product,region,units,price\\n2026-01,Onco-A,EU,120,540\\n2026-01,Onco-A,US,90,560\\n2026-01,Onco-B,EU,60,820\\n2026-02,Onco-A,EU,140,540\\n2026-02,Onco-B,EU,75,820\\n2026-02,Onco-B,US,50,840\\n2026-03,Onco-A,US,110,560\\n2026-03,Onco-B,EU,80,820"
+df=pd.read_csv(io.StringIO(CSV)); df["revenue"]=df["units"]*df["price"]
+assert top_product(df)=="Onco-A"`} },
+  ]
+},
+{
+  id:'v29', track:'Visualize', title:'Charts with matplotlib', min:45,
+  concept:`<p><strong>matplotlib</strong> is Python's plotting workhorse. The pattern: make a figure and axes, draw on the axes, label it.</p>
+  <pre class="cc">import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+ax.bar(["Jan","Feb","Mar"], [120, 150, 90])
+ax.set_title("Monthly sales")
+ax.set_ylabel("Units")</pre>
+  <p>Run the example to see a real chart render below. In the exercises you'll receive an <code>ax</code> and draw on it — Check renders your chart <em>and</em> verifies you used the API correctly.</p>`,
+  example:`import matplotlib.pyplot as plt
+months = ["Jan", "Feb", "Mar", "Apr"]
+sales  = [120, 150, 90, 200]
+fig, ax = plt.subplots(figsize=(6,3.2))
+ax.bar(months, sales, color="#3b6fb5")
+ax.set_title("Monthly sales")
+ax.set_ylabel("Units")`,
+  exercises:[
+    { prompt:'Complete <code>draw_line(ax, xs, ys)</code>: plot a line of ys against xs and set the title to <code>"Trend"</code>.',
+      starter:'import matplotlib.pyplot as plt\n\ndef draw_line(ax, xs, ys):\n    pass\n',
+      hint:'ax.plot(xs, ys); ax.set_title("Trend")',
+      check:{kind:'viz',
+        setup:'__fig, __ax = plt.subplots()\ndraw_line(__ax, [1,2,3,4], [10,20,15,25])',
+        asserts:'assert len(__ax.lines) >= 1, "use ax.plot(xs, ys) to draw a line"\nassert __ax.get_title() == "Trend", "set the title to Trend with ax.set_title"'} },
+    { prompt:'Complete <code>draw_bars(ax, labels, values)</code>: draw a bar chart and set the y-axis label to <code>"Count"</code>.',
+      starter:'import matplotlib.pyplot as plt\n\ndef draw_bars(ax, labels, values):\n    pass\n',
+      hint:'ax.bar(labels, values); ax.set_ylabel("Count")',
+      check:{kind:'viz',
+        setup:'__fig, __ax = plt.subplots()\ndraw_bars(__ax, ["a","b","c"], [3,5,2])',
+        asserts:'assert len(__ax.patches) == 3, "draw one bar per label with ax.bar"\nassert __ax.get_ylabel() == "Count", "set the y-label to Count"'} },
+  ]
+},
+{
+  id:'v30', track:'Visualize', title:'Visual EDA: pandas + matplotlib', min:45,
+  concept:`<p>Combine the two: aggregate with pandas, then visualise. A grouped total becomes a bar chart in three lines.</p>
+  <pre class="cc">totals = df.groupby("region")["sales"].sum()
+ax.bar(totals.index, totals.values)
+ax.set_title("Sales by region")</pre>
+  <p>Run the example, then build the same kind of summary chart yourself.</p>`,
+  example:`import pandas as pd
+import matplotlib.pyplot as plt
+df = pd.DataFrame({"region":["EU","EU","US","APAC"], "sales":[100,150,200,80]})
+totals = df.groupby("region")["sales"].sum().sort_values(ascending=False)
+fig, ax = plt.subplots(figsize=(6,3.2))
+ax.bar(totals.index, totals.values, color="#e6b800")
+ax.set_title("Sales by region")
+ax.set_ylabel("Sales")`,
+  exercises:[
+    { prompt:'Complete <code>plot_region_sales(ax, df)</code>: total <code>sales</code> by <code>region</code> as a bar chart, titled <code>"Sales by region"</code>.',
+      starter:'import pandas as pd\nimport matplotlib.pyplot as plt\n\ndef plot_region_sales(ax, df):\n    pass\n',
+      hint:'t = df.groupby("region")["sales"].sum(); ax.bar(t.index, t.values); ax.set_title("Sales by region")',
+      check:{kind:'viz',
+        setup:'import pandas as pd\n__df = pd.DataFrame({"region":["EU","EU","US"], "sales":[100,150,200]})\n__fig, __ax = plt.subplots()\nplot_region_sales(__ax, __df)',
+        asserts:'assert len(__ax.patches) == 2, "one bar per region (EU, US)"\nassert __ax.get_title() == "Sales by region", "title must be Sales by region"'} },
+  ]
+},
+];
+
+if (typeof module !== "undefined") module.exports = { CURRICULUM };
+// LEAN curriculum — 16 modules, each with a Beginner concept + a Deep dive.
+// exercise types:
+//   { type:'numeric', prompt, table?, fields:[{key,label,unit,answer,tol}], solution }
+//   { type:'mcq', prompt, questions:[{text, options:[...], correct}], solution }
+
+const VSM_TABLE = `
+<table class="dtable">
+  <thead><tr><th>#</th><th>Process step</th><th>Process time (min)</th><th>Wait before step (min)</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Order entry</td><td>4</td><td>120</td></tr>
+    <tr><td>2</td><td>Credit check</td><td>6</td><td>240</td></tr>
+    <tr><td>3</td><td>Pick &amp; pack</td><td>18</td><td>480</td></tr>
+    <tr><td>4</td><td>Quality check</td><td>5</td><td>60</td></tr>
+    <tr><td>5</td><td>Shipping prep</td><td>8</td><td>180</td></tr>
+    <tr><td>6</td><td>Dispatch</td><td>3</td><td>30</td></tr>
+    <tr class="tot"><td></td><td>Totals</td><td>44</td><td>1110</td></tr>
+  </tbody>
+</table>
+<p class="datanote">Single shift = 480 min, with 30 min of breaks. Customer demand = <b>90 orders/day</b>.</p>`;
+
+const LEAN = [
+
+/* ===== 1. HOUSE OF LEAN ===== */
+{
+  id:'l1', area:'lean', track:'Foundations', title:'The Toyota Production System & the House of Lean', min:35,
+  concept:`<p>Lean is a way of running an operation that aims to deliver the most value to the customer with the least waste, time and effort. It grew out of the <strong>Toyota Production System (TPS)</strong> in post-war Japan and was later named "Lean" by Western researchers.</p>
+  <p>The classic picture is a house. You can only build it bottom-up:</p>
+  <ul>
+    <li><b>Foundation</b> — stability and <em>standardised work</em>, plus <em>heijunka</em> (levelling). Nothing stands without a stable base.</li>
+    <li><b>Two pillars</b> — <em>Just-in-Time</em> (make only what's needed, when it's needed, in the amount needed) and <em>Jidoka</em> (build quality in; stop and fix problems the moment they appear).</li>
+    <li><b>The roof / goal</b> — best quality, lowest cost, shortest lead time, highest safety and morale.</li>
+    <li><b>At the centre</b> — people and continuous improvement (kaizen). The system runs on engaged people, not just tools.</li>
+  </ul>
+  <p>The single biggest idea: improve the <em>flow</em> of the whole system, not the speed of isolated steps.</p>`,
+  deep:`<p><b>Origins.</b> TPS was developed mainly by Taiichi Ohno and Eiji Toyoda at Toyota from the late 1940s. Two outside ideas seeded it: Henry Ford's moving assembly line (continuous flow) and the American supermarket (customers pull goods off a shelf, which is then replenished — the model for pull and kanban). W. Edwards Deming's teaching on quality and variation in Japan was a third influence. The word "Lean" itself came later: John Krafcik coined it in 1988, and it was popularised by Womack, Jones &amp; Roos in <em>The Machine That Changed the World</em> (1990), the MIT IMVP study that contrasted Toyota's performance with mass production.</p>
+  <p><b>The two pillars, precisely.</b> <em>Just-in-Time</em> is the flow pillar: continuous flow, pull, and takt-paced production so inventory and lead time collapse. <em>Jidoka</em> ("autonomation", or automation with a human touch) is the quality pillar: machines and people detect abnormalities and <em>stop</em> immediately so defects never pass downstream and the root cause gets fixed. JIT exposes problems by removing the inventory that hides them; Jidoka makes you solve them. They reinforce each other.</p>
+  <p><b>The foundation matters more than people think.</b> You cannot run JIT pull on an unstable process. Stability of the 4Ms (Man, Machine, Material, Method), standardised work, and heijunka (levelled volume and mix) are prerequisites. Trying to "do pull" on a chaotic process just moves the chaos around faster.</p>
+  <p><b>System over tools.</b> The most common failure mode is "tool-head" Lean — running 5S events and kaizen blitzes as disconnected point improvements while the value stream still doesn't flow. Toyota people distinguish <em>point kaizen</em> (improve one step) from <em>flow kaizen</em> (improve how the whole stream connects); leaders are expected to lead flow kaizen. In 2001 Toyota codified "The Toyota Way" on two pillars of its own: <em>Continuous Improvement</em> and <em>Respect for People</em> — a reminder that Lean is a people-development system, not a cost-cutting program. Mistaking Lean for headcount reduction is the surest way to kill it, because the improvement engine is the very people you would be cutting.</p>`,
+  exercises:[
+    { type:'mcq', prompt:'Foundations check.',
+      questions:[
+        { text:'The two pillars of the Toyota Production System are…', options:['Just-in-Time and Jidoka','5S and Kaizen','Six Sigma and TQM','MRP and ERP'], correct:0 },
+        { text:'In the House of Lean, what forms the foundation?', options:['The customer','Stability, standardised work and heijunka','Quarterly profit','Andon cords'], correct:1 },
+        { text:'Two real-world systems that inspired TPS were…', options:['Ford\u2019s assembly line and the American supermarket','The internet and ERP','Six Sigma and ISO 9001','Agile and Scrum'], correct:0 },
+        { text:'A common and damaging misconception is that Lean is primarily…', options:['A way to build quality in','A headcount-reduction / cost-cutting program','About improving flow','A people-development system'], correct:1 },
+      ],
+      solution:`<p>JIT + Jidoka are the pillars; stability, standardised work and heijunka are the foundation; the supermarket and Ford's line were direct inspirations; and treating Lean as a layoff program destroys the improvement engine — its people.</p>` },
+  ]
+},
+
+/* ===== 2. VALUE & THE 8 WASTES ===== */
+{
+  id:'l2', area:'lean', track:'Foundations', title:'Value & the 8 Wastes (DOWNTIME)', min:35,
+  concept:`<p>Lean starts with one question: <strong>does this step add value the customer would willingly pay for?</strong> If not, it's waste to reduce or remove. Womack &amp; Jones framed five principles: define <em>value</em>, map the <em>value stream</em>, create <em>flow</em>, let the customer <em>pull</em>, pursue <em>perfection</em>.</p>
+  <p>Toyota names three enemies: <strong>Muda</strong> (waste), <strong>Mura</strong> (unevenness) and <strong>Muri</strong> (overburden). The eight wastes spell <strong>DOWNTIME</strong>:</p>
+  <ul>
+    <li><b>D</b>efects — rework, scrap, corrections</li>
+    <li><b>O</b>verproduction — making more or sooner than needed</li>
+    <li><b>W</b>aiting — idle time between steps</li>
+    <li><b>N</b>on-utilised talent — unused skills, ideas, judgement</li>
+    <li><b>T</b>ransportation — moving material/information unnecessarily</li>
+    <li><b>I</b>nventory — work piled up between steps</li>
+    <li><b>M</b>otion — unnecessary movement of people</li>
+    <li><b>E</b>xtra-processing — doing more than the customer needs</li>
+  </ul>
+  <p>In most processes, value-add is a tiny slice of total time — which is why mapping reveals so much.</p>`,
+  deep:`<p><b>Three kinds of activity.</b> Practitioners don't split work simply into "value" and "waste". They use three buckets: <em>value-adding</em> (the customer would pay for it and it transforms the product/service), <em>necessary non-value-adding</em> (Type 1 muda — wasteful but currently required, e.g. a regulatory inspection or a legally mandated check), and <em>pure waste</em> (Type 2 muda — eliminate now). The discipline is attacking Type 2 immediately while reducing Type 1 over time by changing the process or constraints. Confusing the two leads to either paralysis or recklessly cutting necessary controls.</p>
+  <p><b>The 3M causal chain.</b> Mura (unevenness) and Muri (overburden) are usually the <em>causes</em>; Muda (waste) is the <em>symptom</em>. Lumpy demand or an unlevelled schedule (Mura) forces people and machines to sprint then idle (Muri), which generates rework, waiting and inventory (Muda). Teams that only chase visible Muda keep firefighting; teams that level the work (heijunka) and design sustainable workloads remove the source.</p>
+  <p><b>Ohno's hierarchy.</b> Ohno's original list had seven wastes, and he considered <em>overproduction the worst</em> — the "root of all evil" — because making too much, too soon hides every other waste: it creates inventory, which creates transport and motion, masks defects (they're buried in a batch), and fills the time that would otherwise expose waiting. The 8th waste, non-utilised human talent, was a later (largely Western) addition reflecting the Respect-for-People pillar. In knowledge work the dominant wastes are usually waiting (queues, approvals), defects (rework loops) and extra-processing (gold-plating, redundant reports).</p>
+  <p><b>How experts find it.</b> Go to the gemba (the actual place), follow one unit end-to-end, and time it. A "waste walk" plus the value-stream timeline (process time vs lead time) quantifies the opportunity. Beware local optimisation: speeding up a non-bottleneck step adds zero throughput and often <em>increases</em> overproduction and inventory.</p>`,
+  exercises:[
+    { type:'mcq', prompt:'Classify each scenario into the single best-fit waste.',
+      questions:[
+        { text:'Completed orders sit 8 hours before anyone ships them.', options:['Waiting','Defects','Motion','Overprocessing'], correct:0 },
+        { text:'A six-month stockpile of printed brochures in a warehouse.', options:['Transportation','Inventory','Overproduction','Motion'], correct:1 },
+        { text:'Staff re-key the same data into three separate systems.', options:['Defects','Overproduction','Extra-processing','Waiting'], correct:2 },
+        { text:'A senior analyst spends the day photocopying files.', options:['Non-utilised talent','Motion','Inventory','Defects'], correct:0 },
+        { text:'10% of finished units fail inspection and are reworked.', options:['Overproduction','Defects','Waiting','Transportation'], correct:1 },
+        { text:'Reports are printed daily that nobody has requested.', options:['Inventory','Motion','Overproduction','Defects'], correct:2 },
+      ],
+      solution:`<p>Waiting, Inventory, Extra-processing, Non-utilised talent, Defects, Overproduction. Several touch more than one waste — name the <em>root</em> so the countermeasure hits the cause.</p>` },
+    { type:'mcq', prompt:'Deep-dive concepts.',
+      questions:[
+        { text:'A regulatory inspection the customer won\u2019t pay for but the law requires is best classified as…', options:['Value-adding','Type 1 muda (necessary non-value-adding)','Type 2 muda (pure waste)','Not waste at all'], correct:1 },
+        { text:'Ohno considered which waste the worst, because it hides the others?', options:['Motion','Overproduction','Transportation','Waiting'], correct:1 },
+        { text:'In the 3M model, Muda is usually the…', options:['Root cause','Symptom of Mura and Muri','Same as Muri','Opposite of value'], correct:1 },
+      ],
+      solution:`<p>Necessary-but-non-value-adding work is Type 1 muda (reduce over time); overproduction is the worst waste; and Muda is typically the symptom of upstream Mura (unevenness) and Muri (overburden).</p>` },
+  ]
+},
+
+/* ===== 3. STANDARDIZED WORK & HEIJUNKA ===== */
+{
+  id:'l3', area:'lean', track:'Foundations', title:'Standardised Work & Heijunka', min:35,
+  concept:`<p><strong>Standardised work</strong> is the current, agreed best way to do a task — written down and followed by everyone. Ohno's line is famous: <em>"Without a standard there can be no kaizen."</em> You can only improve from a known baseline; otherwise every shift does it differently and you can't tell what change helped.</p>
+  <p>It has three elements: <em>takt time</em> (the pace), the <em>work sequence</em> (the order of steps), and <em>standard WIP</em> (the minimum in-process stock needed to keep flow).</p>
+  <p><strong>Heijunka</strong> means <em>levelling</em>. Instead of making product in big lumpy batches that chase orders, you smooth both the <em>volume</em> and the <em>mix</em> so the system faces a steady, predictable demand. Level production is calmer, needs less buffer, and exposes problems sooner.</p>`,
+  deep:`<p><b>Standardised work is a paradox, on purpose.</b> You standardise not to freeze the process but to make improvement possible and visible. The cycle is <em>SDCA then PDCA</em>: Standardise-Do-Check-Act to stabilise, then Plan-Do-Check-Act to improve — and the improvement becomes the new standard. Crucially, the standard is owned by the people doing the work (often the team leader documents it), not imposed by engineers. The core documents are the <em>standardised work chart</em> (layout + walk paths + standard WIP), the <em>standardised work combination table</em> (manual time, machine time and walk time against takt), and <em>job element sheets</em> (the how and the key points/reasons).</p>
+  <p><b>Why level (heijunka).</b> Unlevelled demand triggers the bullwhip effect: small swings at the customer end amplify into wild swings upstream, forcing capacity to be sized for peaks (waste) and creating the Mura→Muri→Muda chain. Levelling breaks this. <em>Volume levelling</em> smooths the total quantity per period; <em>mix levelling</em> smooths the sequence of variants — running A-B-A-B-A-B instead of AAA-BBB. Mix levelling is harder and is the real prize, because it lets you respond to varied demand from a small, steady buffer.</p>
+  <p><b>The mechanics.</b> A <em>heijunka box</em> (a pigeonhole board) holds kanban slotted by product and time interval; a runner withdraws them at a fixed <em>pitch</em> (takt × pack-out quantity) and feeds the pacemaker process. <em>EPEI</em> — "Every Part Every Interval" — measures how often you cycle through the whole mix; smaller EPEI means more levelling and smaller batches.</p>
+  <p><b>The trade-off.</b> Levelling the mix demands fast changeovers — so heijunka and SMED are joined at the hip — plus a modest finished-goods buffer to decouple level production from uneven customer ordering. The alternative, "chase" (make exactly what was ordered, when ordered), looks responsive but propagates variability through the whole stream.</p>`,
+  exercises:[
+    { type:'mcq', prompt:'Standardised work & levelling.',
+      questions:[
+        { text:'"Without a standard there can be no ___" (Ohno).', options:['profit','kaizen','safety','schedule'], correct:1 },
+        { text:'The three elements of standardised work are…', options:['Takt time, work sequence, standard WIP','Sort, set, shine','Plan, do, check','People, process, technology'], correct:0 },
+        { text:'Running variants in the sequence A-B-A-B-A-B rather than AAA-BBB is…', options:['Volume levelling','Mix levelling','Overproduction','Batch processing'], correct:1 },
+        { text:'Heijunka (mix levelling) most depends on which other Lean capability?', options:['Fast changeovers (SMED)','Six Sigma','ERP','Bigger warehouses'], correct:0 },
+      ],
+      solution:`<p>Standards enable kaizen; the three elements are takt, sequence and standard WIP; A-B-A-B is mix levelling; and you can't level the mix without quick changeovers (SMED).</p>` },
+  ]
+},
+
+/* ===== 4. VALUE STREAM MAPPING ===== */
+{
+  id:'l4', area:'lean', track:'Value Stream', title:'Value Stream Mapping (VSM)', min:45,
+  concept:`<p>A <strong>Value Stream Map</strong> draws every step a unit passes through — material <em>and</em> information flow — with timing data underneath. You build a <em>current-state</em> map to see reality, then a <em>future-state</em> map to design the improvement, then a plan to get there.</p>
+  <p>The headline metrics:</p>
+  <ul>
+    <li><b>Process time (PT)</b> — hands-on, value-adding work per step.</li>
+    <li><b>Lead time (LT)</b> — total elapsed time = Σ process time + Σ wait time.</li>
+    <li><b>Process Cycle Efficiency (PCE)</b> = value-add time ÷ lead time × 100. In office/service streams 5–15% is common; under 5% means the stream is almost all waiting.</li>
+    <li><b>%C&amp;A</b> (complete &amp; accurate) — how often work passes cleanly to the next step.</li>
+  </ul>
+  <p>Read the data below — you'll analyse this same order-to-dispatch stream across the next modules.</p>
+  ${VSM_TABLE}`,
+  deep:`<p><b>Where it comes from.</b> VSM is Toyota's "Material and Information Flow Mapping", popularised by Mike Rother &amp; John Shook in <em>Learning to See</em> (1999). The discipline: choose one <em>product family</em> (things that flow through similar steps), map door-to-door for that family, and always draw both the material flow (bottom) and the information flow (top) — in office and service work the information/decision flow is usually where the waste hides.</p>
+  <p><b>The data boxes.</b> Under each process you record more than process time: <em>C/T</em> (cycle time), <em>C/O</em> (changeover time), <em>uptime</em> %, number of operators, batch size, and <em>%C&amp;A</em>. Between processes you draw inventory triangles with quantities (which convert to days of demand). The timeline "ladder" at the bottom carries process time on the lower rungs and wait time on the upper rungs; summing each gives total value-add time and total lead time, hence PCE.</p>
+  <p><b>Designing the future state.</b> Rother's eight future-state questions guide it: (1) What is takt time? (2) Build to a finished-goods supermarket or ship direct? (3) Where can you use continuous one-piece flow? (4) Where must you use supermarket pull because flow isn't possible? (5) Which single point will you schedule (the <em>pacemaker</em>)? (6) How will you level the production <em>mix</em> at the pacemaker? (7) What increment of work will you release (the <em>pitch</em>)? (8) What process improvements (SMED, uptime, %C&amp;A) are needed to make the future state possible?</p>
+  <p><b>How VSM fails.</b> Boiling the ocean (mapping the whole company instead of one family); mapping from a conference room instead of walking the gemba; producing a beautiful current-state map with no future state and no action plan; and treating it as a one-off poster rather than a living document re-drawn as the stream improves. A VSM with no owner and no follow-up plan is wall decoration.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Compute the core current-state metrics. (Treat process time as the value-adding time.)',
+      fields:[
+        { key:'pt', label:'Total process (value-add) time', unit:'min', answer:44, tol:0.5 },
+        { key:'wt', label:'Total wait time', unit:'min', answer:1110, tol:1 },
+        { key:'lt', label:'Total lead time', unit:'min', answer:1154, tol:1 },
+        { key:'pce', label:'Process Cycle Efficiency', unit:'%', answer:3.81, tol:0.3 },
+      ],
+      solution:`<p>Σ PT = 44 min. Σ WT = 1110 min. Lead time = 1154 min (≈ 19.2 h elapsed for 44 min of real work). PCE = 44/1154 × 100 = <b>3.81%</b> — over 96% is waiting.</p>` },
+    { type:'mcq', prompt:'Diagnose the stream.',
+      questions:[
+        { text:'Which step is the process-time bottleneck (longest hands-on time)?', options:['Order entry','Credit check','Pick & pack','Shipping prep'], correct:2 },
+        { text:'For the biggest lead-time win, attack…', options:['The 4-min order entry','The 1110 min of wait time between steps','A second dispatch desk','Faster labels'], correct:1 },
+        { text:'On a VSM, the single scheduled point is called the…', options:['Bottleneck','Pacemaker','Supermarket','Andon'], correct:1 },
+      ],
+      solution:`<p>Pick &amp; pack is the process bottleneck, but the prize is the 1110 min of waiting; the one point you schedule is the pacemaker.</p>` },
+  ]
+},
+
+/* ===== 5. TAKT & LINE BALANCING ===== */
+{
+  id:'l5', area:'lean', track:'Flow', title:'Takt Time & Line Balancing', min:40,
+  concept:`<p><strong>Takt time</strong> is the heartbeat of demand — how often you must finish one unit to keep pace with the customer.</p>
+  <pre class="cc">Takt = available working time / customer demand</pre>
+  <p>Compare each step's <strong>cycle time</strong> to takt: any step slower than takt is a constraint that starves the customer. The theoretical minimum number of operators for one-piece flow is:</p>
+  <pre class="cc">Operators (min) = total work content / takt
+Balance efficiency = total work / (stations x takt)</pre>
+  <p>Available time = 480 − 30 = <b>450 min/day</b>, demand = <b>90 orders/day</b>.</p>
+  ${VSM_TABLE}`,
+  deep:`<p><b>Three different times.</b> Keep them straight: <em>takt</em> is set by the customer (demand), <em>cycle time</em> is set by your process (how fast a step actually produces), and <em>lead time</em> is total elapsed time per unit. The design rule is cycle time slightly <em>below</em> takt — typically aim for ~85–90% of takt — so small disruptions don't immediately cause you to miss the beat. Running cycle time exactly at takt leaves no margin.</p>
+  <p><b>Balancing the line.</b> The tool is the <em>Yamazumi</em> (operator balance) chart: a stacked bar of work elements per operator, with a takt line drawn across. You move elements between operators to even the bars up just under takt. <em>Balance efficiency</em> = total work content ÷ (number of stations × takt); the gap to 100% is <em>balance loss</em>. A single step whose cycle time exceeds takt can't be "balanced" away — it must be split, run in parallel, or have its work content reduced.</p>
+  <p><b>Pitch and management.</b> Takt is often seconds or minutes — too fast to manage by eye — so teams use <em>pitch</em> = takt × pack-out quantity (e.g. takt 1 min × a tray of 20 = 20-min pitch) as the interval for checking "are we ahead or behind?" on a production-analysis board.</p>
+  <p><b>Handling demand variability.</b> Takt is recalculated periodically (say monthly), not chased daily — constantly re-tuning the line to noise is itself waste (Mura). Designing capacity to <em>peak</em> demand wastes money in normal periods; designing to <em>average</em> with a levelling buffer is usually better. Mixed-model lines compute a weighted takt across variants. And remember: the system constraint must be able to run <em>faster</em> than takt, or it can never keep up.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Compute takt and the balancing numbers.',
+      fields:[
+        { key:'takt', label:'Takt time', unit:'min/order', answer:5, tol:0.05 },
+        { key:'over', label:'How many steps have process time ABOVE takt?', unit:'steps', answer:3, tol:0 },
+        { key:'ops', label:'Theoretical minimum operators (round up)', unit:'operators', answer:9, tol:0 },
+        { key:'eff', label:'Balance efficiency at that staffing', unit:'%', answer:97.8, tol:0.6 },
+      ],
+      solution:`<p>Takt = 450/90 = <b>5.0 min</b>. Steps above 5: Credit check (6), Pick &amp; pack (18), Shipping prep (8) → 3. Min operators = 44/5 = 8.8 → <b>9</b>. Balance efficiency = 44/(9×5) = <b>97.8%</b>. Pick &amp; pack (18 ≫ 5) still needs splitting to flow at takt.</p>` },
+  ]
+},
+
+/* ===== 6. FLOW & LITTLE'S LAW ===== */
+{
+  id:'l6', area:'lean', track:'Flow', title:'Flow & Little\u2019s Law', min:40,
+  concept:`<p><strong>Little's Law</strong> is the most useful equation in operations. For any stable system:</p>
+  <pre class="cc">WIP = Throughput x Lead time
+(equivalently)  Lead time = WIP / Throughput</pre>
+  <p>It links the three things managers feel: how much is stuck in the system (WIP), how fast it comes out (throughput), and how long each item takes (lead time). Cut WIP and lead time falls proportionally — the quantitative case for limiting work-in-process.</p>
+  <p>Using our stream: lead time = <b>1154 min</b>, throughput = 90 orders over the 450-min working day.</p>`,
+  deep:`<p><b>What it actually says.</b> Little's Law (L = λW) states that the long-run average number of items in a stable system equals the average arrival/throughput rate times the average time an item spends in the system. Its power is its generality: it holds for <em>any</em> stable queue regardless of the arrival or service distribution, the order of service, or the number of steps — you only need consistent units and a system that isn't growing without bound. So the one lever you usually control directly, <em>WIP</em>, sets lead time. This is the mathematical justification for WIP caps, kanban and pull.</p>
+  <p><b>Why small batches flow faster.</b> The classic demonstration: three tasks (fold, stuff, seal 10 letters). In a batch-and-queue approach you fold all 10, then stuff all 10, then seal all 10 — the first finished letter appears very late. In one-piece flow you fold-stuff-seal one letter at a time — the first finished letter appears almost immediately and total time is usually lower too, because items aren't waiting in piles. Large batches create long queues, which (by Little's Law) create long lead times and hide defects inside the batch.</p>
+  <p><b>The utilisation trap.</b> Lead time does not rise gently as you load a system — it explodes. Kingman's equation (the VUT relationship) shows queue time scales with a <em>variability</em> factor times a <em>utilisation</em> factor of roughly ρ/(1−ρ) times the process time. As utilisation ρ approaches 100%, ρ/(1−ρ) shoots to infinity. That's why a service desk run at 95% utilisation has wild waits, and why deliberately keeping slack (and reducing variability) is not laziness but good flow design.</p>
+  <p><b>Connections.</b> <em>Flow efficiency</em> = value-add time ÷ lead time is the same number as PCE. Cumulative flow diagrams visualise WIP, throughput and lead time over time for a team. And Little's Law is the bridge to the Theory of Constraints (Goldratt): throughput of the whole system is governed by its bottleneck, so you subordinate everything to the constraint rather than locally optimising.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Apply Little\u2019s Law to the order stream.',
+      fields:[
+        { key:'thru', label:'Throughput', unit:'orders/min', answer:0.2, tol:0.005 },
+        { key:'wip', label:'Average WIP (orders in the system)', unit:'orders', answer:230.8, tol:3 },
+        { key:'days', label:'Lead time in working days', unit:'days', answer:2.56, tol:0.1 },
+      ],
+      solution:`<p>Throughput = 90/450 = <b>0.2 orders/min</b>. WIP = 0.2 × 1154 = <b>≈ 231 orders</b>. Lead time = 1154/450 = <b>2.56 days</b>. Halve the queues and lead time roughly halves.</p>` },
+    { type:'mcq', prompt:'Flow concepts.',
+      questions:[
+        { text:'Little\u2019s Law holds for…', options:['Only assembly lines','Any stable system, regardless of distribution','Only single-step processes','Only Six Sigma processes'], correct:1 },
+        { text:'As a system approaches 100% utilisation, queue/lead time…', options:['Stays flat','Falls','Rises gently and linearly','Explodes towards infinity'], correct:3 },
+        { text:'The most directly controllable lever to cut lead time is usually…', options:['Throughput','WIP','Demand','Price'], correct:1 },
+      ],
+      solution:`<p>Little's Law is distribution-free for stable systems; lead time explodes near 100% utilisation (Kingman); and WIP is the lever you control directly.</p>` },
+  ]
+},
+
+/* ===== 7. PULL, KANBAN & WIP ===== */
+{
+  id:'l7', area:'lean', track:'Flow', title:'Pull, Kanban & WIP limits', min:40,
+  concept:`<p>A <strong>pull system</strong> only makes what the next step has actually consumed — replacing forecasts and overproduction with real signals. <strong>Kanban</strong> cards (or bins, or digital cards) are those signals, and they physically cap work-in-process.</p>
+  <pre class="cc">Number of kanban = (demand during lead time x (1 + safety)) / container size
+WIP limit = number of kanban x container size</pre>
+  <p>Fewer cards = tighter WIP = shorter lead time (Little's Law again), but too few risks starving the line. Sizing is the balance.</p>
+  <p><b>Data:</b> demand 1200 units/day · replenishment lead time 0.5 day · safety factor 25% · container 60 units.</p>`,
+  deep:`<p><b>Push vs pull.</b> <em>Push</em> schedules each step from a central forecast/plan (MRP); when the forecast is wrong, you get the wrong inventory in the wrong place. <em>Pull</em> triggers work only from downstream consumption, so the system self-regulates and WIP is capped by design. The supermarket analogy is exact: a shelf holds a set quantity; when a customer takes one, that's the signal to replenish exactly one.</p>
+  <p><b>Kanban varieties.</b> A <em>withdrawal</em> kanban authorises moving parts; a <em>production</em> kanban authorises making them; a <em>signal</em> kanban triggers a batch when stock hits a reorder point. Pull can be a <em>supermarket</em> (replenish a held stock) or <em>sequential/FIFO</em> (a capped first-in-first-out lane for high-variety items you can't stock). A simple two-bin system is kanban at its most physical. <em>CONWIP</em> (constant WIP) caps total work across a whole line with a single loop of cards rather than per-step.</p>
+  <p><b>Sizing, honestly.</b> The card formula bakes in a <em>safety factor</em> to absorb demand and lead-time variability — but a high safety factor is just inventory hiding instability; the real fix is reducing variability and lead time so you need fewer cards. Each card you remove tightens WIP and (Little's Law) shortens lead time, until you remove one too many and starve the line — which is precisely how Toyota deliberately exposes the next problem to solve.</p>
+  <p><b>Two meanings of "Kanban" — important for delivery/PMO work.</b> Lean kanban (above) is a physical replenishment signal in repetitive production. The <em>Kanban Method</em> in knowledge work (David Anderson) borrows the WIP-limit idea: visualise the workflow on a board, set explicit <em>WIP limits</em> per column, manage flow, make policies explicit, and use classes of service. The shared DNA is "limit work-in-progress to improve flow"; the contexts differ. When demand is highly variable and low-volume, pure pull may not fit and teams use hybrids (e.g. MRP for planning + kanban for execution).</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Size the kanban loop.',
+      fields:[
+        { key:'dlt', label:'Demand during lead time', unit:'units', answer:600, tol:1 },
+        { key:'cards', label:'Number of kanban cards (round up)', unit:'cards', answer:13, tol:0 },
+        { key:'wip', label:'Resulting WIP cap', unit:'units', answer:780, tol:1 },
+      ],
+      solution:`<p>Demand during LT = 1200 × 0.5 = 600. With safety: 600 × 1.25 = 750. Cards = 750/60 = 12.5 → <b>13</b>. WIP cap = 13 × 60 = <b>780 units</b>.</p>` },
+    { type:'mcq', prompt:'Pull concepts.',
+      questions:[
+        { text:'A pull system is triggered by…', options:['A central forecast','Actual downstream consumption','The annual budget','Machine availability'], correct:1 },
+        { text:'A high kanban safety factor mainly…', options:['Removes variability','Hides instability as extra inventory','Lowers WIP','Speeds changeovers'], correct:1 },
+        { text:'The shared idea between Lean kanban and the knowledge-work Kanban Method is…', options:['Daily stand-ups','Limiting work-in-progress to improve flow','Story points','Gantt charts'], correct:1 },
+      ],
+      solution:`<p>Pull responds to real consumption; safety stock masks instability (reduce variability instead); and both flavours of kanban share the WIP-limiting principle.</p>` },
+  ]
+},
+
+/* ===== 8. SMED ===== */
+{
+  id:'l8', area:'lean', track:'Setup & Quality', title:'SMED — fast changeovers', min:35,
+  concept:`<p><strong>SMED</strong> (Single-Minute Exchange of Die) shrinks changeover time so smaller batches become economical — the key that unlocks flow and levelling. The method:</p>
+  <ul>
+    <li><b>Separate</b> internal setup (machine stopped) from external setup (can be done while running).</li>
+    <li><b>Externalise</b> — move as much as possible to while the machine still runs.</li>
+    <li><b>Convert</b> internal steps into external ones.</li>
+    <li><b>Streamline</b> the remaining internal work.</li>
+  </ul>
+  <p><b>Current changeover = 50 min:</b> internal 35 min, external 15 min. Step 1 — externalise the 15 min. Step 2 — convert 20 min of internal to external. Step 3 — streamline the rest, cutting it 40%.</p>`,
+  deep:`<p><b>Origin.</b> Shigeo Shingo developed SMED at Toyota across the 1950s–60s, famously taking a press die change from hours to minutes (his book: <em>A Revolution in Manufacturing: the SMED System</em>). "Single-minute" means the changeover fits in a single digit of minutes (under 10); <em>OTED</em> ("one-touch exchange of die") targets under one minute.</p>
+  <p><b>The stages, precisely.</b> Stage 0: a baseline where internal and external work are tangled together. Stage 1 — <em>separate</em>: simply identifying which tasks could be done while the machine runs typically cuts stoppage 30–50% with no investment. Stage 2 — <em>convert</em> internal to external: pre-stage tools, pre-heat dies, use duplicate fixtures so the next job is ready offline. Stage 3 — <em>streamline both</em>: the biggest hidden cost is usually <em>adjustment and trial runs</em> — eliminate them with settings, stops and standardised dimensions; add functional (one-turn) clamps instead of bolts, intermediate jigs, and parallel operations (two people choreographed like a pit crew).</p>
+  <p><b>Why it matters strategically.</b> The economic batch quantity (EOQ) logic says big batches amortise a big setup cost — so people run big batches and carry inventory. SMED attacks the <em>assumption</em>: if setup is near-zero, the economic batch shrinks toward one, which enables one-piece flow, levelled mix (heijunka), lower inventory and far greater responsiveness. SMED is therefore an enabler, not an end in itself.</p>
+  <p><b>Pitfall.</b> Don't pour SMED effort into a machine that isn't the constraint — faster changeovers on a non-bottleneck just create more idle capacity and tempt overproduction. Improve changeover where it frees the system, i.e. at or feeding the bottleneck, or where it unlocks the levelling you actually need.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Track the machine-stopped (internal) time after each SMED step.',
+      fields:[
+        { key:'s1', label:'Stoppage after externalising', unit:'min', answer:35, tol:0.5 },
+        { key:'s2', label:'Stoppage after converting 20 min', unit:'min', answer:15, tol:0.5 },
+        { key:'s3', label:'Final stoppage after 40% streamline', unit:'min', answer:9, tol:0.5 },
+        { key:'red', label:'Total reduction vs original 50 min', unit:'%', answer:82, tol:1 },
+      ],
+      solution:`<p>Externalise → 35; convert 20 → 15; streamline 40% → 15×0.6 = 9. Reduction = (50−9)/50 = <b>82%</b>. SMED counts the stoppage, not the total work.</p>` },
+  ]
+},
+
+/* ===== 9. JIDOKA & POKA-YOKE ===== */
+{
+  id:'l9', area:'lean', track:'Setup & Quality', title:'Jidoka & Poka-Yoke', min:35,
+  concept:`<p><strong>Jidoka</strong> — "automation with a human touch" (autonomation) — means a process <em>stops itself</em> the instant something goes wrong, so a defect never gets passed on and the problem becomes visible immediately. Any worker can pull the <em>andon</em> cord to stop the line. Counter-intuitively, stopping to fix problems increases output over time, because defects stop multiplying.</p>
+  <p><strong>Poka-yoke</strong> — mistake-proofing — designs the work so an error is either impossible or caught instantly: a connector that only fits one way, a checklist that won't let you proceed with a missing item, a scale that flags a missing component.</p>
+  <p>Together they "build quality in" rather than inspecting it in at the end.</p>`,
+  deep:`<p><b>Roots.</b> Jidoka predates the rest of TPS: in 1924 Sakichi Toyoda built an automatic loom that <em>stopped</em> when a thread broke, so it never wove flawed cloth and one operator could mind many machines. That idea — separate human work from machine work, and let the machine signal abnormality — became the first pillar of TPS. The Jidoka loop is: detect the abnormality, stop, fix or contain it now, then investigate the root cause so it can't recur.</p>
+  <p><b>The culture of stopping.</b> The andon cord embodies a radical norm: a frontline worker is empowered (expected) to halt a multi-million-dollar line to fix a small defect. Western managers find this backwards, but it is why quality is high and why problems get solved at source instead of accumulating. "Stop to fix" trades short-term output for long-term throughput and learning.</p>
+  <p><b>Poka-yoke, by Shingo.</b> Shigeo Shingo classified mistake-proofing by detection method — <em>contact</em> (shape/size/physical interference), <em>fixed-value</em> (count checks: are all N parts present?), and <em>motion-step</em> (was each step done in sequence?) — and by response: <em>control</em> devices (prevent the error / stop the process) vs <em>warning</em> devices (alert a human). He also distinguished kinds of inspection: <em>judgment</em> inspection (sort good from bad after the fact — finds defects, prevents none), <em>informative</em> inspection (feed data back, e.g. SPC), and the gold standard <em>source</em> inspection (check conditions before the error happens). His provocative claim — <em>Zero Quality Control</em> — was that statistical sampling <em>accepts</em> a defect rate, whereas source inspection plus poka-yoke can drive defects to zero.</p>
+  <p><b>Everyday and pharma examples.</b> The USB-A that only inserts one way, the SIM card's chamfered corner, the car that won't start unless it's in park, the microwave that stops when the door opens. In healthcare and pharma: surgical instrument counts, colour-and-shape-coded connectors that prevent wrong-route administration, syringe interlocks, barcode scanning that blocks a mismatched patient/medication. Each removes reliance on human vigilance — the least reliable control.</p>`,
+  exercises:[
+    { type:'mcq', prompt:'Built-in quality.',
+      questions:[
+        { text:'Jidoka fundamentally means…', options:['Full automation with no people','A process that stops itself when an abnormality occurs','Inspecting finished goods','Running machines unattended at all costs'], correct:1 },
+        { text:'A connector designed so it physically cannot be plugged in the wrong way is a…', options:['Warning poka-yoke','Control (prevention) poka-yoke','Judgment inspection','Andon'], correct:1 },
+        { text:'Shingo argued the highest-value inspection is…', options:['Final judgment inspection','Statistical sampling','Source inspection (check conditions before the error)','No inspection'], correct:2 },
+        { text:'Pulling the andon cord to stop the line is encouraged because…', options:['It reduces paperwork','Stopping to fix problems raises long-run throughput and quality','It lowers takt time','It increases batch sizes'], correct:1 },
+      ],
+      solution:`<p>Jidoka = self-stopping on abnormality; a one-way connector is a control/prevention poka-yoke; source inspection beats end-of-line judgment; and "stop to fix" improves quality and throughput over time.</p>` },
+  ]
+},
+
+/* ===== 10. OEE ===== */
+{
+  id:'l10', area:'lean', track:'Performance', title:'OEE — Overall Equipment Effectiveness', min:40,
+  concept:`<p><strong>OEE</strong> condenses three loss buckets into one score:</p>
+  <pre class="cc">OEE = Availability x Performance x Quality
+
+Availability = Operating time / Planned time
+Performance  = (Ideal cycle x Total count) / Operating time
+Quality      = Good count / Total count</pre>
+  <p>World-class is around <b>85%</b>; many lines sit near 60%. Because it multiplies, a weak factor drags the whole score.</p>
+  <p><b>Shift data:</b> planned time 450 min · unplanned downtime 60 min · ideal cycle 1.0 min/unit · total produced 350 · good units 330.</p>`,
+  deep:`<p><b>The Six Big Losses.</b> OEE comes from TPM (Total Productive Maintenance, JIPM/Nakajima) and maps six losses to the three factors. <em>Availability</em> losses: (1) breakdowns and (2) setup/adjustments. <em>Performance</em> losses: (3) idling and minor stops and (4) reduced speed. <em>Quality</em> losses: (5) process defects/rework and (6) start-up/yield rejects. The "world-class" 85% comes from roughly Availability 90% × Performance 95% × Quality 99%.</p>
+  <p><b>Definitions that trip people up.</b> <em>Planned production time</em> excludes time the asset wasn't scheduled to run (lunch, no demand) — those go to schedule loss, captured by <em>TEEP</em> (Total Effective Equipment Performance = OEE × schedule utilisation against all calendar time). Performance uses the <em>ideal</em> cycle time, so choosing an over-generous ideal inflates the score — a common way OEE gets gamed.</p>
+  <p><b>How to use it — and misuse it.</b> OEE is a <em>diagnostic of losses on one asset over time</em>, not a productivity stick to wave at operators and not a number to compare across different machines. Two further traps: optimising OEE on a <em>non-constraint</em> (you make a faster non-bottleneck, gaining nothing but overproduction), and treating high OEE as the goal when the goal is system throughput at takt. A useful cross-check: OEE also equals good units ÷ (planned time / ideal cycle) — the fraction of theoretically possible good output you actually achieved.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Compute each factor and the OEE.',
+      fields:[
+        { key:'a', label:'Availability', unit:'%', answer:86.7, tol:0.6 },
+        { key:'p', label:'Performance', unit:'%', answer:89.7, tol:0.6 },
+        { key:'q', label:'Quality', unit:'%', answer:94.3, tol:0.6 },
+        { key:'oee', label:'OEE', unit:'%', answer:73.3, tol:0.8 },
+      ],
+      solution:`<p>Operating = 450−60 = 390. A = 390/450 = <b>86.7%</b>; P = (1×350)/390 = <b>89.7%</b>; Q = 330/350 = <b>94.3%</b>; OEE = <b>73.3%</b>. Cross-check: 330/450 = 73.3%. Biggest loss is availability.</p>` },
+    { type:'mcq', prompt:'Loss mapping.',
+      questions:[
+        { text:'Reduced running speed is a loss under which factor?', options:['Availability','Performance','Quality','Schedule'], correct:1 },
+        { text:'Comparing OEE between two different machine types is…', options:['A best practice','Misleading — OEE is for one asset over time','Required by TPM','How you set takt'], correct:1 },
+        { text:'TEEP differs from OEE by also counting…', options:['Defects','Schedule loss / all calendar time','Setup time','Minor stops'], correct:1 },
+      ],
+      solution:`<p>Speed loss sits in Performance; OEE is meaningful for one asset's trend, not cross-machine league tables; TEEP extends OEE to all calendar time (schedule loss).</p>` },
+  ]
+},
+
+/* ===== 11. 5S ===== */
+{
+  id:'l11', area:'lean', track:'Workplace', title:'5S & Visual Management', min:30,
+  concept:`<p><strong>5S</strong> builds the stable, visual workplace every other Lean tool depends on. A place for everything, and problems visible at a glance.</p>
+  <ul>
+    <li><b>Sort (Seiri)</b> — remove what isn't needed.</li>
+    <li><b>Set in order (Seiton)</b> — a place for everything, everything in its place.</li>
+    <li><b>Shine (Seiso)</b> — clean, and inspect while cleaning.</li>
+    <li><b>Standardise (Seiketsu)</b> — make the first three the documented norm.</li>
+    <li><b>Sustain (Shitsuke)</b> — discipline and audits to hold the gains.</li>
+  </ul>
+  <p>The first three are actions; the last two stop the workplace sliding back.</p>`,
+  deep:`<p><b>The point isn't tidiness.</b> 5S exists to <em>make abnormality instantly visible</em>. If every tool has a marked home, a missing or out-of-place tool is obvious in a glance — which is the precondition for standardised work, quick changeovers and Jidoka. Treating 5S as a cleaning or photo-op program is the classic cosmetic failure; the deeper purpose is surfacing problems.</p>
+  <p><b>Mechanics.</b> <em>Sort</em> uses a red-tag process: tag questionable items, quarantine them in a red-tag area for a set period, and dispose of whatever goes unused. <em>Set in order</em> uses shadow boards, floor marking, point-of-use storage and labels. <em>Shine</em> doubles as inspection (cleaning a machine is when you spot the leak or loose bolt). <em>Standardise</em> turns the first three into visual standards and checklists. <em>Sustain</em> is the hard one — it needs leader standard work and <em>layered audits</em> (operators, supervisors, managers each audit on a cadence, e.g. via kamishibai cards). Some organisations add a sixth S for <em>Safety</em>.</p>
+  <p><b>Visual management beyond 5S.</b> The broader aim is a workplace that communicates its own status: <em>andon</em> boards (normal/abnormal), <em>production-analysis boards</em> (plan vs actual by pitch), standard-work charts at the station, kanban, and kamishibai audit boards. A good test: could a visitor tell in 30 seconds whether the area is ahead or behind, and whether anything is abnormal? If yes, visual management is working.</p>`,
+  exercises:[
+    { type:'mcq', prompt:'Match each action to the correct S.',
+      questions:[
+        { text:'"Red-tag and remove tools not used in the last 90 days."', options:['Sort','Set in order','Shine','Sustain'], correct:0 },
+        { text:'"Paint shadow boards so every tool has a marked home."', options:['Shine','Set in order','Standardise','Sort'], correct:1 },
+        { text:'"Run a weekly layered audit and score each zone."', options:['Sustain','Shine','Sort','Set in order'], correct:0 },
+        { text:'The deeper purpose of 5S is to…', options:['Look tidy for visitors','Make abnormality instantly visible','Reduce cleaning costs','Replace standardised work'], correct:1 },
+      ],
+      solution:`<p>Sort · Set in order · Sustain; and the real purpose is making problems visible — tidiness is a by-product, not the goal.</p>` },
+  ]
+},
+
+/* ===== 12. KAIZEN / PDCA / A3 ===== */
+{
+  id:'l12', area:'lean', track:'Improvement', title:'Kaizen, PDCA & A3', min:35,
+  concept:`<p><strong>Kaizen</strong> is continuous, incremental improvement owned by the people doing the work. Its engine is the <strong>PDCA</strong> cycle:</p>
+  <ul>
+    <li><b>Plan</b> — understand the problem; hypothesise a countermeasure.</li>
+    <li><b>Do</b> — trial it small-scale.</li>
+    <li><b>Check</b> — measure against the prediction.</li>
+    <li><b>Act</b> — adopt, adjust or abandon; standardise; repeat.</li>
+  </ul>
+  <p>The <strong>A3</strong> (a paper size) forces a whole problem onto one page: background, current state, goal, root-cause analysis, countermeasures, plan and follow-up. The discipline of one page forces clear thinking.</p>`,
+  deep:`<p><b>Kinds of kaizen.</b> <em>Point kaizen</em> fixes one step; a <em>kaizen event</em> (blitz) is a focused 3–5 day cross-functional improvement; <em>daily kaizen</em> is the steady drip of small ideas from the team; <em>flow/system kaizen</em> redesigns how the whole value stream connects and is a leadership responsibility. A program that's all events and no daily kaizen burns out; one that's all daily kaizen and no flow kaizen optimises locally while the stream stays slow.</p>
+  <p><b>PDCA, and a nuance.</b> PDCA is the Shewhart cycle, popularised by Deming — who actually preferred <em>PDSA</em>, with "Study" replacing "Check", because "check" can mean a superficial tick rather than genuine reflection (hansei) on what the data taught you. Pair it with <em>SDCA</em>: after PDCA finds a better way, Standardise-Do-Check-Act <em>holds</em> the gain before the next PDCA cycle. Without the standardise-and-hold step, improvements quietly erode.</p>
+  <p><b>Root cause before countermeasure.</b> The cardinal sin is jumping to a solution. Tools: <em>5 Whys</em> (keep asking why to move from symptom to cause), the <em>fishbone/Ishikawa</em> diagram (Man, Machine, Material, Method, Measurement, Environment), and Pareto analysis to focus on the vital few. A genuine root cause is one where, if you remove it, the problem cannot recur.</p>
+  <p><b>A3 as a thinking and coaching tool.</b> The A3 isn't a form to fill in; it's the visible trace of a rigorous problem-solving conversation. In Toyota's mentoring model the manager asks questions and the owner does the thinking — the A3 develops people as much as it solves problems. Mike Rother's <em>Toyota Kata</em> distils the underlying routine: establish a challenge and a <em>target condition</em>, grasp the current condition, then iterate experiments toward the target (the Improvement Kata), with a structured Coaching Kata of questions. It reframes Lean from "apply tools" to "practise scientific thinking daily".</p>`,
+  exercises:[
+    { type:'mcq', prompt:'Improvement logic.',
+      questions:[
+        { text:'In PDCA, what immediately follows "Do"?', options:['Plan','Check','Act','Define'], correct:1 },
+        { text:'Deming preferred "PDSA" because "Study" emphasises…', options:['Faster cycles','Genuine reflection on what the data taught','More paperwork','Larger trials'], correct:1 },
+        { text:'After PDCA improves a process, what holds the gain?', options:['Another PDCA immediately','SDCA (standardise and sustain)','A kaizen event','An audit only'], correct:1 },
+        { text:'The main purpose of constraining an A3 to one page is to…', options:['Save paper','Force clear, shared, rigorous thinking','Speed up printing','Avoid meetings'], correct:1 },
+      ],
+      solution:`<p>Check follows Do; PDSA stresses real study/reflection; SDCA locks in gains; and the one-page A3 forces rigour and a shared story while developing the problem-solver.</p>` },
+  ]
+},
+
+/* ===== 13. DMAIC / SIX SIGMA ===== */
+{
+  id:'l13', area:'lean', track:'Improvement', title:'DMAIC, Six Sigma & Lean Six Sigma', min:40,
+  concept:`<p>Lean removes <em>waste</em>; <strong>Six Sigma</strong> removes <em>variation</em>. Together: "Lean Six Sigma". Its improvement spine is <strong>DMAIC</strong>: <b>D</b>efine → <b>M</b>easure → <b>A</b>nalyse → <b>I</b>mprove → <b>C</b>ontrol. The Control phase is what makes gains stick.</p>
+  <p>A common metric is <strong>DPMO</strong> (defects per million opportunities):</p>
+  <pre class="cc">DPMO = (defects / (units x opportunities)) x 1,000,000
+Yield = (1 - DPMO/1,000,000) x 100%</pre>
+  <p><b>Audit data:</b> 5000 units inspected · 4 defect opportunities per unit · 60 defects found.</p>`,
+  deep:`<p><b>Origin and the sigma scale.</b> Six Sigma was created at Motorola (Bill Smith, 1986) and popularised by GE under Jack Welch. "Six sigma" means the process spread fits six standard deviations between the mean and the nearest specification limit. Famously, 6σ is quoted as <em>3.4 DPMO</em> — but that includes a <em>1.5σ long-term shift</em> assumption (a much-debated convention): the "pure" 6σ would be ~2 defects per billion, while the 3.4 figure allows for the mean drifting ±1.5σ over time. Sigma levels are a shorthand for capability, not magic.</p>
+  <p><b>Variation: the core idea.</b> Walter Shewhart and Deming distinguished <em>common-cause</em> variation (inherent, predictable noise of a stable process) from <em>special-cause</em> variation (an assignable, unusual event). The two management mistakes are symmetric: <em>tampering</em> — reacting to common-cause noise as if it were a signal (which Deming's funnel experiment shows makes things worse) — and <em>missing</em> a real special-cause signal. <em>Control charts</em> (SPC) tell them apart. Process capability is summarised by <em>Cp/Cpk</em> (how well the spread and centring fit the spec).</p>
+  <p><b>DMAIC tools by phase.</b> Define: project charter, SIPOC, Voice of the Customer, CTQs. Measure: data-collection plan and Measurement System Analysis / Gage R&R (you must trust the gauge before the data). Analyse: hypothesis tests, regression, root-cause tools to find the vital-few drivers. Improve: design of experiments, piloting. Control: control plan, SPC, mistake-proofing and standard work so the improvement holds — the phase teams most often skip, which is why gains evaporate. For <em>new</em> designs the variant is DMADV / Design for Six Sigma.</p>
+  <p><b>Lean vs Six Sigma — when to use which.</b> If the problem is slow flow, queues and obvious waste (like a stream that's 96% waiting), reach for Lean first — VSM, pull, batch reduction. If the problem is a hard-to-see defect or excessive variation in a capable-looking process, reach for Six Sigma's statistical tools. The integrated discipline uses Lean to make the process flow and Six Sigma to make it precise; the failure mode of "belt" programs is statistical bureaucracy aimed at problems that were really flow problems all along.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Compute the quality level.',
+      fields:[
+        { key:'opp', label:'Total opportunities', unit:'', answer:20000, tol:1 },
+        { key:'dpmo', label:'DPMO', unit:'', answer:3000, tol:5 },
+        { key:'yield', label:'Yield', unit:'%', answer:99.7, tol:0.05 },
+      ],
+      solution:`<p>Opportunities = 5000 × 4 = 20,000. DPMO = 60/20,000 × 1e6 = <b>3000</b>. Yield = 99.7% (≈ 4.2σ).</p>` },
+    { type:'mcq', prompt:'Variation & method.',
+      questions:[
+        { text:'Correct DMAIC order?', options:['Define-Measure-Analyse-Improve-Control','Design-Make-Audit-Inspect-Close','Define-Map-Act-Improve-Check','Measure-Define-Improve-Analyse-Control'], correct:0 },
+        { text:'Reacting to ordinary common-cause noise as if it were a signal is called…', options:['Tampering','Capability','Sustaining','Levelling'], correct:0 },
+        { text:'A stream that is 96% waiting with few defects should be tackled first with…', options:['Six Sigma variation tools','Lean flow & waste removal','More inspection','Design of experiments'], correct:1 },
+        { text:'The famous "3.4 DPMO" for 6σ assumes…', options:['No variation','A 1.5σ long-term mean shift','Zero opportunities','A normal yield of 50%'], correct:1 },
+      ],
+      solution:`<p>DMAIC = Define-Measure-Analyse-Improve-Control; over-reacting to noise is tampering; a wait-dominated stream is a Lean (flow) problem; and 3.4 DPMO bakes in the 1.5σ shift convention.</p>` },
+  ]
+},
+
+/* ===== 14. APPLIED VSM (commercial) ===== */
+{
+  id:'l14', area:'lean', track:'Applied · Commercial', title:'Applied VSM: Medical Information request', min:45,
+  concept:`<p>The VSM lens on a <strong>commercial / medical-affairs</strong> process: handling a Medical Information (MI) request from a healthcare professional. Knowledge work has value streams too — usually dominated by queues and review handoffs.</p>
+  <table class="dtable">
+    <thead><tr><th>#</th><th>Step</th><th>Process time (min)</th><th>Wait before step (min)</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Intake &amp; log</td><td>5</td><td>60</td></tr>
+      <tr><td>2</td><td>Triage</td><td>8</td><td>240</td></tr>
+      <tr><td>3</td><td>Literature research</td><td>35</td><td>480</td></tr>
+      <tr><td>4</td><td>Draft response</td><td>25</td><td>120</td></tr>
+      <tr><td>5</td><td>MLR review</td><td>15</td><td>960</td></tr>
+      <tr><td>6</td><td>Send to HCP</td><td>4</td><td>30</td></tr>
+      <tr class="tot"><td></td><td>Totals</td><td>92</td><td>1890</td></tr>
+    </tbody>
+  </table>
+  <p class="datanote">Working day = 450 min. Demand = <b>30 requests/day</b>. Treat process time as value-add.</p>`,
+  deep:`<p><b>Mapping an office value stream.</b> The mechanics are the same as the factory, but the data lives in systems, not on the floor. Process time comes from time-in-system stamps or a quick time study; <em>wait time</em> is the gap between "arrived in queue" and "work started" — usually visible in the ticketing/CRM tool's status history. Add a <em>%C&amp;A</em> per handoff (how often the next person can use the work without clarification or rework) and a <em>rework loop</em> arrow wherever items bounce back (MLR is the obvious one). Always validate the map by following a handful of real requests end-to-end rather than trusting the SLA on paper.</p>
+  <p><b>Reading this stream.</b> Lead time 1982 min for 92 min of work is a PCE of 4.6% — and the single biggest block is the 960-minute MLR queue, over 48% of the whole lead time. The bottleneck of <em>hands-on</em> time is literature research (35 min), but attacking that barely moves the needle; the lead-time prize is the review queue. This is the universal pattern in knowledge work: the constraint is almost always a <em>shared review/approval resource</em> that everything funnels through.</p>
+  <p><b>Future-state moves for a review-bound stream.</b> (1) Cap WIP into MLR with a pull/kanban limit so the queue can't grow unbounded. (2) Create classes of service (fast-track simple, standard responses pre-approved once) so 80% of requests skip the deep queue. (3) Build a reusable, pre-approved response library (attack overprocessing and rework). (4) Pull the reviewer earlier / pair-review to cut the handoff wait. (5) Track %C&A into MLR so fewer items rework. The governing idea: in a stream that is mostly waiting, you manage the <em>queue</em>, not the worker.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Analyse the MI value stream.',
+      fields:[
+        { key:'lt', label:'Total lead time', unit:'min', answer:1982, tol:1 },
+        { key:'pce', label:'Process Cycle Efficiency', unit:'%', answer:4.64, tol:0.3 },
+        { key:'days', label:'Lead time in working days', unit:'days', answer:4.40, tol:0.1 },
+        { key:'takt', label:'Takt time', unit:'min/req', answer:15, tol:0.1 },
+        { key:'over', label:'Steps with process time ABOVE takt', unit:'steps', answer:2, tol:0 },
+      ],
+      solution:`<p>LT = 92 + 1890 = 1982 min; PCE = 4.64%; days = 1982/450 = 4.40; takt = 450/30 = 15; steps above 15 = research (35) and draft (25) → 2. The 960-min MLR queue is the dominant problem.</p>` },
+    { type:'mcq', prompt:'Where is the leverage?',
+      questions:[
+        { text:'Which single change most reduces lead time?', options:['Cut intake from 5 to 3 min','Attack/cap the 960-min MLR review queue','Hire a faster typist','Print in colour'], correct:1 },
+        { text:'Most of the elapsed time in this stream is…', options:['Value-adding work','Waiting in queues','Transportation','Inspection'], correct:1 },
+        { text:'In knowledge-work streams, the constraint is most often…', options:['Typing speed','A shared review/approval resource','Email','Printing'], correct:1 },
+      ],
+      solution:`<p>The MLR queue is 48%+ of lead time; the stream is queue-dominated; and a shared approval gate is the usual knowledge-work constraint.</p>` },
+  ]
+},
+
+/* ===== 15. MLR HIDDEN FACTORY ===== */
+{
+  id:'l15', area:'lean', track:'Applied · Commercial', title:'Quality & rework: the MLR \u201chidden factory\u201d', min:40,
+  concept:`<p>Rework is invisible waste — the "hidden factory" that consumes capacity without adding value. <strong>First-Pass Yield (FPY)</strong> measures how much passes a gate cleanly the first time.</p>
+  <pre class="cc">First-Pass Yield = passed first time / total submitted
+Total review events = sum of submissions across all passes</pre>
+  <p><b>Data:</b> 200 promotional pieces go to MLR review (15 min each). On pass 1, 120 are approved and 80 need rework. Of those 80, 60 clear pass 2 and 20 need a pass 3 (all then approved).</p>`,
+  deep:`<p><b>Why it's "hidden".</b> A standard utilisation report shows the MLR team busy 100% of the time and looks healthy — but a large share of that effort is re-reviewing work that should have passed once. That re-review is a whole "factory" of capacity producing nothing new, and it's invisible unless you measure first-pass yield and count <em>review events</em> rather than items. The same logic gives <em>Rolled Throughput Yield</em> across multiple gates: multiply the first-pass yields of each step (0.9 × 0.9 × 0.9 = 0.73), which is often shockingly low across a multi-gate approval chain.</p>
+  <p><b>The arithmetic of the example.</b> FPY = 120/200 = 60%. Review events = 200 (pass 1) + 80 (pass 2) + 20 (pass 3) = 300 → 4500 reviewer-minutes (75 hours). Raise FPY to 85% (only 30 pieces rework, once) and events fall to 230 → 3450 minutes: <b>1050 minutes (17.5 hours) of senior reviewer capacity freed</b> with no extra headcount — purely by getting it right the first time.</p>
+  <p><b>Countermeasures that actually work.</b> The instinct is to add reviewers (treat the symptom). The Lean move is to raise input quality so fewer items fail: clear, worked <em>templates</em> and exemplars; a pre-approved claims/reference library; author self-check poka-yoke (a submission checklist that blocks incomplete packages — mistake-proofing the input); early/parallel reviewer involvement; and feeding the <em>top rejection reasons</em> back to authors (a Pareto of why things bounce). Tracking FPY and the rejection-reason Pareto turns an invisible drain into a managed, shrinking problem.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Quantify the hidden factory.',
+      fields:[
+        { key:'fpy', label:'First-Pass Yield', unit:'%', answer:60, tol:0.5 },
+        { key:'events', label:'Total review events (all passes)', unit:'reviews', answer:300, tol:1 },
+        { key:'mins', label:'Total reviewer time at 15 min each', unit:'min', answer:4500, tol:5 },
+        { key:'save', label:'Minutes saved if FPY rose to 85% (30 rework, one extra pass each)', unit:'min', answer:1050, tol:5 },
+      ],
+      solution:`<p>FPY = 120/200 = 60%. Events = 200+80+20 = 300 → 4500 min. At 85% FPY: 200+30 = 230 → 3450 min. Saving = <b>1050 min</b> (17.5 h).</p>` },
+    { type:'mcq', prompt:'Concept check.',
+      questions:[
+        { text:'The "hidden factory" refers to…', options:['A secret production line','Capacity consumed by rework and corrections','Overtime shifts','Outsourced work'], correct:1 },
+        { text:'The best countermeasure for low FPY is usually…', options:['Add more reviewers','Raise input quality so fewer pieces fail','Skip the review','Batch reviews monthly'], correct:1 },
+        { text:'Rolled Throughput Yield across three 90% gates is about…', options:['90%','73%','97%','30%'], correct:1 },
+      ],
+      solution:`<p>Rework is a hidden factory; raise input quality (templates, checklists, feedback) rather than adding reviewers; and 0.9³ ≈ 73% rolled throughput yield.</p>` },
+  ]
+},
+
+/* ===== 16. CAPSTONE ===== */
+{
+  id:'l16', area:'lean', track:'Applied · Commercial', title:'Capstone: a patient-onboarding service desk', min:45,
+  concept:`<p>Bring the toolkit together on a service operation — onboarding patients to a support programme. Flow, takt and Little's Law apply to people-in-a-queue exactly as to parts on a line.</p>
+  <pre class="cc">Takt = available time / demand
+Utilisation = cycle time / takt
+Lead time = WIP / throughput        (Little's Law)</pre>
+  <p><b>Data:</b> demand 48 onboardings/day · working time 420 min/day · handling time 7 min each · average WIP in the pipeline 96 requests.</p>`,
+  deep:`<p><b>Putting the system together.</b> A service desk is a value stream: demand sets takt, handling time is the process/cycle time, the backlog is WIP, and the daily completion rate is throughput. Designing it well means choosing a target <em>utilisation</em> with deliberate slack (because of the utilisation trap from Little's-Law/Kingman), capping the backlog (WIP) to control lead time, levelling the intake where possible (heijunka of arrivals via scheduling/appointment slotting), standardising the handling work, and mistake-proofing intake so cases don't bounce (FPY again).</p>
+  <p><b>The numbers and what they say.</b> Takt = 420/48 = 8.75 min/case; with 7-min handling, utilisation = 80% — healthy headroom, so queues stay stable. Lead time = WIP/throughput = 96/48 = 2 days; halving the 96-case backlog would halve the customer wait, no extra staff needed. If you instead pushed utilisation toward 100% to "be efficient", the same arithmetic that gives 2 days would blow out as variability hits a saturated system.</p>
+  <p><b>Diagnosis discipline.</b> Match the tool to the symptom. A stream that's mostly waiting → Lean flow (cap WIP, level arrivals, remove handoffs). Excess variation in a capable-looking process → Six Sigma. Frequent rework → FPY / poka-yoke at intake. A bottleneck resource → Theory of Constraints (subordinate everything to it; don't locally optimise the rest). The mark of competence isn't knowing the tools — it's reaching for the <em>right</em> one given what the data shows.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Diagnose the service desk.',
+      fields:[
+        { key:'takt', label:'Takt time', unit:'min/req', answer:8.75, tol:0.1 },
+        { key:'util', label:'Utilisation (cycle / takt)', unit:'%', answer:80, tol:1 },
+        { key:'lt', label:'Lead time via Little\u2019s Law', unit:'days', answer:2, tol:0.1 },
+      ],
+      solution:`<p>Takt = 420/48 = 8.75; utilisation = 7/8.75 = 80%; lead time = 96/48 = 2 days. Cut the backlog and the wait falls with it.</p>` },
+    { type:'mcq', prompt:'Final synthesis.',
+      questions:[
+        { text:'Per Little\u2019s Law, the fastest way to cut customer wait is to…', options:['Add staff only','Reduce WIP (the backlog)','Work longer hours','Raise prices'], correct:1 },
+        { text:'Driving utilisation to ~100% typically…', options:['Eliminates queues','Makes queues and delays balloon','Has no effect','Improves quality'], correct:1 },
+        { text:'A stream that is 95%+ waiting should be tackled first with…', options:['Six Sigma variation tools','Lean flow & waste removal','A new IT system','More inspection'], correct:1 },
+        { text:'Frequent case bounce-backs at intake are best fixed with…', options:['More reviewers','Poka-yoke / higher first-pass yield at intake','Bigger batches','A longer SLA'], correct:1 },
+      ],
+      solution:`<p>Cut WIP to cut lead time; near-100% utilisation explodes queues; a wait-dominated stream is a Lean flow problem; and intake rework is fixed by mistake-proofing/raising FPY at the source.</p>` },
+  ]
+},
+];
+
+if (typeof module !== "undefined") module.exports = { LEAN };
+/* ============ APP LOGIC ============ */
+(function(){
+"use strict";
+
+/* ---- i18n ---- */
+const T = {
+  en:{
+    brandSub:'learn by running it', reference:'Reference', progress:'Progress', reset:'Reset',
+    repl:'>>> REPL', lessons:'lessons', modules:'modules',
+    markComplete:'Mark complete', completed:'\u2713 Completed', min:'min',
+    exampleTag:'>>> Example \u2014 run it', run:'\u25B6 Run', check:'\u2713 Check',
+    running:'running\u2026', checking:'checking\u2026',
+    showHint:'Show hint', hideHint:'Hide hint', showSol:'Show solution', hideSol:'Hide solution',
+    exercise:'Exercise', quiz:'Quiz', calc:'Calculation',
+    passed:'Passed \u2713', notYet:'Not yet', allCorrect:'All correct \u2713', someOff:'Some answers off \u2014 try again',
+    prev:'Previous', next:'Next', none:'\u2014', workedSolution:'Worked solution.',
+    noOutput:'# (no output \u2014 use print() to see values)',
+    raised:'Your code raised: ', okMatch:'Correct \u2014 output matches.', noMatch:'Not quite \u2014 check the printed output.',
+    okChecks:'Correct \u2014 all checks passed.',
+    pyLoading:'# Python is still loading\u2026', pyBoot:'Booting Python\u2026', pyReady:'Python ready',
+    pyOffline:'Python engine offline \u2014 needs internet on first load',
+    dataPrep:'# Preparing data libraries (numpy, pandas) \u2014 first time only\u2026',
+    dataNote:'These lessons use <b>numpy</b> &amp; <b>pandas</b>. The first Run loads them (a few seconds) \u2014 then everything is instant.',
+    vizNote:'These lessons render real charts with <b>matplotlib</b>. The first Run loads the libraries (a few seconds), then plots appear inline below.',
+    replHead:'Scratch REPL \u2014 run any Python', replHint:'# Type Python below and press Run (Ctrl/Cmd+Enter). State persists while this tab is open.',
+    replPlaceholder:'e.g.  sum(range(101))',
+    resetConfirm:'Reset all progress, saved code and XP? This cannot be undone.',
+    runHint:'Ctrl/Cmd+Enter to run',
+    dashTitle:'Your progress', dashClose:'Close', dashPrint:'Print / Save as PDF',
+    dashXP:'total XP', dashOverall:'overall', dashExercises:'exercises',
+    dashCert:'Certificate of progress', dashGen:'Generated', dashLine:'completed across Python and LEAN tracks in PyQuest.',
+    refTitle:'Reference', langName:'EN', beginner:'Beginner', deepDive:'Deep dive'
+  },
+  es:{
+    brandSub:'aprende ejecutando', reference:'Referencia', progress:'Progreso', reset:'Reiniciar',
+    repl:'>>> REPL', lessons:'lecciones', modules:'m\u00F3dulos',
+    markComplete:'Marcar completado', completed:'\u2713 Completado', min:'min',
+    exampleTag:'>>> Ejemplo \u2014 ejec\u00FAtalo', run:'\u25B6 Ejecutar', check:'\u2713 Comprobar',
+    running:'ejecutando\u2026', checking:'comprobando\u2026',
+    showHint:'Ver pista', hideHint:'Ocultar pista', showSol:'Ver soluci\u00F3n', hideSol:'Ocultar soluci\u00F3n',
+    exercise:'Ejercicio', quiz:'Cuestionario', calc:'C\u00E1lculo',
+    passed:'Superado \u2713', notYet:'A\u00FAn no', allCorrect:'Todo correcto \u2713', someOff:'Hay respuestas incorrectas \u2014 int\u00E9ntalo de nuevo',
+    prev:'Anterior', next:'Siguiente', none:'\u2014', workedSolution:'Soluci\u00F3n explicada.',
+    noOutput:'# (sin salida \u2014 usa print() para ver valores)',
+    raised:'Tu c\u00F3digo lanz\u00F3: ', okMatch:'Correcto \u2014 la salida coincide.', noMatch:'No del todo \u2014 revisa la salida impresa.',
+    okChecks:'Correcto \u2014 todas las comprobaciones pasaron.',
+    pyLoading:'# Python a\u00FAn se est\u00E1 cargando\u2026', pyBoot:'Arrancando Python\u2026', pyReady:'Python listo',
+    pyOffline:'Motor de Python sin conexi\u00F3n \u2014 requiere internet la primera vez',
+    dataPrep:'# Preparando librer\u00EDas de datos (numpy, pandas) \u2014 solo la primera vez\u2026',
+    dataNote:'Estas lecciones usan <b>numpy</b> y <b>pandas</b>. La primera ejecuci\u00F3n las carga (unos segundos) \u2014 luego todo es instant\u00E1neo.',
+    vizNote:'Estas lecciones generan gr\u00E1ficos reales con <b>matplotlib</b>. La primera ejecuci\u00F3n carga las librer\u00EDas (unos segundos) y los gr\u00E1ficos aparecen aqu\u00ED debajo.',
+    replHead:'REPL \u2014 ejecuta cualquier Python', replHint:'# Escribe Python abajo y pulsa Ejecutar (Ctrl/Cmd+Enter). El estado persiste mientras esta pesta\u00F1a est\u00E9 abierta.',
+    replPlaceholder:'p.ej.  sum(range(101))',
+    resetConfirm:'\u00BFReiniciar todo el progreso, el c\u00F3digo guardado y los XP? Esta acci\u00F3n no se puede deshacer.',
+    runHint:'Ctrl/Cmd+Enter para ejecutar',
+    dashTitle:'Tu progreso', dashClose:'Cerrar', dashPrint:'Imprimir / Guardar PDF',
+    dashXP:'XP totales', dashOverall:'global', dashExercises:'ejercicios',
+    dashCert:'Certificado de progreso', dashGen:'Generado', dashLine:'completados en las rutas de Python y LEAN en PyQuest.',
+    refTitle:'Referencia', langName:'ES', beginner:'Principiante', deepDive:'En profundidad'
+  }
+};
+let lang='en';
+const t = k => (T[lang][k]!==undefined?T[lang][k]:T.en[k]);
+
+/* ---- inject CSS (lean tables, inputs, modals) ---- */
+const css = document.createElement('style');
+css.textContent = `
+.dtable{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:13.5px;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.dtable th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 12px;background:#eef2f7;border-bottom:1px solid var(--line)}
+.dtable td{padding:8px 12px;border-bottom:1px solid var(--line);color:#2a3344}
+.dtable td:nth-child(3),.dtable td:nth-child(4),.dtable th:nth-child(3),.dtable th:nth-child(4){text-align:right;font-family:var(--mono)}
+.dtable tr.tot td{font-weight:700;background:#fbfcfe;border-top:2px solid var(--line)}
+.datanote{font-size:13px;color:var(--muted);margin:-4px 0 14px}.datanote b{color:var(--text)}
+.field{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.field:last-of-type{border-bottom:none}
+.field .flabel{flex:1;min-width:200px;font-size:14px;color:#27313f}
+.field input{width:120px;font-family:var(--mono);font-size:14px;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;outline:none;text-align:right;background:var(--paper-2);color:var(--text)}
+.field input:focus{border-color:var(--py-blue)}
+.field input.ok{border-color:var(--green);background:#effaf3}
+.field input.no{border-color:var(--red);background:#fdf0f0}
+.field .funit{font-family:var(--mono);font-size:12px;color:var(--muted);width:84px}
+.field .fmark{width:18px;font-weight:700}.field .fmark.ok{color:var(--green)}.field .fmark.no{color:var(--red)}
+.mcq-q{padding:12px 0;border-bottom:1px solid var(--line)}.mcq-q:last-of-type{border-bottom:none}
+.mcq-q .qtext{font-size:14.5px;color:#27313f;margin-bottom:9px}
+.mcq-opts{display:flex;flex-wrap:wrap;gap:8px}
+.mcq-opt{font-family:var(--sans);font-size:13px;padding:8px 13px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper-2);color:var(--text);transition:.12s;text-align:left}
+.mcq-opt:hover{border-color:var(--py-blue)}
+.mcq-opt.sel{border-color:var(--py-blue);background:#eaf2fc;color:var(--py-blue-2);font-weight:600}
+.mcq-opt.ok{border-color:var(--green);background:#effaf3;color:#1d6b48;font-weight:600}
+.mcq-opt.no{border-color:var(--red);background:#fdf0f0;color:#a13b3b}
+.solbox{margin:14px 16px 4px;padding:13px 16px;background:#eef6ff;border:1px solid #cfe0f5;border-radius:10px;font-size:13.8px;color:#28415f;display:none}
+.solbox.show{display:block}.solbox b{color:#1c3350}.solbox code{background:#dceafa}
+.run-hint{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.console img{display:block;max-width:100%;border-radius:8px;margin-top:10px;background:#fff;padding:6px;box-sizing:border-box}
+.data-note{margin:18px 0 2px;padding:11px 15px;background:#fff8e1;border:1px solid #f0e0a8;border-radius:9px;font-size:13px;color:#6b5a16}
+.area-switch{display:flex;gap:6px;margin:0 6px 18px;padding:5px;background:#e7edf4;border-radius:10px}
+.aswitch{flex:1;font-family:var(--mono);font-size:12.5px;font-weight:600;padding:8px 6px;border-radius:7px;color:var(--muted)}
+.aswitch:hover{color:var(--text)}.aswitch.on{background:var(--ink);color:#fff}
+.depth-switch{display:inline-flex;gap:5px;margin:2px 0 18px;padding:4px;background:#e7edf4;border-radius:10px}
+.dseg{font-family:var(--mono);font-size:12px;font-weight:600;padding:7px 16px;border-radius:7px;color:var(--muted)}
+.dseg:hover{color:var(--text)}
+.dseg.on{background:var(--ink);color:#fff}
+.concept.deep{border-left:3px solid var(--py-yellow);padding-left:16px;margin-left:-2px}
+.concept.deep p:first-child{margin-top:0}
+.overlay{position:fixed;inset:0;background:rgba(13,16,22,.55);z-index:60;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+.overlay.open{display:flex}
+.modal{background:var(--paper);width:min(760px,100%);border-radius:16px;box-shadow:0 24px 70px rgba(8,12,20,.4);overflow:hidden}
+.modal-head{display:flex;align-items:center;gap:12px;padding:16px 22px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:15px;font-weight:700}
+.modal-head .prompt{color:var(--py-yellow)}
+.modal-head .mclose{margin-left:auto;font-size:13px;color:#cdd6e4;border:1px solid var(--line-dark);padding:6px 12px;border-radius:7px}
+.modal-head .mclose:hover{color:#fff;background:var(--ink-2)}
+.modal-body{padding:22px 24px;font-size:14px;color:#2a3344}
+.dash-top{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.dash-card{flex:1;min-width:130px;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.dash-card .big{font-family:var(--mono);font-size:26px;font-weight:750;color:var(--ink)}
+.dash-card .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.dash-area{margin-bottom:22px}
+.dash-area h3{font-family:var(--mono);font-size:13px;letter-spacing:.04em;margin:0 0 10px;color:var(--ink)}
+.trk{margin-bottom:9px}
+.trk-row{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;color:#46526a}
+.trk-bar{height:8px;background:#e3e8ef;border-radius:99px;overflow:hidden}
+.trk-bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--py-blue),var(--py-yellow));border-radius:99px}
+.cert{border:2px dashed #cbb86a;border-radius:12px;padding:18px 20px;background:#fffdf4;margin-top:8px}
+.cert .ct{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--py-yellow-deep)}
+.cert .cb{font-size:20px;font-weight:750;margin:6px 0;color:var(--ink)}
+.refsec{margin-bottom:20px}
+.refsec h3{font-family:var(--mono);font-size:13px;margin:0 0 8px;color:var(--ink)}
+.refsec pre{background:var(--ink);color:#e7ecf3;font-family:var(--mono);font-size:12.5px;line-height:1.6;padding:12px 14px;border-radius:9px;overflow-x:auto;margin:0 0 10px}
+@media print{
+  body > *{visibility:hidden!important}
+  #dashOverlay,#dashOverlay *{visibility:visible!important}
+  #dashOverlay{position:absolute;inset:0;background:#fff;padding:0;display:block!important}
+  .modal{box-shadow:none;width:100%}.mclose,.dash-print{display:none!important}
+}
+`;
+document.head.appendChild(css);
+
+/* ---- storage shim ---- */
+const mem={};
+const Store={
+  async get(k){ if(window.storage){try{const r=await window.storage.get(k);return r?r.value:null;}catch(e){return null;}} try{return localStorage.getItem(k);}catch(e){return mem[k]??null;} },
+  async set(k,v){ if(window.storage){try{await window.storage.set(k,v);return;}catch(e){}} try{localStorage.setItem(k,v);}catch(e){mem[k]=v;} }
+};
+const KEY='pyquest:v2';
+
+const DATA={ python:CURRICULUM, lean:LEAN };
+let AREA='python', IDX=0;
+let state={ completed:{}, solved:{}, code:{}, xp:0, area:'python', last:{python:0,lean:0}, lang:'en', depth:'beginner' };
+function nounFor(a){ return t(a==='python'?'lessons':'modules'); }
+
+/* ---- pyodide + data packages ---- */
+let pyodide=null, pyReady=false, pyFailed=false, dataReady=false, dataLoading=null;
+const elStatus=document.getElementById('pyStatus'), elStatusText=document.getElementById('pyStatusText');
+async function initPy(){
+  try{ pyodide=await loadPyodide(); pyReady=true; elStatus.classList.add('ready'); elStatusText.textContent=t('pyReady');
+    document.querySelectorAll('.run').forEach(b=>b.disabled=false); }
+  catch(e){ pyFailed=true; elStatus.classList.add('error'); elStatusText.textContent=t('pyOffline'); }
+}
+function ensureData(){
+  if(dataReady) return Promise.resolve(true);
+  if(!pyReady) return Promise.resolve(false);
+  if(!dataLoading) dataLoading=pyodide.loadPackage(['numpy','pandas']).then(()=>{dataReady=true;return true;}).catch(()=>false);
+  return dataLoading;
+}
+let vizReady=false, vizLoading=null;
+function ensureViz(){
+  if(vizReady) return Promise.resolve(true);
+  if(!pyReady) return Promise.resolve(false);
+  if(!vizLoading) vizLoading=pyodide.loadPackage(['numpy','pandas','matplotlib']).then(()=>{dataReady=true;vizReady=true;return true;}).catch(()=>false);
+  return vizLoading;
+}
+const VIZ_PRE="import matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nplt.close('all')\n";
+const VIZ_EPI="\nimport io as _io, base64 as _b64, json as _json\n_imgs=[]\nfor _n in plt.get_fignums():\n    _f=plt.figure(_n)\n    _bb=_io.BytesIO(); _f.savefig(_bb, format='png', dpi=110, bbox_inches='tight')\n    _imgs.append(_b64.b64encode(_bb.getvalue()).decode())\nplt.close('all')\n_json.dumps(_imgs)";
+async function pyRunViz(code){
+  let buf=''; pyodide.setStdout({batched:s=>buf+=s}); pyodide.setStderr({batched:s=>buf+=s});
+  try{ const ns=pyodide.runPython('dict()'); await pyodide.runPythonAsync(VIZ_PRE+code,{globals:ns}); const val=await pyodide.runPythonAsync(VIZ_EPI,{globals:ns}); ns.destroy(); let imgs=[]; try{imgs=JSON.parse(val);}catch(e){} return {output:buf,error:null,imgs}; }
+  catch(e){ return {output:buf,error:cleanErr(e.message||e),imgs:[]}; }
+}
+async function pyCheckViz(userCode,ex){
+  let buf=''; pyodide.setStdout({batched:s=>buf+=s}); pyodide.setStderr({batched:s=>buf+=s});
+  const ns=pyodide.runPython('dict()'); let imgs=[];
+  try{ await pyodide.runPythonAsync(VIZ_PRE+userCode+'\n'+ex.check.setup,{globals:ns}); }
+  catch(e){ ns.destroy(); return {ok:false,output:buf,msg:t('raised')+cleanErr(e.message||e),imgs}; }
+  let ok=true,msg=t('okChecks');
+  try{ await pyodide.runPythonAsync(ex.check.asserts,{globals:ns}); }
+  catch(e){ ok=false; msg=cleanErr(e.message||e); }
+  try{ const val=await pyodide.runPythonAsync(VIZ_EPI,{globals:ns}); imgs=JSON.parse(val||'[]'); }catch(e){}
+  ns.destroy(); return {ok,output:buf,msg,imgs};
+}
+function renderImgs(out,imgs){ if(!imgs||!imgs.length) return; imgs.forEach(b=>{ const im=document.createElement('img'); im.src='data:image/png;base64,'+b; im.alt='chart'; out.appendChild(im); }); }
+function cleanErr(msg){ const L=String(msg).trim().split('\n').filter(Boolean); for(let i=L.length-1;i>=0;i--){ if(/Error|Exception/.test(L[i])) return L[i].trim(); } return L[L.length-1]||String(msg); }
+async function pyRun(code){
+  let buf=''; pyodide.setStdout({batched:s=>buf+=s}); pyodide.setStderr({batched:s=>buf+=s});
+  try{ const ns=pyodide.runPython('dict()'); await pyodide.runPythonAsync(code,{globals:ns}); ns.destroy(); return {output:buf,error:null}; }
+  catch(e){ return {output:buf,error:cleanErr(e.message||e)}; }
+}
+async function pyCheck(userCode,ex){
+  let buf=''; pyodide.setStdout({batched:s=>buf+=s}); pyodide.setStderr({batched:s=>buf+=s});
+  const ns=pyodide.runPython('dict()');
+  try{ await pyodide.runPythonAsync(userCode,{globals:ns}); }
+  catch(e){ ns.destroy(); return {ok:false,output:buf,msg:t('raised')+cleanErr(e.message||e)}; }
+  if(ex.check.kind==='output'){ const ok=ex.check.match(buf); ns.destroy(); return {ok,output:buf,msg:ok?t('okMatch'):t('noMatch')}; }
+  try{ await pyodide.runPythonAsync('__output__ = '+JSON.stringify(buf)+'\n'+ex.check.test,{globals:ns}); ns.destroy(); return {ok:true,output:buf,msg:t('okChecks')}; }
+  catch(e){ ns.destroy(); return {ok:false,output:buf,msg:cleanErr(e.message||e)}; }
+}
+
+/* ---- editor ---- */
+function makeEditor(initial){
+  const ta=document.createElement('textarea'); ta.className='editor'; ta.spellcheck=false; ta.value=initial||'';
+  ta.rows=Math.min(16,Math.max(4,(initial||'').split('\n').length+1));
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Tab'){ e.preventDefault(); const s=ta.selectionStart,en=ta.selectionEnd; ta.value=ta.value.slice(0,s)+'    '+ta.value.slice(en); ta.selectionStart=ta.selectionEnd=s+4; }
+    else if(e.key==='Enter' && !(e.ctrlKey||e.metaKey)){ const s=ta.selectionStart; const line=ta.value.slice(0,s).split('\n').pop(); const indent=(line.match(/^\s*/)||[''])[0]; const extra=/:\s*$/.test(line)?'    ':''; e.preventDefault(); const ins='\n'+indent+extra; ta.value=ta.value.slice(0,s)+ins+ta.value.slice(ta.selectionEnd); ta.selectionStart=ta.selectionEnd=s+ins.length; }
+  });
+  return ta;
+}
+
+/* ---- persistence ---- */
+let saveTimer=null;
+function save(){ state.lang=lang; clearTimeout(saveTimer); saveTimer=setTimeout(()=>Store.set(KEY,JSON.stringify(state)),250); }
+async function load(){
+  const raw=await Store.get(KEY);
+  if(raw){ try{ const p=JSON.parse(raw); state=Object.assign(state,p); state.completed=p.completed||{}; state.solved=p.solved||{}; state.code=p.code||{}; state.last=p.last||{python:0,lean:0}; }catch(e){} }
+  AREA=state.area||'python'; IDX=(state.last&&state.last[AREA])||0; lang=state.lang||'en';
+}
+
+/* ---- progress ---- */
+function areaLessons(a){ return DATA[a]; }
+function doneInArea(a){ return areaLessons(a).filter(l=>state.completed[l.id]).length; }
+function updateProgress(){
+  const list=areaLessons(AREA), done=doneInArea(AREA);
+  document.getElementById('barFill').style.width=(list.length?done/list.length*100:0)+'%';
+  document.querySelector('.pmeta').innerHTML='<b>'+done+'</b> / '+list.length+' '+nounFor(AREA);
+  document.getElementById('xpPill').textContent=state.xp+' XP';
+}
+function markSolved(key,xp){ if(!state.solved[key]){ state.solved[key]=true; state.xp+=(xp||10); } }
+function maybeComplete(lesson){ const keys=lesson.exercises.map((_,i)=>lesson.id+'-'+i); const all=keys.every(k=>state.solved[k]); if(all&&!state.completed[lesson.id]) state.completed[lesson.id]=true; return all; }
+
+/* ---- chrome labels ---- */
+function relabelChrome(){
+  document.getElementById('brandSub').textContent=t('brandSub');
+  document.getElementById('refBtn').textContent=t('reference');
+  document.getElementById('dashBtn').textContent=t('progress');
+  document.getElementById('replBtn').innerHTML='&gt;&gt;&gt; REPL';
+  document.getElementById('resetBtn').textContent=t('reset');
+  document.getElementById('langBtn').textContent=(lang==='en'?'ES':'EN');
+  document.querySelector('#replDrawer .repl-head').childNodes[1].textContent=' '+t('replHead')+' ';
+  document.getElementById('replInput').placeholder=t('replPlaceholder');
+}
+
+/* ---- sidebar ---- */
+function buildSidebar(){
+  const nav=document.getElementById('sidebar'); nav.innerHTML='';
+  const sw=document.createElement('div'); sw.className='area-switch';
+  sw.innerHTML=`<button class="aswitch ${AREA==='python'?'on':''}" data-a="python">&gt;&gt;&gt; Python</button><button class="aswitch ${AREA==='lean'?'on':''}" data-a="lean">\u25BF LEAN</button>`;
+  nav.appendChild(sw);
+  sw.querySelectorAll('.aswitch').forEach(b=>b.addEventListener('click',()=>switchArea(b.dataset.a)));
+  const list=areaLessons(AREA), groups=[];
+  list.forEach((l,i)=>{ let g=groups.find(x=>x.track===l.track); if(!g){g={track:l.track,items:[]};groups.push(g);} g.items.push({l,i}); });
+  groups.forEach(g=>{
+    const gd=document.createElement('div'); gd.className='track-group t-'+g.track.replace(/[^A-Za-z]/g,'');
+    gd.innerHTML='<div class="track-label">'+g.track+'</div>';
+    g.items.forEach(({l,i})=>{
+      const b=document.createElement('button');
+      b.className='lnav'+(i===IDX?' active':'')+(state.completed[l.id]?' done':'');
+      b.innerHTML='<span class="lcode">'+l.id.toUpperCase()+'</span><span class="tick">\u2713</span>'+l.title;
+      b.addEventListener('click',()=>{ IDX=i; state.last[AREA]=i; save(); render(); if(window.innerWidth<=880) document.getElementById('sidebar').classList.remove('open'); });
+      gd.appendChild(b);
+    });
+    nav.appendChild(gd);
+  });
+}
+function switchArea(a){ if(a===AREA) return; AREA=a; state.area=a; IDX=state.last[a]||0; save(); render(); }
+
+/* ---- render ---- */
+function render(){
+  relabelChrome(); buildSidebar(); updateProgress();
+  document.getElementById('refBtn').style.display=''; // reference available in both areas
+  const lesson=areaLessons(AREA)[IDX];
+  const c=document.getElementById('content'); c.innerHTML=''; window.scrollTo(0,0);
+  const eyebrow=document.createElement('div'); eyebrow.className='eyebrow';
+  eyebrow.innerHTML=lesson.id.toUpperCase()+' <span class="dot">/</span> '+lesson.track; c.appendChild(eyebrow);
+  const h=document.createElement('h1'); h.className='l-title'; h.textContent=lesson.title; c.appendChild(h);
+  const sub=document.createElement('div'); sub.className='l-sub'; sub.innerHTML='<span>~'+lesson.min+' '+t('min')+'</span>';
+  const mark=document.createElement('button'); mark.className='mark'+(state.completed[lesson.id]?' done':''); mark.textContent=state.completed[lesson.id]?t('completed'):t('markComplete');
+  mark.addEventListener('click',()=>{ state.completed[lesson.id]=!state.completed[lesson.id]; save(); render(); });
+  sub.appendChild(mark); c.appendChild(sub);
+  if(lesson.deep){
+    const seg=document.createElement('div'); seg.className='depth-switch';
+    const bBeg=document.createElement('button'); bBeg.className='dseg'; bBeg.textContent=t('beginner');
+    const bDeep=document.createElement('button'); bDeep.className='dseg'; bDeep.textContent=t('deepDive');
+    seg.appendChild(bBeg); seg.appendChild(bDeep); c.appendChild(seg);
+    const begDiv=document.createElement('div'); begDiv.className='concept'; begDiv.innerHTML=lesson.concept; c.appendChild(begDiv);
+    const deepDiv=document.createElement('div'); deepDiv.className='concept deep'; deepDiv.innerHTML=lesson.deep; c.appendChild(deepDiv);
+    const setDepth=d=>{ state.depth=d; save(); const dp=d==='deep'; bDeep.classList.toggle('on',dp); bBeg.classList.toggle('on',!dp); deepDiv.style.display=dp?'block':'none'; begDiv.style.display=dp?'none':'block'; };
+    bBeg.addEventListener('click',()=>setDepth('beginner')); bDeep.addEventListener('click',()=>setDepth('deep'));
+    setDepth(state.depth==='deep'?'deep':'beginner');
+  } else {
+    const concept=document.createElement('div'); concept.className='concept'; concept.innerHTML=lesson.concept; c.appendChild(concept);
+  }
+  if(AREA==='python') renderPython(lesson,c); else renderLean(lesson,c);
+  const list=areaLessons(AREA), foot=document.createElement('div'); foot.className='lfoot';
+  const prev=document.createElement('button'); prev.className='navbtn'; prev.disabled=IDX===0;
+  prev.innerHTML='<small>'+t('prev')+'</small>'+(IDX>0?list[IDX-1].title:t('none'));
+  prev.addEventListener('click',()=>{ IDX--; state.last[AREA]=IDX; save(); render(); });
+  const next=document.createElement('button'); next.className='navbtn next'; next.disabled=IDX===list.length-1;
+  next.innerHTML='<small>'+t('next')+'</small>'+(IDX<list.length-1?list[IDX+1].title:t('none'));
+  next.addEventListener('click',()=>{ IDX++; state.last[AREA]=IDX; save(); render(); });
+  foot.appendChild(prev); foot.appendChild(next); c.appendChild(foot);
+}
+
+/* ---- python body ---- */
+function renderPython(lesson,c){
+  const isData=lesson.track==='Data', isViz=lesson.track==='Visualize';
+  const need = isViz?'viz':(isData?'data':'');
+  if(isData||isViz){ const dn=document.createElement('div'); dn.className='data-note'; dn.innerHTML=isViz?t('vizNote'):t('dataNote'); c.appendChild(dn); }
+  if(lesson.example){
+    const blk=document.createElement('div'); blk.className='block';
+    blk.innerHTML='<div class="block-head"><span class="tag"><span class="prompt">&gt;&gt;&gt;</span> '+t('exampleTag').replace('>>> ','')+'</span></div>';
+    const ed=makeEditor(lesson.example); blk.appendChild(ed);
+    const act=document.createElement('div'); act.className='block-actions';
+    const run=document.createElement('button'); run.className='run'; if(need) run.dataset.needsData='1'; run.disabled=!pyReady; run.innerHTML=t('run');
+    const rh=document.createElement('span'); rh.className='run-hint'; rh.textContent=t('runHint');
+    const out=document.createElement('div'); out.className='console';
+    run.addEventListener('click',()=>isViz?doRunViz(run,ed,out,need):doRun(run,ed,out,need));
+    ed.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); run.click(); } });
+    act.appendChild(run); act.appendChild(rh); blk.appendChild(act); blk.appendChild(out); c.appendChild(blk);
+  }
+  lesson.exercises.forEach((ex,i)=>{
+    const key=lesson.id+'-'+i;
+    const blk=document.createElement('div'); blk.className='block';
+    blk.innerHTML='<div class="block-head"><span class="tag">'+t('exercise')+' '+(i+1)+(state.solved[key]?' \u2713':'')+'</span></div><div class="ex-prompt">'+ex.prompt+'</div>';
+    const ed=makeEditor(state.code[key]!=null?state.code[key]:ex.starter);
+    ed.addEventListener('input',()=>{ state.code[key]=ed.value; save(); }); blk.appendChild(ed);
+    const hint=document.createElement('div'); hint.className='hintbox'; hint.innerHTML='<b>'+t('showHint').replace(/^Show |^Ver /,'')+':</b> <code>'+ex.hint+'</code>'; blk.appendChild(hint);
+    const act=document.createElement('div'); act.className='block-actions';
+    const run=document.createElement('button'); run.className='run check'; if(need) run.dataset.needsData='1'; run.disabled=!pyReady; run.innerHTML=t('check');
+    const hbtn=document.createElement('button'); hbtn.className='ghost'; hbtn.textContent=t('showHint');
+    hbtn.addEventListener('click',()=>{ hint.classList.toggle('show'); hbtn.textContent=hint.classList.contains('show')?t('hideHint'):t('showHint'); });
+    const res=document.createElement('div'); res.className='result'; const out=document.createElement('div'); out.className='console';
+    run.addEventListener('click',()=>isViz?doCheckViz(run,ed,out,res,ex,key,lesson,need):doCheck(run,ed,out,res,ex,key,lesson,need));
+    ed.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); run.click(); } });
+    act.appendChild(run); act.appendChild(hbtn); act.appendChild(res); blk.appendChild(act); blk.appendChild(out); c.appendChild(blk);
+  });
+  if(!pyReady && !pyFailed){ const tmr=setInterval(()=>{ if(pyReady){ document.querySelectorAll('.run').forEach(b=>b.disabled=false); clearInterval(tmr);} if(pyFailed) clearInterval(tmr); },300); }
+}
+async function prepRun(out,need){
+  if(!pyReady){ out.classList.add('show'); out.innerHTML='<span class="sys">'+(pyFailed?t('pyOffline'):t('pyLoading'))+'</span>'; return false; }
+  if(need && !(need==='viz'?vizReady:dataReady)){ out.classList.add('show'); out.innerHTML='<span class="sys">'+t('dataPrep')+'</span>'; const ok=await (need==='viz'?ensureViz():ensureData()); if(!ok){ out.innerHTML='<span class="err">'+t('pyOffline')+'</span>'; return false; } }
+  return true;
+}
+async function doRunViz(btn,ed,out,need){
+  if(!(await prepRun(out,need))) return;
+  btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=t('running'); out.classList.add('show');
+  const r=await pyRunViz(ed.value); out.innerHTML='';
+  if(r.output) out.appendChild(document.createTextNode(r.output));
+  if(r.error){ const e=document.createElement('span'); e.className='err'; e.textContent=(r.output?'\n':'')+r.error; out.appendChild(e); }
+  renderImgs(out,r.imgs);
+  if(!r.output && !r.error && !(r.imgs&&r.imgs.length)) out.innerHTML='<span class="sys">'+t('noOutput')+'</span>';
+  btn.disabled=false; btn.innerHTML=old;
+}
+async function doCheckViz(btn,ed,out,res,ex,key,lesson,need){
+  if(!(await prepRun(out,need))) return;
+  btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=t('checking'); res.textContent='';
+  const r=await pyCheckViz(ed.value,ex);
+  res.className='result '+(r.ok?'ok':'no'); res.textContent=r.ok?t('passed'):t('notYet');
+  out.classList.add('show'); out.innerHTML='';
+  if(r.output) out.appendChild(document.createTextNode(r.output));
+  const m=document.createElement('span'); m.className=r.ok?'sys':'err'; m.textContent=(r.output?'\n':'')+(r.ok?'# ':'')+r.msg; out.appendChild(m);
+  renderImgs(out,r.imgs);
+  if(r.ok){ markSolved(key,12); maybeComplete(lesson); save(); buildSidebar(); updateProgress(); const head=btn.closest('.block').querySelector('.tag'); if(head&&!/\u2713/.test(head.textContent)) head.textContent+=' \u2713'; }
+  btn.disabled=false; btn.innerHTML=old;
+}
+async function doRun(btn,ed,out,needsData){
+  if(!(await prepRun(out,needsData))) return;
+  btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=t('running'); out.classList.add('show');
+  const r=await pyRun(ed.value); out.innerHTML='';
+  if(r.output) out.appendChild(document.createTextNode(r.output));
+  if(r.error){ const e=document.createElement('span'); e.className='err'; e.textContent=(r.output?'\n':'')+r.error; out.appendChild(e); }
+  if(!r.output && !r.error) out.innerHTML='<span class="sys">'+t('noOutput')+'</span>';
+  btn.disabled=false; btn.innerHTML=old;
+}
+async function doCheck(btn,ed,out,res,ex,key,lesson,needsData){
+  if(!(await prepRun(out,needsData))) return;
+  btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=t('checking'); res.textContent='';
+  const r=await pyCheck(ed.value,ex);
+  res.className='result '+(r.ok?'ok':'no'); res.textContent=r.ok?t('passed'):t('notYet');
+  out.classList.add('show'); out.innerHTML='';
+  if(r.output) out.appendChild(document.createTextNode(r.output));
+  const m=document.createElement('span'); m.className=r.ok?'sys':'err'; m.textContent=(r.output?'\n':'')+(r.ok?'# ':'')+r.msg; out.appendChild(m);
+  if(r.ok){ markSolved(key,10); maybeComplete(lesson); save(); buildSidebar(); updateProgress(); const head=btn.closest('.block').querySelector('.tag'); if(head&&!/\u2713/.test(head.textContent)) head.textContent+=' \u2713'; }
+  btn.disabled=false; btn.innerHTML=old;
+}
+
+/* ---- lean body ---- */
+function renderLean(lesson,c){
+  lesson.exercises.forEach((ex,i)=>{
+    const key=lesson.id+'-'+i;
+    const blk=document.createElement('div'); blk.className='block';
+    blk.innerHTML='<div class="block-head"><span class="tag">'+(ex.type==='mcq'?t('quiz'):t('calc'))+' '+(i+1)+(state.solved[key]?' \u2713':'')+'</span></div><div class="ex-prompt">'+ex.prompt+'</div>';
+    const body=document.createElement('div'); body.style.padding='4px 16px 0';
+    if(ex.table){ const tb=document.createElement('div'); tb.innerHTML=ex.table; body.appendChild(tb); }
+    let getResult;
+    if(ex.type==='numeric'){
+      const inputs=[];
+      ex.fields.forEach(f=>{
+        const row=document.createElement('div'); row.className='field';
+        const lab=document.createElement('div'); lab.className='flabel'; lab.innerHTML=f.label;
+        const inp=document.createElement('input'); inp.type='text'; inp.inputMode='decimal';
+        const sk='lean:'+key+':'+f.key; if(state.code[sk]!=null) inp.value=state.code[sk];
+        inp.addEventListener('input',()=>{ state.code[sk]=inp.value; save(); });
+        const unit=document.createElement('div'); unit.className='funit'; unit.textContent=f.unit||'';
+        const mk=document.createElement('div'); mk.className='fmark';
+        row.appendChild(lab); row.appendChild(inp); row.appendChild(unit); row.appendChild(mk);
+        body.appendChild(row); inputs.push({f,inp,mk});
+      });
+      getResult=()=>{ let ok=true; inputs.forEach(({f,inp,mk})=>{ const v=parseFloat(String(inp.value).replace(',','.')); const good=!isNaN(v)&&Math.abs(v-f.answer)<=(f.tol||1e-4); inp.classList.remove('ok','no'); inp.classList.add(good?'ok':'no'); mk.className='fmark '+(good?'ok':'no'); mk.textContent=good?'\u2713':'\u2717'; if(!good) ok=false; }); return ok; };
+    } else {
+      const qs=[];
+      ex.questions.forEach((q,qi)=>{
+        const qd=document.createElement('div'); qd.className='mcq-q'; qd.innerHTML='<div class="qtext">'+(qi+1)+'. '+q.text+'</div>';
+        const opts=document.createElement('div'); opts.className='mcq-opts';
+        const sk='lean:'+key+':q'+qi; let sel=state.code[sk]!=null?parseInt(state.code[sk]):-1; const btns=[];
+        q.options.forEach((o,oi)=>{ const ob=document.createElement('button'); ob.className='mcq-opt'+(sel===oi?' sel':''); ob.textContent=o;
+          ob.addEventListener('click',()=>{ sel=oi; state.code[sk]=String(oi); save(); btns.forEach(b=>b.classList.remove('sel','ok','no')); ob.classList.add('sel'); });
+          opts.appendChild(ob); btns.push(ob); });
+        qd.appendChild(opts); body.appendChild(qd); qs.push({q,btns,getSel:()=>sel});
+      });
+      getResult=()=>{ let ok=true; qs.forEach(({q,btns,getSel})=>{ const sel=getSel(); btns.forEach((b,bi)=>{ b.classList.remove('ok','no','sel'); if(bi===q.correct) b.classList.add('ok'); else if(bi===sel) b.classList.add('no'); }); if(sel!==q.correct) ok=false; }); return ok; };
+    }
+    blk.appendChild(body);
+    const sol=document.createElement('div'); sol.className='solbox'; sol.innerHTML='<b>'+t('workedSolution')+'</b> '+ex.solution;
+    const act=document.createElement('div'); act.className='block-actions';
+    const check=document.createElement('button'); check.className='run check'; check.innerHTML=t('check');
+    const sbtn=document.createElement('button'); sbtn.className='ghost'; sbtn.textContent=t('showSol');
+    sbtn.addEventListener('click',()=>{ sol.classList.toggle('show'); sbtn.textContent=sol.classList.contains('show')?t('hideSol'):t('showSol'); });
+    const res=document.createElement('div'); res.className='result';
+    check.addEventListener('click',()=>{ const ok=getResult(); res.className='result '+(ok?'ok':'no'); res.textContent=ok?t('allCorrect'):t('someOff');
+      if(ok){ markSolved(key,15); maybeComplete(lesson); save(); buildSidebar(); updateProgress(); const head=blk.querySelector('.tag'); if(head&&!/\u2713/.test(head.textContent)) head.textContent+=' \u2713'; } });
+    act.appendChild(check); act.appendChild(sbtn); act.appendChild(res); blk.appendChild(act); blk.appendChild(sol); c.appendChild(blk);
+  });
+}
+
+/* ---- REPL ---- */
+const drawer=document.getElementById('replDrawer'), replOut=document.getElementById('replOut'), replIn=document.getElementById('replInput');
+let replNs=null;
+function openRepl(){ drawer.classList.add('open'); document.getElementById('replBtn').classList.add('on'); replIn.focus(); }
+function closeRepl(){ drawer.classList.remove('open'); document.getElementById('replBtn').classList.remove('on'); }
+document.getElementById('replBtn').addEventListener('click',()=>drawer.classList.contains('open')?closeRepl():openRepl());
+document.getElementById('replClose').addEventListener('click',closeRepl);
+async function replRun(){
+  const code=replIn.value; if(!code.trim()) return;
+  const echo=document.createElement('div'); echo.className='in'; echo.textContent='>>> '+code.replace(/\n/g,'\n... '); replOut.appendChild(echo);
+  if(!pyReady){ const e=document.createElement('div'); e.className='err'; e.textContent=pyFailed?t('pyOffline'):t('pyLoading'); replOut.appendChild(e); replOut.scrollTop=replOut.scrollHeight; return; }
+  if(!replNs) replNs=pyodide.runPython('dict()');
+  let buf=''; pyodide.setStdout({batched:s=>buf+=s}); pyodide.setStderr({batched:s=>buf+=s});
+  try{ const val=await pyodide.runPythonAsync(code,{globals:replNs});
+    if(buf){ const o=document.createElement('div'); o.textContent=buf; replOut.appendChild(o); }
+    if(val!==undefined&&val!==null){ const o=document.createElement('div'); o.textContent=String(val); replOut.appendChild(o); if(val&&val.destroy) try{val.destroy();}catch(e){} }
+  }catch(e){ if(buf){ const o=document.createElement('div'); o.textContent=buf; replOut.appendChild(o);} const er=document.createElement('div'); er.className='err'; er.textContent=cleanErr(e.message||e); replOut.appendChild(er); }
+  replIn.value=''; replOut.scrollTop=replOut.scrollHeight;
+}
+document.getElementById('replRun').addEventListener('click',replRun);
+replIn.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); replRun(); } });
+
+/* ---- overlays: dashboard + reference ---- */
+function makeOverlay(id){ const ov=document.createElement('div'); ov.className='overlay'; ov.id=id; ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('open'); }); document.body.appendChild(ov); return ov; }
+const dashOv=makeOverlay('dashOverlay'), refOv=makeOverlay('refOverlay');
+function areaStats(a){
+  const lessons=DATA[a], tracks={}; let exTotal=0,exSolved=0,lDone=0;
+  lessons.forEach(l=>{ const tr=tracks[l.track]||(tracks[l.track]={lt:0,ld:0,et:0,es:0}); tr.lt++; if(state.completed[l.id]){tr.ld++;lDone++;} l.exercises.forEach((_,i)=>{ tr.et++; exTotal++; if(state.solved[l.id+'-'+i]){tr.es++;exSolved++;} }); });
+  return {tracks,exTotal,exSolved,lDone,lTotal:lessons.length};
+}
+function openDash(){
+  const py=areaStats('python'), ln=areaStats('lean');
+  const totLessons=py.lTotal+ln.lTotal, totDone=py.lDone+ln.lDone, totEx=py.exTotal+ln.exTotal, totSolved=py.exSolved+ln.exSolved;
+  const pct=totLessons?Math.round(totDone/totLessons*100):0;
+  function areaBlock(title,st){
+    let h='<div class="dash-area"><h3>'+title+' \u2014 '+st.lDone+'/'+st.lTotal+' '+nounFor(title.toLowerCase().includes('python')?'python':'lean')+'</h3>';
+    Object.keys(st.tracks).forEach(tn=>{ const tr=st.tracks[tn]; const p=tr.et?Math.round(tr.es/tr.et*100):0;
+      h+='<div class="trk"><div class="trk-row"><span>'+tn+'</span><span>'+tr.es+'/'+tr.et+' '+t('dashExercises')+'</span></div><div class="trk-bar"><i style="width:'+p+'%"></i></div></div>'; });
+    return h+'</div>';
+  }
+  const now=new Date().toLocaleDateString(lang==='es'?'es-ES':'en-GB',{year:'numeric',month:'long',day:'numeric'});
+  dashOv.innerHTML='<div class="modal"><div class="modal-head"><span class="prompt">&gt;&gt;&gt;</span> '+t('dashTitle')+'<button class="mclose" id="dashX">'+t('dashClose')+'</button></div><div class="modal-body">'+
+    '<div class="dash-top">'+
+      '<div class="dash-card"><div class="big">'+state.xp+'</div><div class="lbl">'+t('dashXP')+'</div></div>'+
+      '<div class="dash-card"><div class="big">'+pct+'%</div><div class="lbl">'+t('dashOverall')+'</div></div>'+
+      '<div class="dash-card"><div class="big">'+totSolved+'/'+totEx+'</div><div class="lbl">'+t('dashExercises')+'</div></div>'+
+    '</div>'+
+    areaBlock('Python',py)+areaBlock('LEAN',ln)+
+    '<div class="cert"><div class="ct">'+t('dashCert')+'</div><div class="cb">'+totDone+' / '+totLessons+' '+t('lessons')+'</div>'+
+      '<div>'+t('dashLine')+'</div><div style="margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--muted)">'+t('dashGen')+': '+now+'</div></div>'+
+    '<div style="margin-top:18px"><button class="run dash-print" id="dashPrint">'+t('dashPrint')+'</button></div>'+
+    '</div></div>';
+  dashOv.classList.add('open');
+  dashOv.querySelector('#dashX').addEventListener('click',()=>dashOv.classList.remove('open'));
+  dashOv.querySelector('#dashPrint').addEventListener('click',()=>window.print());
+}
+function openRef(){
+  const py = `
+  <div class="refsec"><h3>Core types & slicing</h3><pre>s[0]  s[-1]  s[1:4]  s[::-1]
+list: [].append(x) .pop() .sort()  len(x)  x in xs
+dict: d[k]  d.get(k, default)  d.items()
+set:  {1,2,3} & | -   set(xs)  # dedup</pre></div>
+  <div class="refsec"><h3>f-strings & comprehensions</h3><pre>f"{name.title()} is {age}"
+[x*x for x in range(5) if x%2==0]
+{k: len(k) for k in words}</pre></div>
+  <div class="refsec"><h3>Functions, errors, classes</h3><pre>def f(a, b=1, *args, **kw): return a+b
+try: ... except ValueError as e: ... finally: ...
+class C:
+    def __init__(self, x): self.x = x</pre></div>
+  <div class="refsec"><h3>NumPy / pandas</h3><pre>np.array([1,2,3]).mean()   a[a>10]   np.where(c, x, y)
+df["col"].sum()   df[df.col>100]
+df.groupby("k")["v"].sum().to_dict()</pre></div>`;
+  const lean = `
+  <div class="refsec"><h3>Flow & value stream</h3><pre>Lead time   = Sum process time + Sum wait time
+PCE         = value-add time / lead time x 100
+Takt time   = available time / demand
+Little's Law: WIP = throughput x lead time</pre></div>
+  <div class="refsec"><h3>Performance & quality</h3><pre>OEE = Availability x Performance x Quality
+  Availability = operating / planned
+  Performance  = ideal cycle x count / operating
+  Quality      = good / total
+First-Pass Yield = passed first time / total
+DPMO = defects / (units x opportunities) x 1e6</pre></div>
+  <div class="refsec"><h3>Setup & pull</h3><pre>SMED: separate -> externalise -> convert -> streamline
+Kanban cards = demand-in-LT x (1+safety) / container
+WIP cap      = cards x container size</pre></div>
+  <div class="refsec"><h3>Improvement cycles</h3><pre>PDCA : Plan - Do - Check - Act
+DMAIC: Define - Measure - Analyse - Improve - Control
+8 wastes (DOWNTIME): Defects, Overproduction, Waiting,
+  Non-utilised talent, Transportation, Inventory, Motion, Extra-processing
+5S: Sort - Set in order - Shine - Standardise - Sustain</pre></div>`;
+  refOv.innerHTML='<div class="modal"><div class="modal-head"><span class="prompt">&gt;&gt;&gt;</span> '+t('refTitle')+' \u00B7 '+(AREA==='python'?'Python':'LEAN')+'<button class="mclose" id="refX">'+t('dashClose')+'</button></div><div class="modal-body">'+(AREA==='python'?py:lean)+'</div></div>';
+  refOv.classList.add('open');
+  refOv.querySelector('#refX').addEventListener('click',()=>refOv.classList.remove('open'));
+}
+document.getElementById('dashBtn').addEventListener('click',openDash);
+document.getElementById('refBtn').addEventListener('click',openRef);
+
+/* ---- language, menu, reset ---- */
+document.getElementById('langBtn').addEventListener('click',()=>{ lang=(lang==='en'?'es':'en'); save(); render(); });
+document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('resetBtn').addEventListener('click',()=>{ if(confirm(t('resetConfirm'))){ state={ completed:{}, solved:{}, code:{}, xp:0, area:AREA, last:{python:0,lean:0}, lang:lang, depth:state.depth||'beginner' }; IDX=0; save(); render(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ dashOv.classList.remove('open'); refOv.classList.remove('open'); } });
+
+/* ---- boot ---- */
+(async function(){ await load(); render(); initPy(); })();
+})();
+</script>
+</body>
+</html>
