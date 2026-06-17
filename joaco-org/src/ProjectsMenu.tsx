@@ -58,7 +58,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "hipoteca", emoji: "🏠", title: "Simulador Hipotecario", description: "Hipotecas España con datos BCE", color: "c3", href: "#/app/hipoteca" },
   { id: "tycoon", emoji: "🎮", title: "AI Product Tycoon", description: "Imperio Agéntico — estrategia PMO/IA", color: "c4", href: "#/app/tycoon" },
   { id: "innovation", emoji: "🧠", title: "Innovation position training", description: "Innovation position training", color: "c3", href: "#/app/innovation" },
-  { id: "python_lean", emoji: "🧠", title: "Python training", description: "Python training and Lean", color: "c5", href: "#/app/python" },
+  { id: "python_lean", emoji: "🧠", title: "Python training", description: "Python training and Lean", color: "c4", href: "#/app/python_lean" },
   placeholderSlot(7, "c1"),
 ];
 
