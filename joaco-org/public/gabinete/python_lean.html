@@ -1096,6 +1096,71 @@ ax.set_ylabel("Sales")`,
 ];
 
 if (typeof module !== "undefined") module.exports = { CURRICULUM };
+
+/* ===== PYTHON "HOW IT WORKS" DEEP DIVES (merged into CURRICULUM) ===== */
+const PY_DEEP = {
+a1:`<p><b>What actually happens when you run code.</b> Python reads your file top to bottom, compiles it to intermediate <em>bytecode</em>, and a virtual machine executes that bytecode one instruction at a time. There is no separate "compile then run" step you manage — it's automatic. In a script, statements run in order; in the interactive REPL, each line is run as you press Enter and the result is echoed. <code>print()</code> is an ordinary <em>function</em> (in Python 3 — it was a statement in Python 2), which is why it needs parentheses.</p>
+<p><b>How print really works.</b> <code>print</code> takes any number of arguments, converts each to text by calling <code>str()</code> on it, joins them with the <code>sep</code> string (default a single space), writes the result to the output stream <code>sys.stdout</code>, then writes the <code>end</code> string (default a newline). So <code>print("a","b")</code> is really "str('a') + ' ' + str('b') + '\\n'". Knowing this explains every behaviour: why numbers print without quotes (str of 5 is "5"), how to suppress the newline (<code>end=""</code>), and how to change the separator. <code>print</code> returns <code>None</code> — it's used for its side effect, not its value. A <code>#</code> starts a comment that the compiler discards entirely.</p>`,
+a2:`<p><b>Names are labels, not boxes.</b> The single most important mental model in Python: a variable is not a container that holds a value — it is a <em>name bound to an object</em> that lives elsewhere in memory. <code>x = 5</code> creates an integer object <code>5</code> and points the name <code>x</code> at it. <code>y = x</code> doesn't copy anything; it points <code>y</code> at the <em>same</em> object. Every value is an object with three things: a type, a value, and an identity (its address, visible via <code>id()</code>). <code>type(x)</code> asks the object what it is.</p>
+<p><b>Dynamic typing and rebinding.</b> The <em>name</em> has no type; the <em>object</em> does. So <code>x = 5</code> then <code>x = "hi"</code> simply re-points <code>x</code> at a different object of a different type — nothing about the original is "changed". This is "dynamic typing". Conversions like <code>int("42")</code> never mutate the original; they build a brand-new object and return it. <code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code> are themselves classes, and calling them constructs an instance. Use <code>isinstance(x, int)</code> rather than comparing <code>type(x)==int</code> when you want to respect subclasses.</p>`,
+a3:`<p><b>Two different number worlds.</b> Python's <code>int</code> has <em>arbitrary precision</em> — it grows to as many digits as memory allows, so <code>2**1000</code> is exact with no overflow. <code>float</code> is a 64-bit IEEE-754 double, the same hardware format used everywhere, which stores numbers in binary. Because 0.1 has no exact binary representation, <code>0.1 + 0.2</code> is <code>0.30000000000000004</code>, not <code>0.3</code> — this is not a Python bug, it's how floats work in every language. For money, use <code>round()</code> for display or the <code>decimal</code> module for exactness.</p>
+<p><b>The division operators, precisely.</b> <code>/</code> always produces a float (<code>6/2</code> is <code>3.0</code>). <code>//</code> is floor division — it rounds toward negative infinity, so <code>-7 // 2</code> is <code>-4</code>, not <code>-3</code>. <code>%</code> returns the remainder, and its sign follows the <em>divisor</em>, so <code>-7 % 2</code> is <code>1</code>. These two are linked: <code>a == (a // b) * b + (a % b)</code> always holds. <code>**</code> is exponentiation. Normal precedence applies (<code>**</code> before <code>* /</code> before <code>+ -</code>); use parentheses to be explicit. <code>x += 1</code> is augmented assignment — shorthand for <code>x = x + 1</code>.</p>`,
+a4:`<p><b>Strings are immutable sequences of Unicode.</b> A Python 3 string is a sequence of Unicode code points (so emoji and accents are first-class). Crucially it is <em>immutable</em>: you can never change a character in place. Every "modifying" method — <code>.upper()</code>, <code>.replace()</code>, <code>.strip()</code> — returns a <em>new</em> string and leaves the original untouched. Indexing (<code>s[0]</code>) returns a length-1 string (Python has no separate char type); slicing (<code>s[1:4]</code>) builds a new string with start inclusive, stop exclusive. The step in <code>s[::-1]</code> walks backwards to reverse.</p>
+<p><b>Why this matters for performance and f-strings.</b> Because strings are immutable, building one by repeated <code>+=</code> in a loop is O(n²) — each <code>+=</code> copies the whole string so far. The idiom is to collect pieces in a list and <code>"".join(parts)</code> once. <em>f-strings</em> (<code>f"{name} is {age}"</code>) are the modern way to format: the expressions inside the braces are evaluated and converted to text, and the compiler turns the whole thing into efficient formatting calls. You can add format specs (<code>f"{x:.2f}"</code>) and even debug with <code>f"{x=}"</code>.</p>`,
+a5:`<p><b>Booleans are integers, and truthiness is everywhere.</b> <code>bool</code> is a subclass of <code>int</code>: <code>True</code> is literally <code>1</code> and <code>False</code> is <code>0</code>, so <code>True + True == 2</code>. Every object has a "truthiness": Python calls <code>__bool__</code> (or falls back to <code>__len__</code>) to decide. The falsy values are <code>False</code>, <code>0</code>, <code>0.0</code>, <code>""</code>, <code>[]</code>, <code>{}</code>, <code>()</code>, <code>None</code> — everything else is truthy. This is why <code>if items:</code> is the idiomatic test for "is this list non-empty".</p>
+<p><b>and/or return operands; is vs ==.</b> <code>and</code> and <code>or</code> <em>short-circuit</em> and return one of their operands, not necessarily a bool: <code>a or b</code> returns <code>a</code> if it's truthy else <code>b</code> (the basis of the <code>x = config or default</code> idiom), and <code>a and b</code> returns <code>a</code> if falsy else <code>b</code>. <code>==</code> compares <em>values</em>; <code>is</code> compares <em>identity</em> (same object). Use <code>is</code> only for singletons like <code>None</code>. Chained comparisons such as <code>0 &lt; x &lt; 10</code> are not magic: they desugar to <code>0 &lt; x and x &lt; 10</code>, evaluating <code>x</code> only once.</p>`,
+a6:`<p><b>Indentation is the syntax.</b> Where other languages use braces, Python uses <em>indentation</em> to define blocks — this is enforced by the compiler, not just style. The colon ends the header line and opens a block; everything indented by the same amount (use 4 spaces, never mix tabs) belongs to it. This forces readable structure but means a stray space is a real error. <code>if</code> / <code>elif</code> / <code>else</code> test conditions in order and run the first truthy branch; only one branch runs.</p>
+<p><b>Expressions vs statements, and the alternatives.</b> The conditional <em>expression</em> <code>"pass" if score &gt;= 60 else "fail"</code> produces a value (useful inside assignments and comprehensions), whereas an <code>if</code> <em>statement</em> directs control flow. Conditions reuse truthiness, so <code>if name:</code> works without an explicit comparison. <code>pass</code> is a do-nothing placeholder for an empty block. Since 3.10 Python also has structural <code>match/case</code> for pattern matching, but <code>if/elif/else</code> remains the everyday tool.</p>`,
+a7:`<p><b>What a list is, mechanically.</b> A list is a dynamic array of <em>references</em> to objects, stored contiguously and over-allocated so that <code>append</code> is O(1) on average (occasionally it copies to a bigger buffer). Because it stores references, a list can hold mixed types and the same object can appear twice. <code>insert(0, x)</code> and <code>remove</code>/<code>pop(0)</code> at the front are O(n) because every later element shifts — for queue-like work use <code>collections.deque</code>.</p>
+<p><b>Aliasing is the classic trap.</b> Lists are <em>mutable</em>, and assignment never copies. <code>b = a</code> makes <code>b</code> another name for the same list, so <code>b.append(1)</code> also changes <code>a</code>. To copy, use <code>a[:]</code> or <code>list(a)</code> (a shallow copy — the outer list is new but the elements are still shared) or <code>copy.deepcopy</code> for full independence. Slicing always returns a new list. <code>sorted(xs)</code> returns a new sorted list; <code>xs.sort()</code> sorts in place and returns <code>None</code> — a frequent source of "why is my list None?" bugs.</p>`,
+a8:`<p><b>for is really iteration over an iterator.</b> <code>for x in thing</code> doesn't use indices — Python calls <code>iter(thing)</code> to get an <em>iterator</em>, then repeatedly calls <code>next()</code> on it until it raises <code>StopIteration</code>. This is why the same <code>for</code> loop works over lists, strings, files, dicts and generators alike. <code>range(start, stop, step)</code> is not a list — it's a lazy sequence object that computes numbers on demand, so <code>range(10**9)</code> uses almost no memory.</p>
+<p><b>The useful extras.</b> <code>enumerate(xs)</code> yields <code>(index, value)</code> pairs so you rarely need manual counters; <code>zip(a, b)</code> walks several sequences in lockstep and stops at the shortest. <code>break</code> exits the loop entirely; <code>continue</code> skips to the next iteration. Loops can have an <code>else</code> clause that runs only if the loop finished <em>without</em> a <code>break</code> — handy for search-and-not-found logic. A real pitfall: never add to or remove from a list while iterating over it; iterate over a copy (<code>for x in xs[:]</code>) or build a new list instead.</p>`,
+a9:`<p><b>Tuples: immutable, hashable, meaningful.</b> A tuple is like a list you cannot change after creation. Immutability buys two things: it signals "this is a fixed record" (e.g. a coordinate), and — if all its elements are themselves hashable — it can be used as a dictionary key or set element, which a list never can. Tuple <em>packing</em> and <em>unpacking</em> power multiple assignment (<code>x, y = point</code>) and the clean swap <code>a, b = b, a</code> (the right side is built as a tuple first, then unpacked).</p>
+<p><b>Sets are hash tables.</b> A set stores only <em>unique, hashable</em> elements in a hash table, giving average O(1) membership tests — vastly faster than scanning a list with <code>in</code>. Sets are unordered (don't rely on iteration order) and support real set algebra: union <code>|</code>, intersection <code>&amp;</code>, difference <code>-</code>, symmetric difference <code>^</code>. The most common everyday use is de-duplication: <code>set(xs)</code> removes repeats. <code>frozenset</code> is the immutable, hashable version you can nest inside other sets or use as a key.</p>`,
+a10:`<p><b>The dictionary is Python's powerhouse.</b> A dict maps <em>keys</em> to <em>values</em> using a hash table: it computes <code>hash(key)</code> to find a slot, giving average O(1) insertion and lookup regardless of size. This is why dicts are everywhere — objects' attributes, namespaces and JSON are all dict-like under the hood. Keys must be <em>hashable</em> (immutable-ish): strings, numbers and tuples work; lists and dicts cannot be keys because their contents (and hash) could change.</p>
+<p><b>Access patterns and ordering.</b> <code>d[k]</code> raises <code>KeyError</code> if the key is missing; <code>d.get(k, default)</code> returns a fallback instead — the safe choice when a key may be absent. <code>d.setdefault</code> and <code>collections.defaultdict</code> help build nested structures. The counting idiom <code>d[w] = d.get(w, 0) + 1</code> is the manual version of <code>Counter</code>. Iterating a dict yields its keys; use <code>.items()</code> for key/value pairs and <code>.values()</code> for values. Since Python 3.7 dicts preserve <em>insertion order</em>, which you can rely on.</p>`,
+a11:`<p><b>def builds an object; arguments pass by reference.</b> <code>def f(...)</code> creates a function <em>object</em> and binds it to the name <code>f</code> — functions are first-class values you can pass around and store. Arguments are passed "by object reference" (sometimes called pass-by-assignment): the parameter name inside the function points at the <em>same</em> object the caller passed. So mutating a passed-in list is visible to the caller, but rebinding the parameter (<code>x = something</code>) only changes the local name. A function with no <code>return</code> returns <code>None</code>.</p>
+<p><b>Parameters, and the mutable-default trap.</b> Parameters can be positional or keyword, with defaults (<code>greeting="Hello"</code>); <code>*args</code> collects extra positional arguments into a tuple and <code>**kwargs</code> collects extra keyword arguments into a dict. A famous gotcha: default values are evaluated <em>once, when the function is defined</em>, not on each call — so <code>def f(items=[])</code> shares one list across all calls. The fix is <code>def f(items=None): items = items or []</code>. Names assigned inside a function are <em>local</em>; lookup follows the LEGB rule (Local, Enclosing, Global, Built-in).</p>`,
+a12:`<p><b>Comprehensions are compiled loops, not just sugar.</b> A list comprehension <code>[expr for x in it if cond]</code> builds the list with a tight, optimised loop that runs faster than manually appending in a Python <code>for</code> loop, and reads as one declarative line: "the expr, for each x in it, where cond". The same shape makes set comprehensions <code>{...}</code> and dict comprehensions <code>{k: v for ...}</code>. In Python 3 the loop variable does <em>not</em> leak into the surrounding scope (it did in Python 2).</p>
+<p><b>Lazy cousins: generator expressions.</b> Swap the brackets for parentheses and you get a <em>generator expression</em> — <code>sum(x*x for x in range(1000000))</code> — which computes values one at a time instead of building a giant list, so it uses almost no memory. Reach for a comprehension when the result is a small/medium collection you'll reuse, and a generator expression when you're streaming through a large or infinite sequence once. Don't over-nest: if a comprehension needs two <code>for</code> clauses and a condition, a plain loop is often clearer.</p>`,
+a13:`<p><b>Exceptions are objects that travel up the stack.</b> When something goes wrong Python creates an exception <em>object</em> and "raises" it; that exception propagates up through the calling functions until some <code>except</code> catches it, or it reaches the top and stops the program with a traceback. <code>try</code> guards a block; <code>except SomeError</code> handles a matching type (catch specific types, not bare <code>except</code>); <code>else</code> runs only if no exception occurred; <code>finally</code> always runs (cleanup), even if an exception or <code>return</code> happened. Exceptions form a hierarchy under <code>BaseException</code>, so <code>except ValueError</code> also catches its subclasses.</p>
+<p><b>EAFP — the Pythonic style.</b> Python favours "Easier to Ask Forgiveness than Permission": just try the operation and handle the exception, rather than checking everything first (LBYL — "Look Before You Leap"). So <code>try: return int(s) except ValueError: return -1</code> is idiomatic. <code>raise ValueError("message")</code> signals your own errors; you can define custom exception classes by subclassing <code>Exception</code>. Use exceptions for genuinely exceptional conditions, and keep <code>try</code> blocks small so you catch only what you mean to.</p>`,
+b14:`<p><b>What import actually does.</b> The first time you <code>import math</code>, Python finds the module, <em>executes its top-level code once</em>, builds a module object, and caches it in <code>sys.modules</code>. Every later import of the same module just hands back the cached object — so imports are cheap after the first and module-level side effects run only once. <code>import math</code> binds the name <code>math</code> (you then write <code>math.sqrt</code>); <code>from math import sqrt</code> binds <code>sqrt</code> directly into your namespace. Each module is its own namespace, which prevents name clashes.</p>
+<p><b>Batteries included.</b> The standard library is huge and worth knowing: <code>math</code> and <code>random</code>, <code>datetime</code> for dates, <code>collections</code> (<code>Counter</code>, <code>defaultdict</code>, <code>deque</code>), <code>itertools</code> for iterator algebra, <code>json</code>, <code>os</code>/<code>pathlib</code>, <code>re</code> for regex. Reaching for the stdlib before writing your own is a hallmark of good Python. The <code>if __name__ == "__main__":</code> guard lets a file act both as an importable module and as a runnable script, because <code>__name__</code> is <code>"__main__"</code> only when the file is run directly.</p>`,
+b15:`<p><b>A class is a factory for objects.</b> <code>class Account:</code> defines a new <em>type</em>. Calling it (<code>Account("Ada")</code>) creates an <em>instance</em>; Python allocates the object and calls <code>__init__</code> to set it up. <code>self</code> is just the instance, passed explicitly as the first parameter of every method — there's no hidden "this". Instance data lives in the object's own <code>__dict__</code>; methods are functions stored on the class. When you access <code>obj.x</code>, Python looks on the instance first, then the class, then its base classes following the Method Resolution Order (MRO).</p>
+<p><b>Inheritance and dunder methods.</b> A subclass (<code>class Puppy(Dog)</code>) inherits and can override behaviour; <code>super().__init__(...)</code> calls the parent's version. The real power is "dunder" (double-underscore) methods that hook into language syntax: <code>__init__</code> for construction, <code>__str__</code>/<code>__repr__</code> for printing, <code>__len__</code>, <code>__eq__</code>, <code>__add__</code> for <code>+</code>, <code>__getitem__</code> for indexing, and so on. Implementing them makes <em>your</em> objects behave like built-in ones. This is why "everything is an object" is literally true in Python — even functions and classes are objects with types.</p>`,
+b16:`<p><b>The iterator protocol underneath every loop.</b> An <em>iterable</em> is anything with <code>__iter__</code> that returns an <em>iterator</em>; an iterator has <code>__next__</code> that returns the next item or raises <code>StopIteration</code>. <code>for</code>, <code>list()</code>, <code>sum()</code> and unpacking all speak this protocol. Iterators are one-shot: once exhausted, they're empty. Understanding this explains why a file or a <code>zip</code> can be looped only once, and why <code>list(it)</code> "uses up" a generator.</p>
+<p><b>Generators: pausable functions.</b> A function containing <code>yield</code> is a <em>generator function</em>: calling it doesn't run the body, it returns a generator object. Each <code>next()</code> runs the body until the next <code>yield</code>, hands back that value, and <em>freezes the function's entire state</em> (local variables, position) until resumed. This makes generators lazy and memory-light — you can model an infinite sequence (<code>while True: yield n; n += 1</code>) because values are produced on demand, never all at once. Generator <em>expressions</em> are the inline form, and the <code>itertools</code> module is a toolbox of ready-made iterators.</p>`,
+b17:`<p><b>Functions are objects; closures capture variables.</b> Because functions are first-class, you can define one inside another and return it. The inner function "remembers" variables from the enclosing scope even after the outer function has returned — that bundle is a <em>closure</em>, and Python stores those captured variables in special <em>cell</em> objects (referenced by name, not copied by value, which causes the classic late-binding loop pitfall where all closures see the final loop value). <code>multiplier(2)</code> returning a <code>mult</code> that uses <code>factor</code> is a closure over <code>factor</code>.</p>
+<p><b>Decorators are functions that wrap functions.</b> A decorator takes a function and returns a replacement — usually a <em>wrapper</em> that adds behaviour before/after calling the original. The <code>@decorator</code> line above a <code>def</code> is pure syntax sugar for <code>f = decorator(f)</code>. Use <code>*args, **kwargs</code> in the wrapper so it works for any signature, and <code>functools.wraps</code> to copy the original's name and docstring onto the wrapper. Decorators power logging, timing, caching (<code>functools.lru_cache</code>), access control and route registration in frameworks — anywhere you want to add a cross-cutting concern without editing the function itself.</p>`,
+b18:`<p><b>Lambdas and functions as arguments.</b> <code>lambda x: x*2</code> is a small anonymous function written as a single expression — handy when you need a throwaway function to pass somewhere. Because functions are first-class, many built-ins take a function argument: <code>sorted(xs, key=fn)</code> sorts by the value <code>fn</code> returns (Python decorates each item with its key, sorts, then undecorates — and the sort, Timsort, is <em>stable</em>, preserving the order of equal keys). <code>map(fn, xs)</code> and <code>filter(pred, xs)</code> return lazy iterators that apply a function across a sequence.</p>
+<p><b>When to use which.</b> <code>map</code>/<code>filter</code> are fine, but a comprehension is usually more readable for the same job (<code>[f(x) for x in xs]</code> vs <code>map(f, xs)</code>); reach for <code>map</code>/<code>filter</code> when you already have a named function. <code>zip</code> pairs sequences; <code>any()</code> and <code>all()</code> short-circuit over a boolean iterable. A common, powerful pattern is <code>sorted(records, key=lambda r: r[1])</code> to sort tuples or objects by a field. Keep lambdas tiny — if it needs a statement or is reused, write a real <code>def</code>.</p>`,
+b19:`<p><b>JSON is text; Python objects are not.</b> The <code>json</code> module bridges the two: <code>json.dumps(obj)</code> <em>serialises</em> a Python value (dicts, lists, strings, numbers, booleans, None) into a JSON <em>string</em>, and <code>json.loads(text)</code> <em>parses</em> a JSON string back into Python objects. The type mapping is direct (dict⇄object, list⇄array, None⇄null, True⇄true). Round-tripping is lossy for types JSON can't express (tuples become lists, sets and custom objects need custom encoders). This is how programs exchange structured data over files and the network.</p>
+<p><b>Context managers guarantee cleanup.</b> The <code>with</code> statement manages a resource's lifetime: <code>with open("f") as fh:</code> calls the object's <code>__enter__</code> on entry and — crucially — its <code>__exit__</code> on exit, <em>even if an exception is raised</em>. For files this guarantees the handle is closed and buffers flushed, which matters because relying on garbage collection to close files is non-deterministic. Any object can be a context manager by implementing those two dunder methods, or you can build one quickly with <code>contextlib.contextmanager</code>. The pattern generalises to locks, database transactions and timers — anything with a "set up, then always tear down" shape.</p>`,
+c20:`<p><b>Why this design.</b> A text analyser is the first place several tools combine: string methods to normalise and split, a loop or comprehension to process tokens, and a dictionary to accumulate counts. Lowercasing first (<code>text.lower()</code>) folds "The" and "the" together; <code>split()</code> with no argument splits on any run of whitespace and discards empties, which is more robust than <code>split(" ")</code>. The manual counting idiom is <code>counts[w] = counts.get(w, 0) + 1</code>.</p>
+<p><b>How Counter helps.</b> <code>collections.Counter</code> is a dict subclass purpose-built for this: <code>Counter(words)</code> tallies in one line, missing keys return <code>0</code> instead of raising, and <code>.most_common(n)</code> returns the top items already sorted by frequency (it uses a heap internally). It also supports arithmetic between counters. Reaching for <code>Counter</code> instead of hand-rolling a dict is the Pythonic move once you recognise a "count the things" problem — and it scales cleanly to word frequencies, log analysis, or tallying categories.</p>`,
+c21:`<p><b>Modelling state as pure functions.</b> A "state machine" tracks where you are and how inputs move you between states. The cleanest, most testable way to express one step is a <em>pure function</em>: given the current state and an input, return the result with no side effects. <code>step(secret, guess)</code> returning "low"/"high"/"correct" is pure — same inputs always give the same output — so it's trivial to unit-test, exactly how the checker here verifies it.</p>
+<p><b>Why avoid input() here, and what to do instead.</b> Interactive <code>input()</code> blocks waiting for the keyboard and behaves awkwardly in a browser sandbox, so we design the logic as functions that take their "inputs" as arguments and a driver that feeds a list of moves (<code>play(secret, guesses)</code>). This separation — pure logic from I/O — is a broadly valuable habit: it keeps the testable core independent of how data arrives (keyboard, file, web request), which is the same principle behind clean architecture in larger systems.</p>`,
+c22:`<p><b>Parsing and accumulating by hand.</b> Before reaching for pandas it's worth doing a small data job in plain Python, because it shows what the libraries do for you. <code>raw.splitlines()</code> breaks text into rows; <code>line.split(",")</code> breaks a row into fields; tuple unpacking <code>name, dept, salary = ...</code> names them; <code>int(salary)</code> converts the text to a number. You then <em>accumulate</em> into a dict with the <code>totals[dept] = totals.get(dept, 0) + value</code> idiom — the universal group-and-sum pattern.</p>
+<p><b>From hand-rolled to libraries.</b> This is exactly the "split, parse, aggregate" loop that <code>csv</code>, <code>collections.Counter</code> and ultimately pandas <code>groupby</code> automate. Recognising the pattern in raw form means that when you later write <code>df.groupby("dept")["salary"].sum()</code> you understand it's doing the same accumulation, just vectorised and faster. Building it once by hand also makes you appreciate edge cases the libraries handle for you: quoted fields, missing values, type coercion and headers.</p>`,
+d23:`<p><b>Why NumPy is fast: the ndarray.</b> A Python list holds pointers to separate, boxed objects scattered in memory. A NumPy <code>ndarray</code> instead stores a single, contiguous block of <em>raw, same-type</em> values (the <code>dtype</code>, e.g. float64) described by a <code>shape</code> and <code>strides</code>. Operations like <code>a * 2</code> or <code>a.mean()</code> run as compiled C loops over that block — "vectorised" — with no per-element Python overhead, so they're often 10–100× faster than a Python loop and use far less memory.</p>
+<p><b>Vectorisation, broadcasting, views.</b> You express computation on whole arrays rather than element by element: <code>a + b</code>, <code>np.sqrt(a)</code>, <code>a.sum(axis=0)</code>. <em>Broadcasting</em> lets arrays of different but compatible shapes combine (a scalar with an array, a row with a matrix) by virtually stretching the smaller one — no copies. Beware the views-vs-copies distinction: basic slicing returns a <em>view</em> sharing memory (changing it changes the original), while fancy/boolean indexing returns a copy. <code>np.std</code> defaults to the population standard deviation (ddof=0).</p>`,
+d24:`<p><b>Boolean masks, mechanically.</b> A comparison on an array is itself vectorised: <code>a &gt; 10</code> produces a same-shape array of <code>True</code>/<code>False</code>. Passing that boolean array back as an index (<code>a[a &gt; 10]</code>) selects exactly the elements where the mask is <code>True</code> — this is "boolean indexing" and it's the workhorse of array filtering. <code>(a &gt; 10).sum()</code> counts matches because <code>True</code> sums as 1. <code>np.where(cond, x, y)</code> picks element-wise from <code>x</code> or <code>y</code> by the condition — a vectorised if/else.</p>
+<p><b>Axes are the key idea in N dimensions.</b> For a 2-D array, <code>axis=0</code> runs <em>down</em> the rows (collapsing rows → one value per column) and <code>axis=1</code> runs <em>across</em> the columns (one value per row). Getting axes right is most of the skill in NumPy/pandas aggregation. Boolean and fancy indexing return copies (safe to modify without touching the source); plain slices return views (fast, but edits propagate). Internalising masks + axes lets you replace almost every elementwise loop with a single fast expression.</p>`,
+d25:`<p><b>What a DataFrame is.</b> A pandas <code>DataFrame</code> is essentially an ordered dict of columns, where each column is a <code>Series</code> — a NumPy-backed array plus a shared <em>index</em> (the row labels). So a DataFrame is columnar and typed per column, which is why column operations are vectorised and fast. The index is not just row numbers; it's a first-class labelled axis you can align and join on. Selecting <code>df["units"]</code> returns the Series for that column.</p>
+<p><b>Label vs position, and the copy warning.</b> Two ways to select: <code>.loc[]</code> works by <em>label</em> (index/column names) and <code>.iloc[]</code> by <em>integer position</em>; mixing them up is a common bug. Filtering with a boolean Series (<code>df[df["units"] &gt; 100]</code>) is the same boolean-mask idea as NumPy, lifted to rows. Vectorised column math (<code>df["rev"] = df["units"] * df["price"]</code>) avoids loops entirely. Watch for <code>SettingWithCopyWarning</code>: it warns that you may be assigning to a temporary slice rather than the original frame — use <code>.loc</code> for assignments to be safe.</p>`,
+d26:`<p><b>Split–apply–combine.</b> <code>groupby</code> implements a three-step pattern: <em>split</em> the rows into groups by the key column(s), <em>apply</em> an aggregation (sum, mean, count, a custom function) to each group independently, and <em>combine</em> the results into a new Series or DataFrame indexed by the group keys. <code>df.groupby("region")["sales"].sum()</code> returns a Series whose index is the regions and whose values are the per-region totals. It's the tabular equivalent of the manual dict-accumulation loop, but vectorised.</p>
+<p><b>The toolbox around it.</b> <code>.agg()</code> applies several aggregations at once or different ones per column; <code>.to_dict()</code> turns a grouped Series into a plain dict; <code>.idxmax()</code> returns the index label (e.g. the region) of the maximum value, which is how you answer "which group is biggest" without manual scanning; <code>.sort_values()</code> orders results for presentation. <code>value_counts()</code> is a shortcut for grouping-and-counting a single column. Most real analyses are a pipeline of filter → groupby → aggregate → sort.</p>`,
+d27:`<p><b>From records to insight.</b> A very common real shape is a list of dict "records"; <code>pd.DataFrame(records)</code> turns it straight into a table with columns inferred from the keys. From there the analysis is a short, readable pipeline: add a derived column (<code>df["revenue"] = df["units"] * df["price"]</code>), aggregate (<code>df["revenue"].sum()</code>, <code>groupby(...).sum()</code>), and pick out answers (<code>.idxmax()</code>). Each step returns a new object, so you can chain or inspect intermediate results.</p>
+<p><b>Why method chaining matters.</b> Experienced pandas users write analyses as chains — <code>df.assign(rev=...).groupby("region")["rev"].sum().sort_values()</code> — because each call returns a DataFrame/Series, keeping logic linear and avoiding throwaway variables. The same discipline that made the hand-rolled pipeline in the Foundations track readable applies here, just expressed in vectorised pandas. Building a small KPI function like <code>analyze(records)</code> packages this pipeline behind a clean interface you can test and reuse.</p>`,
+d28:`<p><b>Reading data in.</b> <code>pd.read_csv</code> parses delimited text into a DataFrame, inferring a dtype per column (numbers become int/float, the rest stays object/string). When the CSV lives in a string rather than a file, wrap it in <code>io.StringIO</code> so pandas can read it like a file — useful for tests, APIs and embedded data. From there a derived column (<code>revenue = units * price</code>) and grouped aggregations answer the business questions, exactly as in a real exploratory analysis.</p>
+<p><b>The everyday EDA loop.</b> Load → inspect (<code>.head()</code>, <code>.info()</code>, <code>.describe()</code>) → clean/derive → group/aggregate → visualise. This case compresses that loop: build revenue, total it, break it down by region and by product, and identify the top contributor with <code>idxmax</code>. The same five moves scale from this eight-row sample to millions of rows, which is why pandas became the default tool for commercial analytics before any modelling begins.</p>`,
+v29:`<p><b>matplotlib's object model.</b> A chart is a tree of <em>Artists</em>: a <code>Figure</code> (the whole canvas) contains one or more <code>Axes</code> (a single plot with its own x/y), and each Axes contains lines, bars, text, ticks and legends. <code>fig, ax = plt.subplots()</code> creates both and hands you the <code>ax</code> to draw on. There are two ways to use matplotlib: the stateful <code>plt.</code> interface (quick, implicit "current axes") and the explicit object-oriented interface where you call methods on <code>ax</code> — the latter is preferred for anything reusable because it's unambiguous about <em>which</em> plot you mean.</p>
+<p><b>Why we pass <code>ax</code>, and how it renders.</b> Writing functions that take an <code>ax</code> argument (<code>def draw(ax, ...)</code>) lets the caller decide where the plot goes — one chart, a grid of subplots, or a dashboard — which is exactly why the exercises here check the <code>ax</code> you drew on. Under the hood matplotlib uses a <em>backend</em> to turn Artists into pixels; the Agg backend renders to a raster image (PNG), which is how these charts appear inline. Labels and titles (<code>ax.set_title</code>, <code>ax.set_ylabel</code>) aren't decoration — an unlabelled chart is unreadable, so they're part of doing it correctly.</p>`,
+v30:`<p><b>Aggregate, then visualise.</b> Most business charts are a two-step move: use pandas to reduce raw rows to a small summary (<code>df.groupby("region")["sales"].sum()</code>), then hand the summary's index and values to a matplotlib bar chart. Sorting the summary (<code>.sort_values(ascending=False)</code>) before plotting turns a jumble into a ranked, instantly readable chart — small touches like ordering and labelling are what separate a useful figure from a confusing one.</p>
+<p><b>Choosing the encoding.</b> Match the chart to the question: bars compare categories, lines show change over time, histograms show a distribution, scatter shows relationship between two variables. Wrapping the plotting logic in a function that takes an <code>ax</code> (as the exercise does) makes it reusable across reports and composable into multi-panel dashboards. This pandas-to-matplotlib pipeline is the visual end of the same EDA loop — and it connects directly to the LEAN side of this app, where a Pareto chart or run chart is just this pattern applied to quality data.</p>`,
+};
+CURRICULUM.forEach(function(l){ if(PY_DEEP[l.id]) l.deep = PY_DEEP[l.id]; });
 // LEAN curriculum — 16 modules, each with a Beginner concept + a Deep dive.
 // exercise types:
 //   { type:'numeric', prompt, table?, fields:[{key,label,unit,answer,tol}], solution }
@@ -1596,6 +1661,228 @@ Lead time = WIP / throughput        (Little's Law)</pre>
       solution:`<p>Cut WIP to cut lead time; near-100% utilisation explodes queues; a wait-dominated stream is a Lean flow problem; and intake rework is fixed by mistake-proofing/raising FPY at the source.</p>` },
   ]
 },
+
+/* ===== 17. ROOT CAUSE: 5 WHYS & FISHBONE ===== */
+{
+  id:'l17', area:'lean', track:'Problem-Solving Tools', title:'Root Cause: 5 Whys & Fishbone (Ishikawa)', min:40,
+  concept:`<p>Before fixing anything, find the <em>real</em> cause. Two classic tools do this.</p>
+  <p><strong>5 Whys</strong> — keep asking "why?" (about five times) to walk from the symptom down to a root cause you can actually act on. Stop when the answer points to a process or system you control.</p>
+  <p><strong>Fishbone (Ishikawa / cause-and-effect)</strong> — put the problem in the fish's head, then brainstorm causes along bones grouped into categories. The classic categories are the <em>6 Ms</em>: Manpower (people), Machine, Method, Material, Measurement and Environment (Mother Nature).</p>
+  <p>Use them together: the fishbone spreads your thinking wide across categories; the 5 Whys drills deep on the most promising bones.</p>`,
+  deep:`<p><b>Doing 5 Whys well.</b> The danger is a single, lazy chain that ends at "human error" or "they didn't try hard enough" — which is blame, not a root cause. Good practice: anchor each "why" in evidence (go to the gemba, look at data), allow the chain to <em>branch</em> (a problem can have several root causes), and test the logic in reverse with "therefore" — if "root cause → therefore → symptom" reads sensibly, the chain holds. A real root cause is one where a countermeasure prevents recurrence; if removing it wouldn't stop the problem, dig further. Beware stopping too early (you fix a symptom) or going too deep (you reach "the laws of physics").</p>
+  <p><b>Doing the fishbone well.</b> Ishikawa created it at Kawasaki; it is one of the seven basic quality tools. Brainstorm causes per category with the team, then mark the few most likely to verify with data — the diagram <em>generates hypotheses</em>, it doesn't prove them. In services, the 6 Ms are often relabelled the <em>4 Ss</em> (Surroundings, Suppliers, Systems, Skills) or simply People / Process / Policy / Place. The categories are scaffolding to prevent tunnel vision, not a rigid taxonomy.</p>
+  <p><b>How they fit the cycle.</b> Root-cause analysis is the "Analyse" heart of PDCA, A3 and DMAIC. The sequence is almost always: define the problem precisely → fishbone to map candidate causes → pick the likely few → 5 Whys to drill → verify with data → only then design countermeasures. Skipping straight to countermeasures (the universal temptation) is how teams "solve" the same problem repeatedly.</p>`,
+  exercises:[
+    { type:'classify',
+      prompt:'Assign each candidate cause of <b>late MLR responses</b> to the correct fishbone category (6 Ms).',
+      chart:{type:'fishbone', problem:'Late MLR responses'},
+      categories:['Manpower','Machine','Method','Material','Measurement','Environment'],
+      items:[
+        { text:'Reviewers are split across many other duties', answer:0 },
+        { text:'The approval software is slow and clunky', answer:1 },
+        { text:'There is no standard response template', answer:2 },
+        { text:'Author submissions arrive missing data', answer:3 },
+        { text:'Queue age is never measured or visible', answer:4 },
+        { text:'A noisy, interruption-heavy open office', answer:5 },
+      ],
+      solution:`<p>People → Manpower; software → Machine; missing template → Method; incomplete inputs → Material; unmeasured queue → Measurement; interruptions/surroundings → Environment. In practice a cause can plausibly sit in two categories — the value is the structured spread, then verifying with data.</p>` },
+    { type:'mcq', prompt:'Root-cause reasoning.',
+      questions:[
+        { text:'A 5 Whys chain that ends at "the operator wasn\u2019t careful enough" is usually…', options:['A valid root cause','Blame, not a root cause \u2014 dig further into the system','The correct stopping point','A measurement error'], correct:1 },
+        { text:'The fishbone diagram primarily…', options:['Proves the cause statistically','Generates and organises candidate causes (hypotheses)','Replaces data collection','Sets the takt time'], correct:1 },
+        { text:'You know you\u2019ve reached a usable root cause when…', options:['You\u2019ve asked exactly five whys','A countermeasure there would prevent recurrence','It mentions a person','It sounds complicated'], correct:1 },
+      ],
+      solution:`<p>"Not careful enough" is blame; the fishbone generates hypotheses to verify; and the test of a root cause is that addressing it stops recurrence — not a fixed count of whys.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 run a 5 Whys on a problem of your own (saved on this device).',
+      template:{ kind:'fivewhys', problem:'' } },
+    { type:'worksheet', prompt:'Template \u2014 a blank fishbone (6 Ms) to brainstorm causes against.',
+      template:{ kind:'fishbone' } },
+  ]
+},
+
+/* ===== 18. PARETO & 7 QC TOOLS ===== */
+{
+  id:'l18', area:'lean', track:'Problem-Solving Tools', title:'Pareto Analysis & the 7 Basic Quality Tools', min:35,
+  concept:`<p><strong>Pareto analysis</strong> applies the 80/20 rule: typically a <em>vital few</em> causes drive most of the problem. You count occurrences by cause, sort them descending as bars, and overlay the <em>cumulative %</em> line. Where the line crosses ~80% tells you the handful of causes to tackle first.</p>
+  <p>It's one of the <strong>7 Basic Quality Tools</strong> (Ishikawa's set): <em>check sheet, histogram, Pareto chart, fishbone, control chart, scatter diagram,</em> and <em>flowchart/stratification</em>. Between them they cover almost all day-to-day data analysis on a shop floor or in an office.</p>
+  <p>Below: MLR rejection reasons over one month. Read the chart, then answer.</p>`,
+  deep:`<p><b>Why Pareto works.</b> The Pareto principle (Juran named it after the economist Vilfredo Pareto) observes that effects are unevenly distributed — a small number of causes usually dominate. Focusing improvement on the vital few gives the most return for effort and stops teams from spreading themselves thin across trivial many. A subtlety: choose the right <em>unit</em> for the bars — ranking by frequency vs by cost/impact can point at different priorities (50 cheap defects may matter less than 5 expensive ones), so a cost-weighted Pareto is often more honest.</p>
+  <p><b>The seven tools, briefly.</b> <em>Check sheet</em>: a simple tally form to collect data consistently at the source. <em>Histogram</em>: shows the shape/spread of a measurement (is it centred? skewed? bimodal?). <em>Pareto</em>: ranks categories to find the vital few. <em>Fishbone</em>: organises candidate causes. <em>Control chart</em>: tracks a metric over time with control limits to separate common-cause noise from special-cause signals. <em>Scatter diagram</em>: reveals relationship/correlation between two variables. <em>Flowchart / stratification</em>: maps the process and splits data into meaningful sub-groups. Reach for them in roughly that order: define and collect (check sheet), describe (histogram/Pareto), diagnose (fishbone/scatter), monitor (control chart).</p>
+  <p><b>Common misuse.</b> A Pareto on badly stratified data misleads — if "Other" is your biggest bar, your categories are wrong. And a Pareto is a snapshot: re-run it after improving, because once you remove the top cause, a new vital few emerges (the principle is recursive).</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Read the Pareto of MLR rejection reasons.',
+      chart:{type:'pareto', data:[
+        {label:'Missing reference', value:45},
+        {label:'Claim unsubstantiated', value:30},
+        {label:'Fair balance', value:15},
+        {label:'Formatting', value:6},
+        {label:'Other', value:4}
+      ]},
+      fields:[
+        { key:'vf', label:'How many reasons must you fix to exceed 80% of rejections?', unit:'reasons', answer:3, tol:0 },
+        { key:'top2', label:'What % of rejections come from the top TWO reasons?', unit:'%', answer:75, tol:0.5 },
+      ],
+      solution:`<p>Cumulative: 45, 75, 90, 96, 100. The top two give <b>75%</b> — not yet 80% — so you need the top <b>three</b> (90%) to exceed 80%. Fixing "missing reference" and "unsubstantiated claim" alone clears three-quarters of all rejections.</p>` },
+    { type:'mcq', prompt:'Pareto & the 7 tools.',
+      questions:[
+        { text:'The single biggest rejection reason here is…', options:['Formatting','Missing reference','Fair balance','Other'], correct:1 },
+        { text:'If "Other" were your largest Pareto bar, it would mean…', options:['The analysis is finished','Your categories are poorly defined','You found the root cause','Quality is excellent'], correct:1 },
+        { text:'Which of the 7 tools separates common-cause noise from special-cause signals over time?', options:['Histogram','Control chart','Scatter diagram','Check sheet'], correct:1 },
+      ],
+      solution:`<p>"Missing reference" dominates; a giant "Other" bar means poor stratification; and the control chart is the tool for distinguishing common- vs special-cause variation over time.</p>` },
+  ]
+},
+
+/* ===== 19. SIPOC & PROCESS MAPPING ===== */
+{
+  id:'l19', area:'lean', track:'Problem-Solving Tools', title:'SIPOC & Process Mapping', min:35,
+  concept:`<p>Before improving a process you must agree on what it <em>is</em>. <strong>SIPOC</strong> is a one-page, high-level scope: <em>Suppliers → Inputs → Process → Outputs → Customers</em>. You fill it right-to-left in practice (start from the customer and what they need), and the Process column is just 4–7 high-level steps — not the detail.</p>
+  <p>From there you go deeper with <strong>process maps</strong>: a flowchart of steps and decisions, a <strong>swimlane</strong> map (who does what, across roles), or a <strong>spaghetti diagram</strong> (drawing the physical path of a person or item to expose transport and motion waste).</p>`,
+  deep:`<p><b>Why SIPOC first.</b> Most improvement projects fail at the boundary: people argue because they each picture a different process. SIPOC forces a shared, bounded definition in 30 minutes — where the process starts and ends, who feeds it, who receives it, and what "good" inputs and outputs look like. It pairs naturally with Voice-of-the-Customer (the Outputs and Customers columns are where you attach CTQs — Critical-to-Quality requirements) and is the standard first artefact in DMAIC's Define phase.</p>
+  <p><b>Levels of process map.</b> SIPOC is the 30,000-foot view; a flowchart is the 10,000-foot view; a swimlane adds <em>who</em> (rows = roles), which instantly reveals handoffs — and handoffs are where queues, rework and dropped balls live. A <em>spaghetti diagram</em> traces literal movement on a layout; a tangle of lines is a picture of motion and transport waste (just as common in an office's approval routing as on a factory floor). A <em>value-stream map</em> adds the timing data on top.</p>
+  <p><b>Reading a map for waste.</b> Once mapped, hunt for: handoffs (each one risks a queue and a %C&A drop), loops back (rework), decision diamonds with unclear rules (variation), and steps that add no customer value (candidates to cut). The map is the canvas on which the eight wastes become visible — which is why mapping precedes nearly every kaizen.</p>`,
+  exercises:[
+    { type:'classify',
+      prompt:'Classify each element of the Medical Information process into its SIPOC column.',
+      diagram:'<table class="dtable"><thead><tr><th>S</th><th>I</th><th>P</th><th>O</th><th>C</th></tr></thead><tbody><tr><td>Suppliers</td><td>Inputs</td><td>Process</td><td>Outputs</td><td>Customers</td></tr></tbody></table>',
+      categories:['Supplier','Input','Process','Output','Customer'],
+      items:[
+        { text:'Medical literature databases', answer:0 },
+        { text:'The inbound question and product data', answer:1 },
+        { text:'Triage \u2192 research \u2192 draft \u2192 review', answer:2 },
+        { text:'The approved written response', answer:3 },
+        { text:'The healthcare professional receiving the answer', answer:4 },
+        { text:'Regulatory reference guidelines', answer:1 },
+      ],
+      solution:`<p>Databases & guidelines suppliers feed <em>inputs</em> (the question, product data, references); the <em>process</em> is the 4 high-level steps; the <em>output</em> is the approved response; the <em>customer</em> is the HCP. Note one supplier can provide several inputs.</p>` },
+    { type:'mcq', prompt:'Mapping concepts.',
+      questions:[
+        { text:'A SIPOC\u2019s Process column should contain…', options:['Every detailed task','4\u20137 high-level steps','The org chart','The budget'], correct:1 },
+        { text:'A swimlane map is especially good at exposing…', options:['Handoffs between roles','Machine speeds','Material cost','Takt time'], correct:0 },
+        { text:'A spaghetti diagram primarily reveals which wastes?', options:['Defects and rework','Transportation and motion','Overproduction','Waiting only'], correct:1 },
+      ],
+      solution:`<p>SIPOC stays high-level (4\u20137 steps); swimlanes reveal role handoffs; spaghetti diagrams expose transport and motion.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 build a SIPOC for a process you own (saved on this device).',
+      template:{ kind:'sipoc' } },
+  ]
+},
+
+/* ===== 20. CASE A \u2014 A3 / PDCA ===== */
+{
+  id:'l20', area:'lean', track:'Case Walkthroughs', title:'Case A \u2014 MLR bottleneck, solved with A3 / PDCA', min:50,
+  concept:`<p>A full walkthrough of an <strong>A3 / PDCA</strong> improvement on the Medical Information stream. The A3 is a one-page story; PDCA is the cycle running underneath it. Follow every step.</p>
+  <ol>
+    <li><b>Background (Plan).</b> HCP questions take ~4.4 working days to answer; field teams complain; compliance risk if responses lapse.</li>
+    <li><b>Current condition (Plan).</b> VSM shows lead time 1982 min, only 92 min of work \u2014 PCE 4.6%. The MLR review queue alone is 960 min (almost half the lead time).</li>
+    <li><b>Goal / target (Plan).</b> Cut lead time to under 3 working days within one quarter, with no drop in compliance quality.</li>
+    <li><b>Analysis (Plan).</b> Fishbone + 5 Whys point at the review queue: reviewers are shared, there is no fast-track for simple questions, and no pre-approved answer library, so everything waits in one queue.</li>
+    <li><b>Countermeasures (Plan).</b> (a) WIP-cap the MLR queue; (b) create a fast-track class of service for standard questions answered from a pre-approved library; (c) make queue age visible on a board.</li>
+    <li><b>Do.</b> Pilot on one therapy area for 4 weeks.</li>
+    <li><b>Check.</b> Measure lead time and quality vs the target.</li>
+    <li><b>Act.</b> Standardise what worked, roll out, and keep the board for control.</li>
+  </ol>
+  <p>Work the numbers, then capture your own version in the A3 template below.</p>`,
+  deep:`<p><b>Facilitator's view.</b> The discipline of A3 is that the left side (Plan: background → current → goal → analysis) must be airtight <em>before</em> any countermeasure on the right. Most teams race to the right side; a good coach keeps asking "what does the data say?" on the left. The current-state must be quantified (the VSM), the goal must be measurable and time-bound, and the analysis must trace to a verified root cause (here: a single shared review queue), not a guess.</p>
+  <p><b>Why these countermeasures.</b> They map straight to Lean principles: the WIP cap is pull/Little's Law (cap WIP → cap lead time); the fast-track is a <em>class of service</em> that stops simple work from queuing behind complex work; the pre-approved library attacks <em>overprocessing and rework</em> (re-deriving answers that already exist) and lifts first-pass yield. The visible board is visual management for the Control step. Notice none of them is "work harder" or "add reviewers" — they change the <em>system</em>.</p>
+  <p><b>Check honestly, then Control.</b> The Check step compares actuals to the target <em>and</em> guards quality (you haven't won if speed rose but compliance fell). If results miss, you Adjust (it's PDCA, not PDC-done) and re-run. When it works, the Act step standardises the new method (standardised work) and the board sustains it \u2014 mirroring 5S-Sustain and DMAIC-Control. The A3 then becomes the baseline for the next cycle.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Quantify the current state and the proposed target.',
+      fields:[
+        { key:'pce', label:'Current PCE (92 work min, 1982 lead min)', unit:'%', answer:4.64, tol:0.3 },
+        { key:'lt2', label:'New lead time if the MLR wait is cut 960 \u2192 240 min', unit:'min', answer:1262, tol:2 },
+        { key:'days2', label:'New lead time in working days (450 min/day)', unit:'days', answer:2.80, tol:0.1 },
+      ],
+      solution:`<p>PCE = 92/1982 = <b>4.64%</b>. Cutting the MLR wait by 720 min: lead = 1982 \u2212 720 = <b>1262 min</b> = 1262/450 = <b>2.80 days</b> \u2014 under the 3-day target, achieved by attacking the queue, not the work.</p>` },
+    { type:'mcq', prompt:'A3 / PDCA judgement.',
+      questions:[
+        { text:'In the A3, what must be solid before any countermeasure?', options:['The budget','The left side: background, current state, goal, root-cause analysis','The rollout plan','The org chart'], correct:1 },
+        { text:'The WIP cap on the review queue is an application of…', options:['Six Sigma','Pull / Little\u2019s Law','OEE','SMED'], correct:1 },
+        { text:'During Check, speed improved but compliance quality dropped. You should…', options:['Roll out anyway','Adjust and re-run (PDCA continues)','Abandon Lean','Hide the quality data'], correct:1 },
+      ],
+      solution:`<p>The Plan/left side must be airtight first; the WIP cap is pull/Little's Law; and a quality drop means Adjust and re-run \u2014 the cycle isn't done until the target is met without harming quality.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 your own A3 (saved on this device).',
+      template:{ kind:'a3' } },
+  ]
+},
+
+/* ===== 21. CASE B \u2014 KAIZEN EVENT ===== */
+{
+  id:'l21', area:'lean', track:'Case Walkthroughs', title:'Case B \u2014 onboarding backlog, solved with a Kaizen Event', min:45,
+  concept:`<p>A <strong>Kaizen Event</strong> (a focused, ~5-day cross-functional blitz) on a patient-onboarding service desk. The desk handles 48 onboardings/day in 420 working minutes; handling time is 7 min; the backlog (WIP) sits at 96, so lead time is 2 days.</p>
+  <p>The week, step by step:</p>
+  <ol>
+    <li><b>Mon \u2014 Prepare &amp; scope.</b> Charter the problem (2-day onboarding wait), set the target (1 day), agree the boundaries (SIPOC).</li>
+    <li><b>Tue \u2014 Current state.</b> Go to the gemba, map the flow, compute takt, utilisation and WIP. Find work waiting in big batches.</li>
+    <li><b>Wed \u2014 Root cause &amp; ideas.</b> Fishbone + 5 Whys; brainstorm countermeasures (level intake, cap WIP, standardise the handling steps, mistake-proof intake forms).</li>
+    <li><b>Thu \u2014 Pilot.</b> Implement the top changes on the live desk and observe.</li>
+    <li><b>Fri \u2014 Results &amp; control.</b> Measure the new lead time, standardise, set up a visual board, assign owners, plan the 30-day follow-up.</li>
+  </ol>`,
+  deep:`<p><b>What makes an event work (or fail).</b> A Kaizen Event concentrates a cross-functional team for a few days to implement \u2014 not just plan \u2014 improvement. Success factors: a tight, pre-scoped problem; the right people in the room <em>full-time</em> (including those who do the work); a measurable target; authority to change the process that week; and \u2014 the most-skipped \u2014 a <em>30/60/90-day follow-up</em> with an owner, because events that aren't sustained decay. The failure mode is the "event as theatre": a burst of energy, a wall of sticky notes, and no durable change. The event is one engine of kaizen, complementing daily kaizen and flow kaizen; on its own it's not a strategy.</p>
+  <p><b>The countermeasures, in Lean terms.</b> Levelling intake (heijunka of arrivals via appointment slotting) attacks Mura; capping WIP applies Little's Law to cut lead time; standardising the handling steps reduces variation and enables training; mistake-proofing the intake form (poka-yoke) raises first-pass yield so cases stop bouncing. Together they change the system rather than asking staff to sprint.</p>
+  <p><b>The arithmetic of the target.</b> Throughput is 48/day, so by Little's Law lead time = WIP/48. To hit a 1-day lead time you must hold the backlog at about 48 \u2014 which is exactly what a WIP cap enforces. The event's job is to get the desk to a stable state where that cap holds without starving or overwhelming the team (utilisation at 80% gives the slack to absorb variability).</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Work the service-desk numbers.',
+      fields:[
+        { key:'takt', label:'Takt time (420 min / 48 per day)', unit:'min/req', answer:8.75, tol:0.1 },
+        { key:'lt', label:'Current lead time (WIP 96, throughput 48/day)', unit:'days', answer:2, tol:0.1 },
+        { key:'wip1', label:'WIP cap needed for a 1-day lead time', unit:'requests', answer:48, tol:0 },
+      ],
+      solution:`<p>Takt = 420/48 = 8.75 min. Lead = WIP/throughput = 96/48 = <b>2 days</b>. For a 1-day lead time: 1 = WIP/48 \u2192 cap WIP at <b>48</b>. The event installs and stabilises that cap.</p>` },
+    { type:'mcq', prompt:'Kaizen-event judgement.',
+      questions:[
+        { text:'The most commonly skipped \u2014 and most important \u2014 part of a Kaizen Event is…', options:['The opening lunch','The 30/60/90-day follow-up with an owner','The slide deck','The sticky notes'], correct:1 },
+        { text:'Levelling the intake by appointment slotting attacks which enemy?', options:['Muda only','Mura (unevenness)','Muri only','None'], correct:1 },
+        { text:'Capping WIP to cut lead time is justified by…', options:['OEE','Little\u2019s Law','SMED','5S'], correct:1 },
+      ],
+      solution:`<p>Sustained follow-up is the make-or-break step; levelling intake attacks Mura; and the WIP cap rests on Little's Law.</p>` },
+  ]
+},
+
+/* ===== 22. CASE C \u2014 DMAIC ===== */
+{
+  id:'l22', area:'lean', track:'Case Walkthroughs', title:'Case C \u2014 lab sample defects, solved with DMAIC', min:50,
+  concept:`<p>A <strong>DMAIC</strong> project on sample-handling defects in a lab \u2014 the right approach when the problem is <em>defects and variation</em>, not just slow flow. Walk all five phases.</p>
+  <ol>
+    <li><b>Define.</b> Charter: reduce sample-handling defects. Scope with a SIPOC; capture the customer requirement (correct, on-spec samples).</li>
+    <li><b>Measure.</b> Build a check sheet; over a month, 2000 samples with 2 defect opportunities each yield 100 defects. Compute the baseline DPMO and yield.</li>
+    <li><b>Analyse.</b> Pareto the 100 defects by reason; fishbone + 5 Whys on the top reasons to find root causes.</li>
+    <li><b>Improve.</b> Mistake-proof the top causes (barcode scan to prevent mislabelling; a fixed-volume dispenser).</li>
+    <li><b>Control.</b> Put the key metric on a control chart, standardise, and assign an owner so the gain holds.</li>
+  </ol>
+  <p>Below is the Measure baseline and the Analyse Pareto.</p>`,
+  deep:`<p><b>Define &amp; Measure done right.</b> Define bounds the project and ties it to a customer CTQ; the trap is a fuzzy scope that balloons. Measure must establish a <em>trustworthy</em> baseline \u2014 before trusting any defect data you'd run a Measurement System Analysis (Gage R&R) to confirm inspectors agree on what a defect is. DPMO normalises quality across processes of different complexity by counting <em>opportunities</em>, not just units, so you can compare a 2-opportunity step with a 10-opportunity one.</p>
+  <p><b>Analyse with the basic tools.</b> This is where the 7 QC tools earn their keep: a Pareto to find the vital-few defect reasons, then fishbone + 5 Whys to reach root causes, with hypotheses verified against the data (a scatter or stratified histogram if a relationship is suspected). The point is to let data, not opinion, pick the targets.</p>
+  <p><b>Improve &amp; Control \u2014 the Lean&times;Six-Sigma join.</b> The strongest Improve countermeasures here are <em>poka-yoke</em> (barcode scanning makes mislabelling impossible; a fixed-volume dispenser removes the wrong-volume error) \u2014 prevention beats inspection. Control is the phase teams skip and the reason gains evaporate: a control chart distinguishes real shifts from noise, standardised work locks the method, and an owner watches the metric. Note the symmetry across the toolkit \u2014 Control \u2261 PDCA-Act \u2261 5S-Sustain: every serious approach ends by making the improvement permanent.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Measure phase \u2014 compute the baseline.',
+      fields:[
+        { key:'opp', label:'Total defect opportunities (2000 samples \u00D7 2)', unit:'', answer:4000, tol:1 },
+        { key:'dpmo', label:'DPMO (100 defects)', unit:'', answer:25000, tol:50 },
+        { key:'yield', label:'Yield', unit:'%', answer:97.5, tol:0.1 },
+      ],
+      solution:`<p>Opportunities = 2000 \u00D7 2 = 4000. DPMO = 100/4000 \u00D7 1,000,000 = <b>25,000</b>. Yield = (1 \u2212 25,000/1,000,000) = <b>97.5%</b> (\u2248 3.5\u03C3).</p>` },
+    { type:'numeric', prompt:'Analyse phase \u2014 read the Pareto of the 100 defects.',
+      chart:{type:'pareto', data:[
+        {label:'Mislabelled', value:52},
+        {label:'Wrong volume', value:28},
+        {label:'Late receipt', value:12},
+        {label:'Wrong tube', value:5},
+        {label:'Other', value:3}
+      ]},
+      fields:[
+        { key:'vf', label:'How many reasons reach \u2265 80% cumulative (the vital few)?', unit:'reasons', answer:2, tol:0 },
+        { key:'top2', label:'% of defects from the top two reasons', unit:'%', answer:80, tol:0.5 },
+      ],
+      solution:`<p>Cumulative: 52, 80, 92, 97, 100. The top <b>two</b> reasons \u2014 mislabelled and wrong volume \u2014 make up <b>80%</b>, so just two poka-yokes (barcode scan, fixed-volume dispenser) target the vast majority of defects.</p>` },
+    { type:'mcq', prompt:'DMAIC judgement.',
+      questions:[
+        { text:'Why count "opportunities" in DPMO rather than just units?', options:['To inflate the number','To compare processes of different complexity fairly','It is required by law','To match takt time'], correct:1 },
+        { text:'The strongest Improve countermeasure for mislabelling is…', options:['More end-of-line inspection','A barcode scan that prevents the error (poka-yoke)','A monthly reminder email','A bigger sample backlog'], correct:1 },
+        { text:'The Control phase is equivalent in spirit to…', options:['PDCA-Act and 5S-Sustain','The Define phase','Takt time','A spaghetti diagram'], correct:0 },
+      ],
+      solution:`<p>Opportunities normalise complexity for fair comparison; prevention (poka-yoke) beats inspection; and Control mirrors PDCA-Act and 5S-Sustain \u2014 every approach ends by making gains stick.</p>` },
+  ]
+},
 ];
 
 if (typeof module !== "undefined") module.exports = { LEAN };
@@ -1630,7 +1917,7 @@ const T = {
     dashTitle:'Your progress', dashClose:'Close', dashPrint:'Print / Save as PDF',
     dashXP:'total XP', dashOverall:'overall', dashExercises:'exercises',
     dashCert:'Certificate of progress', dashGen:'Generated', dashLine:'completed across Python and LEAN tracks in PyQuest.',
-    refTitle:'Reference', langName:'EN', beginner:'Beginner', deepDive:'Deep dive'
+    refTitle:'Reference', langName:'EN', beginner:'Beginner', deepDive:'Deep dive', template:'Template', clear:'Clear', wsNote:'Reusable worksheet \u2014 your entries are saved on this device.'
   },
   es:{
     brandSub:'aprende ejecutando', reference:'Referencia', progress:'Progreso', reset:'Reiniciar',
@@ -1657,7 +1944,7 @@ const T = {
     dashTitle:'Tu progreso', dashClose:'Cerrar', dashPrint:'Imprimir / Guardar PDF',
     dashXP:'XP totales', dashOverall:'global', dashExercises:'ejercicios',
     dashCert:'Certificado de progreso', dashGen:'Generado', dashLine:'completados en las rutas de Python y LEAN en PyQuest.',
-    refTitle:'Referencia', langName:'ES', beginner:'Principiante', deepDive:'En profundidad'
+    refTitle:'Referencia', langName:'ES', beginner:'Principiante', deepDive:'En profundidad', template:'Plantilla', clear:'Borrar', wsNote:'Plantilla reutilizable \u2014 tus anotaciones se guardan en este dispositivo.'
   }
 };
 let lang='en';
@@ -1835,7 +2122,8 @@ function updateProgress(){
   document.getElementById('xpPill').textContent=state.xp+' XP';
 }
 function markSolved(key,xp){ if(!state.solved[key]){ state.solved[key]=true; state.xp+=(xp||10); } }
-function maybeComplete(lesson){ const keys=lesson.exercises.map((_,i)=>lesson.id+'-'+i); const all=keys.every(k=>state.solved[k]); if(all&&!state.completed[lesson.id]) state.completed[lesson.id]=true; return all; }
+function isGradable(ex){ return ex && ex.type!=='worksheet'; }
+function maybeComplete(lesson){ const keys=[]; lesson.exercises.forEach((ex,i)=>{ if(isGradable(ex)) keys.push(lesson.id+'-'+i); }); const all=keys.length>0 && keys.every(k=>state.solved[k]); if(all&&!state.completed[lesson.id]) state.completed[lesson.id]=true; return all; }
 
 /* ---- chrome labels ---- */
 function relabelChrome(){
@@ -1994,50 +2282,177 @@ async function doCheck(btn,ed,out,res,ex,key,lesson,needsData){
 }
 
 /* ---- lean body ---- */
+/* ---- visual-tools CSS ---- */
+(function(){ const s2=document.createElement('style'); s2.textContent=
+".svgwrap{margin:6px 0 14px;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:10px;overflow-x:auto}"+
+".svgwrap svg{display:block;width:100%;height:auto;max-width:620px;margin:0 auto}"+
+".classify-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}"+
+".classify-row:last-of-type{border-bottom:none}"+
+".cl-label{flex:1;min-width:200px;font-size:14px;color:#27313f}"+
+".cl-select{font-family:var(--sans);font-size:13px;padding:7px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper-2);color:var(--text);min-width:160px}"+
+".cl-select.ok{border-color:var(--green);background:#effaf3}.cl-select.no{border-color:var(--red);background:#fdf0f0}"+
+".ws{display:flex;flex-direction:column;gap:10px;margin:6px 0 4px}"+
+".ws-row{display:flex;flex-direction:column;gap:4px}"+
+".ws-row label,.ws-col label,.a3-box label{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}"+
+".ws textarea,.ws-col textarea,.a3-box textarea{font-family:var(--sans);font-size:13.5px;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;outline:none;resize:vertical;background:var(--paper-2);color:var(--text);width:100%;box-sizing:border-box}"+
+".ws textarea:focus,.ws-col textarea:focus,.a3-box textarea:focus{border-color:var(--py-blue)}"+
+".ws-sipoc{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}"+
+".a3-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}"+
+".a3-box{display:flex;flex-direction:column;gap:4px}.a3-box.full{grid-column:1 / -1}"+
+".ws-cats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}"+
+".ws-note{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:6px}"+
+"@media (max-width:680px){.ws-sipoc{grid-template-columns:1fr 1fr}.a3-grid{grid-template-columns:1fr}.ws-cats{grid-template-columns:1fr}}";
+document.head.appendChild(s2); })();
+
+function shortLabel(str){ str=String(str); return str.length>16?str.slice(0,15)+'\u2026':str; }
+
+function paretoSVG(data){
+  const items=data.slice().sort(function(a,b){return b.value-a.value;});
+  const W=580,H=300,mL=46,mR=46,mT=18,mB=66, pw=W-mL-mR, ph=H-mT-mB;
+  const total=items.reduce(function(s,d){return s+d.value;},0)||1;
+  const maxV=Math.max.apply(null,items.map(function(d){return d.value;}))||1;
+  const n=items.length, gap=pw/n, bw=gap*0.6;
+  var bars='',labels='',pts=[],cum=0;
+  items.forEach(function(d,i){
+    var x=mL+gap*i+(gap-bw)/2, h=ph*(d.value/maxV), y=mT+ph-h;
+    bars+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="3" fill="#3b6fb5"/>';
+    bars+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5).toFixed(1)+'" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#46526a">'+d.value+'</text>';
+    cum+=d.value; var cy=mT+ph-ph*(cum/total);
+    pts.push([mL+gap*i+gap/2,cy]);
+    labels+='<text x="'+(mL+gap*i+gap/2).toFixed(1)+'" y="'+(mT+ph+16).toFixed(1)+'" text-anchor="middle" font-size="10" fill="#69748a">'+shortLabel(d.label)+'</text>';
+  });
+  var line='<polyline fill="none" stroke="#cc9f00" stroke-width="2.5" points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'"/>';
+  var dots=pts.map(function(p){return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.5" fill="#cc9f00"/>';}).join('');
+  var y80=mT+ph-ph*0.8;
+  var ref='<line x1="'+mL+'" y1="'+y80.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+y80.toFixed(1)+'" stroke="#d65a5a" stroke-dasharray="5 4" stroke-width="1.3"/><text x="'+(W-mR)+'" y="'+(y80-5).toFixed(1)+'" text-anchor="end" font-size="10" fill="#d65a5a">80% line</text>';
+  var axis='<line x1="'+mL+'" y1="'+mT+'" x2="'+mL+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/><line x1="'+mL+'" y1="'+(mT+ph)+'" x2="'+(W-mR)+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+axis+ref+bars+line+dots+labels+'</svg>';
+}
+
+function fishboneSVG(problem, cats){
+  cats = cats || ['Manpower','Machine','Method','Material','Measurement','Environment'];
+  var W=600,H=300,midY=150,headX=430,x0=40;
+  function wrap(str){ str=String(str); var words=str.split(' '),lines=[],cur=''; words.forEach(function(w){ if((cur+' '+w).trim().length>16){ lines.push(cur.trim()); cur=w; } else cur+=' '+w; }); if(cur.trim())lines.push(cur.trim()); return lines.slice(0,2); }
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+  s+='<line x1="'+x0+'" y1="'+midY+'" x2="'+headX+'" y2="'+midY+'" stroke="#11141b" stroke-width="2.5"/>';
+  s+='<polygon points="'+headX+','+(midY-7)+' '+(headX+13)+','+midY+' '+headX+','+(midY+7)+'" fill="#11141b"/>';
+  s+='<rect x="'+(headX+15)+'" y="'+(midY-32)+'" width="146" height="64" rx="8" fill="#11141b"/>';
+  var lines=wrap(problem||'Problem / effect');
+  var ly = lines.length>1 ? midY-6 : midY+4;
+  lines.forEach(function(ln,i){ s+='<text x="'+(headX+88)+'" y="'+(ly+i*16)+'" text-anchor="middle" fill="#fff" font-size="11" font-family="ui-monospace,monospace">'+ln+'</text>'; });
+  var top=cats.slice(0,3), bot=cats.slice(3,6), slots=[0.26,0.5,0.74];
+  function bone(bx,dir,label){ var ex=bx-70, ey=midY+dir*92; var b='<line x1="'+bx.toFixed(0)+'" y1="'+midY+'" x2="'+ex.toFixed(0)+'" y2="'+ey.toFixed(0)+'" stroke="#3b6fb5" stroke-width="2"/>'; b+='<text x="'+ex.toFixed(0)+'" y="'+(ey+(dir<0?-6:14)).toFixed(0)+'" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#2c5a98">'+label+'</text>'; return b; }
+  top.forEach(function(c,i){ s+=bone(x0+(headX-x0)*slots[i],-1,c); });
+  bot.forEach(function(c,i){ s+=bone(x0+(headX-x0)*slots[i], 1,c); });
+  s+='</svg>'; return s;
+}
+
+function buildVisual(ex){
+  if(ex.diagram) return ex.diagram;
+  if(ex.chart){ if(ex.chart.type==='pareto') return paretoSVG(ex.chart.data); if(ex.chart.type==='fishbone') return fishboneSVG(ex.chart.problem, ex.chart.categories); }
+  return '';
+}
+
+function makeWs(key,name,ph,prefill){
+  var ta=document.createElement('textarea'); ta.placeholder=ph||''; ta.rows=2;
+  var sk='lean:'+key+':ws:'+name; ta.dataset.wskey=sk;
+  ta.value = state.code[sk]!=null?state.code[sk]:(prefill||'');
+  ta.addEventListener('input',function(){ state.code[sk]=ta.value; save(); });
+  return ta;
+}
+function buildWorksheet(tpl,key){
+  var el=document.createElement('div'); var kind=typeof tpl==='string'?tpl:tpl.kind;
+  if(kind==='fivewhys'){
+    el.className='ws';
+    var pr=document.createElement('div'); pr.className='ws-row'; var pl=document.createElement('label'); pl.textContent='Problem statement'; pr.appendChild(pl); pr.appendChild(makeWs(key,'problem','What, where, when, how big', (tpl&&tpl.problem)||'')); el.appendChild(pr);
+    for(var i=1;i<=5;i++){ var r=document.createElement('div'); r.className='ws-row'; var l=document.createElement('label'); l.textContent='Why #'+i; r.appendChild(l); r.appendChild(makeWs(key,'why'+i,i===5?'\u2026 likely root cause':'Why is that?')); el.appendChild(r); }
+  } else if(kind==='sipoc'){
+    el.className='ws-sipoc';
+    [['s','Suppliers'],['i','Inputs'],['p','Process'],['o','Outputs'],['c','Customers']].forEach(function(pair){ var col=document.createElement('div'); col.className='ws-col'; var l=document.createElement('label'); l.textContent=pair[1]; col.appendChild(l); var ta=makeWs(key,pair[0],pair[1]+'\u2026'); ta.rows=5; col.appendChild(ta); el.appendChild(col); });
+  } else if(kind==='a3'){
+    el.className='a3-grid';
+    [['background','Background',0],['current','Current condition',0],['goal','Goal / target',0],['analysis','Root-cause analysis',0],['countermeasures','Countermeasures',0],['plan','Plan (who/what/when)',0],['followup','Follow-up / results',1]].forEach(function(b){ var box=document.createElement('div'); box.className='a3-box'+(b[2]?' full':''); var l=document.createElement('label'); l.textContent=b[1]; box.appendChild(l); var ta=makeWs(key,b[0],b[1]+'\u2026'); ta.rows=3; box.appendChild(ta); el.appendChild(box); });
+  } else if(kind==='fishbone'){
+    el.className='ws';
+    var cats=(tpl&&tpl.categories)||['Manpower','Machine','Method','Material','Measurement','Environment'];
+    var grid=document.createElement('div'); grid.className='ws-cats';
+    cats.forEach(function(cat,ci){ var col=document.createElement('div'); col.className='ws-col'; var l=document.createElement('label'); l.textContent=cat; col.appendChild(l); var ta=makeWs(key,'m'+ci,'Potential causes\u2026'); ta.rows=3; col.appendChild(ta); grid.appendChild(col); });
+    el.appendChild(grid);
+  }
+  function clear(){ el.querySelectorAll('[data-wskey]').forEach(function(ta){ ta.value=''; state.code[ta.dataset.wskey]=''; }); save(); }
+  return {el:el, clear:clear};
+}
+
 function renderLean(lesson,c){
-  lesson.exercises.forEach((ex,i)=>{
-    const key=lesson.id+'-'+i;
-    const blk=document.createElement('div'); blk.className='block';
-    blk.innerHTML='<div class="block-head"><span class="tag">'+(ex.type==='mcq'?t('quiz'):t('calc'))+' '+(i+1)+(state.solved[key]?' \u2713':'')+'</span></div><div class="ex-prompt">'+ex.prompt+'</div>';
-    const body=document.createElement('div'); body.style.padding='4px 16px 0';
-    if(ex.table){ const tb=document.createElement('div'); tb.innerHTML=ex.table; body.appendChild(tb); }
-    let getResult;
-    if(ex.type==='numeric'){
-      const inputs=[];
-      ex.fields.forEach(f=>{
-        const row=document.createElement('div'); row.className='field';
-        const lab=document.createElement('div'); lab.className='flabel'; lab.innerHTML=f.label;
-        const inp=document.createElement('input'); inp.type='text'; inp.inputMode='decimal';
-        const sk='lean:'+key+':'+f.key; if(state.code[sk]!=null) inp.value=state.code[sk];
-        inp.addEventListener('input',()=>{ state.code[sk]=inp.value; save(); });
-        const unit=document.createElement('div'); unit.className='funit'; unit.textContent=f.unit||'';
-        const mk=document.createElement('div'); mk.className='fmark';
+  lesson.exercises.forEach(function(ex,i){
+    var key=lesson.id+'-'+i;
+    var blk=document.createElement('div'); blk.className='block';
+    var tag = ex.type==='worksheet'?t('template'):(ex.type==='mcq'?t('quiz'):(ex.type==='classify'?t('exercise'):t('calc')));
+    blk.innerHTML='<div class="block-head"><span class="tag">'+tag+' '+(i+1)+(isGradable(ex)&&state.solved[key]?' \u2713':'')+'</span></div><div class="ex-prompt">'+ex.prompt+'</div>';
+    var body=document.createElement('div'); body.style.padding='4px 16px 0';
+    if(ex.table){ var tb=document.createElement('div'); tb.innerHTML=ex.table; body.appendChild(tb); }
+    var vis=buildVisual(ex); if(vis){ var vw=document.createElement('div'); vw.className='svgwrap'; vw.innerHTML=vis; body.appendChild(vw); }
+
+    if(ex.type==='worksheet'){
+      var ws=buildWorksheet(ex.template,key); body.appendChild(ws.el); blk.appendChild(body);
+      var actw=document.createElement('div'); actw.className='block-actions';
+      var clr=document.createElement('button'); clr.className='ghost'; clr.textContent=t('clear'); clr.addEventListener('click',ws.clear);
+      var note=document.createElement('div'); note.className='ws-note'; note.textContent=t('wsNote');
+      actw.appendChild(clr); actw.appendChild(note); blk.appendChild(actw); c.appendChild(blk); return;
+    }
+
+    var getResult;
+    if(ex.type==='classify'){
+      var rows=[];
+      ex.items.forEach(function(it,ii){
+        var row=document.createElement('div'); row.className='classify-row';
+        var lab=document.createElement('div'); lab.className='cl-label'; lab.innerHTML=it.text;
+        var sel=document.createElement('select'); sel.className='cl-select';
+        var ph=document.createElement('option'); ph.value=''; ph.textContent='\u2014 choose \u2014'; sel.appendChild(ph);
+        ex.categories.forEach(function(cat,ci){ var o=document.createElement('option'); o.value=String(ci); o.textContent=cat; sel.appendChild(o); });
+        var sk='lean:'+key+':c'+ii; if(state.code[sk]!=null) sel.value=state.code[sk];
+        sel.addEventListener('change',function(){ state.code[sk]=sel.value; save(); sel.classList.remove('ok','no'); });
+        var mk=document.createElement('div'); mk.className='fmark';
+        row.appendChild(lab); row.appendChild(sel); row.appendChild(mk);
+        body.appendChild(row); rows.push({it:it,sel:sel,mk:mk});
+      });
+      getResult=function(){ var ok=true; rows.forEach(function(r){ var ans=typeof r.it.answer==='number'?r.it.answer:ex.categories.indexOf(r.it.answer); var good=r.sel.value!==''&&parseInt(r.sel.value)===ans; r.sel.classList.remove('ok','no'); r.sel.classList.add(good?'ok':'no'); r.mk.className='fmark '+(good?'ok':'no'); r.mk.textContent=good?'\u2713':'\u2717'; if(!good) ok=false; }); return ok; };
+    } else if(ex.type==='numeric'){
+      var inputs=[];
+      ex.fields.forEach(function(f){
+        var row=document.createElement('div'); row.className='field';
+        var lab=document.createElement('div'); lab.className='flabel'; lab.innerHTML=f.label;
+        var inp=document.createElement('input'); inp.type='text'; inp.inputMode='decimal';
+        var sk='lean:'+key+':'+f.key; if(state.code[sk]!=null) inp.value=state.code[sk];
+        inp.addEventListener('input',function(){ state.code[sk]=inp.value; save(); });
+        var unit=document.createElement('div'); unit.className='funit'; unit.textContent=f.unit||'';
+        var mk=document.createElement('div'); mk.className='fmark';
         row.appendChild(lab); row.appendChild(inp); row.appendChild(unit); row.appendChild(mk);
-        body.appendChild(row); inputs.push({f,inp,mk});
+        body.appendChild(row); inputs.push({f:f,inp:inp,mk:mk});
       });
-      getResult=()=>{ let ok=true; inputs.forEach(({f,inp,mk})=>{ const v=parseFloat(String(inp.value).replace(',','.')); const good=!isNaN(v)&&Math.abs(v-f.answer)<=(f.tol||1e-4); inp.classList.remove('ok','no'); inp.classList.add(good?'ok':'no'); mk.className='fmark '+(good?'ok':'no'); mk.textContent=good?'\u2713':'\u2717'; if(!good) ok=false; }); return ok; };
+      getResult=function(){ var ok=true; inputs.forEach(function(o){ var v=parseFloat(String(o.inp.value).replace(',','.')); var good=!isNaN(v)&&Math.abs(v-o.f.answer)<=(o.f.tol||1e-4); o.inp.classList.remove('ok','no'); o.inp.classList.add(good?'ok':'no'); o.mk.className='fmark '+(good?'ok':'no'); o.mk.textContent=good?'\u2713':'\u2717'; if(!good) ok=false; }); return ok; };
     } else {
-      const qs=[];
-      ex.questions.forEach((q,qi)=>{
-        const qd=document.createElement('div'); qd.className='mcq-q'; qd.innerHTML='<div class="qtext">'+(qi+1)+'. '+q.text+'</div>';
-        const opts=document.createElement('div'); opts.className='mcq-opts';
-        const sk='lean:'+key+':q'+qi; let sel=state.code[sk]!=null?parseInt(state.code[sk]):-1; const btns=[];
-        q.options.forEach((o,oi)=>{ const ob=document.createElement('button'); ob.className='mcq-opt'+(sel===oi?' sel':''); ob.textContent=o;
-          ob.addEventListener('click',()=>{ sel=oi; state.code[sk]=String(oi); save(); btns.forEach(b=>b.classList.remove('sel','ok','no')); ob.classList.add('sel'); });
+      var qs=[];
+      ex.questions.forEach(function(q,qi){
+        var qd=document.createElement('div'); qd.className='mcq-q'; qd.innerHTML='<div class="qtext">'+(qi+1)+'. '+q.text+'</div>';
+        var opts=document.createElement('div'); opts.className='mcq-opts';
+        var sk='lean:'+key+':q'+qi; var sel=state.code[sk]!=null?parseInt(state.code[sk]):-1; var btns=[];
+        q.options.forEach(function(o,oi){ var ob=document.createElement('button'); ob.className='mcq-opt'+(sel===oi?' sel':''); ob.textContent=o;
+          ob.addEventListener('click',function(){ sel=oi; state.code[sk]=String(oi); save(); btns.forEach(function(b){b.classList.remove('sel','ok','no');}); ob.classList.add('sel'); });
           opts.appendChild(ob); btns.push(ob); });
-        qd.appendChild(opts); body.appendChild(qd); qs.push({q,btns,getSel:()=>sel});
+        qd.appendChild(opts); body.appendChild(qd); qs.push({q:q,btns:btns,getSel:function(){return sel;}});
       });
-      getResult=()=>{ let ok=true; qs.forEach(({q,btns,getSel})=>{ const sel=getSel(); btns.forEach((b,bi)=>{ b.classList.remove('ok','no','sel'); if(bi===q.correct) b.classList.add('ok'); else if(bi===sel) b.classList.add('no'); }); if(sel!==q.correct) ok=false; }); return ok; };
+      getResult=function(){ var ok=true; qs.forEach(function(o){ var sel=o.getSel(); o.btns.forEach(function(b,bi){ b.classList.remove('ok','no','sel'); if(bi===o.q.correct) b.classList.add('ok'); else if(bi===sel) b.classList.add('no'); }); if(sel!==o.q.correct) ok=false; }); return ok; };
     }
     blk.appendChild(body);
-    const sol=document.createElement('div'); sol.className='solbox'; sol.innerHTML='<b>'+t('workedSolution')+'</b> '+ex.solution;
-    const act=document.createElement('div'); act.className='block-actions';
-    const check=document.createElement('button'); check.className='run check'; check.innerHTML=t('check');
-    const sbtn=document.createElement('button'); sbtn.className='ghost'; sbtn.textContent=t('showSol');
-    sbtn.addEventListener('click',()=>{ sol.classList.toggle('show'); sbtn.textContent=sol.classList.contains('show')?t('hideSol'):t('showSol'); });
-    const res=document.createElement('div'); res.className='result';
-    check.addEventListener('click',()=>{ const ok=getResult(); res.className='result '+(ok?'ok':'no'); res.textContent=ok?t('allCorrect'):t('someOff');
-      if(ok){ markSolved(key,15); maybeComplete(lesson); save(); buildSidebar(); updateProgress(); const head=blk.querySelector('.tag'); if(head&&!/\u2713/.test(head.textContent)) head.textContent+=' \u2713'; } });
+    var sol=document.createElement('div'); sol.className='solbox'; sol.innerHTML='<b>'+t('workedSolution')+'</b> '+ex.solution;
+    var act=document.createElement('div'); act.className='block-actions';
+    var check=document.createElement('button'); check.className='run check'; check.innerHTML=t('check');
+    var sbtn=document.createElement('button'); sbtn.className='ghost'; sbtn.textContent=t('showSol');
+    sbtn.addEventListener('click',function(){ sol.classList.toggle('show'); sbtn.textContent=sol.classList.contains('show')?t('hideSol'):t('showSol'); });
+    var res=document.createElement('div'); res.className='result';
+    check.addEventListener('click',function(){ var ok=getResult(); res.className='result '+(ok?'ok':'no'); res.textContent=ok?t('allCorrect'):t('someOff');
+      if(ok){ markSolved(key,15); maybeComplete(lesson); save(); buildSidebar(); updateProgress(); var head=blk.querySelector('.tag'); if(head&&!/\u2713/.test(head.textContent)) head.textContent+=' \u2713'; } });
     act.appendChild(check); act.appendChild(sbtn); act.appendChild(res); blk.appendChild(act); blk.appendChild(sol); c.appendChild(blk);
   });
 }
@@ -2069,7 +2484,7 @@ function makeOverlay(id){ const ov=document.createElement('div'); ov.className='
 const dashOv=makeOverlay('dashOverlay'), refOv=makeOverlay('refOverlay');
 function areaStats(a){
   const lessons=DATA[a], tracks={}; let exTotal=0,exSolved=0,lDone=0;
-  lessons.forEach(l=>{ const tr=tracks[l.track]||(tracks[l.track]={lt:0,ld:0,et:0,es:0}); tr.lt++; if(state.completed[l.id]){tr.ld++;lDone++;} l.exercises.forEach((_,i)=>{ tr.et++; exTotal++; if(state.solved[l.id+'-'+i]){tr.es++;exSolved++;} }); });
+  lessons.forEach(l=>{ const tr=tracks[l.track]||(tracks[l.track]={lt:0,ld:0,et:0,es:0}); tr.lt++; if(state.completed[l.id]){tr.ld++;lDone++;} l.exercises.forEach((ex,i)=>{ if(!isGradable(ex)) return; tr.et++; exTotal++; if(state.solved[l.id+'-'+i]){tr.es++;exSolved++;} }); });
   return {tracks,exTotal,exSolved,lDone,lTotal:lessons.length};
 }
 function openDash(){
