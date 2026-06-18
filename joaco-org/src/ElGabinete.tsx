@@ -124,7 +124,14 @@ export const DEFAULT_WORKS: Work[] = [
     initial: "P",
     href: "/gabinete/python_lean.html",
   },
-  slot(3),
+      {
+    id: "Bridge",
+    title: "Bridge",
+    description: "Bridge",
+    kind: "herramienta",
+    initial: "B",
+    href: "#/app/bridge",
+  },
   slot(4),
   slot(5),
 ];
