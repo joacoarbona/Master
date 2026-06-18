@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useReducer } from "react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell, Label, LineChart, Line, AreaChart, Area } from "recharts";
 import Papa from "papaparse";
 
@@ -561,50 +561,168 @@ function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
   const [projF, setProjF] = useState("all");
   const [show, setShow] = useState({ risks: true, resources: true, benefits: true, logs: false, decisions: false });
   const [node, setNode] = useState(null);
+  const [, bump] = useReducer(x => (x + 1) % 1000000, 0);
+
+  const W = 900, H = 600;
+  const NODE = { project: C.mul, risk: C.red, resource: C.navy, benefit: C.lime, decision: "#8A6200", log: C.graph };
+  const RAD = { project: 24, resource: 12, risk: 10, benefit: 10, decision: 10, log: 9 };
 
   const pms = [...new Set(projects.map(p => p.pm).filter(Boolean))];
-  let vis = projects.filter(p => pmF === "all" || p.pm === pmF);
-  if (projF !== "all") vis = vis.filter(p => p.id === projF);
 
-  const resByProj = {};
-  vis.forEach(p => { resByProj[p.id] = assignments.filter(a => a.projectId === p.id).map(a => people.find(x => x.id === a.personId)).filter(Boolean); });
-  const personProjs = {};
-  Object.entries(resByProj).forEach(([pid, list]) => list.forEach(per => { (personProjs[per.id] = personProjs[per.id] || { name: per.name, pids: [] }).pids.push(pid); }));
-  const sharedPersons = Object.entries(personProjs).filter(([, v]) => v.pids.length > 1);
-
-  const STOP = new Set("the and for with that this from because may leading lower scope team capacity pending will project delay risk could would been have into when over more less than each their there which while".split(" "));
-  const tok = s => [...new Set(String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w.length > 3 && !STOP.has(w)))];
-  const allRisks = [];
-  vis.forEach(p => (p.keydata?.risks || []).forEach(r => allRisks.push({ id: r.id, desc: r.desc || r.title || r.cause || "", owner: r.owner, due: r.due, projId: p.id, projName: p.name, toks: tok(r.desc || r.title || r.cause) })));
-  const similarTo = risk => { const me = allRisks.find(r => r.id === risk.id); if (!me) return []; return allRisks.filter(o => o.id !== me.id && o.projId !== me.projId && o.toks.filter(t => me.toks.includes(t)).length >= 2).map(o => ({ ...o, shared: o.toks.filter(t => me.toks.includes(t)) })); };
-
-  const W = 1000, H = 640, cx = W / 2, cy = H / 2;
-  const n = vis.length;
-  const PR = n === 1 ? 0 : Math.min(W, H) * 0.30;
-  const projPos = {};
-  vis.forEach((p, i) => { const ang = -Math.PI / 2 + 2 * Math.PI * i / Math.max(n, 1); projPos[p.id] = n === 1 ? { x: cx, y: cy, ang: 0 } : { x: cx + PR * Math.cos(ang), y: cy + PR * Math.sin(ang), ang }; });
-
-  const sat = [];
-  vis.forEach(p => {
-    const items = [];
-    if (show.risks) (p.keydata?.risks || []).forEach(r => items.push({ kind: "risk", data: r, label: r.desc || r.title || "risk" }));
-    if (show.resources) (resByProj[p.id] || []).forEach(r => items.push({ kind: "resource", data: r, label: r.name }));
-    if (show.benefits) (p.keydata?.benefits || []).forEach(b => items.push({ kind: "benefit", data: b, label: b.name }));
-    if (show.decisions) (p.keydata?.decisions || []).forEach(d => items.push({ kind: "decision", data: d, label: d.text }));
-    if (show.logs) (p.events || []).slice(-4).forEach(e => items.push({ kind: "log", data: e, label: e.title }));
-    const base = projPos[p.id], m = items.length;
-    items.forEach((it, j) => {
-      const spread = n === 1 ? 2 * Math.PI : Math.PI * 1.05;
-      const a = (n === 1 ? 0 : base.ang) + (m <= 1 ? 0 : spread * (j / (m - 1) - 0.5));
-      const SR = 92 + (j % 3) * 26;
-      sat.push({ key: `${p.id}-${it.kind}-${j}`, kind: it.kind, projId: p.id, data: it.data, label: it.label, riskId: it.kind === "risk" ? it.data.id : null, x: base.x + SR * Math.cos(a), y: base.y + SR * Math.sin(a) });
+  // ---------- build graph (nodes + links) from current filters ----------
+  const graph = useMemo(() => {
+    let vis = projects.filter(p => pmF === "all" || p.pm === pmF);
+    if (projF !== "all") vis = vis.filter(p => p.id === projF);
+    const nodes = [], links = [];
+    const nodeById = {};
+    const add = nd => { nodes.push(nd); nodeById[nd.id] = nd; return nd; };
+    vis.forEach(p => add({ id: "P:" + p.id, kind: "project", label: p.code || p.name, sub: p.name, data: p, r: RAD.project }));
+    // resources deduped per person (shared person => single node linked to each project)
+    const personNode = {};
+    vis.forEach(p => {
+      if (show.resources) {
+        assignments.filter(a => a.projectId === p.id).forEach(a => {
+          const per = people.find(x => x.id === a.personId); if (!per) return;
+          let rn = personNode[per.id];
+          if (!rn) { rn = add({ id: "R:" + per.id, kind: "resource", label: per.name, data: per, r: RAD.resource, projs: [] }); personNode[per.id] = rn; }
+          rn.projs.push(p.id);
+          links.push({ s: "P:" + p.id, t: rn.id, kind: "resource" });
+        });
+      }
+      if (show.risks) (p.keydata?.risks || []).forEach(rk => { const id = "K:" + p.id + ":" + rk.id; add({ id, kind: "risk", label: rk.desc || rk.title || "risk", data: rk, projId: p.id, projName: p.name, r: RAD.risk }); links.push({ s: "P:" + p.id, t: id, kind: "risk" }); });
+      if (show.benefits) (p.keydata?.benefits || []).forEach(b => { const id = "B:" + p.id + ":" + b.id; add({ id, kind: "benefit", label: b.name, data: b, r: RAD.benefit }); links.push({ s: "P:" + p.id, t: id, kind: "benefit" }); });
+      if (show.decisions) (p.keydata?.decisions || []).forEach(d => { const id = "D:" + p.id + ":" + d.id; add({ id, kind: "decision", label: d.text, data: d, r: RAD.decision }); links.push({ s: "P:" + p.id, t: id, kind: "decision" }); });
+      if (show.logs) (p.events || []).slice(-4).forEach((e, i) => { const id = "L:" + p.id + ":" + i; add({ id, kind: "log", label: e.title, data: e, r: RAD.log }); links.push({ s: "P:" + p.id, t: id, kind: "log" }); });
     });
-  });
-  const riskPos = {}; sat.forEach(s => { if (s.riskId) riskPos[s.riskId] = { x: s.x, y: s.y }; });
+    // risk token sets for similarity
+    const STOP = new Set("the and for with that this from because may leading lower scope team capacity pending will project delay risk could would been have into when over more less than each their there which while".split(" "));
+    const tok = s => [...new Set(String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w.length > 3 && !STOP.has(w)))];
+    nodes.forEach(n => { if (n.kind === "risk") n.toks = tok(n.data.desc || n.data.title || n.data.cause); });
+    const shared = nodes.filter(n => n.kind === "resource" && n.projs && n.projs.length > 1).length;
+    return { nodes, links, nodeById, visCount: vis.length, riskCount: nodes.filter(n => n.kind === "risk").length, shared };
+  }, [pmF, projF, show, projects, people, assignments]);
 
-  const NODE = { project: C.mul, risk: C.red, resource: C.navy, benefit: C.lime, decision: "#8A6200", log: C.graph };
+  // similar risks for the selected risk
+  const simIds = useMemo(() => {
+    if (!node || node.kind !== "risk") return new Set();
+    const me = graph.nodes.find(n => n.id === node.id) || node;
+    const out = new Set();
+    graph.nodes.forEach(o => { if (o.kind === "risk" && o.id !== me.id && o.projId !== me.projId && (o.toks || []).filter(t => (me.toks || []).includes(t)).length >= 2) out.add(o.id); });
+    return out;
+  }, [node, graph]);
+  const similarList = useMemo(() => {
+    if (!node || node.kind !== "risk") return [];
+    const me = graph.nodes.find(n => n.id === node.id) || node;
+    return graph.nodes.filter(o => simIds.has(o.id)).map(o => ({ id: o.id, projName: o.projName, desc: o.data.desc || o.data.title || "", shared: (o.toks || []).filter(t => (me.toks || []).includes(t)) }));
+  }, [node, simIds, graph]);
+
+  // ---------- physics state (persisted across renders) ----------
+  const sim = useRef({ pos: new Map(), alpha: 1, raf: 0, drag: null, running: false });
+  const view = useRef({ k: 1, tx: 0, ty: 0 });
+  const svgRef = useRef(null);
+  const pan = useRef(null);
+
+  // sync node set into the position map; seed new nodes; drop stale; re-heat
+  useEffect(() => {
+    const pos = sim.current.pos;
+    const present = new Set(graph.nodes.map(n => n.id));
+    [...pos.keys()].forEach(id => { if (!present.has(id)) pos.delete(id); });
+    graph.nodes.forEach((n, i) => {
+      if (!pos.has(n.id)) {
+        // seed: projects on a ring, satellites near their project (or center)
+        let sx = W / 2, sy = H / 2;
+        if (n.kind === "project") { const pi = graph.nodes.filter(x => x.kind === "project").indexOf(n); const pc = graph.nodes.filter(x => x.kind === "project").length; const a = -Math.PI / 2 + 2 * Math.PI * pi / Math.max(pc, 1); sx = W / 2 + 150 * Math.cos(a); sy = H / 2 + 150 * Math.sin(a); }
+        else { const link = graph.links.find(l => l.t === n.id); const pp = link && pos.get(link.s); sx = (pp ? pp.x : W / 2) + (Math.random() - 0.5) * 80; sy = (pp ? pp.y : H / 2) + (Math.random() - 0.5) * 80; }
+        pos.set(n.id, { x: sx, y: sy, vx: 0, vy: 0 });
+      }
+    });
+    reheat();
+    return () => cancelAnimationFrame(sim.current.raf);
+    // eslint-disable-next-line
+  }, [graph]);
+
+  function reheat() {
+    sim.current.alpha = Math.max(sim.current.alpha, 0.9);
+    if (!sim.current.running) { sim.current.running = true; sim.current.raf = requestAnimationFrame(tick); }
+  }
+
+  function tick() {
+    const s = sim.current, pos = s.pos, nodes = graph.nodes, links = graph.links;
+    const a = s.alpha;
+    // charge (repulsion) — O(n^2), n is small
+    for (let i = 0; i < nodes.length; i++) {
+      const A = pos.get(nodes[i].id); if (!A) continue;
+      for (let j = i + 1; j < nodes.length; j++) {
+        const B = pos.get(nodes[j].id); if (!B) continue;
+        let dx = A.x - B.x, dy = A.y - B.y, d2 = dx * dx + dy * dy || 0.01;
+        const d = Math.sqrt(d2);
+        const rep = (nodes[i].kind === "project" || nodes[j].kind === "project" ? 5200 : 2200) / d2;
+        const fx = (dx / d) * rep * a, fy = (dy / d) * rep * a;
+        A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
+      }
+    }
+    // links (spring)
+    links.forEach(l => {
+      const A = pos.get(l.s), B = pos.get(l.t); if (!A || !B) return;
+      const tgt = l.kind === "resource" ? 78 : 64;
+      let dx = B.x - A.x, dy = B.y - A.y, d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      const f = (d - tgt) / d * 0.05 * a;
+      const fx = dx * f, fy = dy * f;
+      A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
+    });
+    // centering gravity + integrate
+    nodes.forEach(n => {
+      const P = pos.get(n.id); if (!P) return;
+      if (s.drag === n.id) { P.x = s.dragX; P.y = s.dragY; P.vx = 0; P.vy = 0; return; }
+      P.vx += (W / 2 - P.x) * 0.006 * a;
+      P.vy += (H / 2 - P.y) * 0.006 * a;
+      P.vx *= 0.86; P.vy *= 0.86;
+      P.x += P.vx; P.y += P.vy;
+      P.x = Math.max(20, Math.min(W - 20, P.x)); P.y = Math.max(20, Math.min(H - 20, P.y));
+    });
+    s.alpha *= 0.975;
+    bump();
+    if (s.alpha > 0.02 || s.drag) s.raf = requestAnimationFrame(tick);
+    else s.running = false;
+  }
+
+  // ---------- pointer: zoom / pan / drag ----------
+  const toGraph = (clientX, clientY) => {
+    const r = svgRef.current.getBoundingClientRect();
+    const sx = (clientX - r.left) * (W / r.width), sy = (clientY - r.top) * (H / r.height);
+    const v = view.current;
+    return { x: (sx - v.tx) / v.k, y: (sy - v.ty) / v.k };
+  };
+  const onWheel = e => {
+    e.preventDefault();
+    const r = svgRef.current.getBoundingClientRect();
+    const sx = (e.clientX - r.left) * (W / r.width), sy = (e.clientY - r.top) * (H / r.height);
+    const v = view.current; const f = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    const nk = Math.max(0.4, Math.min(3.5, v.k * f));
+    v.tx = sx - (sx - v.tx) * (nk / v.k); v.ty = sy - (sy - v.ty) * (nk / v.k); v.k = nk;
+    bump();
+  };
+  const onNodeDown = (e, n) => {
+    e.stopPropagation();
+    const g = toGraph(e.clientX, e.clientY);
+    sim.current.drag = n.id; sim.current.dragX = g.x; sim.current.dragY = g.y;
+    reheat();
+    const move = ev => { const gg = toGraph(ev.clientX, ev.clientY); sim.current.dragX = gg.x; sim.current.dragY = gg.y; };
+    const up = () => { sim.current.drag = null; window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); reheat(); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+  };
+  const onBgDown = e => {
+    const v = view.current; pan.current = { x: e.clientX, y: e.clientY, tx: v.tx, ty: v.ty };
+    const move = ev => { const r = svgRef.current.getBoundingClientRect(); const sc = W / r.width; v.tx = pan.current.tx + (ev.clientX - pan.current.x) * sc; v.ty = pan.current.ty + (ev.clientY - pan.current.y) * sc; bump(); };
+    const up = () => { pan.current = null; window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+  };
+  const zoomBy = f => { const v = view.current; const nk = Math.max(0.4, Math.min(3.5, v.k * f)); const cx = W / 2, cy = H / 2; v.tx = cx - (cx - v.tx) * (nk / v.k); v.ty = cy - (cy - v.ty) * (nk / v.k); v.k = nk; bump(); };
+  const resetView = () => { view.current = { k: 1, tx: 0, ty: 0 }; reheat(); };
+
+  const pos = sim.current.pos;
+  const v = view.current;
   const selRisk = node?.kind === "risk" ? node : null;
-  const simIds = selRisk ? new Set(similarTo(selRisk.data).map(s => s.id)) : new Set();
 
   const filt = (k, label) => (
     <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: C.ink, cursor: "pointer", marginBottom: 6 }}>
@@ -612,6 +730,7 @@ function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
       <span style={{ width: 9, height: 9, borderRadius: "50%", background: NODE[k === "risks" ? "risk" : k === "resources" ? "resource" : k === "benefits" ? "benefit" : k === "decisions" ? "decision" : "log"] }} />{label}
     </label>
   );
+  const ctrlBtn = (txt, on, title) => <button onClick={on} title={title} style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 7, width: 30, height: 28, cursor: "pointer", color: C.graph, fontSize: 14, fontWeight: 700, lineHeight: 1 }}>{txt}</button>;
 
   return (
     <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -633,42 +752,54 @@ function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
           <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Show on graph</div>
           {filt("risks", "Risks")}{filt("resources", "Resources")}{filt("benefits", "Benefits")}{filt("decisions", "Decisions")}{filt("logs", "Logs")}
           <div style={{ height: 1, background: C.soft, margin: "12px 0" }} />
-          <div style={{ fontSize: 11, color: C.mid, lineHeight: 1.45 }}><b style={{ color: C.ink }}>{vis.length}</b> project(s) · <b style={{ color: C.ink }}>{allRisks.length}</b> risk(s)</div>
-          {sharedPersons.length > 0 && <div style={{ fontSize: 11, color: C.navy, marginTop: 6, lineHeight: 1.4 }}>◢ {sharedPersons.length} resource(s) shared across projects (dashed links)</div>}
+          <div style={{ fontSize: 11, color: C.mid, lineHeight: 1.45 }}><b style={{ color: C.ink }}>{graph.visCount}</b> project(s) · <b style={{ color: C.ink }}>{graph.riskCount}</b> risk(s)</div>
+          {graph.shared > 0 && <div style={{ fontSize: 11, color: C.navy, marginTop: 6, lineHeight: 1.4 }}>◢ {graph.shared} resource(s) shared across projects</div>}
+          <div style={{ fontSize: 10.5, color: C.faint, marginTop: 10, lineHeight: 1.4 }}>Drag nodes to rearrange · scroll to zoom · drag background to pan.</div>
         </Card>
       </div>
 
       {/* graph */}
       <div style={{ flex: "1 1 520px", minWidth: 360 }}>
-        <Card style={{ padding: 6 }}>
-          <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
-            {/* shared-resource connectors between project centres */}
-            {sharedPersons.map(([pid, v]) => v.pids.slice(1).map((to, i) => {
-              const a = projPos[v.pids[0]], b = projPos[to]; if (!a || !b) return null;
-              return <line key={`sh-${pid}-${i}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={C.navy} strokeWidth="1.2" strokeDasharray="3 4" opacity="0.35" />;
-            }))}
-            {/* project → satellite edges */}
-            {sat.map(s => { const b = projPos[s.projId]; const hot = simIds.has(s.riskId); return <line key={`e-${s.key}`} x1={b.x} y1={b.y} x2={s.x} y2={s.y} stroke={hot ? C.red : C.line} strokeWidth={hot ? 1.6 : 0.8} opacity={hot ? 0.9 : 0.6} />; })}
-            {/* similar-risk connectors from selected risk */}
-            {selRisk && riskPos[selRisk.data.id] && [...simIds].map(id => { const a = riskPos[selRisk.data.id], b = riskPos[id]; if (!a || !b) return null; return <line key={`sim-${id}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={C.red} strokeWidth="1.8" strokeDasharray="5 4" opacity="0.85" />; })}
-            {/* project nodes */}
-            {vis.map(p => { const b = projPos[p.id]; const on = node?.kind === "project" && node.data.id === p.id; return (
-              <g key={`p-${p.id}`} onClick={() => setNode({ kind: "project", data: p })} style={{ cursor: "pointer" }}>
-                <circle cx={b.x} cy={b.y} r="26" fill={NODE.project} stroke={on ? C.gold : "#fff"} strokeWidth={on ? 3 : 2} />
-                <text x={b.x} y={b.y + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff" fontFamily="Archivo, Arial">{(p.code || p.name || "").slice(0, 6)}</text>
-                <text x={b.x} y={b.y + 42} textAnchor="middle" fontSize="10.5" fill={C.ink} fontFamily="Inter">{(p.name || "").slice(0, 22)}</text>
-              </g>
-            ); })}
-            {/* satellite nodes */}
-            {sat.map(s => { const on = node && node.kind === s.kind && node.data === s.data; const hot = simIds.has(s.riskId); const r = s.kind === "resource" ? 11 : 9; return (
-              <g key={s.key} onClick={() => setNode({ kind: s.kind, data: s.data, projId: s.projId })} style={{ cursor: "pointer" }}>
-                <circle cx={s.x} cy={s.y} r={hot ? r + 3 : r} fill={NODE[s.kind]} stroke={on ? C.gold : hot ? C.red : "#fff"} strokeWidth={on ? 3 : hot ? 2.5 : 1.5} opacity={selRisk && !hot && s.kind === "risk" ? 0.45 : 1} />
-                <text x={s.x} y={s.y - (hot ? r + 7 : r + 4)} textAnchor="middle" fontSize="8.5" fill={C.mid} fontFamily="Inter">{String(s.label || "").slice(0, 16)}</text>
-              </g>
-            ); })}
+        <Card style={{ padding: 6, position: "relative" }}>
+          <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 6, zIndex: 2 }}>
+            {ctrlBtn("+", () => zoomBy(1.2), "Zoom in")}
+            {ctrlBtn("−", () => zoomBy(1 / 1.2), "Zoom out")}
+            {ctrlBtn("⟲", resetView, "Reset view & re-layout")}
+          </div>
+          <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} onWheel={onWheel} onPointerDown={onBgDown}
+               style={{ width: "100%", height: "auto", display: "block", background: "#fff", borderRadius: 10, cursor: pan.current ? "grabbing" : "grab", touchAction: "none" }}>
+            <g transform={`translate(${v.tx} ${v.ty}) scale(${v.k})`}>
+              {/* shared-resource: links already connect resource node to each project */}
+              {/* edges */}
+              {graph.links.map((l, i) => {
+                const A = pos.get(l.s), B = pos.get(l.t); if (!A || !B) return null;
+                const hot = selRisk && (l.t === selRisk.id);
+                return <line key={"e" + i} x1={A.x} y1={A.y} x2={B.x} y2={B.y} stroke={hot ? C.red : l.kind === "resource" ? C.navy : C.line} strokeWidth={hot ? 1.8 : l.kind === "resource" ? 1.1 : 0.8} opacity={l.kind === "resource" ? 0.5 : 0.6} />;
+              })}
+              {/* similar-risk connectors */}
+              {selRisk && [...simIds].map(id => { const A = pos.get(selRisk.id), B = pos.get(id); if (!A || !B) return null; return <line key={"sim" + id} x1={A.x} y1={A.y} x2={B.x} y2={B.y} stroke={C.red} strokeWidth="1.8" strokeDasharray="5 4" opacity="0.85" />; })}
+              {/* nodes */}
+              {graph.nodes.map(n => {
+                const P = pos.get(n.id); if (!P) return null;
+                const on = node && node.id === n.id;
+                const hot = simIds.has(n.id);
+                const dim = selRisk && n.kind === "risk" && !hot && !on;
+                const col = NODE[n.kind];
+                const r = n.r * (hot ? 1.3 : 1);
+                return (
+                  <g key={n.id} transform={`translate(${P.x} ${P.y})`} style={{ cursor: "pointer" }}
+                     onPointerDown={e => onNodeDown(e, n)} onClick={e => { e.stopPropagation(); setNode({ id: n.id, kind: n.kind, data: n.data, projId: n.projId }); }}>
+                    <circle r={r} fill={col} stroke={on ? C.gold : hot ? C.red : "#fff"} strokeWidth={on ? 3 : hot ? 2.5 : 1.5} opacity={dim ? 0.4 : 1} />
+                    {n.kind === "project"
+                      ? <text textAnchor="middle" y={4} fontSize="10.5" fontWeight="700" fill="#fff" fontFamily="Archivo, Arial" style={{ pointerEvents: "none" }}>{String(n.label).slice(0, 6)}</text>
+                      : null}
+                    <text textAnchor="middle" y={n.kind === "project" ? r + 14 : -(r + 5)} fontSize={n.kind === "project" ? "10.5" : "8.5"} fill={n.kind === "project" ? C.ink : C.mid} fontFamily="Inter" style={{ pointerEvents: "none", opacity: dim ? 0.4 : 1 }}>{String(n.sub || n.label).slice(0, n.kind === "project" ? 22 : 16)}</text>
+                  </g>
+                );
+              })}
+            </g>
           </svg>
-          {/* legend */}
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", padding: "4px 10px 8px" }}>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", padding: "6px 10px 8px" }}>
             {Object.entries({ Project: NODE.project, Risk: NODE.risk, Resource: NODE.resource, Benefit: NODE.benefit, Decision: NODE.decision, Log: NODE.log }).map(([k, c]) => (
               <span key={k} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: C.mid }}><span style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />{k}</span>
             ))}
@@ -680,16 +811,13 @@ function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
       <div style={{ flex: "0 0 260px", minWidth: 230 }}>
         <Card>
           {!node ? (
-            <div style={{ color: C.mid, fontSize: 13 }}><SectionLabel color={C.mul}>Detail</SectionLabel>Click any node to inspect it. Click a <b style={{ color: C.red }}>risk</b> to reveal similar risks in other projects.</div>
+            <div style={{ color: C.mid, fontSize: 13 }}><SectionLabel color={C.mul}>Detail</SectionLabel>Click any node to inspect it. Click a <b style={{ color: C.red }}>risk</b> to reveal similar risks in other projects. Drag to rearrange, scroll to zoom.</div>
           ) : node.kind === "project" ? (
             <div>
               <SectionLabel color={C.mul}>{node.data.code} · Project</SectionLabel>
               <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 16, color: C.ink }}>{node.data.name}</div>
               <div style={{ fontSize: 12.5, color: C.mid, marginTop: 6 }}>PM: {node.data.pm || "—"} · Tier {node.data.tier || "—"} · {node.data.phase || "—"}</div>
               <div style={{ fontSize: 12.5, color: C.ink, marginTop: 8 }}>{node.data.keydata?.headline || ""}</div>
-              <div style={{ display: "flex", gap: 10, marginTop: 10, fontSize: 11.5, color: C.mid }}>
-                <span>{(node.data.keydata?.risks || []).length} risks</span><span>{(resByProj[node.data.id] || []).length} resources</span><span>{(node.data.keydata?.benefits || []).length} benefits</span>
-              </div>
               <button onClick={() => { setSel(node.data.id); setTab("data"); }} style={{ marginTop: 14, width: "100%", background: C.mul, color: "#fff", border: "none", borderRadius: 8, padding: "9px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Open in Project Data →</button>
             </div>
           ) : node.kind === "risk" ? (
@@ -697,28 +825,26 @@ function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
               <SectionLabel color={C.red}>Risk</SectionLabel>
               <div style={{ fontSize: 13, color: C.ink, lineHeight: 1.4 }}>{node.data.desc || node.data.title || node.data.cause}</div>
               <div style={{ fontSize: 12, color: C.mid, marginTop: 8 }}>Owner: {node.data.owner || "—"}{node.data.due ? ` · due ${node.data.due}` : ""}</div>
-              {(() => { const sims = similarTo(node.data); return (
-                <div style={{ marginTop: 12 }}>
-                  <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em" }}>Similar risks elsewhere ({sims.length})</div>
-                  {sims.length === 0 ? <div style={{ fontSize: 12, color: C.mid, marginTop: 6 }}>None detected across the visible projects.</div> :
-                    sims.map(s => (
-                      <div key={s.id} onClick={() => setNode({ kind: "risk", data: { id: s.id, desc: s.desc, owner: s.owner, due: s.due }, projId: s.projId })} style={{ marginTop: 8, padding: "7px 9px", background: C.redLt || "#F8E9E8", borderRadius: 8, cursor: "pointer" }}>
-                        <div style={{ fontFamily: MONO, fontSize: 9, color: C.red, fontWeight: 700 }}>{s.projName}</div>
-                        <div style={{ fontSize: 11.5, color: C.ink, lineHeight: 1.35 }}>{(s.desc || "").slice(0, 90)}</div>
-                        <div style={{ fontSize: 9.5, color: C.mid, marginTop: 3 }}>shared: {s.shared.slice(0, 4).join(", ")}</div>
-                      </div>
-                    ))}
-                  {sims.length > 0 && <div style={{ fontSize: 11, color: C.mid, marginTop: 8, fontStyle: "italic" }}>A repeated risk is a portfolio risk — consider one shared mitigation.</div>}
-                </div>
-              ); })()}
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, textTransform: "uppercase", letterSpacing: ".08em" }}>Similar risks elsewhere ({similarList.length})</div>
+                {similarList.length === 0 ? <div style={{ fontSize: 12, color: C.mid, marginTop: 6 }}>None detected across the visible projects.</div> :
+                  similarList.map(s => (
+                    <div key={s.id} onClick={() => { const tn = graph.nodes.find(n => n.id === s.id); if (tn) setNode({ id: tn.id, kind: "risk", data: tn.data, projId: tn.projId }); }} style={{ marginTop: 8, padding: "7px 9px", background: C.redLt || "#F8E9E8", borderRadius: 8, cursor: "pointer" }}>
+                      <div style={{ fontFamily: MONO, fontSize: 9, color: C.red, fontWeight: 700 }}>{s.projName}</div>
+                      <div style={{ fontSize: 11.5, color: C.ink, lineHeight: 1.35 }}>{(s.desc || "").slice(0, 90)}</div>
+                      <div style={{ fontSize: 9.5, color: C.mid, marginTop: 3 }}>shared: {s.shared.slice(0, 4).join(", ")}</div>
+                    </div>
+                  ))}
+                {similarList.length > 0 && <div style={{ fontSize: 11, color: C.mid, marginTop: 8, fontStyle: "italic" }}>A repeated risk is a portfolio risk — consider one shared mitigation.</div>}
+              </div>
             </div>
           ) : node.kind === "resource" ? (
             <div>
               <SectionLabel color={C.navy}>Resource</SectionLabel>
               <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 15, color: C.ink }}>{node.data.name}</div>
               <div style={{ fontSize: 12.5, color: C.mid, marginTop: 6 }}>{node.data.role || "—"}{node.data.team ? ` · ${node.data.team}` : ""}</div>
-              {(() => { const pp = personProjs[node.data.id]; return pp && pp.pids.length > 1 ? (
-                <div style={{ marginTop: 10, fontSize: 12, color: C.navy }}>◢ On {pp.pids.length} projects: {pp.pids.map(id => (projects.find(p => p.id === id) || {}).code).filter(Boolean).join(", ")}</div>
+              {(() => { const rn = graph.nodes.find(n => n.id === node.id); return rn && rn.projs && rn.projs.length > 1 ? (
+                <div style={{ marginTop: 10, fontSize: 12, color: C.navy }}>◢ On {rn.projs.length} projects: {rn.projs.map(id => (projects.find(p => p.id === id) || {}).code).filter(Boolean).join(", ")}</div>
               ) : <div style={{ marginTop: 10, fontSize: 12, color: C.mid }}>On this project.</div>; })()}
             </div>
           ) : node.kind === "benefit" ? (
