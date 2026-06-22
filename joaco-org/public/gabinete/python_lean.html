@@ -41,6 +41,8 @@ code{font-family:var(--mono);font-size:.86em;background:#eef1f6;padding:1px 5px;
 .tb-btn{color:#cdd6e4;font-size:12px;padding:7px 12px;border:1px solid var(--line-dark);border-radius:7px;transition:.15s}
 .tb-btn:hover{color:#fff;border-color:#3a455a;background:var(--ink-2)}
 .tb-btn.on{color:var(--ink);background:var(--py-yellow);border-color:var(--py-yellow)}
+.tb-btn.ai{color:var(--ink);background:var(--py-yellow);border-color:var(--py-yellow);font-weight:700}
+.tb-btn.ai:hover{background:var(--py-yellow);filter:brightness(.95)}
 
 /* ---------- layout ---------- */
 .layout{display:flex;align-items:flex-start;max-width:1240px;margin:0 auto}
@@ -181,8 +183,11 @@ pre.cc{tab-size:4}
   </div>
   <span class="xp" id="xpPill">0 XP</span>
   <div class="topbar-actions">
+    <button class="tb-btn opt" id="tmplBtn">Templates</button>
     <button class="tb-btn opt" id="refBtn">Reference</button>
     <button class="tb-btn opt" id="dashBtn">Progress</button>
+    <button class="tb-btn" id="guideBtn">Guide</button>
+    <button class="tb-btn ai" id="aiBtn">✦ AI Pipeline</button>
     <button class="tb-btn" id="replBtn">&gt;&gt;&gt; REPL</button>
     <button class="tb-btn" id="langBtn">ES</button>
     <button class="tb-btn" id="resetBtn">Reset</button>
@@ -1277,6 +1282,7 @@ const LEAN = [
 /* ===== 4. VALUE STREAM MAPPING ===== */
 {
   id:'l4', area:'lean', track:'Value Stream', title:'Value Stream Mapping (VSM)', min:45,
+  visual:{type:'vsm', caption:'Current-state value stream map', demand:'90 orders', steps:[{name:'Order entry',pt:4,wt:120,ca:'95%'},{name:'Credit check',pt:6,wt:240,ca:'90%'},{name:'Pick & pack',pt:18,wt:480,ca:'98%'},{name:'Quality check',pt:5,wt:60,ca:'99%'},{name:'Shipping prep',pt:8,wt:180,ca:'97%'},{name:'Dispatch',pt:3,wt:30,ca:'100%'}]},
   concept:`<p>A <strong>Value Stream Map</strong> draws every step a unit passes through — material <em>and</em> information flow — with timing data underneath. You build a <em>current-state</em> map to see reality, then a <em>future-state</em> map to design the improvement, then a plan to get there.</p>
   <p>The headline metrics:</p>
   <ul>
@@ -1313,6 +1319,7 @@ const LEAN = [
 /* ===== 5. TAKT & LINE BALANCING ===== */
 {
   id:'l5', area:'lean', track:'Flow', title:'Takt Time & Line Balancing', min:40,
+  visual:{type:'barTakt', caption:'Cycle time per step vs takt', takt:5, items:[{label:'Order entry',value:4},{label:'Credit',value:6},{label:'Pick&pack',value:18},{label:'QC',value:5},{label:'Ship prep',value:8},{label:'Dispatch',value:3}]},
   concept:`<p><strong>Takt time</strong> is the heartbeat of demand — how often you must finish one unit to keep pace with the customer.</p>
   <pre class="cc">Takt = available working time / customer demand</pre>
   <p>Compare each step's <strong>cycle time</strong> to takt: any step slower than takt is a constraint that starves the customer. The theoretical minimum number of operators for one-piece flow is:</p>
@@ -1535,6 +1542,7 @@ Quality      = Good count / Total count</pre>
 /* ===== 13. DMAIC / SIX SIGMA ===== */
 {
   id:'l13', area:'lean', track:'Improvement', title:'DMAIC, Six Sigma & Lean Six Sigma', min:40,
+  visual:{type:'control', caption:'Defect-rate control chart (one special-cause point)', label:'defects / day', mean:5, ucl:11, lcl:0, values:[4,6,5,7,3,5,12,4,6,5,8,2]},
   concept:`<p>Lean removes <em>waste</em>; <strong>Six Sigma</strong> removes <em>variation</em>. Together: "Lean Six Sigma". Its improvement spine is <strong>DMAIC</strong>: <b>D</b>efine → <b>M</b>easure → <b>A</b>nalyse → <b>I</b>mprove → <b>C</b>ontrol. The Control phase is what makes gains stick.</p>
   <p>A common metric is <strong>DPMO</strong> (defects per million opportunities):</p>
   <pre class="cc">DPMO = (defects / (units x opportunities)) x 1,000,000
@@ -1566,6 +1574,7 @@ Yield = (1 - DPMO/1,000,000) x 100%</pre>
 /* ===== 14. APPLIED VSM (commercial) ===== */
 {
   id:'l14', area:'lean', track:'Applied · Commercial', title:'Applied VSM: Medical Information request', min:45,
+  visual:{type:'vsm', caption:'Medical Information request — value stream map', demand:'30 req', steps:[{name:'Intake & log',pt:5,wt:60},{name:'Triage',pt:8,wt:240},{name:'Literature research',pt:35,wt:480},{name:'Draft response',pt:25,wt:120},{name:'MLR review',pt:15,wt:960},{name:'Send to HCP',pt:4,wt:30}]},
   concept:`<p>The VSM lens on a <strong>commercial / medical-affairs</strong> process: handling a Medical Information (MI) request from a healthcare professional. Knowledge work has value streams too — usually dominated by queues and review handoffs.</p>
   <table class="dtable">
     <thead><tr><th>#</th><th>Step</th><th>Process time (min)</th><th>Wait before step (min)</th></tr></thead>
@@ -1770,6 +1779,7 @@ Lead time = WIP / throughput        (Little's Law)</pre>
 /* ===== 20. CASE A \u2014 A3 / PDCA ===== */
 {
   id:'l20', area:'lean', track:'Case Walkthroughs', title:'Case A \u2014 MLR bottleneck, solved with A3 / PDCA', min:50,
+  visual:{type:'vsm', caption:'Medical Information request — value stream map', demand:'30 req', steps:[{name:'Intake & log',pt:5,wt:60},{name:'Triage',pt:8,wt:240},{name:'Literature research',pt:35,wt:480},{name:'Draft response',pt:25,wt:120},{name:'MLR review',pt:15,wt:960},{name:'Send to HCP',pt:4,wt:30}]},
   concept:`<p>A full walkthrough of an <strong>A3 / PDCA</strong> improvement on the Medical Information stream. The A3 is a one-page story; PDCA is the cycle running underneath it. Follow every step.</p>
   <ol>
     <li><b>Background (Plan).</b> HCP questions take ~4.4 working days to answer; field teams complain; compliance risk if responses lapse.</li>
@@ -1841,6 +1851,7 @@ Lead time = WIP / throughput        (Little's Law)</pre>
 /* ===== 22. CASE C \u2014 DMAIC ===== */
 {
   id:'l22', area:'lean', track:'Case Walkthroughs', title:'Case C \u2014 lab sample defects, solved with DMAIC', min:50,
+  visual:{type:'control', caption:'Defect-rate control chart (one special-cause point)', label:'defects / day', mean:5, ucl:11, lcl:0, values:[4,6,5,7,3,5,12,4,6,5,8,2]},
   concept:`<p>A <strong>DMAIC</strong> project on sample-handling defects in a lab \u2014 the right approach when the problem is <em>defects and variation</em>, not just slow flow. Walk all five phases.</p>
   <ol>
     <li><b>Define.</b> Charter: reduce sample-handling defects. Scope with a SIPOC; capture the customer requirement (correct, on-spec samples).</li>
@@ -1883,6 +1894,43 @@ Lead time = WIP / throughput        (Little's Law)</pre>
       solution:`<p>Opportunities normalise complexity for fair comparison; prevention (poka-yoke) beats inspection; and Control mirrors PDCA-Act and 5S-Sustain \u2014 every approach ends by making gains stick.</p>` },
   ]
 },
+
+/* ===== 23. LEAN x AI: AGENTS & ORCHESTRATION ===== */
+{
+  id:'l23', area:'lean', track:'Lean \u00D7 AI', title:'Lean \u00D7 AI: Agents, Orchestration & Transformation', min:45,
+  visual:{type:'matrix', caption:'Prioritising a pipeline \u2014 value vs effort', items:[{title:'MI agent',effortScore:3,valueScore:5},{title:'MLR pre-check',effortScore:2,valueScore:4},{title:'Analytics copilot',effortScore:3,valueScore:4},{title:'Order orchestration',effortScore:4,valueScore:4}]},
+  concept:`<p>AI \u2014 especially <strong>agents</strong> and <strong>orchestration</strong> \u2014 is the most powerful new countermeasure in the Lean toolkit. The trick is to use Lean to aim it.</p>
+  <p><strong>An agent</strong> is a digital worker that can take a task end-to-end (read a request, retrieve facts, draft a response). Think of it as an operator at a station. <strong>Orchestration</strong> is the layer that routes work between agents and humans and keeps the flow moving \u2014 the pull system and pacemaker of an "agentic value stream".</p>
+  <p>Each Lean waste suggests an AI countermeasure: <em>Waiting</em> \u2192 an orchestrator removes handoff queues; <em>Defects</em> \u2192 a validation/poka-yoke agent; <em>Overprocessing</em> \u2192 a drafting agent working from a pre-approved library; <em>Non-utilised talent</em> \u2192 a copilot that frees experts for judgement work.</p>
+  <p>The method: map the process, build a <em>pipeline</em> of candidate use cases, <em>prioritise</em> them by value vs effort, and run each as a transformation project (discovery \u2192 pilot \u2192 scale \u2192 control). The <b>\u2726 AI Pipeline</b> button at the top builds and prioritises a sample pipeline for you.</p>`,
+  deep:`<p><b>Where agents fit on a value stream.</b> Not everything should be an agent. The strongest candidates sit where there is high <em>wait</em> time, reasonably structured inputs, meaningful <em>volume</em>, and a mix of rules and language judgement \u2014 exactly the steps a VSM flags as queue-bound (triage, research, drafting, status updates, first-pass review). Map the current state first; the agent goes where the waiting and rework are, not where the work is most visible.</p>
+  <p><b>Three orchestration patterns.</b> <em>Single agent</em> \u2014 one task, one model call with tools (e.g. a meeting-prep brief). <em>Multi-agent + orchestrator</em> \u2014 a coordinator decomposes the work and routes sub-tasks to specialist agents (triage \u2192 retrieval \u2192 draft), recombining the result; this is the pull/pacemaker analogue. <em>Human-in-the-loop</em> \u2014 the agent prepares, a human approves at a control gate; essential anywhere quality or compliance is non-negotiable (MLR, pharmacovigilance).</p>
+  <p><b>Lean principles map straight onto good agentic systems.</b> <em>Jidoka</em> (build quality in, stop on abnormality) becomes guardrails plus a confidence threshold that halts and escalates to a human \u2014 the AI andon cord. <em>Poka-yoke</em> becomes input/output validation that blocks bad data. <em>Standardised work</em> becomes prompts, tools and policies under version control. <em>Control</em> becomes SPC on both business KPIs and model metrics (drift, latency, accuracy), with a named owner and a kaizen loop. And <em>respect for people</em> stays central: agents should augment and free capacity, not be sold as headcount cuts \u2014 which is also what keeps the improvement engine (your people) intact.</p>
+  <p><b>How transformation pipelines fail.</b> The big one is <em>paving the cow path</em> \u2014 automating a wasteful process instead of removing the waste first; you just make waste faster and lock it in. Others: PoC purgatory (pilots that never scale because there was no control/operating model); ignoring data readiness and feasibility in discovery; no prioritisation, so teams chase shiny "big bets" over quick wins; and no Control phase, so accuracy quietly drifts. The discipline is Lean's: fix flow, prove value on one stream, then scale with guardrails and an owner.</p>`,
+  exercises:[
+    { type:'classify',
+      prompt:'Match each AI agent capability to the Lean waste it best attacks.',
+      categories:['Defects','Waiting','Overprocessing','Non-utilised talent','Inventory'],
+      items:[
+        { text:'Validation / poka-yoke agent checks references & claims before MLR', answer:0 },
+        { text:'Orchestrator routes tasks and removes approval-queue handoffs', answer:1 },
+        { text:'Drafting agent generates answers from a pre-approved library', answer:2 },
+        { text:'Self-serve analytics copilot frees experts from pulling reports', answer:3 },
+        { text:'Demand-sensing agent triggers just-in-time replenishment', answer:4 },
+      ],
+      solution:`<p>Validation \u2192 Defects; orchestration/routing \u2192 Waiting; generate-from-library \u2192 Overprocessing; copilot \u2192 Non-utilised talent; demand-sensing replenishment \u2192 Inventory. Each agent is a countermeasure aimed at a specific waste \u2014 which is how you justify it.</p>` },
+    { type:'mcq', prompt:'Lean \u00D7 AI judgement.',
+      questions:[
+        { text:'In an agentic value stream, "orchestration" is most analogous to which Lean concept?', options:['A single operator','The pacemaker / pull system coordinating flow','A defect','Takt time only'], correct:1 },
+        { text:'Before automating a process with AI you should first\u2026', options:['Automate it exactly as-is for speed','Remove the waste / fix flow, then apply AI','Buy the largest model','Skip the VSM'], correct:1 },
+        { text:'On a value-vs-effort matrix, "quick wins" are\u2026', options:['High effort, low value','High value, low effort','Low value, low effort','High effort, high value'], correct:1 },
+        { text:'The AI equivalent of Jidoka (build quality in / stop on abnormality) is\u2026', options:['A bigger training set','Human-in-the-loop review + guardrails that halt on low confidence','Faster GPUs','Removing all humans'], correct:1 },
+      ],
+      solution:`<p>Orchestration is the pacemaker/pull layer; remove waste before automating (don\u2019t pave the cow path); quick wins are high-value/low-effort; and Jidoka maps to guardrails plus human-in-the-loop that stop on low confidence.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 scope your own AI use case (saved on this device).',
+      template:{ kind:'aicanvas' } },
+  ]
+},
 ];
 
 if (typeof module !== "undefined") module.exports = { LEAN };
@@ -1917,7 +1965,7 @@ const T = {
     dashTitle:'Your progress', dashClose:'Close', dashPrint:'Print / Save as PDF',
     dashXP:'total XP', dashOverall:'overall', dashExercises:'exercises',
     dashCert:'Certificate of progress', dashGen:'Generated', dashLine:'completed across Python and LEAN tracks in PyQuest.',
-    refTitle:'Reference', langName:'EN', beginner:'Beginner', deepDive:'Deep dive', template:'Template', clear:'Clear', wsNote:'Reusable worksheet \u2014 your entries are saved on this device.'
+    refTitle:'Reference', langName:'EN', beginner:'Beginner', deepDive:'Deep dive', template:'Template', clear:'Clear', wsNote:'Reusable worksheet \u2014 your entries are saved on this device.', download:'Download', templates:'Templates', aiPipeline:'\u2726 Studio', guide:'Guide', tmplTitle:'Downloadable templates', tmplHint:'Blank, printable Lean templates. Open the HTML and print to PDF, or use the CSV data sheets.'
   },
   es:{
     brandSub:'aprende ejecutando', reference:'Referencia', progress:'Progreso', reset:'Reiniciar',
@@ -1944,7 +1992,7 @@ const T = {
     dashTitle:'Tu progreso', dashClose:'Cerrar', dashPrint:'Imprimir / Guardar PDF',
     dashXP:'XP totales', dashOverall:'global', dashExercises:'ejercicios',
     dashCert:'Certificado de progreso', dashGen:'Generado', dashLine:'completados en las rutas de Python y LEAN en PyQuest.',
-    refTitle:'Referencia', langName:'ES', beginner:'Principiante', deepDive:'En profundidad', template:'Plantilla', clear:'Borrar', wsNote:'Plantilla reutilizable \u2014 tus anotaciones se guardan en este dispositivo.'
+    refTitle:'Referencia', langName:'ES', beginner:'Principiante', deepDive:'En profundidad', template:'Plantilla', clear:'Borrar', wsNote:'Plantilla reutilizable \u2014 tus anotaciones se guardan en este dispositivo.', download:'Descargar', templates:'Plantillas', aiPipeline:'\u2726 Studio', guide:'Gu\u00EDa', tmplTitle:'Plantillas descargables', tmplHint:'Plantillas Lean en blanco e imprimibles. Abre el HTML e imprime a PDF, o usa las hojas de datos CSV.'
   }
 };
 let lang='en';
@@ -2133,6 +2181,9 @@ function relabelChrome(){
   document.getElementById('replBtn').innerHTML='&gt;&gt;&gt; REPL';
   document.getElementById('resetBtn').textContent=t('reset');
   document.getElementById('langBtn').textContent=(lang==='en'?'ES':'EN');
+  var _tbl=document.getElementById('tmplBtn'); if(_tbl) _tbl.textContent=t('templates');
+  var _abl=document.getElementById('aiBtn'); if(_abl) _abl.textContent=t('aiPipeline');
+  var _gbl=document.getElementById('guideBtn'); if(_gbl) _gbl.textContent=t('guide');
   document.querySelector('#replDrawer .repl-head').childNodes[1].textContent=' '+t('replHead')+' ';
   document.getElementById('replInput').placeholder=t('replPlaceholder');
 }
@@ -2187,6 +2238,7 @@ function render(){
   } else {
     const concept=document.createElement('div'); concept.className='concept'; concept.innerHTML=lesson.concept; c.appendChild(concept);
   }
+  if(lesson.visual){ attachSvg(c, chartSVG(lesson.visual), lesson.id+'-'+lesson.visual.type, {caption:lesson.visual.caption}); }
   if(AREA==='python') renderPython(lesson,c); else renderLean(lesson,c);
   const list=areaLessons(AREA), foot=document.createElement('div'); foot.className='lfoot';
   const prev=document.createElement('button'); prev.className='navbtn'; prev.disabled=IDX===0;
@@ -2300,7 +2352,7 @@ async function doCheck(btn,ed,out,res,ex,key,lesson,needsData){
 ".a3-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}"+
 ".a3-box{display:flex;flex-direction:column;gap:4px}.a3-box.full{grid-column:1 / -1}"+
 ".ws-cats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}"+
-".ws-note{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:6px}"+
+".ws-note{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:6px}"+".svg-tools{display:flex;gap:6px;justify-content:flex-end;margin-bottom:6px}"+".svg-dl{font-family:var(--mono);font-size:11px;color:var(--py-blue);border:1px solid var(--line);border-radius:6px;padding:4px 9px;background:var(--paper-2)}"+".svg-dl:hover{background:#eef3fa}"+".svg-cap{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}"+".tmpl-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}"+".tmpl-row:last-child{border-bottom:none}"+".tmpl-meta{flex:1;min-width:200px}.tmpl-meta b{font-size:14px}.tmpl-meta small{display:block;color:var(--muted);font-size:12px}"+".tmpl-dl{font-family:var(--mono);font-size:11.5px;color:#fff;background:var(--py-blue);border-radius:7px;padding:7px 12px}.tmpl-dl:hover{background:var(--py-blue-2)}"+".tmpl-dl.alt{background:var(--paper-2);color:var(--py-blue);border:1px solid var(--line)}.tmpl-dl.alt:hover{background:#eef3fa}"+".ai-intro{font-size:13.5px;color:#3a4658;background:#fff;border:1px solid var(--line);border-left:3px solid var(--py-yellow);border-radius:10px;padding:12px 16px;margin-bottom:14px}"+".ai-input{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}"+".ai-input input{flex:1;min-width:220px;font-family:var(--sans);font-size:14px;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;outline:none}.ai-input input:focus{border-color:var(--py-blue)}"+".ai-gen{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;background:var(--py-blue);border-radius:8px;padding:9px 16px}.ai-gen:hover{background:var(--py-blue-2)}.ai-gen:disabled{opacity:.6}"+".ai-status{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:4px 0 12px}"+".uc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}@media (max-width:680px){.uc-grid{grid-template-columns:1fr}}"+".uc-card{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--paper-2)}"+".uc-card h4{margin:0 0 6px;font-size:14.5px;display:flex;align-items:flex-start;gap:8px}"+".uc-num{flex:0 0 22px;width:22px;height:22px;border-radius:99px;background:var(--py-blue);color:#fff;font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center}"+".uc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}"+".uc-tag{font-family:var(--mono);font-size:10.5px;padding:3px 8px;border-radius:99px;background:#eef2f7;color:#46526a}.uc-tag.v{background:#effaf3;color:#1d6b48}.uc-tag.e{background:#fdf3ec;color:#9a5a2a}"+".uc-card .mf{font-size:13px;color:#2a3344;margin:6px 0}.uc-card .mf b{color:#1b2230}"+".uc-card ul{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:#3a4658}"+".uc-toggle{font-family:var(--mono);font-size:11.5px;color:var(--py-blue);margin-top:8px;padding:5px 0}"+".uc-plan{display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.uc-plan.show{display:block}"+".uc-phase{font-size:12.5px;margin-bottom:8px;color:#3a4658}.uc-phase b{font-family:var(--mono);font-size:11px;color:var(--py-blue-2)}"+".ai-dlrow{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}"+
 "@media (max-width:680px){.ws-sipoc{grid-template-columns:1fr 1fr}.a3-grid{grid-template-columns:1fr}.ws-cats{grid-template-columns:1fr}}";
 document.head.appendChild(s2); })();
 
@@ -2347,11 +2399,186 @@ function fishboneSVG(problem, cats){
   s+='</svg>'; return s;
 }
 
-function buildVisual(ex){
-  if(ex.diagram) return ex.diagram;
-  if(ex.chart){ if(ex.chart.type==='pareto') return paretoSVG(ex.chart.data); if(ex.chart.type==='fishbone') return fishboneSVG(ex.chart.problem, ex.chart.categories); }
+/* ---- detailed LEAN graph generators + download engine ---- */
+function _wrap2(str,maxc){ str=String(str); var w=str.split(' '),L=[],cur=''; w.forEach(function(x){ if((cur+' '+x).trim().length>maxc){ if(cur)L.push(cur.trim()); cur=x; } else cur+=' '+x; }); if(cur.trim())L.push(cur.trim()); return L.slice(0,2); }
+
+function vsmSVG(steps,opt){
+  opt=opt||{}; var n=steps.length, bw=112, gap=72, x0=150, procY=96, procH=54;
+  var dataY=procY+procH, dataH=34, sumW=150;
+  var W=x0+n*(bw+gap)+sumW, H=330;
+  var tPT=steps.reduce(function(a,d){return a+(d.pt||0);},0);
+  var tWT=steps.reduce(function(a,d){return a+(d.wt||0);},0);
+  var LT=tPT+tWT, PCE=LT?(tPT/LT*100):0;
+  var lowY=262, highY=232;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace">';
+  s+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#ffffff"/>';
+  // supplier, control, customer
+  s+='<rect x="16" y="16" width="120" height="44" rx="4" fill="#eef2f7" stroke="#cbd3df"/><text x="76" y="42" text-anchor="middle" font-size="11" fill="#46526a">Supplier</text>';
+  var custX=x0+n*(bw+gap)-gap+10;
+  s+='<rect x="'+custX+'" y="16" width="120" height="44" rx="4" fill="#eef2f7" stroke="#cbd3df"/><text x="'+(custX+60)+'" y="36" text-anchor="middle" font-size="11" fill="#46526a">Customer</text>';
+  if(opt.demand) s+='<text x="'+(custX+60)+'" y="52" text-anchor="middle" font-size="10" fill="#69748a">'+opt.demand+'/day</text>';
+  var pcX=(x0+custX)/2-60;
+  s+='<rect x="'+pcX+'" y="16" width="120" height="44" rx="4" fill="#11141b"/><text x="'+(pcX+60)+'" y="36" text-anchor="middle" font-size="10" fill="#fff">Production</text><text x="'+(pcX+60)+'" y="50" text-anchor="middle" font-size="10" fill="#fff">Control</text>';
+  // info-flow arrows (dashed)
+  s+='<line x1="136" y1="38" x2="'+pcX+'" y2="38" stroke="#9aa6b8" stroke-width="1.2" stroke-dasharray="4 3"/>';
+  s+='<line x1="'+(pcX+120)+'" y1="38" x2="'+custX+'" y2="38" stroke="#9aa6b8" stroke-width="1.2" stroke-dasharray="4 3"/>';
+  steps.forEach(function(d,i){
+    var x=x0+i*(bw+gap);
+    // inventory triangle in the gap before the box (= wait)
+    var tx=x-gap/2;
+    s+='<polygon points="'+(tx-12)+','+(procY+procH/2-2)+' '+(tx+12)+','+(procY+procH/2-2)+' '+tx+','+(procY+procH/2+16)+'" fill="#ffe9a8" stroke="#cc9f00"/>';
+    s+='<text x="'+tx+'" y="'+(procY+procH/2-8)+'" text-anchor="middle" font-size="9.5" fill="#8a6d00">'+(d.wt||0)+'m</text>';
+    // material push arrow into box
+    s+='<line x1="'+(tx+13)+'" y1="'+(procY+procH/2)+'" x2="'+(x-2)+'" y2="'+(procY+procH/2)+'" stroke="#3b6fb5" stroke-width="1.4"/><polygon points="'+(x-2)+','+(procY+procH/2-4)+' '+(x+4)+','+(procY+procH/2)+' '+(x-2)+','+(procY+procH/2+4)+'" fill="#3b6fb5"/>';
+    // process box
+    s+='<rect x="'+x+'" y="'+procY+'" width="'+bw+'" height="'+procH+'" rx="4" fill="#fff" stroke="#11141b" stroke-width="1.5"/>';
+    var lines=_wrap2(d.name,16), ly=lines.length>1?procY+22:procY+procH/2+4;
+    lines.forEach(function(ln,k){ s+='<text x="'+(x+bw/2)+'" y="'+(ly+k*14)+'" text-anchor="middle" font-size="11" fill="#1b2230">'+ln+'</text>'; });
+    // data box
+    s+='<rect x="'+x+'" y="'+dataY+'" width="'+bw+'" height="'+dataH+'" rx="3" fill="#f4f7fa" stroke="#cbd3df"/>';
+    s+='<text x="'+(x+bw/2)+'" y="'+(dataY+15)+'" text-anchor="middle" font-size="9.5" fill="#46526a">C/T '+(d.pt||0)+' min</text>';
+    s+='<text x="'+(x+bw/2)+'" y="'+(dataY+27)+'" text-anchor="middle" font-size="9.5" fill="#46526a">%C&amp;A '+(d.ca!=null?d.ca:'\u2014')+'</text>';
+    // timeline ladder
+    var gapStart=x-gap, boxStart=x, boxEnd=x+bw;
+    s+='<line x1="'+gapStart+'" y1="'+highY+'" x2="'+boxStart+'" y2="'+highY+'" stroke="#cc9f00" stroke-width="1.6"/>';
+    s+='<text x="'+((gapStart+boxStart)/2)+'" y="'+(highY-4)+'" text-anchor="middle" font-size="9" fill="#8a6d00">'+(d.wt||0)+'</text>';
+    s+='<line x1="'+boxStart+'" y1="'+highY+'" x2="'+boxStart+'" y2="'+lowY+'" stroke="#9aa6b8" stroke-width="1"/>';
+    s+='<line x1="'+boxStart+'" y1="'+lowY+'" x2="'+boxEnd+'" y2="'+lowY+'" stroke="#3b6fb5" stroke-width="2"/>';
+    s+='<text x="'+((boxStart+boxEnd)/2)+'" y="'+(lowY+13)+'" text-anchor="middle" font-size="9" fill="#2c5a98">'+(d.pt||0)+'</text>';
+    s+='<line x1="'+boxEnd+'" y1="'+lowY+'" x2="'+boxEnd+'" y2="'+highY+'" stroke="#9aa6b8" stroke-width="1"/>';
+  });
+  // ladder legend
+  s+='<text x="'+x0+'" y="'+(lowY+30)+'" font-size="9" fill="#69748a">lower=value-add min  |  upper=wait min</text>';
+  // summary box
+  var sx=x0+n*(bw+gap)+6;
+  s+='<rect x="'+sx+'" y="'+procY+'" width="138" height="92" rx="6" fill="#11141b"/>';
+  s+='<text x="'+(sx+12)+'" y="'+(procY+22)+'" font-size="10" fill="#9aa6b8">LEAD TIME</text><text x="'+(sx+12)+'" y="'+(procY+38)+'" font-size="14" fill="#fff">'+LT+' min</text>';
+  s+='<text x="'+(sx+12)+'" y="'+(procY+56)+'" font-size="10" fill="#9aa6b8">VALUE-ADD</text><text x="'+(sx+12)+'" y="'+(procY+71)+'" font-size="12" fill="#fff">'+tPT+' min</text>';
+  s+='<text x="'+(sx+12)+'" y="'+(procY+88)+'" font-size="11" fill="#ffd43b">PCE '+PCE.toFixed(1)+'%</text>';
+  s+='</svg>'; return s;
+}
+
+function barTaktSVG(items,takt){
+  var W=560,H=280,mL=46,mR=20,mT=24,mB=58,pw=W-mL-mR,ph=H-mT-mB;
+  var maxV=Math.max.apply(null,items.map(function(d){return d.value;}).concat([takt]))*1.1;
+  var n=items.length,gap=pw/n,bw=gap*0.6;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace">';
+  s+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#ffffff"/>';
+  s+='<line x1="'+mL+'" y1="'+mT+'" x2="'+mL+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/><line x1="'+mL+'" y1="'+(mT+ph)+'" x2="'+(W-mR)+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/>';
+  items.forEach(function(d,i){
+    var x=mL+gap*i+(gap-bw)/2,h=ph*(d.value/maxV),y=mT+ph-h;
+    var over=d.value>takt;
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="3" fill="'+(over?'#d65a5a':'#3b6fb5')+'"/>';
+    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5).toFixed(1)+'" text-anchor="middle" font-size="10" fill="#46526a">'+d.value+'</text>';
+    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(mT+ph+14)+'" text-anchor="middle" font-size="9" fill="#69748a">'+(String(d.label).length>10?String(d.label).slice(0,9)+'\u2026':d.label)+'</text>';
+  });
+  var ty=mT+ph-ph*(takt/maxV);
+  s+='<line x1="'+mL+'" y1="'+ty.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+ty.toFixed(1)+'" stroke="#11141b" stroke-dasharray="6 4" stroke-width="1.6"/>';
+  s+='<text x="'+(W-mR)+'" y="'+(ty-5).toFixed(1)+'" text-anchor="end" font-size="10" fill="#11141b">Takt '+takt+'</text>';
+  s+='<text x="'+mL+'" y="16" font-size="10" fill="#69748a">cycle time per step vs takt (red = over takt)</text>';
+  s+='</svg>'; return s;
+}
+
+function controlChartSVG(spec){
+  var vals=spec.values, mean=spec.mean, ucl=spec.ucl, lcl=spec.lcl, label=spec.label||'value';
+  var W=560,H=270,mL=46,mR=20,mT=22,mB=46,pw=W-mL-mR,ph=H-mT-mB;
+  var lo=Math.min.apply(null,vals.concat([lcl]))*0.96, hi=Math.max.apply(null,vals.concat([ucl]))*1.04;
+  function Y(v){ return mT+ph-ph*((v-lo)/(hi-lo)); }
+  var n=vals.length,step=pw/(n-1||1);
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace">';
+  s+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#ffffff"/>';
+  s+='<line x1="'+mL+'" y1="'+Y(ucl).toFixed(1)+'" x2="'+(W-mR)+'" y2="'+Y(ucl).toFixed(1)+'" stroke="#d65a5a" stroke-dasharray="6 4"/><text x="'+(W-mR)+'" y="'+(Y(ucl)-4).toFixed(1)+'" text-anchor="end" font-size="9" fill="#d65a5a">UCL '+ucl+'</text>';
+  s+='<line x1="'+mL+'" y1="'+Y(lcl).toFixed(1)+'" x2="'+(W-mR)+'" y2="'+Y(lcl).toFixed(1)+'" stroke="#d65a5a" stroke-dasharray="6 4"/><text x="'+(W-mR)+'" y="'+(Y(lcl)+12).toFixed(1)+'" text-anchor="end" font-size="9" fill="#d65a5a">LCL '+lcl+'</text>';
+  s+='<line x1="'+mL+'" y1="'+Y(mean).toFixed(1)+'" x2="'+(W-mR)+'" y2="'+Y(mean).toFixed(1)+'" stroke="#2e9e6b" stroke-width="1.4"/><text x="'+(W-mR)+'" y="'+(Y(mean)-4).toFixed(1)+'" text-anchor="end" font-size="9" fill="#2e9e6b">mean '+mean+'</text>';
+  var pts=vals.map(function(v,i){ return [mL+step*i, Y(v)]; });
+  s+='<polyline fill="none" stroke="#3b6fb5" stroke-width="2" points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'"/>';
+  pts.forEach(function(p,i){ var oob=vals[i]>ucl||vals[i]<lcl; s+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="'+(oob?'#d65a5a':'#3b6fb5')+'"/>'; });
+  s+='<text x="'+mL+'" y="14" font-size="10" fill="#69748a">'+label+' over time (red = out of control)</text>';
+  s+='</svg>'; return s;
+}
+
+function ganttSVG(inits,opt){ opt=opt||{}; var n=inits.length; if(!n){ return '<svg viewBox="0 0 560 60" xmlns="http://www.w3.org/2000/svg"><text x="20" y="34" font-family="ui-monospace,monospace" font-size="12" fill="#69748a">No scheduled initiatives</text></svg>'; }
+  var rowH=26,padT=34,padB=20,labW=156,right=20; var maxWk=Math.max(8, inits.reduce(function(m,i){return Math.max(m,(+i.startWk||0)+(+i.durWk||1));},0)); maxWk=Math.ceil(maxWk/4)*4;
+  var plotW=560,W=labW+plotW+right,H=padT+n*rowH+padB; function X(wk){ return labW+plotW*(wk/maxWk); }
+  var ragc={green:'#2e9e6b',amber:'#d9a441',red:'#d65a5a'};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace"><rect width="'+W+'" height="'+H+'" fill="#ffffff"/>';
+  var stepw=Math.max(1,Math.round(maxWk/8));
+  for(var w=0;w<=maxWk;w+=stepw){ var x=X(w); s+='<line x1="'+x+'" y1="'+(padT-6)+'" x2="'+x+'" y2="'+(H-padB)+'" stroke="#eef2f7"/><text x="'+x+'" y="'+(padT-11)+'" text-anchor="middle" font-size="9" fill="#69748a">W'+w+'</text>'; }
+  inits.forEach(function(it,i){ var y=padT+i*rowH; s+='<text x="6" y="'+(y+rowH/2+3)+'" font-size="10.5" fill="#1b2230">'+String(it.title||'').slice(0,22)+'</text>';
+    var x1=X(+it.startWk||0),x2=X((+it.startWk||0)+(+it.durWk||1)); var c=ragc[it.rag]||'#3b6fb5';
+    s+='<rect x="'+x1.toFixed(1)+'" y="'+(y+5)+'" width="'+Math.max(5,(x2-x1)).toFixed(1)+'" height="'+(rowH-12)+'" rx="4" fill="'+c+'" fill-opacity="0.88"/>';
+    s+='<text x="'+(x1+6).toFixed(1)+'" y="'+(y+rowH/2+3)+'" font-size="8.5" fill="#fff">'+(it.stage||'')+'</text>'; });
+  s+='</svg>'; return s; }
+function sparkSVG(vals,target,opt){ opt=opt||{}; var W=opt.w||150,H=opt.h||34,p=4; vals=(vals||[]).map(Number).filter(function(x){return!isNaN(x);}); if(!vals.length)vals=[0]; var all=vals.concat([+target]); var lo=Math.min.apply(null,all),hi=Math.max.apply(null,all); if(hi===lo)hi=lo+1; function Y(v){return H-p-(H-2*p)*((v-lo)/(hi-lo));} function X(i){return p+(W-2*p)*(vals.length>1?i/(vals.length-1):0);}
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg"><rect width="'+W+'" height="'+H+'" fill="#fff"/>'; s+='<line x1="'+p+'" y1="'+Y(+target).toFixed(1)+'" x2="'+(W-p)+'" y2="'+Y(+target).toFixed(1)+'" stroke="#d9a441" stroke-dasharray="3 3"/>';
+  s+='<polyline fill="none" stroke="#3b6fb5" stroke-width="1.7" points="'+vals.map(function(v,i){return X(i).toFixed(1)+','+Y(v).toFixed(1);}).join(' ')+'"/>'; s+='<circle cx="'+X(vals.length-1).toFixed(1)+'" cy="'+Y(vals[vals.length-1]).toFixed(1)+'" r="2.7" fill="#3b6fb5"/></svg>'; return s; }
+function barsSVG(items,opt){ opt=opt||{}; var W=560,rowH=26,padL=150,padR=70,padT=8,padB=8; var n=items.length||1,H=padT+n*rowH+padB; var max=Math.max.apply(null,items.map(function(d){return d.value;}).concat([1]));
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace"><rect width="'+W+'" height="'+H+'" fill="#fff"/>'; items.forEach(function(d,i){ var y=padT+i*rowH,w=(W-padL-padR)*(d.value/max); s+='<text x="6" y="'+(y+rowH/2+3)+'" font-size="10.5" fill="#1b2230">'+String(d.label).slice(0,22)+'</text>'; s+='<rect x="'+padL+'" y="'+(y+5)+'" width="'+Math.max(2,w).toFixed(1)+'" height="'+(rowH-12)+'" rx="3" fill="#3b6fb5"/>'; s+='<text x="'+(padL+w+6).toFixed(1)+'" y="'+(y+rowH/2+3)+'" font-size="9.5" fill="#46526a">'+(opt.fmt?opt.fmt(d.value):d.value)+'</text>'; }); s+='</svg>'; return s; }
+function lineSVG(values,labels,opt){ opt=opt||{}; var W=560,H=200,mL=60,mR=18,mT=16,mB=34,pw=W-mL-mR,ph=H-mT-mB; values=(values||[]).map(Number); if(!values.length)values=[0]; var lo=Math.min.apply(null,values),hi=Math.max.apply(null,values); if(hi===lo)hi=hi+1; lo=Math.min(lo,0); function Y(v){return mT+ph-ph*((v-lo)/((hi-lo)||1));} function X(i){return mL+pw*(values.length>1?i/(values.length-1):0);}
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+  s+='<line x1="'+mL+'" y1="'+mT+'" x2="'+mL+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/><line x1="'+mL+'" y1="'+(mT+ph)+'" x2="'+(W-mR)+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/>';
+  [lo,(lo+hi)/2,hi].forEach(function(v){ s+='<line x1="'+mL+'" y1="'+Y(v).toFixed(1)+'" x2="'+(W-mR)+'" y2="'+Y(v).toFixed(1)+'" stroke="#f0f3f7"/><text x="'+(mL-6)+'" y="'+(Y(v)+3).toFixed(1)+'" text-anchor="end" font-size="9" fill="#69748a">'+(opt.fmt?opt.fmt(v):Math.round(v))+'</text>'; });
+  if(values.length>1) s+='<polyline fill="none" stroke="#3b6fb5" stroke-width="2" points="'+values.map(function(v,i){return X(i).toFixed(1)+','+Y(v).toFixed(1);}).join(' ')+'"/>';
+  values.forEach(function(v,i){ s+='<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(v).toFixed(1)+'" r="3" fill="#3b6fb5"/>'; if(labels&&labels[i]!=null) s+='<text x="'+X(i).toFixed(1)+'" y="'+(mT+ph+14)+'" text-anchor="middle" font-size="9" fill="#69748a">'+labels[i]+'</text>'; });
+  return s; }
+function matrixSVG(items){
+  var W=560,H=360,mL=58,mR=24,mT=24,mB=52,pw=W-mL-mR,ph=H-mT-mB;
+  function X(v){ return mL+pw*((v-0.5)/5); } function Y(v){ return mT+ph-ph*((v-0.5)/5); }
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace">';
+  s+='<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#ffffff"/>';
+  // quadrant shading + lines at 3
+  var mx=X(3), my=Y(3);
+  s+='<rect x="'+mL+'" y="'+mT+'" width="'+(mx-mL)+'" height="'+(my-mT)+'" fill="#effaf3"/>'; // top-left quick wins
+  s+='<line x1="'+mx+'" y1="'+mT+'" x2="'+mx+'" y2="'+(mT+ph)+'" stroke="#cbd3df" stroke-dasharray="4 3"/>';
+  s+='<line x1="'+mL+'" y1="'+my+'" x2="'+(W-mR)+'" y2="'+my+'" stroke="#cbd3df" stroke-dasharray="4 3"/>';
+  s+='<rect x="'+mL+'" y="'+mT+'" width="'+pw+'" height="'+ph+'" fill="none" stroke="#cbd3df"/>';
+  s+='<text x="'+(mL+6)+'" y="'+(mT+14)+'" font-size="10" fill="#2e9e6b">QUICK WINS</text>';
+  s+='<text x="'+(W-mR-6)+'" y="'+(mT+14)+'" text-anchor="end" font-size="10" fill="#69748a">BIG BETS</text>';
+  s+='<text x="'+(mL+6)+'" y="'+(mT+ph-6)+'" font-size="10" fill="#69748a">FILL-INS</text>';
+  s+='<text x="'+(W-mR-6)+'" y="'+(mT+ph-6)+'" text-anchor="end" font-size="10" fill="#a13b3b">MONEY PIT</text>';
+  s+='<text x="'+(mL+pw/2)+'" y="'+(H-16)+'" text-anchor="middle" font-size="11" fill="#46526a">Effort / complexity \u2192</text>';
+  s+='<text x="16" y="'+(mT+ph/2)+'" text-anchor="middle" font-size="11" fill="#46526a" transform="rotate(-90 16 '+(mT+ph/2)+')">Value / impact \u2192</text>';
+  items.forEach(function(it,i){
+    var x=X(it.effortScore||3), y=Y(it.valueScore||3), r=8+(it.valueScore||3);
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+r+'" fill="#3b6fb5" fill-opacity="0.78" stroke="#2c5a98"/>';
+    s+='<text x="'+x.toFixed(1)+'" y="'+(y+4).toFixed(1)+'" text-anchor="middle" font-size="11" fill="#fff">'+(i+1)+'</text>';
+  });
+  s+='</svg>'; return s;
+}
+function chartSVG(spec){
+  if(!spec) return '';
+  if(spec.type==='pareto') return paretoSVG(spec.data);
+  if(spec.type==='fishbone') return fishboneSVG(spec.problem,spec.categories);
+  if(spec.type==='vsm') return vsmSVG(spec.steps,spec);
+  if(spec.type==='barTakt') return barTaktSVG(spec.items,spec.takt);
+  if(spec.type==='control') return controlChartSVG(spec);
+  if(spec.type==='matrix') return matrixSVG(spec.items);
   return '';
 }
+
+/* ---- client-side downloads ---- */
+function downloadBlob(blob,filename){ try{ var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(function(){ try{document.body.removeChild(a);}catch(e){} URL.revokeObjectURL(url); },120); }catch(e){} }
+function downloadText(text,filename,mime){ downloadBlob(new Blob([text],{type:(mime||'text/plain')+';charset=utf-8'}),filename); }
+function downloadSVG(svgEl,filename){ if(!svgEl)return; var c=svgEl.cloneNode(true); var vb=(svgEl.getAttribute('viewBox')||'0 0 600 300').split(/\s+/); c.setAttribute('width',vb[2]); c.setAttribute('height',vb[3]); c.setAttribute('xmlns','http://www.w3.org/2000/svg'); var xml='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(c); downloadText(xml,filename,'image/svg+xml'); }
+function downloadPNG(svgEl,filename){ if(!svgEl)return; try{ var vb=(svgEl.getAttribute('viewBox')||'0 0 600 300').split(/\s+/).map(Number); var w=vb[2],h=vb[3],scale=2; var c=svgEl.cloneNode(true); c.setAttribute('width',w); c.setAttribute('height',h); c.setAttribute('xmlns','http://www.w3.org/2000/svg'); var xml=new XMLSerializer().serializeToString(c); var img=new Image(); img.onload=function(){ try{ var cv=document.createElement('canvas'); cv.width=w*scale; cv.height=h*scale; var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height); ctx.drawImage(img,0,0,cv.width,cv.height); if(cv.toBlob) cv.toBlob(function(b){ if(b) downloadBlob(b,filename); }); }catch(e){} }; img.src='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(xml))); }catch(e){} }
+function attachSvg(parent,svgString,fname,opt){
+  opt=opt||{}; var wrap=document.createElement('div'); wrap.className='svgwrap';
+  if(opt.caption){ var cap=document.createElement('div'); cap.className='svg-cap'; cap.textContent=opt.caption; wrap.appendChild(cap); }
+  var tools=document.createElement('div'); tools.className='svg-tools';
+  var b1=document.createElement('button'); b1.className='svg-dl'; b1.textContent='\u2193 SVG';
+  var b2=document.createElement('button'); b2.className='svg-dl'; b2.textContent='\u2193 PNG';
+  tools.appendChild(b1); tools.appendChild(b2); wrap.appendChild(tools);
+  var holder=document.createElement('div'); holder.innerHTML=svgString; wrap.appendChild(holder);
+  parent.appendChild(wrap);
+  var svgEl=holder.querySelector('svg');
+  b1.addEventListener('click',function(){ downloadSVG(svgEl,(fname||'diagram')+'.svg'); });
+  b2.addEventListener('click',function(){ downloadPNG(svgEl,(fname||'diagram')+'.png'); });
+  return wrap;
+}
+function gatherFields(el){ var out=[]; el.querySelectorAll('[data-wskey]').forEach(function(ta){ var lab=ta.parentNode.querySelector('label'); out.push({label:lab?lab.textContent:'Field', value:ta.value}); }); return out; }
+function worksheetMarkdown(el,title){ var f=gatherFields(el); var L=['# '+(title||'Worksheet'),'','_Exported from PyQuest_','']; f.forEach(function(x){ L.push('## '+x.label); L.push((x.value&&x.value.trim())?x.value:'_(empty)_'); L.push(''); }); return L.join('\n'); }
+
+function buildVisual(ex){ if(ex.diagram) return ex.diagram; if(ex.chart) return chartSVG(ex.chart); return ''; }
 
 function makeWs(key,name,ph,prefill){
   var ta=document.createElement('textarea'); ta.placeholder=ph||''; ta.rows=2;
@@ -2372,6 +2599,9 @@ function buildWorksheet(tpl,key){
   } else if(kind==='a3'){
     el.className='a3-grid';
     [['background','Background',0],['current','Current condition',0],['goal','Goal / target',0],['analysis','Root-cause analysis',0],['countermeasures','Countermeasures',0],['plan','Plan (who/what/when)',0],['followup','Follow-up / results',1]].forEach(function(b){ var box=document.createElement('div'); box.className='a3-box'+(b[2]?' full':''); var l=document.createElement('label'); l.textContent=b[1]; box.appendChild(l); var ta=makeWs(key,b[0],b[1]+'\u2026'); ta.rows=3; box.appendChild(ta); el.appendChild(box); });
+  } else if(kind==='aicanvas'){
+    el.className='ws';
+    [['proc','Process & Lean waste targeted'],['agents','Agent design (roles)'],['orch','Orchestration pattern'],['data','Data & feasibility'],['guard','Guardrails / controls (the Jidoka layer)'],['value','Value & KPIs (lead time, FTE, quality, revenue)'],['effort','Effort / complexity'],['owner','Owner & timeline']].forEach(function(pair){ var r=document.createElement('div'); r.className='ws-row'; var l=document.createElement('label'); l.textContent=pair[1]; r.appendChild(l); r.appendChild(makeWs(key,pair[0],'')); el.appendChild(r); });
   } else if(kind==='fishbone'){
     el.className='ws';
     var cats=(tpl&&tpl.categories)||['Manpower','Machine','Method','Material','Measurement','Environment'];
@@ -2391,14 +2621,15 @@ function renderLean(lesson,c){
     blk.innerHTML='<div class="block-head"><span class="tag">'+tag+' '+(i+1)+(isGradable(ex)&&state.solved[key]?' \u2713':'')+'</span></div><div class="ex-prompt">'+ex.prompt+'</div>';
     var body=document.createElement('div'); body.style.padding='4px 16px 0';
     if(ex.table){ var tb=document.createElement('div'); tb.innerHTML=ex.table; body.appendChild(tb); }
-    var vis=buildVisual(ex); if(vis){ var vw=document.createElement('div'); vw.className='svgwrap'; vw.innerHTML=vis; body.appendChild(vw); }
+    var vis=buildVisual(ex); if(vis){ attachSvg(body, vis, lesson.id+'-'+i); }
 
     if(ex.type==='worksheet'){
       var ws=buildWorksheet(ex.template,key); body.appendChild(ws.el); blk.appendChild(body);
       var actw=document.createElement('div'); actw.className='block-actions';
       var clr=document.createElement('button'); clr.className='ghost'; clr.textContent=t('clear'); clr.addEventListener('click',ws.clear);
+      var dlw=document.createElement('button'); dlw.className='ghost'; dlw.textContent='\u2193 '+t('download'); dlw.addEventListener('click',function(){ downloadText(worksheetMarkdown(ws.el, lesson.title), lesson.id+'-worksheet-'+i+'.md','text/markdown'); });
       var note=document.createElement('div'); note.className='ws-note'; note.textContent=t('wsNote');
-      actw.appendChild(clr); actw.appendChild(note); blk.appendChild(actw); c.appendChild(blk); return;
+      actw.appendChild(clr); actw.appendChild(dlw); actw.appendChild(note); blk.appendChild(actw); c.appendChild(blk); return;
     }
 
     var getResult;
@@ -2552,17 +2783,592 @@ DMAIC: Define - Measure - Analyse - Improve - Control
   refOv.classList.add('open');
   refOv.querySelector('#refX').addEventListener('click',()=>refOv.classList.remove('open'));
 }
+
+/* ---- downloadable blank-template library ---- */
+function printableHTML(title,inner){
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+title+'</title><style>'
+   +'body{font-family:-apple-system,Segoe UI,system-ui,sans-serif;color:#1b2230;margin:26px;line-height:1.4}'
+   +'h1{font-size:21px;margin:0 0 2px}h2{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#666;margin:14px 0 4px}'
+   +'.sub{color:#888;font-size:12px;margin-bottom:14px}'
+   +'.box{border:1px solid #bbb;border-radius:6px;min-height:62px;padding:8px;margin-bottom:8px}'
+   +'.line{border-bottom:1px solid #bbb;height:28px;margin-bottom:10px}'
+   +'table{border-collapse:collapse;width:100%;margin-top:6px}td,th{border:1px solid #bbb;padding:8px;font-size:12px;vertical-align:top;height:30px}th{background:#f0f0f0;text-align:left}'
+   +'.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}'
+   +'svg{max-width:100%;height:auto;border:1px solid #ddd;border-radius:6px}'
+   +'@media print{body{margin:10mm}}'
+   +'</style></head><body>'+inner+'</body></html>';
+}
+function _box(t){ return '<div><h2>'+t+'</h2><div class="box"></div></div>'; }
+function _lines(t,n){ var h='<h2>'+t+'</h2>'; for(var i=0;i<(n||1);i++) h+='<div class="line"></div>'; return h; }
+function _rows(n){ var r=''; for(var i=0;i<n;i++) r+='<tr>'+Array(arguments[1]).fill('<td></td>').join('')+'</tr>'; return r; }
+var TEMPLATES=[
+ {name:'A3 Problem Solving', desc:'One-page structured problem solving.', html:function(){ return printableHTML('A3','<h1>A3 \u2014 Problem Solving</h1><div class="sub">Owner: ____________   Date: ________</div><div class="grid2">'+_box('1. Background')+_box('2. Current condition')+_box('3. Goal / target condition')+_box('4. Root-cause analysis')+_box('5. Countermeasures')+_box('6. Plan (who / what / when)')+'</div>'+_box('7. Follow-up / results'));} },
+ {name:'5 Whys', desc:'Drill from symptom to root cause.', html:function(){ return printableHTML('5 Whys','<h1>5 Whys</h1><div class="sub">Root-cause ladder</div>'+_lines('Problem statement (what / where / when / how big)',2)+_lines('Why #1',1)+_lines('Why #2',1)+_lines('Why #3',1)+_lines('Why #4',1)+_lines('Why #5 \u2014 likely root cause',1)+_box('Countermeasure'));} },
+ {name:'Fishbone (Ishikawa)', desc:'6M cause-and-effect diagram.', html:function(){ return printableHTML('Fishbone', '<h1>Fishbone (Ishikawa)</h1><div class="sub">Problem / effect: ____________________</div>'+fishboneSVG('Problem / effect')+'<table><tr><th>Manpower</th><th>Machine</th><th>Method</th></tr><tr><td></td><td></td><td></td></tr><tr><th>Material</th><th>Measurement</th><th>Environment</th></tr><tr><td></td><td></td><td></td></tr></table>'); } },
+ {name:'SIPOC', desc:'High-level scope: Suppliers\u2192Inputs\u2192Process\u2192Outputs\u2192Customers.', html:function(){ return printableHTML('SIPOC','<h1>SIPOC</h1><div class="sub">Process: ____________________</div><table><tr><th>Suppliers</th><th>Inputs</th><th>Process (4\u20137 steps)</th><th>Outputs</th><th>Customers</th></tr>'+_rows(6,5)+'</table>'); } },
+ {name:'Value Stream Map (worksheet)', desc:'Step / process time / wait / %C&A grid + ladder.', html:function(){ return printableHTML('VSM','<h1>Value Stream Map \u2014 worksheet</h1><div class="sub">Product family: __________   Demand: ______/day   Available time: ______ min/day</div><table><tr><th>#</th><th>Process step</th><th>Process time (min)</th><th>Wait before (min)</th><th>%C&amp;A</th></tr>'+_rows(8,5)+'</table><h2>Timeline ladder &amp; totals</h2><div class="box" style="min-height:120px"></div><div class="sub">Lead time = \u03A3 process + \u03A3 wait \u00B7 PCE = value-add \u00F7 lead time \u00D7 100</div>'); }, csv:function(){ return 'Step,Process time (min),Wait before (min),%C&A\n1,,,\n2,,,\n3,,,\n4,,,\n5,,,\n6,,,\n'; }, csvname:'vsm-data-sheet.csv' },
+ {name:'Pareto data sheet', desc:'Cause / count CSV for an 80/20 chart.', csv:function(){ return 'Cause,Count\n,,\n,,\n,,\n,,\nOther,\n'; }, csvname:'pareto-data-sheet.csv' },
+ {name:'5S Audit', desc:'Score each S 1\u20135 with notes.', html:function(){ return printableHTML('5S Audit','<h1>5S Audit</h1><div class="sub">Area: ________   Auditor: ________   Date: ________</div><table><tr><th>S</th><th>What to check</th><th>Score (1\u20135)</th><th>Notes / actions</th></tr><tr><td>Sort</td><td>Only needed items present</td><td></td><td></td></tr><tr><td>Set in order</td><td>A place for everything, marked</td><td></td><td></td></tr><tr><td>Shine</td><td>Clean; cleaning = inspection</td><td></td><td></td></tr><tr><td>Standardise</td><td>Visual standards documented</td><td></td><td></td></tr><tr><td>Sustain</td><td>Audits &amp; discipline in place</td><td></td><td></td></tr></table>'); } },
+ {name:'Kaizen Event Charter', desc:'Scope, target and team for a blitz.', html:function(){ return printableHTML('Kaizen Charter','<h1>Kaizen Event Charter</h1>'+_lines('Problem statement',2)+_lines('Scope / boundaries (in &amp; out)',2)+_lines('Goal &amp; target metrics',2)+_lines('Team &amp; sponsor',2)+_lines('Dates &amp; 30/60/90-day follow-up owner',2)); } },
+ {name:'AI Use-Case Canvas', desc:'Scope an AI/agent transformation use case.', html:function(){ return printableHTML('AI Use-Case Canvas','<h1>AI Use-Case Canvas</h1><div class="sub">Lean \u00D7 AI \u00B7 PyQuest template</div><div class="grid2">'+_box('Process &amp; Lean waste targeted')+_box('Agent design (roles)')+_box('Orchestration pattern')+_box('Data &amp; feasibility')+_box('Guardrails / controls (Jidoka layer)')+_box('Value &amp; KPIs')+_box('Effort / complexity')+_box('Owner &amp; timeline')+'</div>'); } },
+ {name:'Project Charter', desc:'Frame a Lean/AI improvement project.', html:function(){ return printableHTML('Project Charter','<h1>Project Charter</h1>'+_lines('Problem / opportunity',2)+_lines('Scope (in &amp; out)',2)+_lines('Goal &amp; target metrics',2)+_lines('Sponsor / team',2)+_lines('Milestones &amp; timeline',2)+_lines('Risks &amp; dependencies',2)); } },
+ {name:'RACI matrix', desc:'Responsible / Accountable / Consulted / Informed.', html:function(){ return printableHTML('RACI','<h1>RACI Matrix</h1><div class="sub">R=Responsible \u00B7 A=Accountable \u00B7 C=Consulted \u00B7 I=Informed</div><table><tr><th>Activity / deliverable</th><th>Role 1</th><th>Role 2</th><th>Role 3</th><th>Role 4</th></tr>'+_rows(8,5)+'</table>'); } },
+ {name:'Business case / ROI', desc:'Quantify benefit, ROI and payback.', html:function(){ return printableHTML('Business Case','<h1>Business Case / ROI</h1><table><tr><th>Driver</th><th>Value</th></tr><tr><td>Annual volume</td><td></td></tr><tr><td>Minutes saved / unit</td><td></td></tr><tr><td>Loaded cost \u20AC/hr</td><td></td></tr><tr><td>Quality / revenue uplift \u20AC</td><td></td></tr><tr><td>One-off build \u20AC</td><td></td></tr><tr><td>Annual run \u20AC</td><td></td></tr><tr><td><b>Annual benefit</b></td><td></td></tr><tr><td><b>Net / ROI / payback</b></td><td></td></tr></table>'); } },
+ {name:'RICE scoring sheet', desc:'Prioritise a use-case pipeline.', csv:function(){ return 'Use case,Reach (1-5),Impact (1-5),Confidence %,Effort (1-5),RICE\n,,,,,\n,,,,,\n,,,,,\n,,,,,\n'; }, csvname:'rice-scoring.csv' },
+ {name:'Control plan', desc:'Hold the gains after improvement.', html:function(){ return printableHTML('Control Plan','<h1>Control Plan</h1><table><tr><th>Metric / CTQ</th><th>Target</th><th>Measure method</th><th>Frequency</th><th>Owner</th><th>Reaction if out</th></tr>'+_rows(7,6)+'</table>'); } },
+ {name:'Change & comms plan', desc:'Bring people along.', html:function(){ return printableHTML('Change Plan','<h1>Change &amp; Comms Plan</h1><table><tr><th>Stakeholder</th><th>What changes</th><th>Key message</th><th>Channel</th><th>Owner</th><th>When</th></tr>'+_rows(7,6)+'</table>'); } },
+ {name:'Gemba walk sheet', desc:'Structured observation at the workplace.', html:function(){ return printableHTML('Gemba Walk','<h1>Gemba Walk</h1><div class="sub">Area: ______  Date: ______  Observer: ______</div>'+_lines('Process observed',1)+'<table><tr><th>Observation</th><th>Waste type</th><th>Improvement idea</th></tr>'+_rows(6,3)+'</table>'); } },
+ {name:'Standard Work Combination', desc:'Manual / machine / walk time vs takt.', html:function(){ return printableHTML('Standard Work','<h1>Standard Work Combination Sheet</h1><div class="sub">Operation: ________   Takt time: ______</div><table><tr><th>#</th><th>Work element</th><th>Manual (s)</th><th>Machine (s)</th><th>Walk (s)</th></tr>'+_rows(8,5)+'</table>'); } },
+];
+var tmplOv=makeOverlay('tmplOverlay');
+function openTemplates(){
+  var rows='';
+  TEMPLATES.forEach(function(tp,i){
+    var btns='';
+    if(tp.html) btns+='<button class="tmpl-dl" data-i="'+i+'" data-k="html">\u2193 HTML</button>';
+    if(tp.csv) btns+=' <button class="tmpl-dl alt" data-i="'+i+'" data-k="csv">\u2193 CSV</button>';
+    rows+='<div class="tmpl-row"><div class="tmpl-meta"><b>'+tp.name+'</b><small>'+tp.desc+'</small></div>'+btns+'</div>';
+  });
+  tmplOv.innerHTML='<div class="modal"><div class="modal-head"><span class="prompt">&gt;&gt;&gt;</span> '+t('tmplTitle')+'<button class="mclose" id="tmplX">'+t('dashClose')+'</button></div><div class="modal-body"><p style="margin-top:0;color:var(--muted);font-size:13px">'+t('tmplHint')+'</p>'+rows+'</div></div>';
+  tmplOv.classList.add('open');
+  tmplOv.querySelector('#tmplX').addEventListener('click',function(){ tmplOv.classList.remove('open'); });
+  tmplOv.querySelectorAll('.tmpl-dl').forEach(function(b){ b.addEventListener('click',function(){ var tp=TEMPLATES[parseInt(b.dataset.i)]; if(b.dataset.k==='html') downloadText(tp.html(), tp.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.html','text/html'); else downloadText(tp.csv(), tp.csvname||'data.csv','text/csv'); }); });
+}
+
+
+/* ---- AI Transformation Pipeline builder ---- */
+var USE_CASE_LIB=[
+ {title:'Medical Information response agent', waste:'Waiting / Overprocessing', agents:'Triage + retrieval (RAG) + drafting agents prepare a referenced answer.', orchestration:'Multi-agent + orchestrator; human MLR in the loop.', mapCurrent:'4.4-day lead time, ~96% of it waiting in queues.', mapFuture:'Agents draft in minutes; humans review only exceptions.', outcomes:['Lead time 4.4d \u2192 <1d','~40% reviewer time freed','%C&A and consistency up'], effortScore:3, valueScore:5, tags:['medical information','mi','enquiry','hcp','question','response']},
+ {title:'MLR content pre-check agent', waste:'Defects (rework)', agents:'Validation / poka-yoke agent checks claims, references and fair balance before submission.', orchestration:'Single agent; human-in-the-loop gate.', mapCurrent:'First-pass yield ~60%; 40% of pieces rework.', mapFuture:'Most errors caught at source before MLR.', outcomes:['First-pass yield 60% \u2192 85%','~1,000+ reviewer hrs/yr freed','Faster approvals'], effortScore:2, valueScore:4, tags:['mlr','content','promotional','review','approval','claims','copy']},
+ {title:'Field insight synthesis agent', waste:'Non-utilised talent / Waiting', agents:'Agent synthesises literature, CRM notes and KOL interactions into insights.', orchestration:'Multi-agent retrieval + summarisation; human curation.', mapCurrent:'MSLs spend hours compiling; insights get lost.', mapFuture:'Draft insights auto-generated; experts curate.', outcomes:['Prep time \u221250%','More, richer insights captured','Faster medical strategy'], effortScore:3, valueScore:4, tags:['msl','field medical','insight','kol','medical affairs']},
+ {title:'Order-to-dispatch orchestration', waste:'Waiting / Transportation', agents:'Agents handle order entry, credit check and proactive status updates.', orchestration:'Orchestrator with WIP control across steps.', mapCurrent:'2.6-day lead time, large WIP, manual handoffs.', mapFuture:'Straight-through processing with exception handling.', outcomes:['Lead time \u221260%','Throughput up','Fewer status enquiries'], effortScore:4, valueScore:4, tags:['order','fulfil','supply','dispatch','logistics','operations']},
+ {title:'Self-serve analytics copilot', waste:'Non-utilised talent', agents:'NL-to-data agent answers business questions and builds charts.', orchestration:'Single agent + governed semantic layer.', mapCurrent:'Analysts spend days pulling routine reports.', mapFuture:'Business users self-serve; analysts do higher-value work.', outcomes:['Report turnaround days \u2192 minutes','Analyst capacity freed','Faster decisions'], effortScore:3, valueScore:4, tags:['analytics','report','bi','data','copilot','dashboard']},
+ {title:'HCP query routing & deflection agent', waste:'Waiting', agents:'Conversational agent answers common queries and routes complex ones.', orchestration:'Single agent + escalation to humans.', mapCurrent:'Call-centre queues; repetitive questions.', mapFuture:'Common queries answered instantly, 24/7.', outcomes:['Deflection 30\u201350%','Response time \u221280%','Staff focus on complex cases'], effortScore:2, valueScore:3, tags:['call centre','query','support','enquiry','contact']},
+ {title:'Sales rep meeting-prep agent', waste:'Motion / Non-utilised talent', agents:'Agent compiles account briefs from CRM, sales and medical data.', orchestration:'Single agent; scheduled + on-demand.', mapCurrent:'Reps spend 30\u201360 min/account prepping.', mapFuture:'One-click briefs before every call.', outcomes:['Prep time \u221270%','More selling time','More relevant calls'], effortScore:2, valueScore:3, tags:['sales','rep','meeting','prep','crm','account','commercial']},
+ {title:'Adverse-event intake triage assist', waste:'Defects / Waiting', agents:'Agent extracts and structures case data and flags seriousness for human review.', orchestration:'Human-in-the-loop; agent assists, never auto-decides.', mapCurrent:'Manual case entry; backlog risk; compliance exposure.', mapFuture:'Faster, more consistent intake under human oversight.', outcomes:['Intake time \u221240%','Fewer transcription errors','Compliance maintained'], effortScore:4, valueScore:3, tags:['pharmacovigilance','adverse event','safety','pv','intake','case']}
+];
+function _clampScore(n){ n=parseInt(n); if(isNaN(n))n=3; return Math.max(1,Math.min(5,n)); }
+function normalizeUC(o){ o=o||{}; return { title:String(o.title||'Untitled use case'), waste:String(o.waste||'\u2014'), agents:String(o.agents||''), orchestration:String(o.orchestration||''), mapCurrent:String(o.mapCurrent||o.current||''), mapFuture:String(o.mapFuture||o.future||''), outcomes:(Array.isArray(o.outcomes)?o.outcomes:[]).slice(0,3).map(String), effortScore:_clampScore(o.effortScore), valueScore:_clampScore(o.valueScore) }; }
+function pickFallback(proc){
+  var q=String(proc||'').toLowerCase();
+  var scored=USE_CASE_LIB.map(function(u){ var sc=0; (u.tags||[]).forEach(function(t){ if(q.indexOf(t)>=0) sc++; }); return {u:u,sc:sc}; });
+  scored.sort(function(a,b){ return b.sc-a.sc; });
+  if(scored[0].sc===0) return [USE_CASE_LIB[0],USE_CASE_LIB[1],USE_CASE_LIB[4],USE_CASE_LIB[3]].map(normalizeUC);
+  return scored.slice(0,4).map(function(x){return normalizeUC(x.u);});
+}
+async function generateUseCases(proc){
+  var prompt='You are a Lean Six Sigma + AI transformation expert in pharma commercial operations. For the business process: "'+proc+'", produce a JSON array of exactly 4 AI agent use cases that apply Lean thinking. Each object keys: title, waste (the single Lean waste it targets), agents (<=22 words on agent roles), orchestration (<=14 words: single-agent | multi-agent+orchestrator | human-in-the-loop), mapCurrent (<=12 words current pain), mapFuture (<=14 words future state with agents), outcomes (array of 3 short KPI strings), effortScore (integer 1-5), valueScore (integer 1-5). Output ONLY the JSON array \u2014 no markdown fences, no commentary.';
+  var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+  var data=await r.json();
+  var text=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n').trim();
+  text=text.replace(/```json/gi,'').replace(/```/g,'').trim();
+  var a=text.indexOf('['), b=text.lastIndexOf(']'); if(a>=0&&b>a) text=text.slice(a,b+1);
+  var arr=JSON.parse(text);
+  if(!Array.isArray(arr)||!arr.length) throw new Error('empty');
+  return arr.slice(0,4).map(normalizeUC);
+}
+function buildPlan(uc){
+  return [
+    {p:'0 \u00B7 Discovery (2\u20134 wks)', d:'Map the current-state VSM, quantify the baseline ('+(uc.outcomes[0]||'lead time / quality')+'), define CTQs and success metrics, assess data readiness & feasibility, complete the AI use-case canvas.'},
+    {p:'1 \u00B7 Pilot / PoC (4\u20138 wks)', d:'Build a minimal version \u2014 '+(uc.agents||'the agent')+' Keep humans in the loop; run on one team / therapy area and measure against the baseline.'},
+    {p:'2 \u00B7 Scale (1\u20132 quarters)', d:'Productionise with '+(uc.orchestration||'orchestration')+' Add guardrails & monitoring (the Jidoka layer that halts on low confidence), MLOps and change management; roll out by class of service.'},
+    {p:'3 \u00B7 Run & Control (ongoing)', d:'SPC on business KPIs and model metrics, standardised work, a named owner, and a kaizen loop to keep improving. Control is what makes the gain stick.'}
+  ];
+}
+function pipelineMarkdown(items, proc){
+  var L=['# AI Transformation Pipeline','','**Process:** '+proc,'_Generated in PyQuest \u2014 Lean \u00D7 AI_',''];
+  items.forEach(function(uc,i){
+    L.push('## '+(i+1)+'. '+uc.title);
+    L.push('- **Lean waste:** '+uc.waste);
+    L.push('- **Current:** '+uc.mapCurrent);
+    L.push('- **Future (with agents):** '+uc.mapFuture);
+    L.push('- **Agents:** '+uc.agents);
+    L.push('- **Orchestration:** '+uc.orchestration);
+    L.push('- **Value / outcomes:** '+uc.outcomes.join('; '));
+    L.push('- **Value score:** '+uc.valueScore+'/5  ·  **Effort score:** '+uc.effortScore+'/5');
+    L.push('');
+    L.push('**Transformation plan**');
+    buildPlan(uc).forEach(function(ph){ L.push('- *'+ph.p+'* \u2014 '+ph.d); });
+    L.push('');
+  });
+  return L.join('\n');
+}
+function pipelineCSV(items){
+  var rows=['Title,Lean waste,Value (1-5),Effort (1-5),Orchestration,Outcomes'];
+  items.forEach(function(uc){ rows.push('"'+uc.title+'","'+uc.waste+'",'+uc.valueScore+','+uc.effortScore+',"'+uc.orchestration+'","'+uc.outcomes.join(' | ')+'"'); });
+  return rows.join('\n');
+}
+var aiOv=makeOverlay('aiOverlay'); var aiItems=[], aiProc='';
+function renderPipeline(container, items, proc, sourceLabel){
+  aiItems=items; aiProc=proc; container.innerHTML='';
+  var st=document.createElement('div'); st.className='ai-status'; st.textContent=sourceLabel+' \u00B7 '+items.length+' use cases'; container.appendChild(st);
+  attachSvg(container, chartSVG({type:'matrix', items:items}), 'ai-prioritisation', {caption:'Prioritisation \u2014 value vs effort (bubbles numbered to the cards)'});
+  var grid=document.createElement('div'); grid.className='uc-grid'; container.appendChild(grid);
+  items.forEach(function(uc,i){
+    var card=document.createElement('div'); card.className='uc-card';
+    var out=uc.outcomes.map(function(o){return '<li>'+o+'</li>';}).join('');
+    card.innerHTML='<h4><span class="uc-num">'+(i+1)+'</span><span>'+uc.title+'</span></h4>'+
+      '<div class="uc-tags"><span class="uc-tag">'+uc.waste+'</span><span class="uc-tag v">value '+uc.valueScore+'/5</span><span class="uc-tag e">effort '+uc.effortScore+'/5</span></div>'+
+      '<div class="mf"><b>Now:</b> '+uc.mapCurrent+'</div><div class="mf"><b>Future:</b> '+uc.mapFuture+'</div>'+
+      '<div class="mf"><b>Agents:</b> '+uc.agents+'</div><div class="mf"><b>Orchestration:</b> '+uc.orchestration+'</div>'+
+      '<div class="mf"><b>Value &amp; outcomes:</b></div><ul>'+out+'</ul>';
+    var tg=document.createElement('button'); tg.className='uc-toggle'; tg.textContent='\u25B8 Transformation plan';
+    var plan=document.createElement('div'); plan.className='uc-plan';
+    plan.innerHTML=buildPlan(uc).map(function(ph){return '<div class="uc-phase"><b>'+ph.p+'</b><br>'+ph.d+'</div>';}).join('');
+    tg.addEventListener('click',function(){ plan.classList.toggle('show'); tg.textContent=(plan.classList.contains('show')?'\u25BE':'\u25B8')+' Transformation plan'; });
+    card.appendChild(tg); card.appendChild(plan); grid.appendChild(card);
+  });
+  var dl=document.createElement('div'); dl.className='ai-dlrow';
+  var d1=document.createElement('button'); d1.className='tmpl-dl'; d1.textContent='\u2193 Pipeline (Markdown)'; d1.addEventListener('click',function(){ downloadText(pipelineMarkdown(items,proc),'ai-transformation-pipeline.md','text/markdown'); });
+  var d2=document.createElement('button'); d2.className='tmpl-dl alt'; d2.textContent='\u2193 CSV'; d2.addEventListener('click',function(){ downloadText(pipelineCSV(items),'ai-pipeline.csv','text/csv'); });
+  dl.appendChild(d1); dl.appendChild(d2); container.appendChild(dl);
+}
+function openAIPipeline(){
+  aiOv.innerHTML='<div class="modal" style="width:min(900px,100%)"><div class="modal-head"><span class="prompt">&gt;&gt;&gt;</span> AI Transformation Pipeline<button class="mclose" id="aiX">'+t('dashClose')+'</button></div><div class="modal-body">'+
+    '<div class="ai-intro"><b>Lean \u00D7 AI.</b> Agents are digital workers that do tasks; orchestration is the pull/pacemaker layer that routes work between agents and humans. Map a process, spot where waste (waiting, rework, overprocessing) invites an agent, build a pipeline, prioritise by value vs effort, and run each as a discovery \u2192 pilot \u2192 scale \u2192 control project. Rule: remove the waste first, then automate \u2014 don\u2019t pave the cow path.</div>'+
+    '<div class="ai-input"><input id="aiProc" type="text" value="Medical Information request handling" placeholder="Describe a process to transform\u2026"><button class="ai-gen" id="aiGen">Generate pipeline</button></div>'+
+    '<div class="ai-status" id="aiNote">Showing curated examples \u2014 edit the process and Generate for an AI-tailored pipeline (live AI runs inside Claude).</div>'+
+    '<div id="aiResults"></div></div></div>';
+  aiOv.classList.add('open');
+  aiOv.querySelector('#aiX').addEventListener('click',function(){ aiOv.classList.remove('open'); });
+  var results=aiOv.querySelector('#aiResults');
+  var input=aiOv.querySelector('#aiProc'), gen=aiOv.querySelector('#aiGen'), note=aiOv.querySelector('#aiNote');
+  renderPipeline(results, pickFallback(input.value), input.value, 'Curated examples');
+  gen.addEventListener('click',function(){
+    var proc=input.value.trim()||'a commercial process'; gen.disabled=true; var old=gen.textContent; gen.textContent='Generating\u2026'; note.textContent='Asking Claude to tailor a pipeline\u2026';
+    generateUseCases(proc).then(function(items){ renderPipeline(results, items, proc, 'AI-generated'); note.textContent='Tailored by Claude to your process.'; })
+      .catch(function(){ renderPipeline(results, pickFallback(proc), proc, 'Curated examples (live AI unavailable here)'); note.textContent='Live AI runs inside the Claude app; showing curated examples matched to your process.'; })
+      .then(function(){ gen.disabled=false; gen.textContent=old; });
+  });
+}
+
+
+/* ================= LEAN & AI STUDIO ================= */
+(function(){ var st2=document.createElement('style'); st2.textContent=
+ ".st-wrap{display:flex;gap:0;min-height:420px}"+
+ ".st-tabs{flex:0 0 168px;border-right:1px solid var(--line);padding-right:10px;display:flex;flex-direction:column;gap:4px}"+
+ ".st-tab{font-family:var(--mono);font-size:12.5px;text-align:left;padding:10px 12px;border-radius:8px;color:var(--muted)}"+
+ ".st-tab:hover{background:#eef2f7;color:var(--text)}.st-tab.on{background:var(--ink);color:#fff}"+
+ ".st-panel{flex:1;padding-left:18px;min-width:0}"+
+ ".st-h{font-size:16px;font-weight:700;margin:0 0 4px}.st-sub{color:var(--muted);font-size:12.5px;margin:0 0 14px}"+
+ ".kpi-row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}"+
+ ".kpi{flex:1;min-width:96px;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}"+
+ ".kpi .b{font-family:var(--mono);font-size:19px;font-weight:750;color:var(--ink)}.kpi .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}"+
+ ".st-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px}.st-table th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:6px}.st-table td{padding:4px 6px;border-bottom:1px solid var(--line)}"+
+ ".st-table input{width:100%;font-family:var(--sans);font-size:13px;padding:6px 7px;border:1px solid var(--line);border-radius:6px;outline:none;box-sizing:border-box}.st-table input:focus{border-color:var(--py-blue)}"+
+ ".st-table input.num{text-align:right;font-family:var(--mono)}"+
+ ".st-btn{font-family:var(--mono);font-size:12px;font-weight:600;color:#fff;background:var(--py-blue);border-radius:7px;padding:8px 13px}.st-btn:hover{background:var(--py-blue-2)}"+
+ ".st-btn.alt{background:var(--paper-2);color:var(--py-blue);border:1px solid var(--line)}.st-btn.alt:hover{background:#eef3fa}"+
+ ".st-btn.gray{background:#eef2f7;color:#46526a}.st-btn.gray:hover{background:#e2e8f0}"+
+ ".st-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}"+
+ ".st-del{color:var(--red);font-family:var(--mono);font-size:14px;padding:2px 6px;border-radius:6px}.st-del:hover{background:#fdf0f0}"+
+ ".uc2{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--paper-2)}"+
+ ".uc2 .top{display:flex;gap:8px;align-items:center;margin-bottom:8px}"+
+ ".uc2 .top input.title{flex:1;font-weight:700;font-size:14px;border:none;border-bottom:1px solid var(--line);border-radius:0;padding:4px 2px}"+
+ ".uc2 .prio{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;background:var(--py-blue);padding:3px 9px;border-radius:99px;white-space:nowrap}"+
+ ".uc2 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}"+
+ ".uc2 .f{display:flex;flex-direction:column;gap:2px}.uc2 .f label{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;color:var(--muted)}"+
+ ".uc2 .f input,.uc2 .f select{font-family:var(--mono);font-size:12px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;outline:none}"+
+ ".uc2 .roi{font-size:12px;color:#46526a;background:#f4f7fa;border-radius:8px;padding:8px;margin-top:6px}"+
+ ".uc2 .roi b{color:var(--ink)}"+
+ ".calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:680px){.calc-grid{grid-template-columns:1fr}.uc2 .grid{grid-template-columns:1fr 1fr}.st-tabs{flex-basis:120px}}"+
+ ".calc{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--paper-2)}.calc h5{margin:0 0 8px;font-size:13px}"+
+ ".calc .cin{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px;font-size:12.5px}.calc .cin input{width:90px;font-family:var(--mono);text-align:right;padding:5px 7px;border:1px solid var(--line);border-radius:6px;outline:none}"+
+ ".calc .out{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--py-blue-2);margin-top:6px;border-top:1px solid var(--line);padding-top:6px}"+
+ ".st-note{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px}"+".seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{font-family:var(--mono);font-size:11.5px;padding:7px 13px;color:var(--muted);background:var(--paper)}.seg button.on{background:var(--ink);color:#fff}.seg button:not(.on):hover{background:#eef2f7}"+".miniNum{width:78px;font-family:var(--mono);font-size:13px;text-align:right;padding:6px 7px;border:1px solid var(--line);border-radius:6px;outline:none}.miniNum:focus{border-color:var(--py-blue)}"+".delta{font-family:var(--mono);font-size:10.5px;margin-top:2px}.delta.g{color:#1d6b48}.delta.r{color:#a13b3b}"+".kanban{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;margin-top:6px}"+".kcol{flex:0 0 176px;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column}"+".kcol-h{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:2px 4px 8px}.kcount{background:var(--ink);color:#fff;border-radius:99px;padding:0 6px;font-size:10px;margin-left:4px}"+".kdrop{display:flex;flex-direction:column;gap:8px;min-height:56px;border-radius:8px;padding:2px;flex:1}.kdrop.over{background:#e8f0fb;outline:2px dashed var(--py-blue)}"+".kcard{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px;cursor:grab}.kcard:active{cursor:grabbing}.kcard.dragging{opacity:.45}"+".kt{font-size:12.5px;font-weight:650;line-height:1.25}.km{display:flex;justify-content:space-between;gap:6px;margin-top:6px}.kw{font-family:var(--mono);font-size:9px;color:#46526a;background:#eef2f7;border-radius:99px;padding:2px 6px}.kr{font-family:var(--mono);font-size:9px;color:var(--py-blue-2)}"+".knav{display:flex;gap:5px;margin-top:7px}.kmv{flex:1;font-family:var(--mono);font-size:12px;color:var(--py-blue);border:1px solid var(--line);border-radius:6px;padding:3px 0}.kmv:hover{background:#eef3fa}"+".st-h2{font-size:13px;font-weight:700;margin:16px 0 6px}"+".rag-row{display:flex;gap:14px;margin:6px 0 2px;font-family:var(--mono);font-size:11.5px}.rag.g{color:#1d6b48}.rag.a{color:#9a6a1a}.rag.r{color:#a13b3b}"+".statusboard{border:1px solid var(--line);border-radius:10px;overflow:hidden}"+".stt{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:12.5px}.stt:last-child{border-bottom:none}"+".dot{width:9px;height:9px;border-radius:99px;flex:0 0 9px}.dot.green{background:#2e9e6b}.dot.amber{background:#d9a441}.dot.red{background:#d65a5a}"+".stt-t{flex:1;font-weight:600}.stt-s,.stt-o,.stt-p{font-family:var(--mono);font-size:10.5px;color:var(--muted)}.stt-s{min-width:64px}.stt-o{min-width:64px}"+".exec{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}"+".exec-h{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--py-blue-2);margin:11px 0 5px}"+".mile{display:flex;align-items:center;gap:7px;margin-bottom:5px}.mile .mtx{flex:1;font-size:12px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;outline:none}"+".act{display:flex;align-items:center;gap:7px;margin-bottom:5px}.act .ast{font-family:var(--mono);font-size:11px;padding:5px;border:1px solid var(--line);border-radius:6px}.act .atx{flex:1;font-size:12px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;outline:none}"+".kpibox{display:flex;align-items:center;gap:6px;margin-bottom:7px;flex-wrap:wrap}.kpibox .knm{flex:1;min-width:104px;font-size:12px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;outline:none}.kpibox .ksm{width:50px;font-family:var(--mono);font-size:11px;text-align:right;padding:5px;border:1px solid var(--line);border-radius:6px}.kpibox .kac{width:118px;font-family:var(--mono);font-size:11px;padding:5px;border:1px solid var(--line);border-radius:6px}.kspark{width:150px;line-height:0}.kpg{font-family:var(--mono);font-size:10px;color:var(--py-blue-2)}"+".st-btn.sm{padding:5px 10px;font-size:11px;margin-bottom:8px}"+".changed{background:#f4f7fa;border:1px solid var(--line);border-left:3px solid var(--py-blue);border-radius:10px;padding:10px 14px;margin:10px 0}.changed b{font-size:12.5px}.changed ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:#3a4658}.changed li{margin-bottom:3px}"+".empty{color:var(--muted);font-size:13px;padding:16px;border:1px dashed var(--line);border-radius:10px;text-align:center;margin-top:10px}";
+ document.head.appendChild(st2); })();
+
+var SKEY='pyquest:studio:v1';
+var studio=null;
+function studioDefaults(){ return {
+  vsm:{ demand:90, avail:450, steps:[
+    {name:'Order entry',pt:4,wt:120,ca:95},{name:'Credit check',pt:6,wt:240,ca:90},
+    {name:'Pick & pack',pt:18,wt:480,ca:98},{name:'Quality check',pt:5,wt:60,ca:99},
+    {name:'Shipping prep',pt:8,wt:180,ca:97},{name:'Dispatch',pt:3,wt:30,ca:100}]},
+  portfolio: USE_CASE_LIB.slice(0,5).map(function(u,i){ return {
+    title:u.title, waste:u.waste, agents:u.agents, orchestration:u.orchestration, mapCurrent:u.mapCurrent, mapFuture:u.mapFuture, outcomes:u.outcomes.slice(),
+    reach:3, impact:u.valueScore, confidence:80, effort:u.effortScore, stage:'Backlog',
+    bc:{volume:10000, minSaved:20, rate:60, build:80000, run:20000} }; }),
+  process:'Medical Information request handling', snapshots:[]
+}; }
+async function studioLoad(){ try{ var raw=await Store.get(SKEY); if(raw){ studio=JSON.parse(raw); } }catch(e){} if(!studio||!studio.vsm||!studio.portfolio) studio=studioDefaults(); if(!studio.snapshots) studio.snapshots=[]; }
+function studioSave(){ try{ Store.set(SKEY, JSON.stringify(studio)); }catch(e){} }
+function _el(t,c,h){ var e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e; }
+
+function vsmMetrics(v,future){ var pk=future?'fpt':'pt', wk=future?'fwt':'wt'; var steps=v.steps.filter(function(s){ return !(future&&s.elim); }); var pt=steps.reduce(function(a,s){return a+(+s[pk]||0);},0); var wt=steps.reduce(function(a,s){return a+(+s[wk]||0);},0); var lt=pt+wt; var pce=lt?pt/lt*100:0; var takt=v.demand?v.avail/v.demand:0; var thru=v.avail?v.demand/v.avail:0; var wip=thru*lt; var bn=steps.reduce(function(m,s){return ((+s[pk])>(m._p||0))?{name:s.name,_p:+s[pk]}:m;},{name:'\u2014',_p:0}); return {pt:pt,wt:wt,lt:lt,pce:pce,takt:takt,wip:wip,bn:bn}; }
+function vsmCSV(v){ return 'Step,Proc (cur),Wait (cur),Proc (fut),Wait (fut),Eliminated,%C&A\n'+v.steps.map(function(s){return '"'+s.name+'",'+(+s.pt||0)+','+(+s.wt||0)+','+(+s.fpt||0)+','+(+s.fwt||0)+','+(s.elim?'yes':'no')+','+(+s.ca||0);}).join('\n'); }
+function ricePriority(u){ return (( +u.reach||0)*(+u.impact||0)*((+u.confidence||0)/100))/((+u.effort)||1); }
+function roiCalc(bc){ bc=bc||{}; var benefit=(+bc.volume||0)*(+bc.minSaved||0)/60*(+bc.rate||0); var net=benefit-(+bc.run||0); var roi=(+bc.build>0)?net/(+bc.build):0; var pay=net>0?(+bc.build)/net*12:0; return {benefit:benefit, net:net, roi:roi, pay:pay}; }
+function money(n){ if(n>=1000000) return '\u20AC'+(n/1000000).toFixed(2)+'M'; if(n>=1000) return '\u20AC'+(n/1000).toFixed(0)+'k'; return '\u20AC'+Math.round(n); }
+
+function ensureExec(u){ if(u.owner==null)u.owner=''; if(!u.rag)u.rag='green'; var sw={Backlog:0,Discovery:1,Pilot:5,Scale:13,Live:26}; if(u.startWk==null)u.startWk=(sw[u.stage]!=null?sw[u.stage]:1); if(u.durWk==null)u.durWk=8; if(!u.milestones)u.milestones=[{t:'Discovery complete',done:false},{t:'Pilot live',done:false},{t:'Scaled to BAU',done:false}]; if(!u.actions)u.actions=[{t:'Map current state & baseline KPIs',s:'Plan'},{t:'Build MVP agent (human-in-loop)',s:'Do'},{t:'Measure vs baseline',s:'Check'},{t:'Standardise & control',s:'Act'}]; if(!u.kpis)u.kpis=[{name:(u.outcomes&&u.outcomes[0])||'Primary KPI',unit:'',base:100,target:60,actuals:[100,90]}]; return u; }
+function kpiProgress(k){ var ac=(k.actuals||[]).map(Number).filter(function(x){return!isNaN(x);}); var last=ac.length?ac[ac.length-1]:+k.base; var base=+k.base,tgt=+k.target; if(base===tgt)return 100; return Math.max(0,Math.min(150,Math.round((base-last)/(base-tgt)*100))); }
+function execPanel(u){ ensureExec(u); var box=_el('div','exec');
+  var g=_el('div','grid'); function f(label,node){ var ff=_el('div','f'); ff.appendChild(_el('label','',label)); ff.appendChild(node); return ff; }
+  var own=_el('input'); own.value=u.owner; own.addEventListener('input',function(){ u.owner=own.value; studioSave(); });
+  var rg=_el('select'); [['green','On track'],['amber','At risk'],['red','Blocked']].forEach(function(o){ var op=_el('option'); op.value=o[0]; op.textContent=o[1]; if(u.rag===o[0])op.selected=true; rg.appendChild(op); }); rg.addEventListener('change',function(){ u.rag=rg.value; studioSave(); });
+  var sw=_el('input'); sw.value=u.startWk; sw.addEventListener('input',function(){ u.startWk=+sw.value||0; studioSave(); });
+  var dw=_el('input'); dw.value=u.durWk; dw.addEventListener('input',function(){ u.durWk=+dw.value||1; studioSave(); });
+  g.appendChild(f('Owner',own)); g.appendChild(f('Status',rg)); g.appendChild(f('Start wk',sw)); g.appendChild(f('Duration wk',dw)); box.appendChild(g);
+  box.appendChild(_el('div','exec-h','Milestones'));
+  var ml=_el('div'); function drawM(){ ml.innerHTML=''; u.milestones.forEach(function(mi,i){ var r=_el('div','mile'); var cb=_el('input'); cb.type='checkbox'; cb.checked=!!mi.done; cb.addEventListener('change',function(){ mi.done=cb.checked; studioSave(); }); var tx=_el('input','mtx'); tx.value=mi.t; tx.addEventListener('input',function(){ mi.t=tx.value; studioSave(); }); var rm=_el('button','st-del','\u2715'); rm.addEventListener('click',function(){ u.milestones.splice(i,1); studioSave(); drawM(); }); r.appendChild(cb); r.appendChild(tx); r.appendChild(rm); ml.appendChild(r); }); } drawM(); box.appendChild(ml);
+  var am=_el('button','st-btn gray sm','+ Milestone'); am.addEventListener('click',function(){ u.milestones.push({t:'New milestone',done:false}); studioSave(); drawM(); }); box.appendChild(am);
+  box.appendChild(_el('div','exec-h','A3 / PDCA actions'));
+  var al=_el('div'); function drawA(){ al.innerHTML=''; u.actions.forEach(function(ac,i){ var r=_el('div','act'); var st=_el('select','ast'); ['Plan','Do','Check','Act','Done'].forEach(function(o){ var op=_el('option'); op.value=o; op.textContent=o; if(ac.s===o)op.selected=true; st.appendChild(op); }); st.addEventListener('change',function(){ ac.s=st.value; studioSave(); }); var tx=_el('input','atx'); tx.value=ac.t; tx.addEventListener('input',function(){ ac.t=tx.value; studioSave(); }); var rm=_el('button','st-del','\u2715'); rm.addEventListener('click',function(){ u.actions.splice(i,1); studioSave(); drawA(); }); r.appendChild(st); r.appendChild(tx); r.appendChild(rm); al.appendChild(r); }); } drawA(); box.appendChild(al);
+  var aa=_el('button','st-btn gray sm','+ Action'); aa.addEventListener('click',function(){ u.actions.push({t:'New action',s:'Plan'}); studioSave(); drawA(); }); box.appendChild(aa);
+  box.appendChild(_el('div','exec-h','KPI tracker'));
+  var kl=_el('div'); function drawK(){ kl.innerHTML=''; u.kpis.forEach(function(k,i){ var r=_el('div','kpibox');
+    var nm=_el('input','knm'); nm.value=k.name; nm.addEventListener('input',function(){ k.name=nm.value; studioSave(); });
+    var bs=_el('input','ksm'); bs.value=k.base; bs.title='baseline'; bs.addEventListener('input',function(){ k.base=+bs.value||0; studioSave(); sp(); });
+    var tg=_el('input','ksm'); tg.value=k.target; tg.title='target'; tg.addEventListener('input',function(){ k.target=+tg.value||0; studioSave(); sp(); });
+    var ax=_el('input','kac'); ax.value=(k.actuals||[]).join(','); ax.title='actuals, comma separated'; ax.addEventListener('input',function(){ k.actuals=ax.value.split(',').map(function(x){return +x.trim();}).filter(function(x){return!isNaN(x);}); studioSave(); sp(); });
+    var spn=_el('span','kspark'); var pg=_el('span','kpg'); function sp(){ spn.innerHTML=sparkSVG(k.actuals||[],+k.target); pg.textContent=kpiProgress(k)+'% to target'; }
+    var rm=_el('button','st-del','\u2715'); rm.addEventListener('click',function(){ u.kpis.splice(i,1); studioSave(); drawK(); });
+    r.appendChild(nm); r.appendChild(bs); r.appendChild(tg); r.appendChild(ax); r.appendChild(spn); r.appendChild(pg); r.appendChild(rm); kl.appendChild(r); sp(); }); } drawK(); box.appendChild(kl);
+  var ak=_el('button','st-btn gray sm','+ KPI'); ak.addEventListener('click',function(){ u.kpis.push({name:'New KPI',unit:'',base:100,target:80,actuals:[100]}); studioSave(); drawK(); }); box.appendChild(ak);
+  return box; }
+function cockpitHTML(){ var port=studio.portfolio; port.forEach(ensureExec); var tb=port.reduce(function(a,u){return a+roiCalc(u.bc).benefit;},0); var m=vsmMetrics(studio.vsm,false),fm=vsmMetrics(studio.vsm,true);
+  var rows=port.map(function(u){ var d=u.milestones.filter(function(mi){return mi.done;}).length; return '<tr><td>'+u.title+'</td><td>'+u.stage+'</td><td>'+(u.owner||'')+'</td><td>'+u.rag+'</td><td>W'+u.startWk+'\u2013W'+(u.startWk+u.durWk)+'</td><td>'+d+'/'+u.milestones.length+'</td><td>'+money(roiCalc(u.bc).benefit)+'</td></tr>'; }).join('');
+  var inner='<h1>Program Cockpit \u2014 '+studio.process+'</h1><div class="sub">Lean &amp; AI optimisation program \u00B7 '+new Date().toLocaleDateString()+'</div><p><b>'+port.length+'</b> initiatives \u00B7 <b>'+money(tb)+'</b>/yr expected value \u00B7 lead-time target <b>'+(m.lt?Math.round((m.lt-fm.lt)/m.lt*100):0)+'%</b></p>'+ganttSVG(port)+'<table><tr><th>Initiative</th><th>Stage</th><th>Owner</th><th>RAG</th><th>Window</th><th>Milestones</th><th>Benefit/yr</th></tr>'+rows+'</table>';
+  return printableHTML('Program Cockpit', inner); }
+function renderCockpitTab(panel){ var port=studio.portfolio; port.forEach(ensureExec);
+  panel.innerHTML='<div class="st-h">Program Cockpit \u00B7 Obeya</div><div class="st-sub">Live command centre \u2014 portfolio value, roadmap, status and KPIs in one view.</div>';
+  var totalBenefit=port.reduce(function(a,u){return a+roiCalc(u.bc).benefit;},0); var wRice=port.length?port.reduce(function(a,u){return a+ricePriority(u);},0)/port.length:0;
+  var rag={green:0,amber:0,red:0}; port.forEach(function(u){ rag[u.rag]=(rag[u.rag]||0)+1; });
+  var liveScale=port.filter(function(u){return u.stage==='Live'||u.stage==='Scale';}).length;
+  var m=vsmMetrics(studio.vsm,false),fm=vsmMetrics(studio.vsm,true); var ltRed=m.lt?Math.round((m.lt-fm.lt)/m.lt*100):0;
+  var kpi=_el('div','kpi-row'); var prevSnap=(studio.snapshots&&studio.snapshots.length)?studio.snapshots[studio.snapshots.length-1]:null; var pv=prevSnap?prevSnap.m:null;
+  function tile(label,val,delta,good){ var h='<div class="b">'+val+'</div><div class="l">'+label+'</div>'; if(delta!=null)h+='<div class="delta '+(good?'g':'r')+'">'+delta+'</div>'; return _el('div','kpi',h); }
+  kpi.appendChild(tile('Initiatives',port.length));
+  kpi.appendChild(tile('Expected value/yr',money(totalBenefit), pv?((totalBenefit-pv.value>=0?'+':'\u2212')+money(Math.abs(totalBenefit-pv.value))):null, totalBenefit>=(pv?pv.value:0)));
+  kpi.appendChild(tile('Avg RICE',wRice.toFixed(1), pv?((wRice-pv.avgRice>=0?'+':'\u2212')+Math.abs(wRice-pv.avgRice).toFixed(1)):null, wRice>=(pv?pv.avgRice:0)));
+  kpi.appendChild(tile('In Scale/Live',liveScale, pv?((liveScale-pv.live>=0?'+':'\u2212')+Math.abs(liveScale-pv.live)):null, liveScale>=(pv?pv.live:0)));
+  kpi.appendChild(tile('Lead-time target',ltRed+'%')); panel.appendChild(kpi);
+  if(prevSnap) panel.appendChild(_el('div','st-note','\u0394 vs week '+prevSnap.week+' snapshot ('+prevSnap.date+').'));
+  var rr=_el('div','rag-row'); rr.innerHTML='<span class="rag g">\u25CF '+rag.green+' on track</span><span class="rag a">\u25CF '+rag.amber+' at risk</span><span class="rag r">\u25CF '+rag.red+' blocked</span>'; panel.appendChild(rr);
+  panel.appendChild(_el('div','st-h2','Program roadmap')); var gb=_el('div'); attachSvg(gb, ganttSVG(port), 'program-roadmap', {caption:'Initiative roadmap (weeks)'}); panel.appendChild(gb);
+  panel.appendChild(_el('div','st-h2','Value contribution / year')); var vb=_el('div'); attachSvg(vb, barsSVG(port.map(function(u){return {label:u.title,value:Math.round(roiCalc(u.bc).benefit)};}),{fmt:money}), 'value-contribution', {caption:'Annual benefit by initiative'}); panel.appendChild(vb);
+  panel.appendChild(_el('div','st-h2','Status board')); var sb=_el('div','statusboard');
+  port.forEach(function(u){ var d=u.milestones.filter(function(mi){return mi.done;}).length,t2=u.milestones.length; var row=_el('div','stt'); row.innerHTML='<span class="dot '+u.rag+'"></span><span class="stt-t">'+u.title+'</span><span class="stt-s">'+u.stage+'</span><span class="stt-o">'+(u.owner||'\u2014')+'</span><span class="stt-p">'+d+'/'+t2+' milestones</span>'; sb.appendChild(row); }); panel.appendChild(sb);
+  var dl=_el('div','st-row'); var pr=_el('button','st-btn','\u2193 One-pager (print)'); pr.addEventListener('click',function(){ downloadText(cockpitHTML(),'program-cockpit.html','text/html'); });
+  var cc=_el('button','st-btn alt','\u2193 Status CSV'); cc.addEventListener('click',function(){ var r=['Initiative,Stage,Owner,RAG,StartWk,DurWk,MilestonesDone,Benefit/yr']; port.forEach(function(u){ var d=u.milestones.filter(function(mi){return mi.done;}).length; r.push('"'+u.title+'","'+u.stage+'","'+(u.owner||'')+'","'+u.rag+'",'+u.startWk+','+u.durWk+','+d+'/'+u.milestones.length+','+Math.round(roiCalc(u.bc).benefit)); }); downloadText(r.join('\n'),'program-status.csv','text/csv'); });
+  dl.appendChild(pr); dl.appendChild(cc); panel.appendChild(dl); }
+
+var studioOv=makeOverlay('studioOverlay'); var stTab='cockpit';
+function progMetrics(){ var port=studio.portfolio; port.forEach(ensureExec); var value=port.reduce(function(a,u){return a+roiCalc(u.bc).benefit;},0); var live=port.filter(function(u){return u.stage==='Live'||u.stage==='Scale';}).length; var avgRice=port.length?port.reduce(function(a,u){return a+ricePriority(u);},0)/port.length:0; var m=vsmMetrics(studio.vsm,false),fm=vsmMetrics(studio.vsm,true); var leadRed=m.lt?Math.round((m.lt-fm.lt)/m.lt*100):0; var ragRed=port.filter(function(u){return u.rag==='red';}).length; var mile=port.reduce(function(a,u){return a+u.milestones.filter(function(x){return x.done;}).length;},0); return {value:value,live:live,avgRice:avgRice,leadRed:leadRed,ragRed:ragRed,mile:mile,count:port.length}; }
+function snapshotState(){ var pm=progMetrics(); return { week:(studio.snapshots.length?studio.snapshots[studio.snapshots.length-1].week+1:1), date:new Date().toISOString().slice(0,10), m:pm, inits:studio.portfolio.map(function(u){ return {title:u.title,stage:u.stage,rag:u.rag,mdone:u.milestones.filter(function(x){return x.done;}).length,mtot:u.milestones.length,benefit:Math.round(roiCalc(u.bc).benefit),kpis:u.kpis.map(function(k){ var ac=(k.actuals||[]).map(Number).filter(function(x){return!isNaN(x);}); return {name:k.name,last:ac.length?ac[ac.length-1]:+k.base}; })}; }) }; }
+function diffSummary(prev,cur){ var out=[]; var dv=cur.m.value-prev.m.value; out.push('Expected value '+money(prev.m.value)+' \u2192 '+money(cur.m.value)+' ('+(dv>=0?'+':'\u2212')+money(Math.abs(dv))+')'); if(cur.m.live!==prev.m.live)out.push('In Scale/Live '+prev.m.live+' \u2192 '+cur.m.live); if(cur.m.mile!==prev.m.mile)out.push('Milestones completed '+prev.m.mile+' \u2192 '+cur.m.mile); if(cur.m.ragRed!==prev.m.ragRed)out.push('Blocked initiatives '+prev.m.ragRed+' \u2192 '+cur.m.ragRed);
+  var pm={}; prev.inits.forEach(function(i){ pm[i.title]=i; }); var cm={}; cur.inits.forEach(function(i){ cm[i.title]=1; });
+  cur.inits.forEach(function(ci){ var pi=pm[ci.title]; if(!pi){ out.push('\u2795 New initiative: '+ci.title); return; } if(ci.stage!==pi.stage)out.push(ci.title+': stage '+pi.stage+' \u2192 '+ci.stage); if(ci.rag!==pi.rag)out.push(ci.title+': status '+pi.rag+' \u2192 '+ci.rag); if(ci.mdone>pi.mdone)out.push(ci.title+': +'+(ci.mdone-pi.mdone)+' milestone(s) done'); ci.kpis.forEach(function(k,idx){ var pk=pi.kpis[idx]; if(pk&&k.last!==pk.last)out.push(ci.title+' \u00B7 '+k.name+': '+pk.last+' \u2192 '+k.last); }); });
+  prev.inits.forEach(function(pi){ if(!cm[pi.title])out.push('\u2796 Removed: '+pi.title); });
+  return out; }
+function renderCadenceTab(panel){ ensureSnaps(); var snaps=studio.snapshots;
+  panel.innerHTML='<div class="st-h">Cadence \u00B7 Weekly huddle</div><div class="st-sub">Run the program on a weekly rhythm: take a snapshot, review what changed, and act. Deltas also show on the Cockpit.</div>';
+  var bar=_el('div','st-row'); var snap=_el('button','st-btn','\u2713 Take weekly snapshot'); snap.addEventListener('click',function(){ studio.snapshots.push(snapshotState()); studioSave(); renderCadenceTab(panel); }); bar.appendChild(snap);
+  if(snaps.length){ var dc=_el('button','st-btn alt','\u2193 Snapshots CSV'); dc.addEventListener('click',function(){ var r=['Week,Date,Value/yr,In Scale-Live,Avg RICE,Blocked,Milestones']; snaps.forEach(function(s){ r.push(s.week+','+s.date+','+Math.round(s.m.value)+','+s.m.live+','+s.m.avgRice.toFixed(2)+','+s.m.ragRed+','+s.m.mile); }); downloadText(r.join('\n'),'cadence-snapshots.csv','text/csv'); }); bar.appendChild(dc); }
+  panel.appendChild(bar);
+  if(snaps.length<1){ panel.appendChild(_el('div','empty','No snapshots yet. Take your first weekly snapshot to start tracking trends and week-over-week change.')); return; }
+  if(snaps.length>=2){ var prev=snaps[snaps.length-2],cur=snaps[snaps.length-1]; var ch=_el('div','changed'); var lis=diffSummary(prev,cur).map(function(x){return '<li>'+x+'</li>';}).join(''); ch.innerHTML='<b>What changed \u2014 week '+prev.week+' \u2192 week '+cur.week+'</b><ul>'+lis+'</ul>'; panel.appendChild(ch); }
+  else { panel.appendChild(_el('div','st-note','Take another snapshot next week to see a \u201Cwhat changed\u201D summary.')); }
+  panel.appendChild(_el('div','st-h2','Expected value trend')); var tb=_el('div'); attachSvg(tb, lineSVG(snaps.map(function(s){return s.m.value;}), snaps.map(function(s){return 'W'+s.week;}), {fmt:money}), 'value-trend', {caption:'Expected annual value by snapshot'}); panel.appendChild(tb);
+  panel.appendChild(_el('div','st-h2','Initiatives in Scale/Live')); var tl=_el('div'); attachSvg(tl, lineSVG(snaps.map(function(s){return s.m.live;}), snaps.map(function(s){return 'W'+s.week;}), {}), 'live-trend', {caption:'Initiatives scaling / live by snapshot'}); panel.appendChild(tl);
+  panel.appendChild(_el('div','st-h2','Snapshot log')); var tbl=_el('table','st-table'); tbl.innerHTML='<thead><tr><th>Week</th><th>Date</th><th>Value/yr</th><th>Scale/Live</th><th>Avg RICE</th><th>Blocked</th><th></th></tr></thead>'; var body=_el('tbody');
+  snaps.slice().reverse().forEach(function(sn){ var idx=snaps.indexOf(sn); var tr=_el('tr'); tr.innerHTML='<td>W'+sn.week+'</td><td>'+sn.date+'</td><td>'+money(sn.m.value)+'</td><td>'+sn.m.live+'</td><td>'+sn.m.avgRice.toFixed(1)+'</td><td>'+sn.m.ragRed+'</td>'; var td=_el('td'); var del=_el('button','st-del','\u2715'); del.addEventListener('click',function(){ studio.snapshots.splice(idx,1); studioSave(); renderCadenceTab(panel); }); td.appendChild(del); tr.appendChild(td); body.appendChild(tr); }); tbl.appendChild(body); panel.appendChild(tbl); }
+function ensureSnaps(){ if(!studio.snapshots) studio.snapshots=[]; }
+function openStudio(){
+  studioOv.innerHTML='<div class="modal" style="width:min(980px,100%)"><div class="modal-head"><span class="prompt">&gt;&gt;&gt;</span> Lean &amp; AI Studio<button class="mclose" id="stX">'+t('dashClose')+'</button></div><div class="modal-body"><div class="st-wrap"><div class="st-tabs" id="stTabs"></div><div class="st-panel" id="stPanel"></div></div></div></div>';
+  studioOv.classList.add('open');
+  studioOv.querySelector('#stX').addEventListener('click',function(){ studioOv.classList.remove('open'); });
+  var tabs=[['cockpit','Cockpit'],['cadence','Cadence'],['vsm','VSM Builder'],['port','AI Portfolio'],['calc','Calculators'],['exp','Export \u2192 PPTX']];
+  var tn=studioOv.querySelector('#stTabs');
+  tabs.forEach(function(tp){ var b=_el('button','st-tab'+(stTab===tp[0]?' on':''),tp[1]); b.addEventListener('click',function(){ stTab=tp[0]; openStudio(); }); tn.appendChild(b); });
+  var panel=studioOv.querySelector('#stPanel');
+  if(stTab==='cockpit') renderCockpitTab(panel);
+  else if(stTab==='cadence') renderCadenceTab(panel);
+  else if(stTab==='vsm') renderVSMTab(panel);
+  else if(stTab==='port') renderPortfolioTab(panel);
+  else if(stTab==='calc') renderCalcTab(panel);
+  else renderExportTab(panel);
+}
+/* ---- VSM Builder ---- */
+var stVsmMode='current';
+function renderVSMTab(panel){
+  var v=studio.vsm; v.steps.forEach(function(s){ if(s.fpt==null)s.fpt=s.pt; if(s.fwt==null)s.fwt=s.wt; if(s.elim==null)s.elim=false; });
+  panel.innerHTML='<div class="st-h">Value Stream Builder</div><div class="st-sub">Model the current state, design a future state (eliminate steps, cut wait with agents), then compare. Auto-saved.</div>';
+  var top=_el('div','st-row'); top.appendChild(_el('span',null,'Demand/day'));
+  var di=_el('input','miniNum'); di.value=v.demand; top.appendChild(di);
+  top.appendChild(_el('span',null,'Available min/day')); var ai=_el('input','miniNum'); ai.value=v.avail; top.appendChild(ai); panel.appendChild(top);
+  var seg=_el('div','seg'); [['current','Current state'],['future','Future state'],['compare','Compare']].forEach(function(md){ var btn=_el('button',(stVsmMode===md[0]?'on':''),md[1]); btn.addEventListener('click',function(){ stVsmMode=md[0]; renderVSMTab(panel); }); seg.appendChild(btn); });
+  var sr=_el('div','st-row'); sr.appendChild(seg); panel.appendChild(sr);
+  var body=_el('div'); panel.appendChild(body);
+  function buildBody(){ body.innerHTML=''; if(stVsmMode==='compare') buildCompare(body,v); else buildEditor(body,v,stVsmMode==='future'); }
+  di.addEventListener('input',function(){ v.demand=+di.value||0; studioSave(); buildBody(); });
+  ai.addEventListener('input',function(){ v.avail=+ai.value||0; studioSave(); buildBody(); });
+  buildBody();
+}
+function buildEditor(body,v,future){
+  var pk=future?'fpt':'pt', wk=future?'fwt':'wt';
+  if(future){ var cpr=_el('div','st-row'); var cb=_el('button','st-btn gray','Copy current \u2192 future'); cb.addEventListener('click',function(){ v.steps.forEach(function(s){ s.fpt=s.pt; s.fwt=s.wt; s.elim=false; }); studioSave(); buildEditor(body,v,future); }); cpr.appendChild(cb); cpr.appendChild(_el('span','st-note','Then trim wait/eliminate steps to model the AI-enabled future.')); body.appendChild(cpr); }
+  var tbl=_el('table','st-table'); tbl.innerHTML='<thead><tr><th>Step</th><th>Proc (min)</th><th>Wait (min)</th><th>%C&amp;A</th><th></th></tr></thead>'; var tb=_el('tbody'); tbl.appendChild(tb); body.appendChild(tbl);
+  function rowFor(stp,idx){ var tr=_el('tr'); if(future&&stp.elim) tr.style.opacity='.4';
+    var c1=_el('td'); var n=_el('input'); n.value=stp.name; n.addEventListener('input',function(){ stp.name=n.value; light(); }); c1.appendChild(n);
+    function numCell(key){ var td=_el('td'); var i=_el('input','num'); i.value=stp[key]; i.addEventListener('input',function(){ stp[key]=+i.value||0; light(); }); td.appendChild(i); return td; }
+    var c5=_el('td');
+    if(future){ var elb=_el('button','st-del',stp.elim?'\u21BA':'\u2205'); elb.title=stp.elim?'restore step':'eliminate step'; elb.addEventListener('click',function(){ stp.elim=!stp.elim; studioSave(); buildEditor(body,v,future); }); c5.appendChild(elb); }
+    else { var del=_el('button','st-del','\u2715'); del.addEventListener('click',function(){ v.steps.splice(idx,1); studioSave(); buildEditor(body,v,future); }); c5.appendChild(del); }
+    tr.appendChild(c1); tr.appendChild(numCell(pk)); tr.appendChild(numCell(wk)); tr.appendChild(numCell('ca')); tr.appendChild(c5); return tr; }
+  v.steps.forEach(function(stp,i){ tb.appendChild(rowFor(stp,i)); });
+  if(!future){ var addr=_el('div','st-row'); var addb=_el('button','st-btn gray','+ Add step'); addb.addEventListener('click',function(){ v.steps.push({name:'New step',pt:5,wt:60,ca:95,fpt:5,fwt:60,elim:false}); studioSave(); buildEditor(body,v,future); }); addr.appendChild(addb); body.appendChild(addr); }
+  var kpi=_el('div','kpi-row'); body.appendChild(kpi);
+  var svgBox=_el('div'); body.appendChild(svgBox);
+  var dlrow=_el('div','st-row'); var dcsv=_el('button','st-btn alt','\u2193 CSV'); dcsv.addEventListener('click',function(){ downloadText(vsmCSV(v),'value-stream.csv','text/csv'); }); dlrow.appendChild(dcsv); body.appendChild(dlrow);
+  function light(){ studioSave(); var m=vsmMetrics(v,future); kpi.innerHTML='';
+    [['Lead time',Math.round(m.lt)+' min'],['Value-add',Math.round(m.pt)+' min'],['PCE',m.pce.toFixed(1)+'%'],['Takt',m.takt.toFixed(1)+' min'],['WIP',Math.round(m.wip)],['Bottleneck',m.bn.name]].forEach(function(k){ kpi.appendChild(_el('div','kpi','<div class="b">'+k[1]+'</div><div class="l">'+k[0]+'</div>')); });
+    var steps=v.steps.filter(function(s){return !(future&&s.elim);}).map(function(s){ return {name:s.name,pt:+s[pk]||0,wt:+s[wk]||0,ca:(s.ca!=null?s.ca+'%':'\u2014')}; });
+    svgBox.innerHTML=''; attachSvg(svgBox, vsmSVG(steps,{demand:v.demand+' /day'}), (future?'future':'current')+'-value-stream-map', {caption:(future?'Future':'Current')+' state value stream map'}); }
+  light();
+}
+function buildCompare(body,v){
+  var cur=vsmMetrics(v,false), fut=vsmMetrics(v,true);
+  function pct(a,b){ return a?Math.round((a-b)/a*100):0; }
+  var tiles=_el('div','kpi-row');
+  [['Lead time',cur.lt,fut.lt],['Value-add',cur.pt,fut.pt],['PCE',cur.pce,fut.pce],['WIP',cur.wip,fut.wip]].forEach(function(k){
+    var isP=k[0]==='PCE'; var good=isP?(k[2]>=k[1]):(k[2]<=k[1]);
+    var disp=isP?(k[1].toFixed(0)+'% \u2192 '+k[2].toFixed(0)+'%'):(Math.round(k[1])+' \u2192 '+Math.round(k[2]));
+    var delta=isP?((k[2]-k[1]>=0?'+':'')+(k[2]-k[1]).toFixed(0)+' pts'):((k[1]-k[2]>=0?'\u2212':'+')+Math.abs(pct(k[1],k[2]))+'%');
+    tiles.appendChild(_el('div','kpi','<div class="b" style="font-size:14px">'+disp+'</div><div class="l">'+k[0]+'</div><div class="delta '+(good?'g':'r')+'">'+delta+'</div>')); });
+  body.appendChild(tiles);
+  var cw=_el('div'); body.appendChild(cw);
+  attachSvg(cw, vsmSVG(v.steps.map(function(s){return {name:s.name,pt:+s.pt||0,wt:+s.wt||0,ca:(s.ca!=null?s.ca+'%':'\u2014')};}),{demand:v.demand+' /day'}), 'current-value-stream-map', {caption:'Current state'});
+  attachSvg(cw, vsmSVG(v.steps.filter(function(s){return !s.elim;}).map(function(s){return {name:s.name,pt:+s.fpt||0,wt:+s.fwt||0,ca:(s.ca!=null?s.ca+'%':'\u2014')};}),{demand:v.demand+' /day'}), 'future-value-stream-map', {caption:'Future state (with AI / agents)'});
+  var elim=v.steps.filter(function(s){return s.elim;}).length;
+  body.appendChild(_el('div','st-note','Future state removes '+elim+' step(s) and cuts lead time by '+pct(cur.lt,fut.lt)+'% \u00B7 PCE '+cur.pce.toFixed(0)+'% \u2192 '+fut.pce.toFixed(0)+'%.'));
+  var dl=_el('div','st-row'); var cbtn=_el('button','st-btn alt','\u2193 Compare CSV'); cbtn.addEventListener('click',function(){ downloadText(vsmCSV(v),'value-stream-compare.csv','text/csv'); }); dl.appendChild(cbtn); body.appendChild(dl);
+}
+
+/* ---- AI Portfolio ---- */
+var stPortView='list';
+function renderPortfolioTab(panel){
+  panel.innerHTML='<div class="st-h">AI Transformation Portfolio</div><div class="st-sub">Editable pipeline with RICE prioritisation, a drag-and-drop stage board and a business case. Auto-saved.</div>';
+  var bar=_el('div','st-row');
+  var pin=_el('input'); pin.type='text'; pin.value=studio.process; pin.style.cssText='flex:1;min-width:200px;font-size:14px;padding:8px 11px;border:1px solid var(--line);border-radius:8px;outline:none'; pin.addEventListener('input',function(){ studio.process=pin.value; studioSave(); });
+  var gen=_el('button','st-btn','\u2726 Generate'); var add=_el('button','st-btn gray','+ Add'); var srt=_el('button','st-btn alt','\u2193 Rank');
+  bar.appendChild(pin); bar.appendChild(gen); bar.appendChild(add); bar.appendChild(srt); panel.appendChild(bar);
+  var vrow=_el('div','st-row'); var vseg=_el('div','seg'); [['list','List'],['board','Stage board']].forEach(function(md){ var btn=_el('button',(stPortView===md[0]?'on':''),md[1]); btn.addEventListener('click',function(){ stPortView=md[0]; renderContent(); [].forEach.call(vseg.children,function(c){c.classList.remove('on');}); btn.classList.add('on'); }); vseg.appendChild(btn); }); vrow.appendChild(vseg);
+  var note=_el('div','st-note','RICE = Reach \u00D7 Impact \u00D7 Confidence \u00F7 Effort. Matrix uses Impact (value) vs Effort. Drag cards between stages on the board.'); vrow.appendChild(note); panel.appendChild(vrow);
+  var matBox=_el('div'); panel.appendChild(matBox);
+  var content=_el('div'); panel.appendChild(content);
+  var dlrow=_el('div','st-row');
+  var dcsv=_el('button','st-btn alt','\u2193 Portfolio CSV'); dcsv.addEventListener('click',function(){ downloadText(portfolioCSV(),'ai-portfolio.csv','text/csv'); });
+  var dmd=_el('button','st-btn alt','\u2193 Plan (MD)'); dmd.addEventListener('click',function(){ downloadText(portfolioMD(),'ai-portfolio.md','text/markdown'); });
+  dlrow.appendChild(dcsv); dlrow.appendChild(dmd); panel.appendChild(dlrow);
+  function refreshMatrix(){ matBox.innerHTML=''; attachSvg(matBox, chartSVG({type:'matrix', items:studio.portfolio.map(function(u){return {title:u.title,valueScore:Math.round(u.impact),effortScore:Math.round(u.effort)};})}), 'ai-prioritisation', {caption:'Prioritisation \u2014 impact vs effort'}); }
+  function card(u,idx){
+    var c=_el('div','uc2'); var top=_el('div','top'); var ti=_el('input','title'); ti.value=u.title; ti.addEventListener('input',function(){ u.title=ti.value; studioSave(); });
+    var prio=_el('span','prio','RICE '+ricePriority(u).toFixed(1));
+    var del=_el('button','st-del','\u2715'); del.addEventListener('click',function(){ studio.portfolio.splice(idx,1); studioSave(); renderAll(); });
+    top.appendChild(ti); top.appendChild(prio); top.appendChild(del); c.appendChild(top);
+    var grid=_el('div','grid');
+    function fld(label,key,opts){ var f=_el('div','f'); f.appendChild(_el('label','',label)); var inp; if(opts){ inp=_el('select'); opts.forEach(function(o){ var op=_el('option'); op.value=o; op.textContent=o; if(u[key]===o)op.selected=true; inp.appendChild(op); }); inp.addEventListener('change',function(){ u[key]=inp.value; studioSave(); }); } else { inp=_el('input'); inp.value=u[key]; inp.addEventListener('input',function(){ u[key]=isNaN(+inp.value)||inp.value===''?inp.value:+inp.value; prio.textContent='RICE '+ricePriority(u).toFixed(1); refreshMatrix(); studioSave(); }); } f.appendChild(inp); return f; }
+    grid.appendChild(fld('Reach 1-5','reach')); grid.appendChild(fld('Impact 1-5','impact')); grid.appendChild(fld('Confid %','confidence')); grid.appendChild(fld('Effort 1-5','effort')); c.appendChild(grid);
+    var stg=_el('div','st-row'); var sf=fld('Stage','stage',['Backlog','Discovery','Pilot','Scale','Live']); sf.style.minWidth='160px'; stg.appendChild(sf);
+    var wf=_el('div','f'); wf.style.flex='1'; wf.appendChild(_el('label','','Lean waste')); var wi=_el('input'); wi.value=u.waste; wi.addEventListener('input',function(){ u.waste=wi.value; studioSave(); }); wf.appendChild(wi); stg.appendChild(wf); c.appendChild(stg);
+    var r=roiCalc(u.bc); var roi=_el('div','roi'); function roiHTML(rr){ return '<b>Business case:</b> '+money(rr.benefit)+'/yr benefit \u00B7 net '+money(rr.net)+' \u00B7 ROI '+rr.roi.toFixed(1)+'x \u00B7 payback '+(rr.pay>0?rr.pay.toFixed(1)+' mo':'\u2014')+' &nbsp; <span class="bc-edit" style="color:var(--py-blue);cursor:pointer;font-family:var(--mono);font-size:11px">edit \u25B8</span>'; }
+    roi.innerHTML=roiHTML(r); var bcBox=_el('div'); bcBox.style.display='none'; bcBox.style.marginTop='6px'; var bg=_el('div','grid');
+    [['Volume/yr','volume'],['Min saved/unit','minSaved'],['Cost \u20AC/hr','rate'],['Build \u20AC','build'],['Run \u20AC/yr','run']].forEach(function(pair){ var f=_el('div','f'); f.appendChild(_el('label','',pair[0])); var inp=_el('input'); inp.value=u.bc[pair[1]]; inp.addEventListener('input',function(){ u.bc[pair[1]]=+inp.value||0; roi.innerHTML=roiHTML(roiCalc(u.bc)); roi.querySelector('.bc-edit').addEventListener('click',toggle); studioSave(); }); f.appendChild(inp); bg.appendChild(f); }); bcBox.appendChild(bg);
+    function toggle(){ bcBox.style.display=bcBox.style.display==='none'?'block':'none'; }
+    roi.querySelector('.bc-edit').addEventListener('click',toggle); c.appendChild(roi); c.appendChild(bcBox); var exT=_el('button','uc-toggle','\u25B8 Run / execute'); var exB=execPanel(u); exB.style.display='none'; exT.addEventListener('click',function(){ var open=exB.style.display==='none'; exB.style.display=open?'block':'none'; exT.textContent=(open?'\u25BE':'\u25B8')+' Run / execute'; }); c.appendChild(exT); c.appendChild(exB); return c;
+  }
+  var STAGES=['Backlog','Discovery','Pilot','Scale','Live'];
+  function setStage(idx,stage){ if(studio.portfolio[idx]){ studio.portfolio[idx].stage=stage; studioSave(); buildBoard(); } }
+  function moveStage(idx,dir){ var u=studio.portfolio[idx]; if(!u)return; var i=Math.max(0,Math.min(4,STAGES.indexOf(u.stage)+dir)); u.stage=STAGES[i]; studioSave(); buildBoard(); }
+  function kcard(u,idx){ var c=_el('div','kcard'); c.draggable=true;
+    c.innerHTML='<div class="kt">'+u.title+'</div><div class="km"><span class="kw">'+u.waste+'</span><span class="kr">RICE '+ricePriority(u).toFixed(1)+'</span></div>';
+    var nav=_el('div','knav'); var L=_el('button','kmv','\u25C2'); var R=_el('button','kmv','\u25B8'); L.addEventListener('click',function(){ moveStage(idx,-1); }); R.addEventListener('click',function(){ moveStage(idx,1); }); nav.appendChild(L); nav.appendChild(R); c.appendChild(nav);
+    c.addEventListener('dragstart',function(e){ try{e.dataTransfer.setData('text/plain',String(idx));}catch(x){} c.classList.add('dragging'); });
+    c.addEventListener('dragend',function(){ c.classList.remove('dragging'); }); return c; }
+  function buildBoard(){ content.innerHTML=''; var board=_el('div','kanban');
+    STAGES.forEach(function(stage){ var col=_el('div','kcol'); var items=studio.portfolio.filter(function(u){return u.stage===stage;});
+      col.appendChild(_el('div','kcol-h',stage+' <span class="kcount">'+items.length+'</span>'));
+      var drop=_el('div','kdrop');
+      items.forEach(function(u){ drop.appendChild(kcard(u,studio.portfolio.indexOf(u))); });
+      drop.addEventListener('dragover',function(e){ e.preventDefault(); drop.classList.add('over'); });
+      drop.addEventListener('dragleave',function(){ drop.classList.remove('over'); });
+      drop.addEventListener('drop',function(e){ e.preventDefault(); drop.classList.remove('over'); var i=parseInt(e.dataTransfer.getData('text/plain')); if(!isNaN(i)) setStage(i,stage); });
+      col.appendChild(drop); board.appendChild(col); });
+    content.appendChild(board); }
+  function buildList(){ content.innerHTML=''; studio.portfolio.forEach(function(u,i){ content.appendChild(card(u,i)); }); }
+  function renderContent(){ if(stPortView==='board') buildBoard(); else buildList(); }
+  function renderAll(){ refreshMatrix(); renderContent(); }
+  gen.addEventListener('click',function(){ var proc=pin.value||'a process'; gen.disabled=true; var ol=gen.textContent; gen.textContent='\u2026'; generateUseCases(proc).then(function(items){ studio.portfolio=items.map(toPortfolio); }).catch(function(){ studio.portfolio=pickFallback(proc).map(toPortfolio); }).then(function(){ studioSave(); gen.disabled=false; gen.textContent=ol; renderAll(); }); });
+  add.addEventListener('click',function(){ studio.portfolio.unshift({title:'New use case',waste:'Waiting',agents:'',orchestration:'',mapCurrent:'',mapFuture:'',outcomes:[],reach:3,impact:3,confidence:70,effort:3,stage:'Backlog',bc:{volume:5000,minSaved:15,rate:60,build:50000,run:15000}}); studioSave(); renderAll(); });
+  srt.addEventListener('click',function(){ studio.portfolio.sort(function(a,b){ return ricePriority(b)-ricePriority(a); }); studioSave(); renderAll(); });
+  renderAll();
+}
+
+function toPortfolio(u){ return {title:u.title,waste:u.waste,agents:u.agents,orchestration:u.orchestration,mapCurrent:u.mapCurrent,mapFuture:u.mapFuture,outcomes:(u.outcomes||[]).slice(),reach:3,impact:u.valueScore||3,confidence:80,effort:u.effortScore||3,stage:'Backlog',bc:{volume:10000,minSaved:20,rate:60,build:80000,run:20000}}; }
+function portfolioCSV(){ var r=['Title,Waste,Stage,Reach,Impact,Confidence%,Effort,RICE,AnnualBenefit,ROIx']; studio.portfolio.forEach(function(u){ var roi=roiCalc(u.bc); r.push('"'+u.title+'","'+u.waste+'","'+u.stage+'",'+u.reach+','+u.impact+','+u.confidence+','+u.effort+','+ricePriority(u).toFixed(2)+','+Math.round(roi.benefit)+','+roi.roi.toFixed(2)); }); return r.join('\n'); }
+function portfolioMD(){ var L=['# AI Transformation Portfolio','','**Process:** '+studio.process,'']; studio.portfolio.slice().sort(function(a,b){return ricePriority(b)-ricePriority(a);}).forEach(function(u,i){ var roi=roiCalc(u.bc); L.push('## '+(i+1)+'. '+u.title+'  (RICE '+ricePriority(u).toFixed(1)+', '+u.stage+')'); L.push('- Waste: '+u.waste); L.push('- Current: '+u.mapCurrent); L.push('- Future: '+u.mapFuture); L.push('- Agents: '+u.agents); L.push('- Orchestration: '+u.orchestration); L.push('- Outcomes: '+(u.outcomes||[]).join('; ')); L.push('- Business case: '+money(roi.benefit)+'/yr, ROI '+roi.roi.toFixed(1)+'x, payback '+(roi.pay>0?roi.pay.toFixed(1)+' mo':'n/a')); L.push(''); buildPlan(u).forEach(function(ph){ L.push('  - *'+ph.p+'*: '+ph.d); }); L.push(''); }); return L.join('\n'); }
+/* ---- Calculators ---- */
+function renderCalcTab(panel){
+  panel.innerHTML='<div class="st-h">Lean calculators</div><div class="st-sub">Quick standalone calculators for the core formulas.</div>';
+  var grid=_el('div','calc-grid'); panel.appendChild(grid);
+  function calc(title, fields, fn){ var c=_el('div','calc'); c.appendChild(_el('h5','',title)); var inps={}; fields.forEach(function(f){ var row=_el('div','cin'); row.appendChild(_el('span','',f[1])); var i=_el('input'); i.value=f[2]; inps[f[0]]=i; row.appendChild(i); c.appendChild(row); }); var out=_el('div','out',''); c.appendChild(out); function up(){ var vals={}; for(var k in inps) vals[k]=+inps[k].value||0; out.innerHTML=fn(vals); } for(var k in inps) inps[k].addEventListener('input',up); up(); grid.appendChild(c); }
+  calc('Takt time',[['a','Available min/day',450],['d','Demand/day',90]],function(v){ return '\u2192 Takt = '+(v.d?(v.a/v.d).toFixed(2):'\u2014')+' min/unit'; });
+  calc('Little\u2019s Law',[['w','WIP',96],['t','Throughput /day',48]],function(v){ return '\u2192 Lead time = '+(v.t?(v.w/v.t).toFixed(2):'\u2014')+' days'; });
+  calc('OEE',[['plan','Planned min',450],['down','Downtime min',60],['ideal','Ideal cycle min',1],['total','Total units',350],['good','Good units',330]],function(v){ var op=v.plan-v.down; var A=v.plan?op/v.plan:0; var P=op?(v.ideal*v.total)/op:0; var Q=v.total?v.good/v.total:0; return '\u2192 A '+(A*100).toFixed(1)+'% \u00D7 P '+(P*100).toFixed(1)+'% \u00D7 Q '+(Q*100).toFixed(1)+'% = OEE '+(A*P*Q*100).toFixed(1)+'%'; });
+  calc('Kanban sizing',[['d','Demand/day',1200],['lt','Lead time (days)',0.5],['saf','Safety %',25],['cont','Container',60]],function(v){ var n=Math.ceil(v.d*v.lt*(1+v.saf/100)/(v.cont||1)); return '\u2192 '+n+' cards \u00B7 WIP cap '+(n*v.cont)+' units'; });
+  calc('DPMO / Yield',[['units','Units',2000],['opp','Opportunities/unit',2],['def','Defects',100]],function(v){ var t=v.units*v.opp; var d=t?v.def/t*1e6:0; return '\u2192 DPMO '+Math.round(d)+' \u00B7 Yield '+(100-d/1e6*100).toFixed(2)+'%'; });
+  calc('Cost of delay',[['val','Value \u20AC/week',50000],['wk','Weeks delayed',8]],function(v){ return '\u2192 '+money(v.val*v.wk)+' lost to delay'; });
+}
+/* ---- Export ---- */
+function renderExportTab(panel){
+  panel.innerHTML='<div class="st-h">Export \u2192 PowerPoint &amp; more</div><div class="st-sub">Build a McKinsey-style improvement deck from your value stream and AI portfolio. PPTX uses a library loaded on first use (works in-browser).</div>';
+  var row=_el('div','st-row');
+  var dp=_el('button','st-btn','\u2193 Improvement deck (.pptx)'); dp.addEventListener('click',function(){ dp.disabled=true; var o=dp.textContent; dp.textContent='Building\u2026'; exportDeckPPTX().then(function(){ dp.disabled=false; dp.textContent=o; }); });
+  row.appendChild(dp); panel.appendChild(row);
+  var row2=_el('div','st-row');
+  var a=_el('button','st-btn alt','\u2193 Portfolio CSV'); a.addEventListener('click',function(){ downloadText(portfolioCSV(),'ai-portfolio.csv','text/csv'); });
+  var b=_el('button','st-btn alt','\u2193 VSM CSV'); b.addEventListener('click',function(){ var v=studio.vsm; downloadText('Step,Process time (min),Wait before (min),%C&A\n'+v.steps.map(function(s){return '"'+s.name+'",'+(+s.pt||0)+','+(+s.wt||0)+','+(+s.ca||0);}).join('\n'),'value-stream.csv','text/csv'); });
+  var cM=_el('button','st-btn alt','\u2193 Full plan (MD)'); cM.addEventListener('click',function(){ downloadText(fullPlanMD(),'lean-ai-plan.md','text/markdown'); });
+  row2.appendChild(a); row2.appendChild(b); row2.appendChild(cM); panel.appendChild(row2);
+  panel.appendChild(_el('div','st-note','The deck includes: title, executive summary with VSM metrics, value-stream table, prioritised AI pipeline, a value-vs-effort bubble chart, the top use cases with plans, and a transformation roadmap.'));
+}
+function fullPlanMD(){ var m=vsmMetrics(studio.vsm,false); var L=['# Lean & AI Improvement Plan','','**Process:** '+studio.process,'','## Current-state value stream','- Lead time: '+Math.round(m.lt)+' min','- Value-add: '+Math.round(m.pt)+' min','- PCE: '+m.pce.toFixed(1)+'%','- Takt: '+m.takt.toFixed(1)+' min','- WIP (Little\u2019s Law): '+Math.round(m.wip),'- Bottleneck: '+m.bn.name,''];
+  if(studio.vsm.steps.some(function(st){return st.elim||(+st.fpt!=+st.pt)||(+st.fwt!=+st.wt);})){ var fm=vsmMetrics(studio.vsm,true); L.push('## Future-state (with AI / agents)'); L.push('- Lead time: '+Math.round(fm.lt)+' min  ('+Math.round((m.lt-fm.lt)/(m.lt||1)*100)+'% reduction)'); L.push('- PCE: '+fm.pce.toFixed(1)+'%  (was '+m.pce.toFixed(1)+'%)'); L.push('- Steps eliminated: '+studio.vsm.steps.filter(function(s){return s.elim;}).length); L.push(''); }
+  L.push(portfolioMD()); return L.join('\n'); }
+
+function ensurePptx(){ if(window.PptxGenJS) return Promise.resolve(true); return new Promise(function(res){ var done=false; function fin(v){ if(done)return; done=true; res(v); } var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js'; sc.onload=function(){ fin(!!window.PptxGenJS); }; sc.onerror=function(){ fin(false); }; document.head.appendChild(sc); setTimeout(function(){ fin(!!window.PptxGenJS); },9000); }); }
+async function exportDeckPPTX(){
+  var ok=await ensurePptx();
+  if(!ok){ downloadText(printableHTML('Improvement Deck','<h1>Lean &amp; AI Improvement Plan</h1><pre style="white-space:pre-wrap">'+fullPlanMD().replace(/[<>]/g,'')+'</pre>'),'improvement-deck.html','text/html'); return; }
+  try{
+    var P=new PptxGenJS(); P.layout='LAYOUT_WIDE';
+    var BLUE='2C5A98', INK='11141B', GRAY='69748A', YEL='CC9F00';
+    var m=vsmMetrics(studio.vsm);
+    var s=P.addSlide(); s.background={color:'FFFFFF'};
+    s.addText('Lean \u00D7 AI Improvement Plan',{x:0.6,y:1.8,w:11,h:1,fontSize:34,bold:true,color:INK});
+    s.addText(studio.process,{x:0.6,y:2.8,w:11,h:0.5,fontSize:18,color:BLUE});
+    s.addText('Generated with PyQuest \u00B7 '+new Date().toLocaleDateString(),{x:0.6,y:6.6,w:11,h:0.4,fontSize:11,color:GRAY});
+    // exec summary
+    s=P.addSlide(); s.addText('Executive summary',{x:0.5,y:0.3,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+    var kpis=[['Lead time',Math.round(m.lt)+' min'],['PCE',m.pce.toFixed(1)+'%'],['Takt',m.takt.toFixed(1)+' min'],['WIP',String(Math.round(m.wip))]];
+    kpis.forEach(function(k,i){ var x=0.5+i*3.1; s.addShape(P.ShapeType.roundRect,{x:x,y:1.2,w:2.9,h:1.4,fill:{color:'F4F7FA'},line:{color:'E3E8EF'}}); s.addText(k[1],{x:x,y:1.4,w:2.9,h:0.7,fontSize:26,bold:true,align:'center',color:INK}); s.addText(k[0],{x:x,y:2.1,w:2.9,h:0.4,fontSize:12,align:'center',color:GRAY}); });
+    s.addText('Bottleneck: '+m.bn.name+'  \u00B7  '+(100-m.pce).toFixed(0)+'% of lead time is waiting \u2014 the AI opportunity.',{x:0.5,y:3.0,w:12,h:0.5,fontSize:15,color:'2A3344'});
+    // program cockpit slide
+    studio.portfolio.forEach(ensureExec);
+    var tbenefit=studio.portfolio.reduce(function(a,u){return a+roiCalc(u.bc).benefit;},0);
+    var sc=P.addSlide(); sc.addText('Program cockpit',{x:0.5,y:0.3,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+    [['Initiatives',String(studio.portfolio.length)],['Expected value/yr',money(tbenefit)],['Avg RICE',(studio.portfolio.length?(studio.portfolio.reduce(function(a,u){return a+ricePriority(u);},0)/studio.portfolio.length):0).toFixed(1)],['In Scale/Live',String(studio.portfolio.filter(function(u){return u.stage==='Live'||u.stage==='Scale';}).length)]].forEach(function(k,i){ var x=0.5+i*3.1; sc.addShape(P.ShapeType.roundRect,{x:x,y:1.1,w:2.9,h:1.3,fill:{color:'F4F7FA'},line:{color:'E3E8EF'}}); sc.addText(k[1],{x:x,y:1.3,w:2.9,h:0.6,fontSize:22,bold:true,align:'center',color:INK}); sc.addText(k[0],{x:x,y:1.95,w:2.9,h:0.4,fontSize:11,align:'center',color:GRAY}); });
+    var crows=[[{text:'Initiative',options:{bold:true,fill:'EEF2F7'}},{text:'Stage',options:{bold:true,fill:'EEF2F7'}},{text:'Owner',options:{bold:true,fill:'EEF2F7'}},{text:'RAG',options:{bold:true,fill:'EEF2F7'}},{text:'Window',options:{bold:true,fill:'EEF2F7'}},{text:'Benefit/yr',options:{bold:true,fill:'EEF2F7'}}]];
+    studio.portfolio.forEach(function(u){ crows.push([u.title,u.stage,(u.owner||'\u2014'),u.rag,'W'+u.startWk+'\u2013'+(u.startWk+u.durWk),money(roiCalc(u.bc).benefit)]); });
+    sc.addTable(crows,{x:0.5,y:2.7,w:12.3,fontSize:11,border:{type:'solid',color:'E3E8EF',pt:1},color:'1B2230'});
+    // VSM table
+    s=P.addSlide(); s.addText('Current-state value stream',{x:0.5,y:0.3,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+    var vrows=[[{text:'Step',options:{bold:true,fill:'EEF2F7'}},{text:'Process (min)',options:{bold:true,fill:'EEF2F7'}},{text:'Wait (min)',options:{bold:true,fill:'EEF2F7'}},{text:'%C&A',options:{bold:true,fill:'EEF2F7'}}]];
+    studio.vsm.steps.forEach(function(st){ vrows.push([st.name,String(+st.pt||0),String(+st.wt||0),String(+st.ca||0)+'%']); });
+    vrows.push([{text:'Totals',options:{bold:true}},{text:String(Math.round(m.pt)),options:{bold:true}},{text:String(Math.round(m.wt)),options:{bold:true}},'']);
+    s.addTable(vrows,{x:0.5,y:1.1,w:7.5,fontSize:12,border:{type:'solid',color:'E3E8EF',pt:1},color:'1B2230'});
+    s.addText('PCE '+m.pce.toFixed(1)+'%',{x:8.4,y:1.3,w:4,h:0.6,fontSize:20,bold:true,color:YEL});
+    // current vs future state
+    if(studio.vsm.steps.some(function(st){return st.elim||(+st.fpt!=+st.pt)||(+st.fwt!=+st.wt);})){
+      var fm=vsmMetrics(studio.vsm,true); var sf=P.addSlide(); sf.addText('Current vs future state',{x:0.5,y:0.3,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+      function dl(a,b,isP){ return isP?('+'+Math.round(b-a)+' pts'):(Math.round((a-b)/(a||1)*100)+'% \u2193'); }
+      var frows=[[{text:'Metric',options:{bold:true,fill:'EEF2F7'}},{text:'Current',options:{bold:true,fill:'EEF2F7'}},{text:'Future',options:{bold:true,fill:'EEF2F7'}},{text:'Change',options:{bold:true,fill:'EEF2F7'}}],
+        ['Lead time (min)',String(Math.round(m.lt)),String(Math.round(fm.lt)),dl(m.lt,fm.lt)],
+        ['Value-add (min)',String(Math.round(m.pt)),String(Math.round(fm.pt)),''],
+        ['PCE %',m.pce.toFixed(0),fm.pce.toFixed(0),dl(m.pce,fm.pce,true)],
+        ['WIP (units)',String(Math.round(m.wip)),String(Math.round(fm.wip)),dl(m.wip,fm.wip)]];
+      sf.addTable(frows,{x:0.6,y:1.3,w:9,fontSize:14,border:{type:'solid',color:'E3E8EF',pt:1},color:'1B2230'});
+      sf.addText('Lead-time reduction '+Math.round((m.lt-fm.lt)/(m.lt||1)*100)+'%  \u00B7  PCE '+m.pce.toFixed(0)+'% \u2192 '+fm.pce.toFixed(0)+'%',{x:0.6,y:4.7,w:11,h:0.5,fontSize:17,bold:true,color:'1D6B48'});
+    }
+    // pipeline table
+    var port=studio.portfolio.slice().sort(function(a,b){return ricePriority(b)-ricePriority(a);});
+    s=P.addSlide(); s.addText('AI opportunity pipeline (RICE-ranked)',{x:0.5,y:0.3,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+    var prows=[[{text:'#',options:{bold:true,fill:'EEF2F7'}},{text:'Use case',options:{bold:true,fill:'EEF2F7'}},{text:'Waste',options:{bold:true,fill:'EEF2F7'}},{text:'RICE',options:{bold:true,fill:'EEF2F7'}},{text:'Stage',options:{bold:true,fill:'EEF2F7'}},{text:'ROI',options:{bold:true,fill:'EEF2F7'}}]];
+    port.forEach(function(u,i){ var roi=roiCalc(u.bc); prows.push([String(i+1),u.title,u.waste,ricePriority(u).toFixed(1),u.stage,roi.roi.toFixed(1)+'x']); });
+    s.addTable(prows,{x:0.5,y:1.1,w:12.3,fontSize:11.5,border:{type:'solid',color:'E3E8EF',pt:1},color:'1B2230'});
+    // bubble chart
+    try{ s=P.addSlide(); s.addText('Prioritisation \u2014 value vs effort',{x:0.5,y:0.3,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+      var bub=[{name:'Effort',values:port.map(function(u){return +u.effort||3;})},{name:'Impact',values:port.map(function(u){return +u.impact||3;}),sizes:port.map(function(u){return Math.round(ricePriority(u)*4)+6;})}];
+      s.addChart(P.ChartType.bubble,bub,{x:0.8,y:1.2,w:8,h:5,showTitle:false,catAxisTitle:'Effort',valAxisTitle:'Impact',catAxisMinVal:0,catAxisMaxVal:6,valAxisMinVal:0,valAxisMaxVal:6});
+      var leg=[[{text:'#',options:{bold:true}},{text:'Use case',options:{bold:true}}]]; port.forEach(function(u,i){ leg.push([String(i+1),u.title]); });
+      s.addTable(leg,{x:9.0,y:1.2,w:3.8,fontSize:10,border:{type:'solid',color:'E3E8EF',pt:1}});
+    }catch(e){}
+    // top use cases
+    port.slice(0,3).forEach(function(u,i){ var sl=P.addSlide(); sl.addText((i+1)+'. '+u.title,{x:0.5,y:0.3,w:12,h:0.6,fontSize:22,bold:true,color:INK});
+      sl.addText([{text:'Lean waste: ',options:{bold:true}},{text:u.waste}],{x:0.5,y:1.1,w:12,h:0.4,fontSize:13,color:'2A3344'});
+      sl.addText([{text:'Now: ',options:{bold:true}},{text:u.mapCurrent},{text:'\n\nFuture: ',options:{bold:true}},{text:u.mapFuture},{text:'\n\nAgents: ',options:{bold:true}},{text:u.agents},{text:'\n\nOrchestration: ',options:{bold:true}},{text:u.orchestration}],{x:0.5,y:1.5,w:7.4,h:4,fontSize:13,color:'2A3344',valign:'top'});
+      var oc=(u.outcomes||[]).map(function(o){return {text:o,options:{bullet:true}};}); if(oc.length) sl.addText([{text:'Outcomes\n',options:{bold:true}}].concat(oc),{x:8.1,y:1.5,w:4.6,h:2.4,fontSize:12,color:'1D6B48',valign:'top'});
+      var ph=buildPlan(u).map(function(p){return {text:p.p+': '+p.d+'\n',options:{bullet:true,breakLine:true}};});
+      sl.addText([{text:'Plan\n',options:{bold:true}}].concat(ph),{x:8.1,y:4.0,w:4.6,h:3,fontSize:9.5,color:'46526A',valign:'top'});
+    });
+    // roadmap
+    s=P.addSlide(); s.addText('Transformation roadmap',{x:0.5,y:0.3,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+    var phases=[['0 \u00B7 Discovery','2\u20134 wks','VSM, baseline KPIs, feasibility, canvas'],['1 \u00B7 Pilot','4\u20138 wks','Minimal agent, human-in-loop, measure'],['2 \u00B7 Scale','1\u20132 qtrs','Orchestration, guardrails, MLOps, change'],['3 \u00B7 Run & Control','Ongoing','SPC, owner, kaizen loop']];
+    phases.forEach(function(ph,i){ var x=0.5+i*3.1; s.addShape(P.ShapeType.roundRect,{x:x,y:1.4,w:2.9,h:3.4,fill:{color:i%2?'EEF2F7':'F4F7FA'},line:{color:'E3E8EF'}}); s.addText(ph[0],{x:x+0.1,y:1.55,w:2.7,h:0.5,fontSize:13,bold:true,color:BLUE}); s.addText(ph[1],{x:x+0.1,y:2.05,w:2.7,h:0.4,fontSize:11,italic:true,color:GRAY}); s.addText(ph[2],{x:x+0.1,y:2.5,w:2.7,h:2,fontSize:11,color:'2A3344',valign:'top'}); });
+    await P.writeFile({fileName:'lean-ai-improvement-deck.pptx'});
+  }catch(e){ downloadText(printableHTML('Improvement Deck','<h1>Lean &amp; AI Improvement Plan</h1><pre style="white-space:pre-wrap">'+fullPlanMD().replace(/[<>]/g,'')+'</pre>'),'improvement-deck.html','text/html'); }
+}
+
 document.getElementById('dashBtn').addEventListener('click',openDash);
+var _ab=document.getElementById('aiBtn'); if(_ab) _ab.addEventListener('click',function(){ if(!studio){ studioLoad().then(openStudio); } else openStudio(); });
+var _tb=document.getElementById('tmplBtn'); if(_tb) _tb.addEventListener('click',openTemplates);
 document.getElementById('refBtn').addEventListener('click',openRef);
 
 /* ---- language, menu, reset ---- */
 document.getElementById('langBtn').addEventListener('click',()=>{ lang=(lang==='en'?'es':'en'); save(); render(); });
 document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
 document.getElementById('resetBtn').addEventListener('click',()=>{ if(confirm(t('resetConfirm'))){ state={ completed:{}, solved:{}, code:{}, xp:0, area:AREA, last:{python:0,lean:0}, lang:lang, depth:state.depth||'beginner' }; IDX=0; save(); render(); } });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ dashOv.classList.remove('open'); refOv.classList.remove('open'); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ dashOv.classList.remove('open'); refOv.classList.remove('open'); tmplOv.classList.remove('open'); aiOv.classList.remove('open'); studioOv.classList.remove('open'); guideOv.classList.remove('open'); } });
 
 /* ---- boot ---- */
-(async function(){ await load(); render(); initPy(); })();
+
+/* ---- intro / tool guide ---- */
+(function(){ var gst=document.createElement('style'); gst.textContent=
+ ".guide h3{font-size:13px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--py-blue-2);margin:18px 0 8px}"+
+ ".guide .hero{background:linear-gradient(135deg,#11141b,#2c5a98);color:#fff;border-radius:14px;padding:20px 22px;margin-bottom:6px}"+
+ ".guide .hero h2{margin:0 0 6px;font-size:21px}.guide .hero p{margin:0;font-size:13.5px;color:#d7e0ef;line-height:1.5}"+
+ ".pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(max-width:680px){.pillars{grid-template-columns:1fr}.steps{grid-template-columns:1fr!important}}"+
+ ".pillar{border:1px solid var(--line);border-radius:12px;padding:13px;background:var(--paper-2)}.pillar b{font-size:14px}.pillar p{margin:5px 0 0;font-size:12.5px;color:#46526a;line-height:1.45}"+
+ ".steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}"+
+ ".step{display:flex;gap:11px;border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff}"+
+ ".stepnum{flex:0 0 28px;width:28px;height:28px;border-radius:99px;background:var(--py-blue);color:#fff;font-family:var(--mono);font-weight:700;display:flex;align-items:center;justify-content:center}"+
+ ".step b{font-size:13.5px}.step p{margin:3px 0 0;font-size:12.5px;color:#46526a;line-height:1.45}.step .tab{font-family:var(--mono);font-size:10.5px;color:var(--py-blue-2)}"+
+ ".loop{background:#f4f7fa;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:13px;color:#3a4658;line-height:1.5}"+
+ ".feats{display:flex;flex-wrap:wrap;gap:7px}.feat{font-family:var(--mono);font-size:11px;background:#eef2f7;color:#46526a;border-radius:99px;padding:5px 11px}"+
+ ".guide .cta{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}";
+ document.head.appendChild(gst); })();
+var GUIDE_HTML='<div class="guide-body">'
+ +'<div class="hero"><h2>PyQuest \u2014 learn it, then run it</h2><p>A hands-on Python course, a deep Lean curriculum, and a working <b>Lean \u00D7 AI Studio</b> to plan, prioritise and actually <b>run</b> optimisation programs \u2014 from value-stream map to AI agent pipeline to a live program cockpit and a board-ready deck.</p></div>'
+ +'<h3>What\u2019s inside</h3><div class="pillars">'
+ +'<div class="pillar"><b>\u{1F40D} Python</b><p>30 hands-on lessons that run in your browser (real Python via Pyodide), each with an under-the-hood deep dive.</p></div>'
+ +'<div class="pillar"><b>\u{1F4D0} LEAN</b><p>23 modules from the House of Lean to DMAIC \u2014 beginner + expert depth, with real VSM, Pareto, control-chart and Yamazumi diagrams.</p></div>'
+ +'<div class="pillar"><b>\u2726 Lean \u00D7 AI Studio</b><p>An operating system to run programs: VSM builder, AI portfolio, prioritisation, execution and a program cockpit.</p></div>'
+ +'</div>'
+ +'<h3>Run a program in 6 steps</h3><div class="steps">'
+ +'<div class="step"><div class="stepnum">1</div><div><b>Map</b> <span class="tab">VSM Builder</span><p>Model the current value stream and design a future state \u2014 eliminate steps and cut wait. See PCE, lead time, WIP and the bottleneck live.</p></div></div>'
+ +'<div class="step"><div class="stepnum">2</div><div><b>Build</b> <span class="tab">AI Portfolio</span><p>Generate or add AI / agent use cases that attack the waste \u2014 each mapped to a Lean waste and an orchestration pattern.</p></div></div>'
+ +'<div class="step"><div class="stepnum">3</div><div><b>Prioritise</b> <span class="tab">AI Portfolio</span><p>Score with RICE, see the value-vs-effort matrix, and quantify each business case (benefit, ROI, payback).</p></div></div>'
+ +'<div class="step"><div class="stepnum">4</div><div><b>Execute</b> <span class="tab">Run / execute</span><p>Open an initiative: set owner & status, track milestones, run PDCA actions, and monitor KPIs with sparklines vs target.</p></div></div>'
+ +'<div class="step"><div class="stepnum">5</div><div><b>Manage</b> <span class="tab">Cockpit</span><p>One Obeya view: portfolio value, roadmap Gantt, RAG status and KPI roll-ups across every initiative.</p></div></div>'
+ +'<div class="step"><div class="stepnum">6</div><div><b>Cadence & report</b> <span class="tab">Cadence \u00B7 Export</span><p>Take a weekly snapshot, read \u201Cwhat changed\u201D, watch the trends \u2014 then export a McKinsey-style PowerPoint deck.</p></div></div>'
+ +'</div>'
+ +'<h3>The weekly cadence loop</h3><div class="loop"><b>Snapshot \u2192 review deltas \u2192 act.</b> In the Cadence tab, take a weekly snapshot. The Cockpit then shows \u0394 vs last week on every tile, and Cadence auto-summarises what moved \u2014 stage changes, milestones closed, KPI movements and value gained.</div>'
+ +'<h3>Everywhere you go</h3><div class="feats"><span class="feat">\u2193 SVG / PNG diagrams</span><span class="feat">\u2193 CSV & Markdown</span><span class="feat">16 printable templates</span><span class="feat">PowerPoint export</span><span class="feat">EN / ES</span><span class="feat">Beginner / Expert depth</span><span class="feat">Auto-saved on device</span><span class="feat">Works offline once loaded</span></div>'
+ +'<div class="cta"><button class="st-btn" id="guideStart">\u2726 Open the Studio</button><button class="st-btn alt" id="guideClose2">Browse the lessons</button></div>'
+ +'</div>';
+var guideOv=makeOverlay('guideOverlay');
+function openGuide(intro){
+  guideOv.innerHTML='<div class="modal" style="width:min(880px,100%)"><div class="modal-head"><span class="prompt">&gt;&gt;&gt;</span> '+(intro?'Welcome to PyQuest':t('guide'))+'<button class="mclose" id="gX">'+t('dashClose')+'</button></div><div class="modal-body guide">'+GUIDE_HTML+'</div></div>';
+  guideOv.classList.add('open');
+  guideOv.querySelector('#gX').addEventListener('click',function(){ guideOv.classList.remove('open'); });
+  var c2=guideOv.querySelector('#guideClose2'); if(c2) c2.addEventListener('click',function(){ guideOv.classList.remove('open'); });
+  var gsb=guideOv.querySelector('#guideStart'); if(gsb) gsb.addEventListener('click',function(){ guideOv.classList.remove('open'); if(!studio){ studioLoad().then(openStudio); } else openStudio(); });
+}
+
+var _gb=document.getElementById('guideBtn'); if(_gb) _gb.addEventListener('click',function(){ openGuide(false); });
+(async function(){ await load(); await studioLoad(); render(); initPy(); Store.get('pyquest:seen').then(function(v){ if(!v){ openGuide(true); Store.set('pyquest:seen','1'); } }); })();
 })();
 </script>
 </body>
