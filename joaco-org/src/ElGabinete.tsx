@@ -133,9 +133,9 @@ export const DEFAULT_WORKS: Work[] = [
     href: "#/app/bridge",
   },
        {
-    id: "slidebuilder",
+    id: "SlideBuilder",
     title: "SlideBuilder",
-    description: "Bridge",
+    description: "Slide",
     kind: "herramienta",
     initial: "S",
     href: "#/app/slidebuilder",
