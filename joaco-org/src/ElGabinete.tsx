@@ -133,12 +133,12 @@ export const DEFAULT_WORKS: Work[] = [
     href: "#/app/bridge",
   },
        {
-    id: "SlideBuilder",
+    id: "slidebuilder",
     title: "SlideBuilder",
     description: "Bridge",
     kind: "herramienta",
     initial: "S",
-    href: "#/app/SlideBuilder",
+    href: "#/app/slidebuilder",
   },
   slot(5),
 ];
