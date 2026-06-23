@@ -3,7 +3,7 @@ import {
   Globe, User, Users, BookOpen, Brain, Layers, FileText, Lightbulb,
   Eye, EyeOff, Check, RotateCcw, ChevronRight, ChevronLeft, Play,
   Award, Sparkles, Home as HomeIcon, Library, ArrowLeft, HelpCircle,
-  X, GraduationCap, Target, Trophy, Shuffle, Plus, Settings
+  X, GraduationCap, Target, Trophy, Shuffle, Plus, Settings, Lock
 } from "lucide-react";
 
 /* ============================================================
@@ -3102,7 +3102,14 @@ const T = {
     thinking: "Pensando…", yourAuction: "Tu subasta", realAuctionLbl: "Subasta real (mesa)",
     compareTitle: "Tu subasta vs. la mesa real", matchTag: "igual", diffTag: "distinta",
     atTable: "En la mesa", meaningLbl: "Significa", passedOut: "Pasada (sin contrato)",
-    declarerTag: "declarante", partnerTag: "compañero", toDefeat: "para hundir", defeated: "¡Hundido!", contractMade: "Contrato cumplido", defendTitle: "Defiendes", levelExpert: "Experto", levelStd: "Estándar", difficulty: "Dificultad del juego", diffEasy: "Principiante", diffMed: "Intermedio", diffHard: "Experto", diffEasyD: "Los robots juegan flojo: ideal para aprender el carteo sin agobios.", suggestLbl: "Sugerencia", vulLbl: "Vul", vulYou: "tú", vulOpp: "rivales", vulBoth: "ambos", vulNone: "nadie", yourScore: "Tu puntuación", vulYesShort: "vulnerable", vulNoShort: "no vul.", planBtn: "Plan", planTitle: "Plan de carteo", sureWinners: "Ganadores seguros", estLosers: "Perdedoras est.", planNTgap: "Te faltan {n} baza(s): desarróllalas en tu palo más largo ({suit}) o con impasses antes de ceder la mano.", planNTok: "Tienes ganadores de sobra: cóbralos con cuidado de bloqueos y entradas.", planSuit: "Cuenta perdedoras, saca triunfos ({trump}) si controlas, y maneja las perdedoras con fallo, descarte o impasse antes de soltar el control.", optimalBtn: "Óptimo (doble-muerto)", calculating: "Calculando…", optimalLbl: "Óptimo", tricksWord: "bazas", exact: "exacto", estimated: "estimado", makes: "cumple", downN: "cae por {n}", optimalErr: "No se pudo calcular aquí (disponible en el navegador; o juega unas bazas y reintenta).", analyzeBtn: "Analizar la mano", analyzeTitle: "Análisis (doble-muerto)", youMade: "Hiciste {n} bazas.", analyzedFrom: "Análisis exacto desde el truco {t}.", analyzedNone: "El final no fue analizable con cálculo exacto aquí.", youPlayed: "jugaste", betterWas: "mejor", noErrors: "Sin errores en la parte analizada. ¡Bien jugado!", diffMedD: "Juego sólido y natural (motor por defecto).", diffHardD: "Información perfecta al seguir: ganan/cortan al menor coste. Muy exigente.", themesNav: "Temas", themesTitle: "Práctica temática", themesIntro: "Manos verificadas por doble-muerto para entrenar técnicas concretas.", themeDeclare: "Declaras", themeDefend: "Defiendes", themeDeal: "Mano", themePlay: "Jugar", themeDD: "Doble-muerto", themeRandom: "Mano aleatoria", themeRandomAny: "Mano aleatoria (cualquier tema)", leadTitle: "Análisis de la salida", yourLead: "Tu salida", defLead: "Salida del defensor", declMakes: "el declarante hace", leadOptimal: "Salida óptima ✓ (mejor defensa)", leadBest: "Mejor salida", reviewNav: "Repaso", reviewTitle: "Repaso de errores", reviewLead: "Salida", reviewYouDefend: "Defiendes desde el", reviewPickLead: "Elige tu salida.", reviewYourLead: "Tu salida", reviewBest: "Mejor", reviewOptimal: "¡Salida óptima! ✓", reviewAgain: "Otra vez", reviewGood: "Bien", reviewEasy: "Fácil", reviewNonePending: "No hay repasos pendientes", reviewDone: "¡Repaso completado!", reviewTotal: "manos en tu mazo de repaso", reviewNextDue: "Próximo repaso", reviewGradedN: "Repasaste {n} en esta sesión.", reviewEmptyHint: "tus errores de salida en las manos temáticas aparecerán aquí.", reviewPlay: "Carteo", reviewTrickN: "Truco {n}", reviewYouPlay: "juegas desde el", reviewWhatPlay: "¿Qué jugarías?", reviewTrick: "Baza", reviewYourHand: "Tu mano", reviewYouPlayed: "Jugaste", reviewCorrect: "¡Correcto! ✓", replayHand: "Repasar la mano", replayStart: "Inicio", replayEnd: "Final", replayNextError: "Saltar al próximo error", replayNoFindings: "Analiza la mano para ver dónde fallaste.", declarer3: "declarante", defender3: "defensa", settingsTitle: "Ajustes", themePick: "Elige el aspecto de la interfaz:", themeNote: "El tema se guarda y se aplica en toda la app. ✦ = muestra consejos de aprendizaje.",
+    declarerTag: "declarante", partnerTag: "compañero", toDefeat: "para hundir", defeated: "¡Hundido!", contractMade: "Contrato cumplido", defendTitle: "Defiendes", levelExpert: "Experto", levelStd: "Estándar", difficulty: "Dificultad del juego", diffEasy: "Principiante", diffMed: "Intermedio", diffHard: "Experto", diffEasyD: "Los robots juegan flojo: ideal para aprender el carteo sin agobios.", suggestLbl: "Sugerencia", vulLbl: "Vul", vulYou: "tú", vulOpp: "rivales", vulBoth: "ambos", vulNone: "nadie", yourScore: "Tu puntuación", vulYesShort: "vulnerable", vulNoShort: "no vul.", planBtn: "Plan", planTitle: "Plan de carteo", sureWinners: "Ganadores seguros", estLosers: "Perdedoras est.", planNTgap: "Te faltan {n} baza(s): desarróllalas en tu palo más largo ({suit}) o con impasses antes de ceder la mano.", planNTok: "Tienes ganadores de sobra: cóbralos con cuidado de bloqueos y entradas.", planSuit: "Cuenta perdedoras, saca triunfos ({trump}) si controlas, y maneja las perdedoras con fallo, descarte o impasse antes de soltar el control.", optimalBtn: "Óptimo (doble-muerto)", calculating: "Calculando…", optimalLbl: "Óptimo", tricksWord: "bazas", exact: "exacto", estimated: "estimado", makes: "cumple", downN: "cae por {n}", optimalErr: "No se pudo calcular aquí (disponible en el navegador; o juega unas bazas y reintenta).", analyzeBtn: "Analizar la mano", analyzeTitle: "Análisis (doble-muerto)", youMade: "Hiciste {n} bazas.", analyzedFrom: "Análisis exacto desde el truco {t}.", analyzedNone: "El final no fue analizable con cálculo exacto aquí.", youPlayed: "jugaste", betterWas: "mejor", noErrors: "Sin errores en la parte analizada. ¡Bien jugado!", diffMedD: "Juego sólido y natural (motor por defecto).", diffHardD: "Información perfecta al seguir: ganan/cortan al menor coste. Muy exigente.", themesNav: "Temas", themesTitle: "Práctica temática", themesIntro: "Manos verificadas por doble-muerto para entrenar técnicas concretas.", themeDeclare: "Declaras", themeDefend: "Defiendes", themeDeal: "Mano", themePlay: "Jugar", themeDD: "Doble-muerto", themeRandom: "Mano aleatoria", themeRandomAny: "Mano aleatoria (cualquier tema)", leadTitle: "Análisis de la salida", yourLead: "Tu salida", defLead: "Salida del defensor", declMakes: "el declarante hace", leadOptimal: "Salida óptima ✓ (mejor defensa)", leadBest: "Mejor salida", reviewNav: "Repaso", reviewTitle: "Repaso de errores", reviewLead: "Salida", reviewYouDefend: "Defiendes desde el", reviewPickLead: "Elige tu salida.", reviewYourLead: "Tu salida", reviewBest: "Mejor", reviewOptimal: "¡Salida óptima! ✓", reviewAgain: "Otra vez", reviewGood: "Bien", reviewEasy: "Fácil", reviewNonePending: "No hay repasos pendientes", reviewDone: "¡Repaso completado!", reviewTotal: "manos en tu mazo de repaso", reviewNextDue: "Próximo repaso", reviewGradedN: "Repasaste {n} en esta sesión.", reviewEmptyHint: "tus errores de salida en las manos temáticas aparecerán aquí.", reviewPlay: "Carteo", reviewTrickN: "Truco {n}", reviewYouPlay: "juegas desde el", reviewWhatPlay: "¿Qué jugarías?", reviewTrick: "Baza", reviewYourHand: "Tu mano", reviewYouPlayed: "Jugaste", reviewCorrect: "¡Correcto! ✓", levelTest: "Test de nivel", mastery: "Maestría", overallMastery: "maestría global", skills: "Destrezas", skillBidding: "Subasta", skillCardplay: "Carteo", skillDefense: "Defensa", skillsHint: "Cobertura de estudio según tu progreso y tus repasos.", nextStep: "Siguiente paso", helpTitle: "Ayuda y glosario", glossary: "Glosario", glossarySearch: "Buscar término…", glossaryTerms: "términos", glossaryNone: "Sin resultados", tourSkip: "Saltar", tourStart: "¡Empezar!", tourReplay: "Ver la guía rápida", tourReplaySub: "Un recorrido por la app en 6 pasos", tourSteps: [
+  { t: "Bienvenido a Bridge Maestro", d: "Aprende bridge (5 cartas en mayores) paso a paso, en español o inglés. Cambia el idioma con el botón de la esquina." },
+  { t: "Niveles y maestría", d: "Avanza por niveles. Cada uno mide tu maestría con lecciones, quiz, subasta, manos y un test final. El siguiente nivel se desbloquea al 40% del anterior." },
+  { t: "Práctica de juego", d: "Juega manos completas con análisis doble-muerto exacto, además de práctica específica de subasta y de carteo." },
+  { t: "Manos temáticas", d: "Entrena situaciones concretas: slams, grandes slams, defensa, batir slams o exprimir sobrebazas. Cada tema tiene 50 manos." },
+  { t: "Repaso de errores", d: "Tus fallos de salida y de carteo se guardan y vuelven con repetición espaciada. Y puedes repasar cualquier mano truco a truco." },
+  { t: "¿Por dónde empiezo?", d: "Mira la tarjeta \"Siguiente paso\" del panel: siempre te dice la acción más útil ahora mismo. ¡Suerte!" },
+], mastered: "Dominado", locked: "Bloqueado", unlockHint: "Alcanza {n}% en el nivel anterior para desbloquear", testPassed: "¡Aprobado!", testFailed: "No superado", testNeed: "necesitas 80% para aprobar", testReview: "Repasa tus fallos", testBest: "Mejor marca", testNoHints: "Sin pistas hasta el final.", testFinish: "Terminar test", replayHand: "Repasar la mano", replayStart: "Inicio", replayEnd: "Final", replayNextError: "Saltar al próximo error", replayNoFindings: "Analiza la mano para ver dónde fallaste.", declarer3: "declarante", defender3: "defensa", settingsTitle: "Ajustes", themePick: "Elige el aspecto de la interfaz:", themeNote: "El tema se guarda y se aplica en toda la app. ✦ = muestra consejos de aprendizaje.",
   },
   en: {
     app: "Bridge Maestro", tag: "Learn bridge · 5-Card Majors",
@@ -3145,7 +3152,14 @@ const T = {
     thinking: "Thinking…", yourAuction: "Your auction", realAuctionLbl: "Real auction (table)",
     compareTitle: "Your auction vs. the real table", matchTag: "same", diffTag: "different",
     atTable: "At the table", meaningLbl: "Means", passedOut: "Passed out (no contract)",
-    declarerTag: "declarer", partnerTag: "partner", toDefeat: "to defeat", defeated: "Defeated!", contractMade: "Contract made", defendTitle: "You defend", levelExpert: "Expert", levelStd: "Standard", difficulty: "Play difficulty", diffEasy: "Beginner", diffMed: "Intermediate", diffHard: "Expert", diffEasyD: "Robots play loosely: great for learning the play with no pressure.", suggestLbl: "Suggestion", vulLbl: "Vul", vulYou: "you", vulOpp: "opp.", vulBoth: "both", vulNone: "none", yourScore: "Your score", vulYesShort: "vulnerable", vulNoShort: "non-vul.", planBtn: "Plan", planTitle: "Play plan", sureWinners: "Sure winners", estLosers: "Est. losers", planNTgap: "You are {n} trick(s) short: develop them in your longest suit ({suit}) or with finesses before giving up the lead.", planNTok: "You have plenty of winners: cash them watching for blockages and entries.", planSuit: "Count losers, draw trumps ({trump}) if you control them, and handle losers by ruffing, discarding or finessing before releasing control.", optimalBtn: "Optimal (double-dummy)", calculating: "Calculating…", optimalLbl: "Optimal", tricksWord: "tricks", exact: "exact", estimated: "estimate", makes: "makes", downN: "down {n}", optimalErr: "Could not compute here (works in the browser; or play a few tricks and retry).", analyzeBtn: "Analyze the hand", analyzeTitle: "Analysis (double-dummy)", youMade: "You made {n} tricks.", analyzedFrom: "Exact analysis from trick {t}.", analyzedNone: "The ending was not exactly analyzable here.", youPlayed: "you played", betterWas: "better", noErrors: "No errors in the analyzed part. Well played!", diffMedD: "Solid, natural play (default engine).", diffHardD: "Perfect-information following: wins/ruffs at least cost. Very demanding.", themesNav: "Themes", themesTitle: "Thematic practice", themesIntro: "Double-dummy verified deals to drill specific techniques.", themeDeclare: "You declare", themeDefend: "You defend", themeDeal: "Deal", themePlay: "Play", themeDD: "Double-dummy", themeRandom: "Random deal", themeRandomAny: "Random deal (any theme)", leadTitle: "Opening-lead analysis", yourLead: "Your lead", defLead: "Defender's lead", declMakes: "declarer makes", leadOptimal: "Optimal lead ✓ (best defense)", leadBest: "Best lead", reviewNav: "Review", reviewTitle: "Mistakes review", reviewLead: "Lead", reviewYouDefend: "You defend as", reviewPickLead: "Choose your lead.", reviewYourLead: "Your lead", reviewBest: "Best", reviewOptimal: "Optimal lead! ✓", reviewAgain: "Again", reviewGood: "Good", reviewEasy: "Easy", reviewNonePending: "No reviews due", reviewDone: "Review complete!", reviewTotal: "deals in your review deck", reviewNextDue: "Next review", reviewGradedN: "You reviewed {n} this session.", reviewEmptyHint: "your opening-lead mistakes in themed deals will show up here.", reviewPlay: "Card play", reviewTrickN: "Trick {n}", reviewYouPlay: "you play from", reviewWhatPlay: "What would you play?", reviewTrick: "Trick", reviewYourHand: "Your hand", reviewYouPlayed: "You played", reviewCorrect: "Correct! ✓", replayHand: "Replay the hand", replayStart: "Start", replayEnd: "End", replayNextError: "Jump to next mistake", replayNoFindings: "Analyze the hand to see where you slipped.", declarer3: "declarer", defender3: "defense", settingsTitle: "Settings", themePick: "Choose the interface look:", themeNote: "The theme is saved and applied across the app. ✦ = shows learning tips.",
+    declarerTag: "declarer", partnerTag: "partner", toDefeat: "to defeat", defeated: "Defeated!", contractMade: "Contract made", defendTitle: "You defend", levelExpert: "Expert", levelStd: "Standard", difficulty: "Play difficulty", diffEasy: "Beginner", diffMed: "Intermediate", diffHard: "Expert", diffEasyD: "Robots play loosely: great for learning the play with no pressure.", suggestLbl: "Suggestion", vulLbl: "Vul", vulYou: "you", vulOpp: "opp.", vulBoth: "both", vulNone: "none", yourScore: "Your score", vulYesShort: "vulnerable", vulNoShort: "non-vul.", planBtn: "Plan", planTitle: "Play plan", sureWinners: "Sure winners", estLosers: "Est. losers", planNTgap: "You are {n} trick(s) short: develop them in your longest suit ({suit}) or with finesses before giving up the lead.", planNTok: "You have plenty of winners: cash them watching for blockages and entries.", planSuit: "Count losers, draw trumps ({trump}) if you control them, and handle losers by ruffing, discarding or finessing before releasing control.", optimalBtn: "Optimal (double-dummy)", calculating: "Calculating…", optimalLbl: "Optimal", tricksWord: "tricks", exact: "exact", estimated: "estimate", makes: "makes", downN: "down {n}", optimalErr: "Could not compute here (works in the browser; or play a few tricks and retry).", analyzeBtn: "Analyze the hand", analyzeTitle: "Analysis (double-dummy)", youMade: "You made {n} tricks.", analyzedFrom: "Exact analysis from trick {t}.", analyzedNone: "The ending was not exactly analyzable here.", youPlayed: "you played", betterWas: "better", noErrors: "No errors in the analyzed part. Well played!", diffMedD: "Solid, natural play (default engine).", diffHardD: "Perfect-information following: wins/ruffs at least cost. Very demanding.", themesNav: "Themes", themesTitle: "Thematic practice", themesIntro: "Double-dummy verified deals to drill specific techniques.", themeDeclare: "You declare", themeDefend: "You defend", themeDeal: "Deal", themePlay: "Play", themeDD: "Double-dummy", themeRandom: "Random deal", themeRandomAny: "Random deal (any theme)", leadTitle: "Opening-lead analysis", yourLead: "Your lead", defLead: "Defender's lead", declMakes: "declarer makes", leadOptimal: "Optimal lead ✓ (best defense)", leadBest: "Best lead", reviewNav: "Review", reviewTitle: "Mistakes review", reviewLead: "Lead", reviewYouDefend: "You defend as", reviewPickLead: "Choose your lead.", reviewYourLead: "Your lead", reviewBest: "Best", reviewOptimal: "Optimal lead! ✓", reviewAgain: "Again", reviewGood: "Good", reviewEasy: "Easy", reviewNonePending: "No reviews due", reviewDone: "Review complete!", reviewTotal: "deals in your review deck", reviewNextDue: "Next review", reviewGradedN: "You reviewed {n} this session.", reviewEmptyHint: "your opening-lead mistakes in themed deals will show up here.", reviewPlay: "Card play", reviewTrickN: "Trick {n}", reviewYouPlay: "you play from", reviewWhatPlay: "What would you play?", reviewTrick: "Trick", reviewYourHand: "Your hand", reviewYouPlayed: "You played", reviewCorrect: "Correct! ✓", levelTest: "Level test", mastery: "Mastery", overallMastery: "overall mastery", skills: "Skills", skillBidding: "Bidding", skillCardplay: "Card play", skillDefense: "Defense", skillsHint: "Study coverage based on your progress and reviews.", nextStep: "Next step", helpTitle: "Help & glossary", glossary: "Glossary", glossarySearch: "Search a term…", glossaryTerms: "terms", glossaryNone: "No results", tourSkip: "Skip", tourStart: "Start!", tourReplay: "See the quick guide", tourReplaySub: "A 6-step tour of the app", tourSteps: [
+  { t: "Welcome to Bridge Maestro", d: "Learn bridge (5-card majors) step by step, in English or Spanish. Switch language with the corner button." },
+  { t: "Levels & mastery", d: "Progress through levels. Each measures your mastery via lessons, quiz, bidding, deals and a final test. The next level unlocks at 40% of the previous." },
+  { t: "Play practice", d: "Play full hands with exact double-dummy analysis, plus focused bidding and card-play drills." },
+  { t: "Themed deals", d: "Train specific situations: slams, grand slams, defense, beating slams or squeezing overtricks. Each theme has 50 deals." },
+  { t: "Mistakes review", d: "Your opening-lead and card-play mistakes are saved and resurface via spaced repetition. You can also replay any hand trick by trick." },
+  { t: "Where do I start?", d: "Check the \"Next step\" card on the dashboard: it always tells you the most useful action right now. Good luck!" },
+], mastered: "Mastered", locked: "Locked", unlockHint: "Reach {n}% in the previous level to unlock", testPassed: "Passed!", testFailed: "Not passed", testNeed: "you need 80% to pass", testReview: "Review your misses", testBest: "Best score", testNoHints: "No hints until the end.", testFinish: "Finish test", replayHand: "Replay the hand", replayStart: "Start", replayEnd: "End", replayNextError: "Jump to next mistake", replayNoFindings: "Analyze the hand to see where you slipped.", declarer3: "declarer", defender3: "defense", settingsTitle: "Settings", themePick: "Choose the interface look:", themeNote: "The theme is saved and applied across the app. ✦ = shows learning tips.",
   },
 };
 
@@ -3353,6 +3367,66 @@ function QuizView({ level, lang, status, onMark }) {
           })}
         </div>
         {sel !== null && <button onClick={nextQ} style={{ background: C.brass, color: C.ink }} className="mt-4 px-4 py-2 rounded text-sm font-bold flex items-center gap-1">{T[lang].next}<ChevronRight size={16} /></button>}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Level test (graded assessment, no hints until the end) ----------
+function LevelTest({ level, lang, best, onDone }) {
+  const L = T[lang];
+  const pool = level.quiz || [];
+  const N = Math.min(8, pool.length);
+  const [order] = useState(() => { const idx = pool.map((_, i) => i); for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = idx[i]; idx[i] = idx[j]; idx[j] = t; } return idx.slice(0, N); });
+  const [i, setI] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [pick, setPick] = useState(null);
+  const [done, setDone] = useState(false);
+  const optText = (o) => typeof o === "string" ? o : o[lang];
+  if (pool.length === 0) return <p style={{ color: C.soft }} className="text-sm">—</p>;
+  if (done) {
+    const correct = order.reduce((a, qi, n) => a + (answers[n] === pool[qi].a ? 1 : 0), 0);
+    const frac = correct / order.length, pct = Math.round(frac * 100), passed = frac >= 0.8;
+    const wrong = order.map((qi, n) => ({ qi, n })).filter(({ qi, n }) => answers[n] !== pool[qi].a);
+    return (
+      <div className="flex flex-col gap-3">
+        <div style={{ background: passed ? "rgba(63,143,94,0.18)" : "rgba(74,31,36,0.4)", border: `1px solid ${passed ? C.win : C.red}`, borderRadius: 14 }} className="p-5 text-center">
+          {passed ? <Award size={40} style={{ color: C.win }} className="mx-auto mb-2" /> : <RotateCcw size={36} style={{ color: C.red }} className="mx-auto mb-2" />}
+          <h3 style={{ color: C.ivory }} className="text-lg font-serif">{passed ? L.testPassed : L.testFailed}</h3>
+          <p style={{ color: passed ? C.win : C.brass }} className="text-3xl font-bold my-1">{correct}/{order.length}</p>
+          <p style={{ color: C.soft }} className="text-sm">{pct}% · {L.testNeed}</p>
+        </div>
+        {wrong.length > 0 && (
+          <div style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 12 }} className="p-3 flex flex-col gap-2">
+            <span style={{ color: C.brass }} className="text-xs font-bold uppercase">{L.testReview}</span>
+            {wrong.map(({ qi, n }) => (
+              <div key={n} className="text-sm">
+                <p style={{ color: C.ivory }}>{pool[qi].q[lang]}</p>
+                <p style={{ color: C.red }} className="text-xs">✗ {optText(pool[qi].opts[answers[n]])}</p>
+                <p style={{ color: C.win }} className="text-xs">✓ {optText(pool[qi].opts[pool[qi].a])}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        <button onClick={() => { setI(0); setAnswers([]); setPick(null); setDone(false); }} style={{ background: C.brass, color: C.ink }} className="px-4 py-2 rounded text-sm font-bold flex items-center gap-1 mx-auto"><RotateCcw size={15} />{L.retry}</button>
+      </div>
+    );
+  }
+  const finish = (na) => { const correct = order.reduce((a, qi, n) => a + (na[n] === pool[qi].a ? 1 : 0), 0); onDone(correct / order.length); setDone(true); };
+  const next = () => { const na = answers.slice(); na[i] = pick; setAnswers(na); setPick(null); if (i + 1 >= order.length) finish(na); else setI(i + 1); };
+  const q = pool[order[i]];
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3"><SectionTitle icon={Award}>{L.levelTest}</SectionTitle><Pill bg={C.line2}>{i + 1} / {order.length}</Pill></div>
+      <div style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 12 }} className="p-5">
+        <p style={{ color: C.soft }} className="text-xs mb-2">{best ? `${L.testBest}: ${Math.round(best * 100)}%` : L.testNoHints}</p>
+        <p style={{ color: C.ivory }} className="text-[15px] mb-4 font-medium">{q.q[lang]}</p>
+        <div className="flex flex-col gap-2">
+          {q.opts.map((o, idx) => (
+            <button key={idx} onClick={() => setPick(idx)} style={{ background: pick === idx ? C.brass : C.feltLite, border: `1px solid ${pick === idx ? C.brass : C.line}`, color: pick === idx ? C.ink : C.ivory }} className="text-left px-3 py-2 rounded text-sm">{optText(o)}</button>
+          ))}
+        </div>
+        <button onClick={next} disabled={pick === null} style={{ background: pick === null ? C.feltLite : C.brass, color: pick === null ? C.soft : C.ink, opacity: pick === null ? .6 : 1 }} className="mt-4 px-4 py-2 rounded text-sm font-bold flex items-center gap-1">{i + 1 >= order.length ? L.testFinish : L.next}<ChevronRight size={16} /></button>
       </div>
     </div>
   );
@@ -4395,6 +4469,94 @@ function levelDealTarget(level, e) { return Math.max(6, Math.round(level.dealsTa
 function levelMaxId(e) { return e === "beg" ? 2 : e === "inter" ? 4 : 7; }
 function levelTotalItems(level, e) { return level.lessons.length + 3 + levelDealTarget(level, e); }
 
+// ---------- Mastery / skills / recommendation layer ----------
+const MASTERY_PASS = 70; // % to consider a level "mastered"
+const UNLOCK_AT = 40;    // previous-level mastery % needed to unlock the next
+
+function levelMastery(level, prog, e) {
+  const p = prog[level.id] || {};
+  const comps = [];
+  const lessonsN = (level.lessons || []).length;
+  if (lessonsN) comps.push({ k: "lessons", w: 0.22, frac: Math.min(1, Object.keys(p.lessons || {}).length / lessonsN) });
+  const quizN = (level.quiz || []).length;
+  if (quizN) comps.push({ k: "quiz", w: 0.18, frac: Math.min(1, (p.quizBest || 0) / quizN) });
+  if ((level.flash || []).length) comps.push({ k: "flash", w: 0.06, frac: p.flash ? 1 : 0 });
+  comps.push({ k: "bid", w: 0.12, frac: p.bid ? 1 : 0 });
+  const target = levelDealTarget(level, e);
+  if (target > 0) comps.push({ k: "deals", w: 0.20, frac: Math.min(1, Object.keys(p.deals || {}).length / target) });
+  comps.push({ k: "test", w: 0.22, frac: Math.min(1, p.testScore || 0) });
+  const wsum = comps.reduce((a, c) => a + c.w, 0) || 1;
+  const pct = Math.round(100 * comps.reduce((a, c) => a + c.w * c.frac, 0) / wsum);
+  return { pct, comps };
+}
+
+function levelMastered(level, prog, e) {
+  const p = prog[level.id] || {};
+  return levelMastery(level, prog, e).pct >= MASTERY_PASS && (p.testScore || 0) >= 0.8;
+}
+
+function levelHasProgress(level, prog) {
+  const p = prog[level.id] || {};
+  return Object.keys(p.lessons || {}).length > 0 || !!p.quiz || !!p.flash || !!p.bid || Object.keys(p.deals || {}).length > 0 || !!p.testScore;
+}
+
+function levelUnlocked(levelId, user, e) {
+  if (levelId > levelMaxId(e)) return false;
+  if (levelId === 1) return true;
+  const prev = LEVELS.find(l => l.id === levelId - 1);
+  const lv = LEVELS.find(l => l.id === levelId);
+  if (lv && levelHasProgress(lv, user.progress)) return true; // never lock out work already begun
+  return prev ? levelMastery(prev, user.progress, e).pct >= UNLOCK_AT : true;
+}
+
+function skillMastery(user, e) {
+  const counted = LEVELS.filter(lv => lv.id <= levelMaxId(e));
+  const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  const quizF = [], bidF = [], dealF = [], testF = [];
+  counted.forEach(lv => {
+    const p = user.progress[lv.id] || {};
+    if ((lv.quiz || []).length) quizF.push(Math.min(1, (p.quizBest || 0) / lv.quiz.length));
+    bidF.push(p.bid ? 1 : 0);
+    const t = levelDealTarget(lv, e);
+    if (t > 0) dealF.push(Math.min(1, Object.keys(p.deals || {}).length / t));
+    testF.push(Math.min(1, p.testScore || 0));
+  });
+  const reviews = user.reviews || [];
+  const leadM = reviews.filter(r => r.type === "lead").map(r => Math.min(1, (r.reps || 0) / 3));
+  const playM = reviews.filter(r => r.type === "play").map(r => Math.min(1, (r.reps || 0) / 3));
+  return {
+    bidding: Math.round(100 * (0.6 * avg(quizF) + 0.4 * avg(bidF))),
+    cardplay: Math.round(100 * (0.5 * avg(dealF) + 0.3 * avg(testF) + 0.2 * avg(playM))),
+    defense: Math.round(100 * (leadM.length ? (0.7 * avg(leadM) + 0.3 * Math.min(1, leadM.length / 8)) : 0)),
+  };
+}
+
+// Pick the single most useful next action for the learner
+function recommendNext(user, e) {
+  const reviews = user.reviews || [];
+  const due = dueCount(reviews);
+  if (due >= 3) return { kind: "review", label: { es: `Repasa ${due} errores pendientes`, en: `Review ${due} pending mistakes` } };
+  const counted = LEVELS.filter(lv => lv.id <= levelMaxId(e) && levelUnlocked(lv.id, user, e));
+  for (const lv of counted) {
+    if (levelMastered(lv, user.progress, e)) continue;
+    const p = user.progress[lv.id] || {};
+    const lessonsN = (lv.lessons || []).length;
+    if (lessonsN && Object.keys(p.lessons || {}).length < lessonsN)
+      return { kind: "level", levelId: lv.id, label: { es: `Completa las lecciones del ${lv.name.es}`, en: `Finish the lessons of ${lv.name.en}` } };
+    if ((lv.quiz || []).length && (p.quizBest || 0) < lv.quiz.length)
+      return { kind: "level", levelId: lv.id, label: { es: `Mejora el quiz del ${lv.name.es}`, en: `Ace the quiz of ${lv.name.en}` } };
+    if (!p.bid) return { kind: "level", levelId: lv.id, label: { es: `Práctica de subasta · ${lv.name.es}`, en: `Bidding drill · ${lv.name.en}` } };
+    const target = levelDealTarget(lv, e), dn = Object.keys(p.deals || {}).length;
+    if (target > 0 && dn < target)
+      return { kind: "level", levelId: lv.id, label: { es: `Juega ${target - dn} manos del ${lv.name.es}`, en: `Play ${target - dn} deals in ${lv.name.en}` } };
+    if (!p.testScore || p.testScore < 0.8)
+      return { kind: "test", levelId: lv.id, label: { es: `Haz el test del ${lv.name.es}`, en: `Take the ${lv.name.en} test` } };
+    return { kind: "level", levelId: lv.id, label: { es: `Repasa el ${lv.name.es}`, en: `Polish ${lv.name.en}` } };
+  }
+  if (due > 0) return { kind: "review", label: { es: `Repasa ${due} error${due > 1 ? "es" : ""}`, en: `Review ${due} mistake${due > 1 ? "s" : ""}` } };
+  return { kind: "done", label: { es: "¡Has dominado todo lo disponible!", en: "You've mastered everything available!" } };
+}
+
 function levelStats(level, prog, e) {
   const p = prog[level.id] || {};
   const lessons = p.lessons || {}, deals = p.deals || {};
@@ -4416,55 +4578,93 @@ function levelStats(level, prog, e) {
 }
 
 // ---------- Dashboard ----------
-function Dashboard({ lang, user, onOpenLevel, onQuickPlay }) {
+function Dashboard({ lang, user, onOpenLevel, onQuickPlay, onGoReview }) {
   const L = T[lang];
   const e = user.exp;
   const maxId = levelMaxId(e);
   const counted = LEVELS.filter(lv => lv.id <= maxId);
-  const agg = counted.reduce((a, lv) => { const s = levelStats(lv, user.progress, e); a.done += s.done; a.reviewed += s.reviewed; a.total += s.total; return a; }, { done: 0, reviewed: 0, total: 0 });
-  const pct = agg.total ? Math.round((agg.done / agg.total) * 100) : 0;
+  const masteryPct = Math.round(counted.reduce((a, lv) => a + levelMastery(lv, user.progress, e).pct, 0) / (counted.length || 1));
+  const skills = skillMastery(user, e);
+  const rec = recommendNext(user, e);
+  const skillRows = [
+    { k: "bidding", label: L.skillBidding, v: skills.bidding },
+    { k: "cardplay", label: L.skillCardplay, v: skills.cardplay },
+    { k: "defense", label: L.skillDefense, v: skills.defense },
+  ];
   return (
     <div className="flex flex-col gap-4">
       <div style={{ background: `linear-gradient(135deg, ${C.feltLite}, ${C.feltDark})`, border: `1px solid ${C.brassDim}`, borderRadius: 16 }} className="p-5">
         <div className="flex items-center justify-between mb-2">
-          <h2 style={{ color: C.ivory }} className="text-xl font-serif">{L.overall}</h2>
+          <h2 style={{ color: C.ivory }} className="text-xl font-serif">{L.mastery}</h2>
           <Pill bg={C.brass} color={C.ink}>{L[e]}</Pill>
         </div>
         <div className="flex items-end gap-3 mb-2">
-          <span style={{ color: C.brass }} className="text-4xl font-bold">{pct}%</span>
-          <span style={{ color: C.soft }} className="text-sm mb-1">{agg.done}/{agg.total} {L.ofItems}</span>
+          <span style={{ color: C.brass }} className="text-4xl font-bold">{masteryPct}%</span>
+          <span style={{ color: C.soft }} className="text-sm mb-1">{L.overallMastery}</span>
         </div>
-        <ProgressBar done={agg.done} reviewed={agg.reviewed} total={agg.total} />
-        <div className="flex items-center gap-4 mt-3 text-xs">
-          <span className="flex items-center gap-1"><span style={{ width: 10, height: 10, background: C.brass, borderRadius: 2 }} /><span style={{ color: C.soft }}>{L.completed}</span></span>
-          <span className="flex items-center gap-1"><span style={{ width: 10, height: 4, background: C.win, borderRadius: 2 }} /><span style={{ color: C.soft }}>{L.reviewed}</span></span>
+        <div style={{ background: C.feltDark, borderRadius: 999, height: 10, overflow: "hidden" }}>
+          <div style={{ width: `${masteryPct}%`, height: "100%", background: `linear-gradient(90deg, ${C.brassDim}, ${C.brass})` }} />
         </div>
       </div>
 
-      <button onClick={onQuickPlay} style={{ background: C.brass, color: C.ink, borderRadius: 12 }} className="p-3 flex items-center justify-center gap-2 font-bold"><Shuffle size={18} />{L.newDeal} · {L.playTrainer}</button>
+      <div style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 14 }} className="p-4">
+        <SectionTitle icon={Target}>{L.skills}</SectionTitle>
+        <div className="flex flex-col gap-2.5 mt-2">
+          {skillRows.map(sr => (
+            <div key={sr.k}>
+              <div className="flex items-center justify-between mb-1"><span style={{ color: C.ivory }} className="text-sm">{sr.label}</span><span style={{ color: C.brass }} className="text-xs font-bold">{sr.v}%</span></div>
+              <div style={{ background: C.feltLite, borderRadius: 999, height: 7, overflow: "hidden" }}>
+                <div style={{ width: `${sr.v}%`, height: "100%", background: sr.v >= 70 ? C.win : C.brass }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <p style={{ color: C.soft }} className="text-[11px] mt-2">{L.skillsHint}</p>
+      </div>
+
+      <button onClick={() => { if (rec.kind === "review") onGoReview && onGoReview(); else if (rec.kind === "test") onOpenLevel(rec.levelId, "test"); else if (rec.levelId) onOpenLevel(rec.levelId); }}
+        disabled={rec.kind === "done"}
+        style={{ background: `linear-gradient(135deg, ${C.brass}, ${C.brassDim})`, color: C.ink, borderRadius: 14, opacity: rec.kind === "done" ? .8 : 1 }} className="p-4 text-left flex items-center gap-3">
+        <Sparkles size={22} />
+        <div className="flex-1">
+          <div className="text-[11px] font-bold uppercase tracking-wide opacity-70">{L.nextStep}</div>
+          <div className="text-sm font-bold">{rec.label[lang]}</div>
+        </div>
+        {rec.kind !== "done" && <ChevronRight size={20} />}
+      </button>
+
+      <button onClick={onQuickPlay} style={{ background: C.feltDark, color: C.ivory, border: `1px solid ${C.brass}`, borderRadius: 12 }} className="p-3 flex items-center justify-center gap-2 font-bold"><Shuffle size={18} />{L.newDeal} · {L.playTrainer}</button>
 
       <div className="flex flex-col gap-3">
         {LEVELS.map(lv => {
-          const s = levelStats(lv, user.progress, e);
-          const locked = lv.id > maxId;
-          const p = s.total ? Math.round((s.done / s.total) * 100) : 0;
+          const expLocked = lv.id > maxId;
+          const unlocked = levelUnlocked(lv.id, user, e);
+          const m = levelMastery(lv, user.progress, e);
+          const mastered = levelMastered(lv, user.progress, e);
+          const p = m.pct;
+          const blocked = expLocked || !unlocked;
           return (
-            <button key={lv.id} onClick={() => onOpenLevel(lv.id)} style={{ background: C.feltDark, border: `1px solid ${locked ? C.line2 : C.line}`, borderRadius: 14, opacity: locked ? .7 : 1 }} className="p-4 text-left">
+            <button key={lv.id} onClick={() => { if (!blocked) onOpenLevel(lv.id); }} disabled={blocked}
+              style={{ background: C.feltDark, border: `1px solid ${mastered ? C.win : blocked ? C.line2 : C.line}`, borderRadius: 14, opacity: blocked ? .6 : 1 }} className="p-4 text-left">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
-                  <span style={{ background: C.feltLite, color: C.brass, width: 26, height: 26, borderRadius: 8 }} className="flex items-center justify-center text-sm font-bold">{lv.id}</span>
+                  <span style={{ background: mastered ? C.win : C.feltLite, color: mastered ? C.ivory : C.brass, width: 26, height: 26, borderRadius: 8 }} className="flex items-center justify-center text-sm font-bold">{blocked ? <Lock size={13} /> : lv.id}</span>
                   <span style={{ color: C.ivory }} className="font-serif">{lv.name[lang]}</span>
                 </div>
                 <span className="flex items-center gap-2">
-                  {locked && <Pill bg={C.line2}>+{L[e === "beg" ? "inter" : "adv"]}</Pill>}
-                  <span style={{ color: C.brass }} className="text-sm font-bold">{p}%</span>
+                  {expLocked ? <Pill bg={C.line2}>+{L[e === "beg" ? "inter" : "adv"]}</Pill>
+                    : !unlocked ? <Pill bg={C.line2}>{L.locked}</Pill>
+                      : mastered ? <Pill bg={C.win} color={C.ivory}>{L.mastered}</Pill> : null}
+                  <span style={{ color: mastered ? C.win : C.brass }} className="text-sm font-bold">{p}%</span>
                 </span>
               </div>
               <p style={{ color: C.soft }} className="text-xs mb-2">{lv.sub[lang]}</p>
-              <ProgressBar done={s.done} reviewed={s.reviewed} total={s.total} />
+              <div style={{ background: C.feltLite, borderRadius: 999, height: 7, overflow: "hidden" }}>
+                <div style={{ width: `${p}%`, height: "100%", background: mastered ? C.win : C.brass }} />
+              </div>
               <div className="flex items-center justify-between mt-1.5">
-                <span style={{ color: C.soft }} className="text-xs">{s.done}/{s.total} · {L.reviewed}: {s.reviewed}</span>
-                <ChevronRight size={16} style={{ color: C.brass }} />
+                <span style={{ color: C.soft }} className="text-xs">{!unlocked && !expLocked ? L.unlockHint.replace("{n}", UNLOCK_AT) : `${L.mastery}: ${p}%`}</span>
+                {!blocked && <ChevronRight size={16} style={{ color: C.brass }} />}
               </div>
             </button>
           );
@@ -4662,9 +4862,9 @@ function SignalsPractice({ lang }) {
   );
 }
 
-function LevelDetail({ levelId, lang, user, onBack, marks, onOpenDeal }) {
+function LevelDetail({ levelId, lang, user, onBack, marks, onOpenDeal, initialTab }) {
   const level = LEVELS.find(l => l.id === levelId);
-  const [tab, setTab] = useState("lessons");
+  const [tab, setTab] = useState(initialTab || "lessons");
   const L = T[lang];
   const prog = user.progress[levelId] || {};
   const e = user.exp;
@@ -4677,6 +4877,7 @@ function LevelDetail({ levelId, lang, user, onBack, marks, onOpenDeal }) {
     { k: "cheat", label: L.cheatsheet, icon: FileText },
     { k: "bid", label: L.practiceBid, icon: Sparkles },
     { k: "play", label: L.practicePlay, icon: Play },
+    { k: "test", label: L.levelTest, icon: Award },
     ...(levelId === 5 ? [{ k: "signals", label: lang === "es" ? "Señales" : "Signals", icon: Eye }] : []),
   ];
   return (
@@ -4706,6 +4907,7 @@ function LevelDetail({ levelId, lang, user, onBack, marks, onOpenDeal }) {
         {tab === "flash" && <Flashcards level={level} lang={lang} onSeen={() => marks.flash(levelId)} />}
         {tab === "cheat" && <CheatSheet level={level} lang={lang} />}
         {tab === "signals" && <SignalsPractice lang={lang} />}
+        {tab === "test" && <LevelTest level={level} lang={lang} best={prog.testScore || 0} onDone={(frac) => marks.test(levelId, frac)} />}
         {tab === "bid" && <BiddingPractice levelId={levelId} lang={lang} onComplete={() => marks.bid(levelId)} />}
         {tab === "play" && (
           <div className="flex flex-col gap-3">
@@ -4925,6 +5127,7 @@ function Header({ lang, user, view, onNav, onSwitch, onToggleLang }) {
             <span style={{ color: C.ivory }} className="font-serif text-lg">{L.app}</span>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => onNav("help")} style={{ color: view === "help" ? C.ink : C.brass, background: view === "help" ? C.brass : "transparent", border: `1px solid ${C.brassDim}`, borderRadius: 8 }} className="px-2 py-1 text-xs font-semibold flex items-center" title={L.helpTitle}><HelpCircle size={13} /></button>
             <button onClick={() => onNav("settings")} style={{ color: view === "settings" ? C.ink : C.brass, background: view === "settings" ? C.brass : "transparent", border: `1px solid ${C.brassDim}`, borderRadius: 8 }} className="px-2 py-1 text-xs font-semibold flex items-center" title={L.settingsTitle}><Settings size={13} /></button>
             <button onClick={onToggleLang} style={{ color: C.brass, border: `1px solid ${C.brassDim}`, borderRadius: 8 }} className="px-2 py-1 text-xs font-semibold flex items-center gap-1"><Globe size={12} />{lang.toUpperCase()}</button>
             <button onClick={onSwitch} style={{ background: user.color, width: 28, height: 28, borderRadius: 999 }} className="flex items-center justify-center text-xs font-bold" title={L.switchUser}>{user.name.slice(0, 1).toUpperCase()}</button>
@@ -4978,6 +5181,129 @@ function TipBanner({ lang }) {
     </div>
   );
 }
+// ---------- Glossary, onboarding tour, help ----------
+const GLOSSARY = [
+  { t: { es: "PH (Puntos de honor)", en: "HCP (High-card points)" }, d: { es: "Valoración de la mano: A=4, K=3, Q=2, J=1.", en: "Hand valuation: A=4, K=3, Q=2, J=1." } },
+  { t: { es: "Puntos de distribución", en: "Distribution points" }, d: { es: "Puntos extra por cortos: vacío=3, singleton=2, doubleton=1 (con ajuste).", en: "Extra points for shortness: void=3, singleton=2, doubleton=1 (with a fit)." } },
+  { t: { es: "Apertura", en: "Opening bid" }, d: { es: "La primera puja no-paso de la subasta.", en: "The first non-pass call of the auction." } },
+  { t: { es: "Respuesta", en: "Response" }, d: { es: "Puja del compañero del abridor.", en: "A bid by the opener's partner." } },
+  { t: { es: "Rebid", en: "Rebid" }, d: { es: "Segunda puja del abridor, que describe fuerza y forma.", en: "Opener's second bid, refining strength and shape." } },
+  { t: { es: "Intervención (overcall)", en: "Overcall" }, d: { es: "Pujar un palo tras la apertura rival.", en: "Bidding a suit after an opponent's opening." } },
+  { t: { es: "Contra de apoyo (takeout)", en: "Takeout double" }, d: { es: "Contra que pide al compañero elegir palo, no penaliza.", en: "A double asking partner to pick a suit, not for penalties." } },
+  { t: { es: "Contra de castigo", en: "Penalty double" }, d: { es: "Contra para aumentar la penalización de un contrato rival.", en: "A double to increase the penalty on the opponents' contract." } },
+  { t: { es: "Barrage (preempt)", en: "Preempt" }, d: { es: "Apertura alta con palo largo y mano débil para estorbar.", en: "A high, weak, long-suit opening to obstruct opponents." } },
+  { t: { es: "Sin Triunfo (ST/NT)", en: "No-Trump (NT)" }, d: { es: "Contrato sin palo de triunfo; gana la carta más alta del palo de salida.", en: "A contract with no trump suit; highest card of the led suit wins." } },
+  { t: { es: "Mayores / Menores", en: "Majors / Minors" }, d: { es: "Mayores ♠♥ (valen más); menores ♦♣.", en: "Majors ♠♥ (score more); minors ♦♣." } },
+  { t: { es: "Manga", en: "Game" }, d: { es: "3ST, 4♥/♠ o 5♦/♣: contratos que dan bonificación de manga.", en: "3NT, 4♥/♠ or 5♦/♣: contracts that earn the game bonus." } },
+  { t: { es: "Slam", en: "Slam" }, d: { es: "Pequeño slam = 12 bazas (6X); gran slam = 13 (7X).", en: "Small slam = 12 tricks (6X); grand slam = 13 (7X)." } },
+  { t: { es: "Parcial", en: "Part-score" }, d: { es: "Contrato por debajo de manga.", en: "A contract below game level." } },
+  { t: { es: "Vulnerabilidad", en: "Vulnerability" }, d: { es: "Estado que aumenta primas y penalizaciones.", en: "A state that raises bonuses and penalties." } },
+  { t: { es: "Baza", en: "Trick" }, d: { es: "Cuatro cartas, una por jugador; la gana la más alta (o triunfo).", en: "Four cards, one per player; won by the highest (or a trump)." } },
+  { t: { es: "Triunfo", en: "Trump" }, d: { es: "Palo del contrato; supera a los demás palos.", en: "The contract's suit; beats other suits." } },
+  { t: { es: "Impasse (finesse)", en: "Finesse" }, d: { es: "Jugada para ganar una baza con una carta que no es la más alta, apostando a la posición de un honor rival.", en: "A play to win a trick with a non-top card, betting on the location of a missing honor." } },
+  { t: { es: "Fallar (ruff)", en: "Ruff" }, d: { es: "Jugar un triunfo sobre un palo del que vas corto.", en: "Playing a trump on a suit you're void in." } },
+  { t: { es: "Descarte", en: "Discard / sluff" }, d: { es: "Tirar una carta de otro palo cuando no puedes asistir.", en: "Throwing a card of another suit when you can't follow." } },
+  { t: { es: "Muerto", en: "Dummy" }, d: { es: "La mano del compañero del declarante, expuesta sobre la mesa.", en: "Declarer's partner's hand, laid face-up on the table." } },
+  { t: { es: "Declarante", en: "Declarer" }, d: { es: "Quien juega el contrato (su bando ganó la subasta).", en: "The player who plays the contract for the winning side." } },
+  { t: { es: "Defensor", en: "Defender" }, d: { es: "Cada rival del declarante.", en: "Either opponent of the declarer." } },
+  { t: { es: "Salida", en: "Opening lead" }, d: { es: "Primera carta de la baza 1, la juega el defensor a la izquierda del declarante.", en: "The first card of trick 1, played by declarer's left-hand opponent." } },
+  { t: { es: "Señal de actitud", en: "Attitude signal" }, d: { es: "Carta alta = me gusta el palo; baja = no.", en: "High card = I like the suit; low = I don't." } },
+  { t: { es: "Señal de cuenta", en: "Count signal" }, d: { es: "Alta-baja = par; baja-alta = impar.", en: "High-low = even; low-high = odd." } },
+  { t: { es: "Preferencia de palo", en: "Suit preference" }, d: { es: "Una carta alta/baja indica en qué otro palo quieres la vuelta.", en: "A high/low card shows which other suit you want returned." } },
+  { t: { es: "Stayman", en: "Stayman" }, d: { es: "2♣ sobre 1ST preguntando por un mayor de 4 cartas.", en: "2♣ over 1NT asking for a 4-card major." } },
+  { t: { es: "Transferencia Jacoby", en: "Jacoby transfer" }, d: { es: "2♦/2♥ sobre 1ST obligando al abridor a declarar el mayor de arriba.", en: "2♦/2♥ over 1NT forcing opener to bid the next major." } },
+  { t: { es: "Blackwood", en: "Blackwood" }, d: { es: "4ST preguntando por ases (RKCB 1430 cuenta también el rey de triunfo).", en: "4NT asking for aces (RKCB 1430 also counts the trump king)." } },
+  { t: { es: "Cue-bid (control)", en: "Cue bid (control)" }, d: { es: "Puja que muestra un control (as/rey o corto) camino al slam.", en: "A bid showing a control (ace/king or shortness) en route to slam." } },
+  { t: { es: "Vacío / Singleton / Doubleton", en: "Void / Singleton / Doubleton" }, d: { es: "0, 1 o 2 cartas en un palo.", en: "0, 1 or 2 cards in a suit." } },
+  { t: { es: "Holdup (aguantar)", en: "Holdup" }, d: { es: "Demorar el gane de un palo para cortar la comunicación rival.", en: "Delaying winning a suit to cut the opponents' communication." } },
+  { t: { es: "Endplay (jugada de fin)", en: "Endplay" }, d: { es: "Forzar a un rival a ganar y luego jugar a tu favor.", en: "Forcing an opponent to win and then lead to your advantage." } },
+  { t: { es: "Squeeze (presión)", en: "Squeeze" }, d: { es: "Forzar a un rival a descartar una carta valiosa.", en: "Forcing an opponent to discard a vital card." } },
+  { t: { es: "Entrada", en: "Entry" }, d: { es: "Carta que permite pasar a una mano concreta.", en: "A card that lets you reach a particular hand." } },
+  { t: { es: "Tempo", en: "Tempo" }, d: { es: "El control del ritmo: quién está obligado a jugar primero.", en: "Control of timing: who is forced to lead first." } },
+  { t: { es: "Duck (ceder)", en: "Duck" }, d: { es: "Jugar bajo a propósito cediendo la baza.", en: "Deliberately playing low to concede a trick." } },
+  { t: { es: "Desbloquear", en: "Unblock" }, d: { es: "Tirar un honor para no obstruir tu propio palo largo.", en: "Playing an honor to avoid blocking your own long suit." } },
+  { t: { es: "Establecer un palo", en: "Establishing a suit" }, d: { es: "Sacar las cartas rivales hasta que el resto de tu palo gana.", en: "Removing opponents' cards until your remaining suit wins." } },
+  { t: { es: "Stopper (parada)", en: "Stopper" }, d: { es: "Carta que detiene un palo rival en ST.", en: "A card that stops an opponents' suit in NT." } },
+  { t: { es: "Fit (ajuste)", en: "Fit" }, d: { es: "8+ cartas combinadas en un palo entre los dos compañeros.", en: "8+ combined cards in a suit between partners." } },
+  { t: { es: "Sacrificio", en: "Sacrifice" }, d: { es: "Pujar un contrato que caerá, pero menos costoso que dejar el rival.", en: "Bidding a contract you'll go down in, but cheaper than letting them play." } },
+  { t: { es: "Bajada / Sobrebaza", en: "Undertrick / Overtrick" }, d: { es: "Baza de menos / de más respecto al contrato.", en: "A trick short / extra versus the contract." } },
+  { t: { es: "Par", en: "Par" }, d: { es: "Resultado óptimo si ambos bandos juegan perfecto.", en: "The optimal result if both sides play perfectly." } },
+  { t: { es: "Doble muerto", en: "Double-dummy" }, d: { es: "Análisis con las cuatro manos a la vista: el juego perfecto teórico.", en: "Analysis with all four hands visible: theoretically perfect play." } },
+  { t: { es: "Regla del 11", en: "Rule of 11" }, d: { es: "Con salida de cuarta mejor: 11 menos el valor = cartas superiores fuera de esa mano.", en: "With a fourth-best lead: 11 minus the card = higher cards held elsewhere." } },
+  { t: { es: "Cuarta mejor", en: "Fourth-best" }, d: { es: "Salir con la 4ª carta más alta de tu palo largo.", en: "Leading the 4th-highest card of your long suit." } },
+  { t: { es: "Bayoneta (LTC)", en: "Losing Trick Count" }, d: { es: "Valoración con ajuste contando perdedoras en vez de puntos.", en: "A fit-based valuation counting losers instead of points." } },
+  { t: { es: "Negative double", en: "Negative double" }, d: { es: "Contra del respondedor que muestra los palos no pujados.", en: "Responder's double showing the unbid suits." } },
+  { t: { es: "Splinter", en: "Splinter" }, d: { es: "Salto a un corto que muestra ajuste y fuerza para slam.", en: "A jump in a short suit showing a fit and slam interest." } },
+  { t: { es: "Jacoby 2ST", en: "Jacoby 2NT" }, d: { es: "Respuesta de 2ST con ajuste de mayor y fuerza de manga+.", en: "A 2NT response showing a major fit and game-plus values." } },
+  { t: { es: "2-sobre-1 (2/1)", en: "Two-over-one" }, d: { es: "Sistema donde la respuesta de 2 en nivel fuerza a manga.", en: "A system where a 2-level response is game-forcing." } },
+  { t: { es: "Michaels / 2ST inusual", en: "Michaels / Unusual NT" }, d: { es: "Cue-bid o 2ST que muestran dos palos a la vez.", en: "A cue-bid or 2NT showing two suits at once." } },
+];
+
+function Glossary({ lang }) {
+  const L = T[lang];
+  const [q, setQ] = useState("");
+  const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const list = GLOSSARY.filter(g => { if (!q) return true; const k = norm(q); return norm(g.t[lang]).includes(k) || norm(g.d[lang]).includes(k) || norm(g.t[lang === "es" ? "en" : "es"]).includes(k); })
+    .sort((a, b) => a.t[lang].localeCompare(b.t[lang]));
+  return (
+    <div className="flex flex-col gap-3">
+      <SectionTitle icon={BookOpen}>{L.glossary}</SectionTitle>
+      <input value={q} onChange={e => setQ(e.target.value)} placeholder={L.glossarySearch}
+        style={{ background: C.feltDark, border: `1px solid ${C.line}`, color: C.ivory, borderRadius: 10 }} className="px-3 py-2 text-sm outline-none" />
+      <p style={{ color: C.soft }} className="text-xs">{list.length} {L.glossaryTerms}</p>
+      <div className="flex flex-col gap-2">
+        {list.map((g, i) => (
+          <div key={i} style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 10 }} className="p-3">
+            <div style={{ color: C.brass }} className="text-sm font-bold">{g.t[lang]}</div>
+            <div style={{ color: C.ivory }} className="text-sm mt-0.5">{g.d[lang]}</div>
+          </div>
+        ))}
+        {list.length === 0 && <p style={{ color: C.soft }} className="text-sm text-center py-4">{L.glossaryNone}</p>}
+      </div>
+    </div>
+  );
+}
+
+function TourOverlay({ lang, onClose }) {
+  const L = T[lang];
+  const steps = L.tourSteps;
+  const [i, setI] = useState(0);
+  const step = steps[i];
+  const last = i === steps.length - 1;
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 50 }} className="flex items-center justify-center p-4">
+      <div style={{ background: C.feltDark, border: `1px solid ${C.brass}`, borderRadius: 16, maxWidth: 360 }} className="w-full p-5 flex flex-col gap-3">
+        <div className="flex items-center gap-2"><Sparkles size={20} style={{ color: C.brass }} /><span style={{ color: C.ivory }} className="font-serif text-lg">{step.t}</span></div>
+        <p style={{ color: C.soft }} className="text-sm leading-relaxed">{step.d}</p>
+        <div className="flex items-center justify-center gap-1.5 my-1">
+          {steps.map((_, n) => <span key={n} style={{ width: n === i ? 18 : 7, height: 7, borderRadius: 999, background: n === i ? C.brass : C.line }} />)}
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <button onClick={onClose} style={{ color: C.soft }} className="text-sm px-2 py-2">{L.tourSkip}</button>
+          <div className="flex gap-2">
+            {i > 0 && <button onClick={() => setI(i - 1)} style={{ background: C.feltLite, color: C.ivory, border: `1px solid ${C.line}` }} className="px-3 py-2 rounded text-sm">{L.back}</button>}
+            <button onClick={() => last ? onClose() : setI(i + 1)} style={{ background: C.brass, color: C.ink }} className="px-4 py-2 rounded text-sm font-bold flex items-center gap-1">{last ? L.tourStart : L.next}{!last && <ChevronRight size={16} />}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HelpView({ lang, onTour }) {
+  const L = T[lang];
+  return (
+    <div className="flex flex-col gap-4">
+      <button onClick={onTour} style={{ background: `linear-gradient(135deg, ${C.brass}, ${C.brassDim})`, color: C.ink, borderRadius: 14 }} className="p-4 flex items-center gap-3 text-left">
+        <Lightbulb size={22} />
+        <div className="flex-1"><div className="text-sm font-bold">{L.tourReplay}</div><div className="text-[11px] opacity-70">{L.tourReplaySub}</div></div>
+        <ChevronRight size={20} />
+      </button>
+      <Glossary lang={lang} />
+    </div>
+  );
+}
+
 function SettingsView({ lang, theme, onTheme }) {
   const L = T[lang];
   return (
@@ -5159,6 +5485,7 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
   const [view, setView] = useState({ name: "dashboard", params: {} });
   const [pbnImported, setPbnImported] = useState([]);
+  const [tourOpen, setTourOpen] = useState(false);
   // apply theme palette synchronously so all child renders read the right colors
   C = (THEMES[theme] || THEMES.classic).C;
   UI = (THEMES[theme] || THEMES.classic).ui;
@@ -5187,6 +5514,7 @@ export default function App() {
   useEffect(() => { if (loaded) store.set("bm_pbn", pbnImported); }, [pbnImported, loaded]);
 
   const user = users.find(u => u.id === currentId) || null;
+  useEffect(() => { if (loaded && user && !user.seenTour) setTourOpen(true); }, [loaded, currentId, user && user.seenTour]);
 
   function createUser(name, exp) {
     const id = "u" + Date.now();
@@ -5230,6 +5558,10 @@ export default function App() {
         reviews.push({ id, type: "lead", d, contract, lt, userLead, leadTricks, best, created: Date.now(), ease: 2.5, interval: 0, reps: 0, lapses: 0, due: Date.now() });
         return { ...u, reviews };
       });
+    },
+    seenTour() { updateUser(u => ({ ...u, seenTour: true })); },
+    test(levelId, score) {
+      updateUser(u => { const p = { ...u.progress }; const lv = { ...(p[levelId] || {}) }; lv.testScore = Math.max(lv.testScore || 0, score); p[levelId] = lv; return { ...u, progress: p }; });
     },
     capturePlay(item) {
       updateUser(u => {
@@ -5278,9 +5610,10 @@ export default function App() {
       <div className={`${UI.maxW} mx-auto px-3 py-4 pb-24`}>
         {UI.tips && view.name !== "play" && <TipBanner lang={lang} />}
         {view.name === "settings" && <SettingsView lang={lang} theme={theme} onTheme={setTheme} />}
-        {view.name === "dashboard" && <Dashboard lang={lang} user={user} onOpenLevel={(id) => setView({ name: "level", params: { levelId: id } })} onQuickPlay={quickPlay} />}
-        {view.name === "levels" && <Dashboard lang={lang} user={user} onOpenLevel={(id) => setView({ name: "level", params: { levelId: id } })} onQuickPlay={quickPlay} />}
-        {view.name === "level" && <LevelDetail levelId={view.params.levelId} lang={lang} user={user} marks={marks} onBack={() => setView({ name: "dashboard", params: {} })} onOpenDeal={openDeal} />}
+        {view.name === "help" && <HelpView lang={lang} onTour={() => setTourOpen(true)} />}
+        {view.name === "dashboard" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onGoReview={() => setView({ name: "review", params: {} })} />}
+        {view.name === "levels" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onGoReview={() => setView({ name: "review", params: {} })} />}
+        {view.name === "level" && <LevelDetail levelId={view.params.levelId} lang={lang} user={user} marks={marks} initialTab={view.params.tab} onBack={() => setView({ name: "dashboard", params: {} })} onOpenDeal={openDeal} />}
         {view.name === "library" && <LibraryView lang={lang} user={user} onOpenDeal={openDeal} pbnImported={pbnImported} onImport={(entries) => setPbnImported(prev => [...entries, ...prev])} onClearImported={() => setPbnImported([])} />}
         {view.name === "bid" && <BidTrainer lang={lang} user={user} marks={marks} />}
         {view.name === "themes" && <ThemePractice lang={lang} onPlay={(deal, title) => setView({ name: "play", params: { deal, title, fromTheme: true } })} />}
@@ -5297,6 +5630,7 @@ export default function App() {
           </div>
         )}
       </div>
+      {tourOpen && <TourOverlay lang={lang} onClose={() => { setTourOpen(false); if (user && !user.seenTour) marks.seenTour(); }} />}
     </div>
   );
 }

@@ -172,11 +172,88 @@ function download(name, text, mime) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// Load PptxGenJS on demand (CDN) — keeps this a dependency-free single file.
+// If bundling on joaco.org you can instead `npm i pptxgenjs` and import it.
+let _pptxPromise = null;
+function ensurePptx() {
+  if (window.PptxGenJS) return Promise.resolve(window.PptxGenJS);
+  if (_pptxPromise) return _pptxPromise;
+  _pptxPromise = new Promise((res, rej) => {
+    const sc = document.createElement("script");
+    sc.src = "https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js";
+    sc.onload = () => res(window.PptxGenJS);
+    sc.onerror = () => rej(new Error("Could not load PptxGenJS (offline?)."));
+    document.head.appendChild(sc);
+  });
+  return _pptxPromise;
+}
+
+// Build a NATIVE .pptx from the deck JSON — mirrors the 6 slide types with the AZ master.
+function buildPptx(deck, PptxGenJS) {
+  const A = { mul: "830051", gold: "F0AB00", graph: "3F4444", ink: "1C2222", mid: "6B6B6B",
+              faint: "9AA3A0", line: "D9D6D2", soft: "F6F4F2", navy: "003865", white: "FFFFFF" };
+  const RAGc = { G: ["E8F2E9", "2E7D32"], A: ["FBF0DC", "C77800"], R: ["F8E9E8", "B3261E"] };
+  const SCc = { "on track": ["E8F2E9", "2E7D32"], "at risk": ["FBF0DC", "C77800"], "realised": ["E7EEF4", "003865"], "written off": ["F8E9E8", "B3261E"] };
+  const HEAD = "Arial", BODYF = "Calibri";
+  const p = new PptxGenJS();
+  p.defineLayout({ name: "W", width: 13.333, height: 7.5 }); p.layout = "W";
+  (deck.slides || []).forEach(s => {
+    const sl = p.addSlide(); const dark = s.type === "close";
+    sl.background = { color: dark ? A.graph : A.white };
+    sl.addShape("rect", { x: 0, y: 0, w: 13.333, h: 0.12, fill: { color: A.mul } });
+    sl.addShape("rect", { x: 0, y: 7.38, w: 13.333, h: 0.12, fill: { color: A.mul } });
+    if (!dark) {
+      sl.addText("AstraZeneca", { x: 0.55, y: 0.26, w: 6, h: 0.3, fontFace: BODYF, fontSize: 13, bold: true, color: A.mul });
+      if (s.kicker) sl.addText(String(s.kicker).toUpperCase(), { x: 7, y: 0.29, w: 5.78, h: 0.26, align: "right", fontFace: HEAD, fontSize: 8.5, bold: true, color: A.faint, charSpacing: 2 });
+    }
+    if (s.type === "title") {
+      sl.addText([{ text: (s.title || "") + " ", options: { color: A.graph } }, { text: s.title2 || "", options: { color: A.mul } }], { x: 0.55, y: 0.95, w: 12.2, h: 1.1, fontFace: HEAD, fontSize: 40, bold: true });
+      sl.addShape("rect", { x: 0.57, y: 2.1, w: 0.9, h: 0.07, fill: { color: A.gold } });
+      sl.addText(s.subtitle || "", { x: 0.57, y: 2.35, w: 11.5, h: 0.8, fontFace: BODYF, fontSize: 18, color: A.mid });
+    } else if (s.type === "close") {
+      sl.addText("DCOS · THE OPERATING SYSTEM", { x: 0.9, y: 1.6, w: 10, h: 0.3, fontFace: "Courier New", fontSize: 12, bold: true, color: A.gold, charSpacing: 3 });
+      sl.addText(s.title || "", { x: 0.85, y: 2.2, w: 11.6, h: 1.6, fontFace: HEAD, fontSize: 40, bold: true, color: A.white });
+      sl.addText(s.subtitle || "", { x: 0.9, y: 4.4, w: 11, h: 1, fontFace: BODYF, fontSize: 17, color: "D7DCDA" });
+    } else if (s.type === "stats") {
+      sl.addText(s.title || "", { x: 0.55, y: 0.95, w: 12.2, h: 0.6, fontFace: HEAD, fontSize: 28, bold: true, color: A.graph });
+      const cards = s.cards || [], n = Math.max(cards.length, 1), gap = 0.25, cw = (12.23 - gap * (n - 1)) / n;
+      cards.forEach((c, i) => { const x = 0.55 + i * (cw + gap);
+        sl.addShape("roundRect", { x, y: 2.1, w: cw, h: 1.9, fill: { color: A.soft }, rectRadius: 0.1, line: { type: "none" } });
+        sl.addText(String(c.big == null ? "" : c.big), { x: x + 0.15, y: 2.3, w: cw - 0.3, h: 0.9, fontFace: HEAD, fontSize: 44, bold: true, color: A.navy });
+        sl.addText(c.label || "", { x: x + 0.18, y: 3.35, w: cw - 0.36, h: 0.5, fontFace: BODYF, fontSize: 12, bold: true, color: A.graph }); });
+    } else if (s.type === "bullets") {
+      sl.addText(s.title || "", { x: 0.55, y: 0.95, w: 12.2, h: 0.6, fontFace: HEAD, fontSize: 28, bold: true, color: A.graph });
+      const items = (s.items || []).map(t => ({ text: String(t), options: { bullet: { code: "2022", indent: 18 }, color: A.ink, fontSize: 17, paraSpaceAfter: 12 } }));
+      sl.addText(items.length ? items : [{ text: "" }], { x: 0.7, y: 1.9, w: 11.8, h: 4.6, fontFace: BODYF, valign: "top" });
+    } else if (s.type === "twocol") {
+      sl.addText(s.title || "", { x: 0.55, y: 0.95, w: 12.2, h: 0.6, fontFace: HEAD, fontSize: 28, bold: true, color: A.graph });
+      const col = (x, title, items) => { sl.addShape("roundRect", { x, y: 1.85, w: 5.9, h: 4.6, fill: { color: A.soft }, rectRadius: 0.1, line: { type: "none" } });
+        sl.addText(title || "", { x: x + 0.3, y: 2.05, w: 5.3, h: 0.4, fontFace: HEAD, fontSize: 16, bold: true, color: A.mul });
+        const its = (items || []).map(t => ({ text: String(t), options: { bullet: { code: "2022", indent: 14 }, color: A.ink, fontSize: 14, paraSpaceAfter: 9 } }));
+        sl.addText(its.length ? its : [{ text: "—" }], { x: x + 0.3, y: 2.5, w: 5.3, h: 3.8, valign: "top", fontFace: BODYF }); };
+      col(0.55, s.left_title, s.left); col(6.78, s.right_title, s.right);
+    } else if (s.type === "table") {
+      sl.addText(s.title || "", { x: 0.55, y: 0.95, w: 12.2, h: 0.6, fontFace: HEAD, fontSize: 28, bold: true, color: A.graph });
+      const cols = s.columns || [], rows = s.rows || [], ragCols = new Set(s.rag_cols || []), statusCol = s.status_col != null ? s.status_col : -1;
+      const head = cols.map(c => ({ text: String(c).toUpperCase(), options: { bold: true, color: A.faint, fontFace: "Courier New", fontSize: 9, fill: { color: A.white }, valign: "middle" } }));
+      const body = rows.map((r, ri) => r.map((cell, ci) => { const cv = String(cell); let fill = ri % 2 ? "FBFAF9" : A.white, color = A.ink, bold = false;
+        if (ragCols.has(ci) && RAGc[cv]) { fill = RAGc[cv][0]; color = RAGc[cv][1]; bold = true; }
+        else if (ci === statusCol && SCc[cv]) { fill = SCc[cv][0]; color = SCc[cv][1]; bold = true; }
+        return { text: cv, options: { color, bold, fill: { color: fill }, fontFace: BODYF, fontSize: 11, valign: "middle" } }; }));
+      sl.addTable([head, ...body], { x: 0.55, y: 1.75, w: 12.23, colW: cols.map(() => 12.23 / cols.length), border: { type: "solid", color: A.line, pt: 0.5 }, rowH: 0.32, autoPage: false });
+    } else {
+      sl.addText(s.title || "", { x: 0.55, y: 0.95, w: 12.2, h: 0.6, fontFace: HEAD, fontSize: 28, bold: true, color: A.graph });
+    }
+  });
+  return p;
+}
+
 /* ============================ APP ============================ */
 export default function DCOSSlideBuilder() {
   const [deck, setDeck] = useState(SAMPLE);
   const [raw, setRaw] = useState(JSON.stringify(SAMPLE, null, 2));
   const [err, setErr] = useState("");
+  const [pptxBusy, setPptxBusy] = useState(false);
   const [idx, setIdx] = useState(0);
   const [panel, setPanel] = useState(true);      // left input panel open
   const [editing, setEditing] = useState(false); // JSON editor vs presenter
@@ -250,6 +327,13 @@ export default function DCOSSlideBuilder() {
         <div style={{ marginLeft: "auto", display: "flex", gap: 8, flexWrap: "wrap" }}>
           {btn(panel ? "Hide input" : "Show input", () => setPanel((p) => !p), "ghost")}
           {btn(editing ? "Present" : "Edit JSON", () => setEditing((e) => !e), "ghost")}
+          {btn(pptxBusy ? "Building…" : "Download PPTX", async () => {
+            if (pptxBusy) return;
+            setPptxBusy(true);
+            try { const P = await ensurePptx(); await buildPptx(deck, P).writeFile({ fileName: `${(deck.deck || "deck").replace(/\s+/g, "_")}.pptx` }); }
+            catch (e) { setErr(String(e.message || e)); }
+            setPptxBusy(false);
+          }, "primary")}
           {btn("Download HTML", () => download(`${(deck.deck || "deck").replace(/\s+/g, "_")}.html`, buildHtml(deck), "text/html"), "ghost")}
           {btn("Download JSON", () => download(`${(deck.deck || "deck").replace(/\s+/g, "_")}.json`, JSON.stringify(deck, null, 2), "application/json"), "ghost")}
         </div>
