@@ -1934,6 +1934,418 @@ Lead time = WIP / throughput        (Little's Law)</pre>
 ];
 
 if (typeof module !== "undefined") module.exports = { LEAN };
+/* ============ AGILE / PM-PdM CURRICULUM ============ */
+const AGILE = [
+
+/* ===== FOUNDATIONS ===== */
+{
+  id:'ag1', area:'agile', track:'Foundations', title:'The Agile mindset & Manifesto', min:25,
+  concept:`<p>Agile is not a methodology; it is a <strong>mindset</strong> for delivering value under uncertainty. The 2001 Manifesto states four value preferences: <em>individuals and interactions</em> over processes and tools, <em>working software</em> over comprehensive documentation, <em>customer collaboration</em> over contract negotiation, and <em>responding to change</em> over following a plan. The right-hand items still have value — the left are valued <em>more</em>.</p>
+  <p>Underneath sits <strong>empiricism</strong>: you make progress visible (transparency), check reality often (inspection), and adjust (adaptation). You deliver in small slices, learn from real feedback, and steer. For a PM/PdM, the deepest shift is from measuring <strong>output</strong> (features shipped, plan followed) to measuring <strong>outcome</strong> (value and behaviour change for users and the business).</p>`,
+  deep:`<p><b>Iterative vs incremental.</b> These are different and Agile uses both. <em>Incremental</em> = build in slices (login, then search, then checkout). <em>Iterative</em> = revisit and refine the whole (a rough prototype improved each pass). Good delivery slices thin <em>and</em> refines based on feedback — a vertical slice that touches the whole stack and is genuinely usable beats horizontal layers no user can try.</p>
+  <p><b>The 12 principles, grouped.</b> Satisfy the customer through early, continuous delivery; welcome change; deliver frequently; business and developers work together daily; build around motivated people and trust them; favour face-to-face conversation; working software is the primary measure of progress; sustainable pace; technical excellence; simplicity (maximise work <em>not</em> done); self-organising teams; regular reflection and tuning.</p>
+  <p><b>Common misconceptions a PM should kill.</b> "Agile = no plan / no docs / no dates" is wrong — Agile plans <em>more</em> often at finer grain, documents what is useful, and can absolutely commit to outcomes. "Agile = Scrum" is wrong — Scrum is one popular framework among many. And "going faster" is not the goal; <em>learning and delivering value sooner, with the option to change</em>, is.</p>`,
+  exercises:[
+    { type:'mcq', prompt:'Manifesto & mindset.',
+      questions:[
+        { text:'"Working software over comprehensive documentation" means…', options:['Never document anything','Documentation has value, but a working increment is valued more','Documentation is illegal','Only write code'], correct:1 },
+        { text:'The three pillars of empiricism are…', options:['Plan, build, ship','Transparency, inspection, adaptation','Scope, time, cost','Roles, events, artifacts'], correct:1 },
+        { text:'The biggest shift Agile asks of a product leader is…', options:['More documents','From output (features shipped) to outcome (value delivered)','Longer release cycles','Removing the customer'], correct:1 } ],
+      solution:`<p>Empiricism (transparency \u2192 inspection \u2192 adaptation) lets teams steer with real feedback, and the headline product shift is outcome over output.</p>` },
+    { type:'classify', prompt:'Iterative or incremental thinking?',
+      categories:['Iterative (refine the whole)','Incremental (add a slice)'],
+      items:[
+        { text:'Sketch a rough portrait, then refine detail each pass', answer:0 },
+        { text:'Release login, then search, then checkout', answer:1 },
+        { text:'Ship a clickable prototype and improve usability each round', answer:0 },
+        { text:'Build the kitchen, then the bedroom, then the bathroom', answer:1 } ],
+      solution:`<p>Iterative revisits the whole to refine it; incremental adds new pieces. Strong Agile combines both \u2014 thin vertical slices, refined by feedback.</p>` }
+  ]
+},
+{
+  id:'ag2', area:'agile', track:'Foundations', title:'Waterfall & predictive delivery', min:25,
+  visual:{type:'waterfall', caption:'Sequential waterfall phases with stage gates', phases:[{title:'Requirements',startWk:0,durWk:3,rag:'green',stage:''},{title:'Design',startWk:3,durWk:3,rag:'green',stage:''},{title:'Build',startWk:6,durWk:6,rag:'amber',stage:''},{title:'Test',startWk:12,durWk:3,rag:'amber',stage:''},{title:'Deploy',startWk:15,durWk:2,rag:'green',stage:''}]},
+  concept:`<p>Agile did not appear in a vacuum \u2014 it answered the limits of <strong>waterfall / predictive</strong> delivery, which is still the right choice for some work. Waterfall runs in <em>sequential phases</em> \u2014 requirements \u2192 design \u2192 build \u2192 test \u2192 deploy \u2014 with a sign-off <strong>stage gate</strong> between each. It assumes you can know the scope up front, so you plan the whole thing, then execute the plan.</p>
+  <p>It fits when requirements are <strong>stable and well understood</strong>, the cost of change is high, and predictability matters more than adaptability: regulated submissions, construction, hardware, fixed-scope/fixed-price contracts, and integrations with immovable external deadlines.</p>`,
+  deep:`<p><b>The predictive toolkit (PMBOK-style).</b> A work breakdown structure decomposes scope; a network/critical-path schedule sequences it; a baseline (scope, schedule, cost) is set; and a <em>change-control</em> process governs deviations. Earned-value metrics (SPI, CPI) track plan vs actual. Done well it gives strong upfront visibility and contractual clarity.</p>
+  <p><b>Why it struggles with novel software.</b> Big upfront scope assumes you can specify what you have never built for users whose needs emerge through use. Feedback arrives only at the end (the "big-bang" integration and UAT), so defects and wrong-product risk compound late, when change is most expensive. Long phases also create large batches \u2014 the opposite of fast flow.</p>
+  <p><b>Water-scrum-fall</b> is the common real-world hybrid-gone-wrong: a team runs sprints and standups in the middle, but is still wrapped by upfront fixed-scope sign-off and an end-of-project big-bang release with heavy governance. You pay the ceremony cost of Agile without getting its core benefit \u2014 fast feedback and the option to change \u2014 because the batch is still huge and the team can't actually adapt scope.</p>`,
+  exercises:[
+    { type:'mcq', prompt:'Predictive delivery.',
+      questions:[
+        { text:'Waterfall is usually a good fit when…', options:['Requirements are stable and well understood','You expect to learn and change a lot','The market is highly uncertain','You want to ship weekly'], correct:0 },
+        { text:'A defining feature of predictive delivery is…', options:['No plan','Sequential phases separated by stage gates','Daily re-planning','No documentation'], correct:1 },
+        { text:'"Water-scrum-fall" describes…', options:['A pure agile team','Agile ceremonies wrapped inside upfront sign-off and a big-bang release','A SAFe role','A Kanban metric'], correct:1 } ],
+      solution:`<p>Predictive delivery sequences phases behind gates and shines when scope is stable. Water-scrum-fall keeps the big batch (and so loses Agile's main benefit) while paying for the ceremonies.</p>` },
+    { type:'classify', prompt:'Predictive or adaptive \u2014 which fits better?',
+      categories:['Predictive / waterfall','Adaptive / agile'],
+      items:[
+        { text:'Regulatory submission with fixed, audited scope', answer:0 },
+        { text:'New consumer app in an unproven market', answer:1 },
+        { text:'Civil-engineering / construction build', answer:0 },
+        { text:'Evolving SaaS product with frequent user feedback', answer:1 } ],
+      solution:`<p>Stable, high-cost-of-change, compliance-bound work leans predictive; novel, feedback-rich, fast-changing work leans adaptive.</p>` }
+  ]
+},
+{
+  id:'ag3', area:'agile', track:'Foundations', title:'Choosing an approach: predictive, agile, hybrid', min:25,
+  concept:`<p>The mature question is not "Agile or Waterfall?" but "what does <em>this</em> work need?" Use the nature of the problem to choose. <strong>Cynefin</strong> offers a quick lens: <em>Clear</em> and <em>Complicated</em> domains (known or knowable cause-and-effect) reward planning and expertise \u2014 predictive works. <em>Complex</em> domains (cause-and-effect only clear in hindsight) reward probe-sense-respond \u2014 empirical/agile works. <em>Chaotic</em> needs act-first stabilisation.</p>
+  <p>Most real portfolios are mixed, so <strong>hybrid</strong> is normal: predictive for the stable, compliance-bound, or hardware parts; adaptive for the uncertain, discovery-heavy parts.</p>`,
+  deep:`<p><b>Stacey & Boehm-Turner.</b> The Stacey matrix plots <em>requirements certainty</em> against <em>technical certainty</em>: high-high \u2192 simple/plan-driven; low-low \u2192 chaos; the large middle is complex \u2192 agile. Boehm & Turner's "home-ground" analysis tailors by five factors \u2014 team size, criticality, personnel skill, dynamism (rate of change), and culture. Small, skilled teams on volatile, low-criticality work are agile home-ground; large, safety-critical, stable work leans plan-driven.</p>
+  <p><b>Tailoring, not religion.</b> Disciplined Agile (DA) frames this as "choose your way of working" from a library of practices for your context. The failure mode is dogma in either direction: forcing two-week sprints onto a regulated hardware milestone, or imposing fixed 12-month scope on an unproven product. A PM's craft is reading the risk profile and composing the approach \u2014 and revisiting it as uncertainty resolves (early discovery agile, later delivery more predictable).</p>`,
+  exercises:[
+    { type:'classify', prompt:'Where does this work sit?',
+      categories:['Clear / Complicated \u2014 plan-driven works','Complex \u2014 empirical / agile works'],
+      items:[
+        { text:'Payroll migration with known, documented rules', answer:0 },
+        { text:'Designing a brand-new recommendation engine', answer:1 },
+        { text:'Standard, well-rehearsed data-centre move', answer:0 },
+        { text:'Launching a product into a market that does not exist yet', answer:1 } ],
+      solution:`<p>Known/knowable cause-and-effect \u2192 predictive; emergent, learn-as-you-go problems \u2192 agile. Match the approach to the domain.</p>` },
+    { type:'mcq', prompt:'Selecting & tailoring.',
+      questions:[
+        { text:"Boehm & Turner's home-ground analysis says you should…", options:['Always go agile','Always go waterfall','Tailor to risk, size, criticality, skill and volatility','Always use SAFe'], correct:2 },
+        { text:'A sound hybrid approach typically…', options:['Has no process','Uses predictive for stable parts and adaptive for uncertain parts','Is forbidden by the Manifesto','Is identical to SAFe'], correct:1 } ],
+      solution:`<p>Tailor by context, and it is perfectly valid to mix predictive and adaptive across one programme.</p>` }
+  ]
+},
+
+/* ===== SCRUM ===== */
+{
+  id:'ag4', area:'agile', track:'Scrum', title:'The Scrum framework', min:30,
+  concept:`<p><strong>Scrum</strong> is a lightweight framework for complex product work, built on empiricism and three roles, three artifacts and five events. The <strong>accountabilities</strong>: the <em>Product Owner</em> maximises the value of the product and owns the Product Backlog; the <em>Scrum Master</em> establishes Scrum and coaches the team, removing impediments; the <em>Developers</em> build a usable increment each Sprint and decide <em>how</em>.</p>
+  <p>The <strong>artifacts</strong> each have a commitment that makes them transparent: the <em>Product Backlog</em> \u2192 the <em>Product Goal</em>; the <em>Sprint Backlog</em> \u2192 the <em>Sprint Goal</em>; the <em>Increment</em> \u2192 the <em>Definition of Done</em> (the quality bar the increment must meet to be releasable).</p>`,
+  deep:`<p><b>Why so few rules?</b> Scrum is deliberately incomplete \u2014 a framework, not a recipe. It creates a cadence of inspect-and-adapt and trusts a <em>self-managing, cross-functional</em> team to fill in the engineering practices. That is its strength (adaptable) and its trap (teams expect it to tell them everything and end up doing "mechanical Scrum" with no real improvement).</p>
+  <p><b>Role confusions a PM must navigate.</b> The Scrum Master is <em>not</em> a project manager assigning tasks, nor the team's boss \u2014 they are a facilitative/true leader serving the team and organisation. The Product Owner is one accountable person (not a committee) and is <em>tactical and team-facing</em>; a traditional Product Manager role is often broader and more strategic (market, pricing, lifecycle), with the PO acting as the product's voice into the team. On many products one person wears both hats; at scale they split. The Business Analyst's classic duties get absorbed into PO + Developers.</p>
+  <p><b>Beyond one team:</b> Nexus and Scrum@Scale extend Scrum to multiple teams on one product while keeping a single Product Backlog and Product Owner accountability.</p>`,
+  exercises:[
+    { type:'classify', prompt:'Which Scrum accountability owns this?',
+      categories:['Product Owner','Scrum Master','Developers'],
+      items:[
+        { text:'Orders the Product Backlog to maximise value', answer:0 },
+        { text:'Coaches the team and removes impediments', answer:1 },
+        { text:'Decide how to turn backlog items into the increment', answer:2 },
+        { text:'Owns the Product Goal and represents stakeholder value', answer:0 },
+        { text:'Facilitates the events and protects the team\u2019s focus', answer:1 } ],
+      solution:`<p>PO = value & backlog; Scrum Master = coaching, facilitation, impediments; Developers = the how and the increment.</p>` },
+    { type:'mcq', prompt:'Roles & artifacts.',
+      questions:[
+        { text:'The Scrum Master is best described as…', options:['The team\u2019s boss','A true/servant-leader who coaches and removes impediments','The PM who assigns tasks','The person who writes all the stories'], correct:1 },
+        { text:'The Definition of Done is…', options:['A nice-to-have','A shared quality standard the increment must meet to be releasable','Set by the PO alone','The same as the Sprint Goal'], correct:1 },
+        { text:'Product Owner vs traditional Product Manager:', options:['They are identical','PO is a tactical, team-facing accountability; PdM is often broader/strategic','PO is always more senior','Product Managers don\u2019t exist in agile'], correct:1 } ],
+      solution:`<p>The Scrum Master serves rather than commands; DoD is the team\u2019s quality bar; PO is the tactical product voice into the team, often narrower than a full PdM role.</p>` }
+  ]
+},
+{
+  id:'ag5', area:'agile', track:'Scrum', title:'Scrum events / ceremonies', min:30,
+  visual:{type:'sprintcycle', caption:'The Scrum cycle and its events'},
+  concept:`<p>The <strong>Sprint</strong> is the heartbeat \u2014 a fixed timebox (1\u20134 weeks, commonly two) that contains all other events and produces a usable increment. Inside it: <strong>Sprint Planning</strong> sets <em>why</em> (Sprint Goal), <em>what</em> (selected backlog) and <em>how</em>; the <strong>Daily Scrum</strong> is a 15-minute developer re-plan toward the goal; the <strong>Sprint Review</strong> inspects the increment <em>with stakeholders</em> and adapts the backlog; and the <strong>Sprint Retrospective</strong> inspects how the team worked and commits to improvements.</p>
+  <p>Each event is a formal <em>inspect-and-adapt</em> point \u2014 they exist to reduce the need for other meetings, not add to them.</p>`,
+  deep:`<p><b>Timeboxes scale with sprint length.</b> For a one-month Sprint the maxima are Planning \u2264 8h, Review \u2264 4h, Retro \u2264 3h, Daily 15 min. Halve them for a two-week Sprint (Planning \u2264 4h, Review \u2264 2h, Retro \u2264 1.5h). Timeboxes are a ceiling, not a target.</p>
+  <p><b>Backlog refinement is not a 5th event</b> \u2014 it is an ongoing activity (typically \u2264 10% of capacity) where the team adds detail, acceptance criteria, order and estimates so upcoming items are "ready."</p>
+  <p><b>Anti-patterns to police.</b> The Daily Scrum becoming a status report <em>to the Scrum Master/manager</em> (it is by and for the Developers); the Review reduced to a one-way demo with no stakeholder conversation or backlog adaptation; the Retro skipped or producing no actual change (the single biggest waste \u2014 inspection without adaptation); and Planning that selects items but never agrees a real <em>Sprint Goal</em>, leaving the team with a to-do list and no coherent objective to flex against.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Timebox arithmetic (two-week sprint).',
+      fields:[
+        { label:'Daily Scrum length (minutes)', answer:15, tol:0 },
+        { label:'Max Sprint Planning (hours)', answer:4, tol:0 },
+        { label:'Max Sprint Review (hours)', answer:2, tol:0 } ],
+      solution:`<p>The Daily is always 15 minutes. Other timeboxes scale with sprint length: a two-week Sprint halves the one-month maxima \u2014 Planning \u2264 4h, Review \u2264 2h (Retro \u2264 1.5h).</p>` },
+    { type:'classify', prompt:'Match the purpose to the event.',
+      categories:['Sprint Planning','Daily Scrum','Sprint Review','Sprint Retrospective'],
+      items:[
+        { text:'Agree the Sprint Goal and select backlog items', answer:0 },
+        { text:'Developers synchronise and re-plan toward the goal', answer:1 },
+        { text:'Inspect the increment with stakeholders and adapt the backlog', answer:2 },
+        { text:'Inspect how we worked and choose improvements', answer:3 } ],
+      solution:`<p>Planning sets the goal/plan; the Daily is the developers\u2019 re-plan; the Review inspects the product with stakeholders; the Retro inspects the process.</p>` },
+    { type:'mcq', prompt:'Ceremony health.',
+      questions:[
+        { text:'A common Daily Scrum anti-pattern is…', options:['Keeping it to 15 minutes','Turning it into a status report to the manager','Developers talking to each other','Focusing on the Sprint Goal'], correct:1 } ],
+      solution:`<p>The Daily is by and for the Developers to re-plan their day toward the Sprint Goal \u2014 not a manager status round.</p>` }
+  ]
+},
+{
+  id:'ag6', area:'agile', track:'Scrum', title:'Product Owner & backlog management', min:25,
+  concept:`<p>The <strong>Product Owner</strong> is accountable for <em>maximising the value</em> the team produces. The lever is the <strong>Product Backlog</strong> \u2014 a single, ordered, ever-evolving list of everything that might add value. Ordering it well (by value, risk, size, dependency and learning) is the highest-leverage thing a PO does, because the order <em>is</em> the strategy made concrete.</p>
+  <p>The PO keeps the backlog <strong>DEEP</strong>: <em>Detailed appropriately</em> (top items refined, lower ones coarse), <em>Emergent</em> (it changes), <em>Estimated</em>, and <em>Prioritised</em>.</p>`,
+  deep:`<p><b>PO vs PdM, in practice.</b> A Product Owner is the value-maximising decision-maker <em>for the delivery team</em>; a Product Manager typically owns the broader product \u2014 strategy, market, pricing, lifecycle, stakeholder alignment. On a small product one person does both; at scale a PdM sets direction (the "why/what at large") and one or more POs translate it into ready backlog for teams. The danger is a "proxy PO" with no real authority \u2014 a note-taker for a steering committee \u2014 which breaks the framework because nobody can actually decide priorities at the team\u2019s cadence.</p>
+  <p><b>Saying no is the job.</b> Value is maximised as much by the work <em>not</em> done as by features shipped. Strong POs anchor on a Product Goal and outcomes, use a transparent prioritisation method (RICE, WSJF, MoSCoW), and protect the team from thrash. Story mapping helps keep the backlog organised around the user\u2019s journey rather than a flat wish-list, so you can slice coherent, releasable increments.</p>`,
+  exercises:[
+    { type:'mcq', prompt:'The PO role.',
+      questions:[
+        { text:'Product Backlog refinement is…', options:['A formal fifth event','An ongoing activity to add detail, order and estimates','Done once at the start','The PO\u2019s secret'], correct:1 },
+        { text:'The single most important thing a PO does is…', options:['Write every story personally','Maximise the value of the product / the team\u2019s work','Attend every meeting','Approve the code'], correct:1 },
+        { text:'A "proxy" Product Owner fails because…', options:['They are too senior','They have no authority to actually decide priorities at the team\u2019s cadence','They write too many stories','They estimate'], correct:1 } ],
+      solution:`<p>Refinement is continuous; the PO\u2019s purpose is value, which requires real decision authority \u2014 a powerless proxy breaks Scrum.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 outcome roadmap (Now / Next / Later). Saved on this device.',
+      template:{ kind:'roadmap' } }
+  ]
+},
+{
+  id:'ag7', area:'agile', track:'Scrum', title:'Estimation, velocity & forecasting', min:30,
+  visual:{type:'burndown', caption:'Sprint burndown \u2014 ideal vs actual', total:30, days:10, actual:[30,28,26,25,20,18,15,11,6,2,0]},
+  concept:`<p>Agile estimation is <strong>relative</strong>, not absolute. Teams size items in <em>story points</em> \u2014 a blend of effort, complexity and uncertainty \u2014 because humans compare ("this is about twice that") far better than they predict hours. <strong>Planning poker</strong> surfaces differences of understanding, which is often more valuable than the number itself.</p>
+  <p><strong>Velocity</strong> \u2014 average points completed per Sprint \u2014 then turns size into a forecast: backlog points \u00F7 velocity \u2248 sprints remaining. A <strong>burndown</strong> tracks remaining work within a sprint; a <strong>burn-up</strong> tracks completed work against total scope, separating progress from scope change.</p>`,
+  deep:`<p><b>Velocity is a planning tool, not a scoreboard.</b> It is team-specific and unitless \u2014 you cannot compare team A\u2019s velocity to team B\u2019s, and using it as a productivity <em>target</em> is a classic Goodhart\u2019s-law failure: the team inflates estimates and the number stops meaning anything. Capacity (people-days available) and velocity are different inputs to planning.</p>
+  <p><b>Forecasting with uncertainty.</b> A single "we\u2019ll be done in 6 sprints" is false precision. Better PMs forecast a <em>range</em> using historical throughput (often via Monte-Carlo over completed-items-per-sprint), and communicate the cone of uncertainty narrowing over time. The #NoEstimates school goes further \u2014 just count items and use throughput \u2014 which works well when stories are sliced to a similar small size.</p>
+  <p><b>Reading a burndown.</b> A flat line then a cliff means work isn\u2019t being finished until the end (large batches, no flow); a line that crosses below ideal early may mean over-conservative estimates; scope added mid-sprint shows as the line jumping <em>up</em> \u2014 which is exactly why a burn-up (with a separate scope line) is more honest.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Velocity & forecast. A team completes 20, 26 and 23 points over three sprints; the backlog holds 138 points.',
+      fields:[
+        { label:'Average velocity (points/sprint)', answer:23, tol:1 },
+        { label:'Sprints to finish 138 points (round up)', answer:6, tol:0 },
+        { label:'Points remaining if 30 of 50 are done', answer:20, tol:0 } ],
+      solution:`<p>Average = (20+26+23)/3 = 23. 138 \u00F7 23 = 6 sprints. 50 \u2212 30 = 20 points remaining (what a burndown plots).</p>` },
+    { type:'mcq', prompt:'Estimation judgement.',
+      questions:[
+        { text:'Story points estimate…', options:['Exact hours','Relative size: effort, complexity and uncertainty','Cost in euros','The number of tasks'], correct:1 },
+        { text:'Using velocity as an individual productivity target is…', options:['Best practice','An anti-pattern that invites gaming (Goodhart\u2019s law)','Required by Scrum','Encouraged by SAFe'], correct:1 },
+        { text:'A burn-up chart improves on a burndown because it…', options:['Is prettier','Shows scope changes separately from progress','Hides scope','Counts hours'], correct:1 } ],
+      solution:`<p>Points are relative; velocity is a forecasting aid, not a target; burn-up separates "did scope grow?" from "how much is done?".</p>` }
+  ]
+},
+
+/* ===== KANBAN & FLOW ===== */
+{
+  id:'ag8', area:'agile', track:'Kanban & flow', title:'Kanban & flow metrics', min:28,
+  visual:{type:'cfd', caption:'Cumulative flow diagram \u2014 the band width is WIP'},
+  concept:`<p><strong>Kanban</strong> is an evolutionary flow method (no fixed roles or timeboxes) built on six practices: <em>visualise</em> the work, <em>limit work-in-progress (WIP)</em>, <em>manage flow</em>, make <em>policies explicit</em>, implement <em>feedback loops</em>, and <em>improve collaboratively</em>. Work is <em>pulled</em> when capacity frees up rather than pushed in.</p>
+  <p>The core insight (shared with Lean): <strong>less WIP \u2192 shorter cycle time \u2192 faster feedback</strong>. You measure <em>lead time</em> (request \u2192 done), <em>cycle time</em> (start \u2192 done) and <em>throughput</em> (items/period), and read flow on a <strong>cumulative flow diagram</strong>.</p>`,
+  deep:`<p><b>Little\u2019s Law ties it together:</b> average cycle time = WIP \u00F7 throughput. Halve WIP at the same throughput and you halve cycle time \u2014 the single most reliable lever for faster delivery, and why WIP limits are the heart of Kanban. On a CFD, the vertical gap between the "started" and "done" bands <em>is</em> WIP; a widening gap warns of a growing bottleneck before deadlines slip.</p>
+  <p><b>Classes of service</b> let you treat work differently \u2014 expedite (rare, swarmed), fixed-date (regulatory), standard, and intangible \u2014 with explicit policies, instead of everything being "urgent." <b>Scrumban</b> blends Scrum\u2019s cadence/roles with Kanban\u2019s pull and WIP limits, a pragmatic landing spot for teams whose work mixes planned features and unplanned support.</p>
+  <p><b>For a PM</b>, Kanban suits flow-of-requests work (support, ops, platform, ML pipelines) where sprint commitments feel artificial, and its metrics give a clean, gameable-resistant view of predictability via cycle-time percentiles ("85% of items finish within 9 days") rather than story points.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Little\u2019s Law in action.',
+      fields:[
+        { label:'Cycle time (days) if WIP = 12 and throughput = 4/day', answer:3, tol:0 },
+        { label:'Throughput needed for a 2-day cycle time at WIP = 10', answer:5, tol:0 } ],
+      solution:`<p>Cycle time = WIP \u00F7 throughput = 12 \u00F7 4 = 3 days. For a 2-day cycle at WIP 10, throughput = 10 \u00F7 2 = 5/day.</p>` },
+    { type:'classify', prompt:'Which Kanban practice is this?',
+      categories:['Visualise','Limit WIP','Manage flow','Make policies explicit'],
+      items:[
+        { text:'Put every work item on a board with columns', answer:0 },
+        { text:'Cap "In progress" to 3 items per person', answer:1 },
+        { text:'Watch cycle time and attack the bottleneck', answer:2 },
+        { text:'Write the rule for what "Done" means on each column', answer:3 } ],
+      solution:`<p>Visualise \u2192 board; Limit WIP \u2192 caps; Manage flow \u2192 reduce bottlenecks; Explicit policies \u2192 column/done rules.</p>` },
+    { type:'mcq', prompt:'Flow intuition.',
+      questions:[
+        { text:'Lowering WIP generally leads to…', options:['Longer cycle time','Shorter cycle time and faster feedback','More multitasking','More defects'], correct:1 } ],
+      solution:`<p>By Little\u2019s Law, less WIP at equal throughput means shorter cycle time \u2014 and finishing things before starting new ones speeds feedback.</p>` }
+  ]
+},
+
+/* ===== PRODUCT CRAFT ===== */
+{
+  id:'ag9', area:'agile', track:'Product craft', title:'User stories & acceptance criteria', min:25,
+  concept:`<p>A <strong>user story</strong> captures a need from the user\u2019s perspective as a placeholder for a conversation: <em>"As a (role), I want (capability), so that (benefit)."</em> The "so that" is the most important clause \u2014 it states the <em>outcome</em>, which lets the team find simpler ways to deliver the value.</p>
+  <p>Good stories follow <strong>INVEST</strong>: Independent, Negotiable, Valuable, Estimable, Small, Testable. Each carries <strong>acceptance criteria</strong> \u2014 the conditions that make it "done" \u2014 often written as <em>Given / When / Then</em> so they double as test scenarios.</p>`,
+  deep:`<p><b>Splitting stories (the hard skill).</b> Big stories hide risk and block flow. Split by <em>workflow steps</em>, <em>business rules</em>, <em>happy path vs edge cases</em>, <em>data variations</em>, <em>operations</em> (CRUD), or <em>simple-then-enhance</em> (the SPIDR patterns). The test: each slice is independently valuable and demonstrable. Avoid horizontal splits ("do the database story") that deliver nothing a user can see.</p>
+  <p><b>Stories vs tasks vs epics.</b> An epic is a large body of work spanning sprints; a story is a thin user-valuable slice; tasks are the team\u2019s implementation breakdown (not user-facing). A "Definition of Ready" \u2014 clear value, acceptance criteria, no blocking dependencies, small enough \u2014 keeps un-bakeable items out of a sprint.</p>
+  <p><b>BDD / Gherkin.</b> Writing acceptance criteria as Given-When-Then up front aligns PO, devs and QA on behaviour <em>before</em> building, shrinks rework, and can drive automated tests. Anti-patterns to catch: "As a user I want the app to be fast/good" (not testable, no role/benefit), and tech stories with no user value masquerading as backlog items.</p>`,
+  exercises:[
+    { type:'classify', prompt:'Solid story, or needs work?',
+      categories:['Good story','Needs work'],
+      items:[
+        { text:'As a shopper I want to save my cart so that I can buy later', answer:0 },
+        { text:'Build the database', answer:1 },
+        { text:'As a user I want the app to be good', answer:1 },
+        { text:'As an admin I want to export users to CSV so I can report monthly', answer:0 } ],
+      solution:`<p>Good stories have role + capability + outcome and are testable. "Build the database" is a horizontal task with no user value; "be good" isn\u2019t testable.</p>` },
+    { type:'mcq', prompt:'Acceptance criteria.',
+      questions:[
+        { text:'Acceptance criteria are best written…', options:['After release','Before/with the story, often as Given-When-Then','Never','By QA only, at the end'], correct:1 } ],
+      solution:`<p>Defining behaviour up front (Given-When-Then) aligns the team and prevents rework \u2014 and the criteria become test cases.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 write a user story with acceptance criteria. Saved on this device.',
+      template:{ kind:'userstory' } }
+  ]
+},
+{
+  id:'ag10', area:'agile', track:'Product craft', title:'Prioritisation & roadmaps', min:28,
+  visual:{type:'matrix', caption:'Value vs effort \u2014 a quick prioritisation lens', items:[{title:'Saved carts',valueScore:5,effortScore:2},{title:'New onboarding',valueScore:4,effortScore:3},{title:'Full re-platform',valueScore:4,effortScore:5},{title:'UI polish',valueScore:2,effortScore:2}]},
+  concept:`<p>Prioritisation is where strategy meets reality. Lightweight lenses: <strong>MoSCoW</strong> (Must / Should / Could / Won\u2019t) for release scope; <strong>value vs effort</strong> for quick wins; <strong>Kano</strong> to separate basics, performance and delighters. Quantified scoring adds rigour: <strong>RICE</strong> = Reach \u00D7 Impact \u00D7 Confidence \u00F7 Effort, and <strong>WSJF</strong> = Cost of Delay \u00F7 Job Size.</p>
+  <p>Roadmaps then communicate intent. Prefer an <strong>outcome roadmap</strong> \u2014 <em>Now / Next / Later</em> tied to goals \u2014 over a date-locked feature list, so you commit to problems and outcomes while keeping the freedom to change solutions.</p>`,
+  deep:`<p><b>WSJF, properly.</b> Cost of Delay = user/business value + time criticality + risk-reduction/opportunity-enablement; divide by job size (a proxy for duration). Sequencing by highest WSJF maximises value delivered per unit time \u2014 it mathematically favours small, high-value, time-sensitive items, which is exactly what you want when capacity is the constraint. It is the engine SAFe uses to order its program backlog.</p>
+  <p><b>Story mapping</b> arranges stories along the user\u2019s journey (backbone) with priority vertically, so you can draw a release line that cuts a <em>thin end-to-end slice</em> rather than a complete-but-useless layer. It keeps prioritisation anchored to real user flows.</p>
+  <p><b>The feature-factory trap.</b> Roadmaps full of outputs with no outcome hypotheses turn teams into ticket-shufflers. Tie each roadmap bet to an OKR or a measurable outcome and a confidence level; revisit as evidence arrives. Communicate roadmaps as <em>increasing uncertainty</em> over time (Now = committed, Later = directional) to avoid false promises.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Score it. Compute the priority numbers.',
+      fields:[
+        { label:'RICE: Reach 800 \u00D7 Impact 2 \u00D7 Confidence 0.8 \u00F7 Effort 4', answer:320, tol:1 },
+        { label:'WSJF: Cost of Delay 24 \u00F7 Job Size 6', answer:4, tol:0.1 } ],
+      solution:`<p>RICE = 800\u00D72\u00D70.8 \u00F7 4 = 1280 \u00F7 4 = 320. WSJF = 24 \u00F7 6 = 4. Higher means do-sooner.</p>` },
+    { type:'classify', prompt:'Match the technique to its use.',
+      categories:['MoSCoW','WSJF','Kano'],
+      items:[
+        { text:'Must / Should / Could / Won\u2019t for a release scope', answer:0 },
+        { text:'Sequence by cost of delay over job size', answer:1 },
+        { text:'Classify features as basic, performance or delighter', answer:2 } ],
+      solution:`<p>MoSCoW frames release scope; WSJF sequences by economic urgency; Kano explains how features affect satisfaction.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 build a Now / Next / Later roadmap. Saved on this device.',
+      template:{ kind:'roadmap' } }
+  ]
+},
+{
+  id:'ag11', area:'agile', track:'Product craft', title:'Outcomes, metrics & OKRs', min:25,
+  concept:`<p>The cardinal product distinction: <strong>outputs</strong> (features shipped, story points) vs <strong>outcomes</strong> (changes in user behaviour and business results). Agile teams that optimise outputs become feature factories; the goal is outcomes. Frame goals with <strong>OKRs</strong> \u2014 an Objective (qualitative, inspiring) with measurable <em>Key Results</em> (the outcomes, not the tasks).</p>
+  <p>Useful metric families: a single <strong>North Star</strong> capturing core value, <strong>AARRR</strong> "pirate" metrics (Acquisition, Activation, Retention, Referral, Revenue), <strong>DORA</strong> for delivery performance, and <strong>flow metrics</strong> (cycle time, throughput).</p>`,
+  deep:`<p><b>Leading vs lagging, actionable vs vanity.</b> Lagging metrics (revenue, churn) confirm results late; leading metrics (activation, weekly active use) let you steer. "Vanity" metrics (cumulative signups, downloads) only go up and don\u2019t inform decisions \u2014 prefer rates and cohorts (7-day retention, activation rate). Every metric is gameable, so watch for Goodhart\u2019s law and balance with a counter-metric (e.g. speed <em>and</em> quality).</p>
+  <p><b>DORA, concretely:</b> deployment frequency, lead time for changes, change-failure rate, and time-to-restore. High performers ship more often <em>and</em> more reliably \u2014 proof that speed and stability are not a trade-off when flow is healthy. These are the right metrics to test whether a tooling or AI investment actually moved delivery.</p>
+  <p><b>Evidence-Based Management (EBM)</b> from Scrum.org groups measures into Current Value, Unrealised Value, Ability to Innovate, and Time-to-Market \u2014 a useful frame to keep teams honest that "busy" is not "valuable."</p>`,
+  exercises:[
+    { type:'classify', prompt:'Output/vanity, or outcome/actionable?',
+      categories:['Output / vanity','Outcome / actionable'],
+      items:[
+        { text:'Number of features shipped this quarter', answer:0 },
+        { text:'New-user activation rate', answer:1 },
+        { text:'Total lines of code', answer:0 },
+        { text:'7-day retention', answer:1 },
+        { text:'Story points completed', answer:0 } ],
+      solution:`<p>Counts of work done (features, code, points, cumulative signups) are outputs/vanity; rates that reflect user value and behaviour (activation, retention) are actionable outcomes.</p>` },
+    { type:'mcq', prompt:'Goals & delivery metrics.',
+      questions:[
+        { text:'An OKR\u2019s Key Results should be…', options:['A task list','Measurable outcomes','Opinions','Features to build'], correct:1 },
+        { text:'DORA metrics measure…', options:['Team happiness','Software-delivery performance (deploy freq, lead time, change-fail, MTTR)','Revenue only','Story points'], correct:1 },
+        { text:'A North Star metric should…', options:['Count outputs','Capture the core value customers receive','Track revenue only','Change every week'], correct:1 } ],
+      solution:`<p>KRs are outcomes; DORA measures delivery health; a North Star captures durable customer value.</p>` }
+  ]
+},
+
+/* ===== SCALING & SAFe ===== */
+{
+  id:'ag12', area:'agile', track:'Scaling & SAFe', title:'Scaling & how SAFe differs', min:30,
+  concept:`<p>One Scrum team caps out around 10 people; products needing dozens of people raise <em>coordination</em> and <em>dependency</em> problems that single-team Scrum doesn\u2019t solve. Several frameworks answer this. <strong>SAFe</strong> (Scaled Agile Framework) is the most prescriptive and enterprise-oriented; <strong>LeSS</strong> is a minimalist extension of Scrum; <strong>Scrum@Scale</strong> scales via a Scrum-of-Scrums; and the "<strong>Spotify model</strong>" (squads/tribes/chapters/guilds) is a culture snapshot, not a framework to copy.</p>
+  <p><strong>How SAFe differs from Scrum, in one line:</strong> Scrum is a <em>lightweight, team-level</em> framework (3 accountabilities, 5 events); SAFe is a <em>heavyweight, multi-layer enterprise</em> framework that adds program and portfolio levels, more roles and artifacts, and a fixed planning cadence \u2014 trading some team autonomy for organisation-wide alignment.</p>`,
+  deep:`<p><b>SAFe\u2019s big pieces.</b> Teams are grouped into an <strong>Agile Release Train (ART)</strong> \u2014 50\u2013125 people delivering a value stream on a shared cadence. Every 8\u201312 weeks the whole ART does <strong>PI (Program Increment) Planning</strong>: a big-room event where teams plan together, surface dependencies, and commit to PI objectives. New roles appear \u2014 Release Train Engineer (the ART\u2019s chief Scrum Master), Product Management (owns the program backlog, above team POs), System Architect \u2014 and the program backlog is ordered by <strong>WSJF</strong>. Above the ART sits a Lean portfolio level with value streams and epics.</p>
+  <p><b>The trade-off, honestly.</b> SAFe buys alignment, predictability and a roadmap for large, compliance-heavy enterprises \u2014 at the cost of more process, more roles, longer planning cycles, and less team-level autonomy. Critics call it top-down and un-agile; defenders say large organisations need the coordination. <b>LeSS</b> takes the opposite stance: keep one Product Owner and one Product Backlog across all teams, add as little as possible, and <em>descale</em> the organisation (remove dependencies) rather than manage them. </p>
+  <p><b>PM guidance:</b> reach for the lightest thing that resolves your actual constraint. If the pain is a few teams with shared code, Scrum-of-Scrums or LeSS may suffice. SAFe earns its overhead when you have many teams, strong inter-dependencies, regulatory governance, and a need for synchronised, executive-visible planning \u2014 and even then, beware adopting the diagram without the underlying Lean-Agile behaviours.</p>`,
+  exercises:[
+    { type:'classify', prompt:'Scrum (team-level) or SAFe (enterprise)?',
+      categories:['Scrum (team-level)','SAFe (enterprise)'],
+      items:[
+        { text:'Three accountabilities and five events', answer:0 },
+        { text:'Agile Release Train and quarterly PI Planning', answer:1 },
+        { text:'Lightweight framework; team chooses its practices', answer:0 },
+        { text:'Portfolio, Program and Team layers with defined roles (RTE, etc.)', answer:1 },
+        { text:'WSJF used to order the program backlog', answer:1 } ],
+      solution:`<p>Scrum is minimal and team-level; SAFe adds the ART, PI Planning, extra roles, and portfolio governance for enterprise alignment.</p>` },
+    { type:'mcq', prompt:'Scaling judgement.',
+      questions:[
+        { text:'Compared with Scrum, SAFe primarily trades…', options:['Nothing','Some team autonomy/agility for enterprise alignment and coordination','Quality for speed','Agile for waterfall'], correct:1 },
+        { text:'PI Planning is…', options:['A daily event','A big-room event aligning many teams for a ~8\u201312-week Program Increment','A retrospective','A Kanban policy'], correct:1 },
+        { text:'LeSS differs from SAFe by…', options:['Adding more layers and roles','Being a de-scaled, minimal extension of one-team Scrum','Removing the Product Owner','Being waterfall'], correct:1 } ],
+      solution:`<p>SAFe favours alignment over autonomy and runs on PI Planning; LeSS keeps one PO/backlog and adds as little as possible.</p>` }
+  ]
+},
+
+/* ===== LEADERSHIP & PRACTICE ===== */
+{
+  id:'ag13', area:'agile', track:'Leadership & practice', title:'Facilitation, coaching & anti-patterns', min:25,
+  concept:`<p>Agile leadership is <strong>facilitative</strong>, not directive. The PM/Scrum Master creates the conditions for a team to self-manage: clarity of goal, psychological safety, good facilitation, and the removal of impediments \u2014 then gets out of the way. The retrospective is the engine of improvement, and running it well (varying formats, ensuring actions actually happen) is a core skill.</p>
+  <p>Most "Agile isn\u2019t working" complaints are really <strong>anti-patterns</strong> \u2014 the ceremonies are present but the principles are missing.</p>`,
+  deep:`<p><b>The anti-pattern menagerie.</b> <em>Water-scrum-fall</em> \u2014 agile in the middle, fixed scope and big-bang release around it. <em>Zombie / dark Scrum</em> \u2014 going through the motions (standups, sprints) with no real inspection, adaptation, or psychological safety; the team is busy but lifeless. <em>Weaponised velocity</em> \u2014 managers setting velocity targets and comparing teams, which destroys honest estimation. <em>Feature factory</em> \u2014 shipping outputs with no outcome accountability. <em>Proxy PO</em> \u2014 a PO with no authority. Naming these precisely is half the cure, because it points at <em>which principle</em> is being violated.</p>
+  <p><b>Facilitation craft.</b> Vary retro formats (Start-Stop-Continue, 4Ls, sailboat, timeline) to avoid staleness; make improvement actions specific, owned and time-boxed, and review them next retro \u2014 inspection without adaptation is the deepest waste. Foster psychological safety so problems surface early. For distributed teams, over-invest in written transparency and asynchronous communication, and protect a real-time overlap window for the synchronisation events.</p>`,
+  exercises:[
+    { type:'classify', prompt:'Name the anti-pattern.',
+      categories:['Water-scrum-fall','Zombie / dark Scrum','Weaponised velocity'],
+      items:[
+        { text:'Agile ceremonies, but a stage-gated big-bang release', answer:0 },
+        { text:'Standups and sprints with no real inspection or improvement', answer:1 },
+        { text:'Managers set velocity targets and rank teams against each other', answer:2 } ],
+      solution:`<p>Big batch around agile = water-scrum-fall; motion without empiricism = zombie Scrum; velocity-as-target = weaponised velocity.</p>` },
+    { type:'mcq', prompt:'Leadership stance.',
+      questions:[
+        { text:'A facilitative / servant-leader stance means…', options:['Assigning all the tasks','Creating the conditions for the team to self-manage and improve','Writing the code yourself','Approving holiday requests'], correct:1 } ],
+      solution:`<p>The leader removes impediments and builds safety and clarity so the team can self-organise \u2014 not command the work.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 run a Start / Stop / Continue retrospective. Saved on this device.',
+      template:{ kind:'retro' } }
+  ]
+},
+
+/* ===== AGILE x AI ===== */
+{
+  id:'ag14', area:'agile', track:'Agile \u00D7 AI', title:'Where AI & agents support delivery', min:30,
+  concept:`<p>AI and agents are becoming teammates across the delivery lifecycle, and the PM/PdM is best placed to point them at the right work. In <strong>discovery</strong>: synthesise user research, draft PRDs, user stories and acceptance criteria from a brief. In <strong>planning</strong>: assist estimation, surface dependencies and risky items, sanity-check the backlog. In <strong>execution</strong>: summarise standups, auto-draft status reports and release notes, and (with code/test agents) build and verify. In <strong>review/retro</strong>: cluster feedback into themes and spot trends.</p>
+  <p>An <strong>agent</strong> performs a task end-to-end; <strong>orchestration</strong> routes work between agents and humans \u2014 with humans accountable for prioritisation and outcomes, and guardrails on quality.</p>`,
+  deep:`<p><b>The defining risk.</b> AI mainly compresses the <em>build</em> step \u2014 so if you don\u2019t know <em>what</em> is worth building, AI just lets you build the wrong thing faster. The PM\u2019s value rises, not falls: outcome clarity, prioritisation, and discovery become the bottleneck and the differentiator. Treat AI as leverage on a clear strategy, not a substitute for one.</p>
+  <p><b>Agentic delivery, done responsibly.</b> Keep humans in the loop at decision and quality gates; apply the Lean idea of <em>jidoka</em> \u2014 guardrails and confidence thresholds that stop and escalate rather than ship a low-confidence result; and keep prioritisation and accountability human. Build evals for agent outputs the way you\u2019d build acceptance criteria for a story.</p>
+  <p><b>Prove it with metrics.</b> Don\u2019t trust vibes \u2014 test whether AI actually improves delivery using <em>flow metrics</em> (cycle time, throughput) and <em>DORA</em> (lead time, deployment frequency, change-failure rate). If lead time drops without change-failure rising, the investment is real. And manage the change: tools shift roles, so re-skill the team toward higher-judgement work (discovery, outcome design, agent supervision).</p>`,
+  exercises:[
+    { type:'classify', prompt:'Where does this AI capability help most?',
+      categories:['Discovery / backlog','Planning / estimation','Execution / reporting','Review / retro'],
+      items:[
+        { text:'Draft user stories and acceptance criteria from a brief', answer:0 },
+        { text:'Flag dependencies and risky items before planning', answer:1 },
+        { text:'Summarise standups and auto-write status reports', answer:2 },
+        { text:'Cluster retrospective feedback into themes', answer:3 },
+        { text:'Synthesise user-research interviews into insights', answer:0 } ],
+      solution:`<p>Story/AC drafting and research synthesis serve discovery; dependency/risk detection serves planning; standup/status automation serves execution; theme-clustering serves the retro.</p>` },
+    { type:'mcq', prompt:'Using AI well.',
+      questions:[
+        { text:'The biggest risk of AI-accelerated delivery for a PM is…', options:['Typing speed','Building the wrong thing faster when outcomes are unclear','Too few meetings','Smaller backlogs'], correct:1 },
+        { text:'Agentic delivery should keep…', options:['No humans involved','Humans accountable for prioritisation/outcomes, with guardrails and human-in-the-loop','Agents fully unsupervised','Only waterfall'], correct:1 },
+        { text:'To prove AI actually helps delivery, track…', options:['Vibes','Flow and DORA metrics (lead time, throughput, change-failure)','Lines of code','Headcount'], correct:1 } ],
+      solution:`<p>Clarity of outcome matters more as building gets cheaper; keep humans accountable with guardrails; and measure impact with flow/DORA, not impressions.</p>` },
+    { type:'worksheet', prompt:'Template \u2014 scope an AI/agent assist for your delivery (the AI use-case canvas). Saved on this device.',
+      template:{ kind:'aicanvas' } }
+  ]
+},
+
+/* ===== CASES & PRACTICE ===== */
+{
+  id:'ag15', area:'agile', track:'Cases & practice', title:'Case A \u2014 rescue a water-scrum-fall team', min:30,
+  concept:`<p><b>Scenario.</b> A 9-person team "does Agile": two-week sprints, daily standups, a board. Yet delivery is slow and morale is low. On inspection: releases happen in a <em>quarterly big-bang</em> behind a change-advisory gate; the Product Owner is a proxy who relays decisions from a monthly steering committee; retrospectives run but nothing ever changes; and a manager posts a league table of each team\u2019s velocity. This is textbook <strong>water-scrum-fall</strong> with several compounding anti-patterns \u2014 the ceremonies are present, the principles are absent.</p>
+  <p>Your job as the incoming delivery lead: diagnose precisely, then sequence the highest-leverage fixes.</p>`,
+  deep:`<p><b>Diagnosis.</b> The root cause is <em>batch size and feedback latency</em>: a quarterly release means the team learns whether it built the right thing once every three months, so it cannot truly inspect-and-adapt no matter how many standups it holds. The proxy PO removes decision-making from the team\u2019s cadence; the dead retro removes the adaptation loop; the velocity league table corrupts estimation. </p>
+  <p><b>Sequencing the fix.</b> (1) <em>Reduce batch size</em> \u2014 move toward smaller, more frequent releases (even behind a feature flag) to create real feedback; this single change unlocks everything else. (2) <em>Empower the PO</em> \u2014 give one person genuine priority authority at sprint cadence, with the steering committee shifting to outcome reviews. (3) <em>Make the retro bite</em> \u2014 one owned, time-boxed improvement per sprint, reviewed next time. (4) <em>Fix the metrics culture</em> \u2014 kill the velocity league table; if you must report, use flow metrics (cycle time, throughput) and outcomes. Tackle release-batch and PO authority first because they remove the structural blockers; the metric and retro fixes restore the learning loop.</p>`,
+  exercises:[
+    { type:'classify', prompt:'Match each symptom to the right fix.',
+      categories:['Empower the PO','Shorten feedback / smaller releases','Restore inspect-and-adapt','Fix the metrics culture'],
+      items:[
+        { text:'PO can\u2019t decide priorities; a monthly steering committee does', answer:0 },
+        { text:'Releases happen once a quarter in a big bang', answer:1 },
+        { text:'Retros run but produce no real change', answer:2 },
+        { text:'Managers publish a velocity league table across teams', answer:3 } ],
+      solution:`<p>Powerless PO \u2192 empower; quarterly big-bang \u2192 smaller/more-frequent releases; dead retro \u2192 restore adaptation; velocity league table \u2192 fix the metrics culture.</p>` },
+    { type:'mcq', prompt:'First move.',
+      questions:[
+        { text:'The first high-leverage move to break water-scrum-fall is usually…', options:['Buy SAFe','Reduce batch size \u2014 ship smaller and more often to get real feedback','Add more documentation and gates','Replace the whole team'], correct:1 } ],
+      solution:`<p>Smaller, more frequent releases restore the fast feedback that all of Agile depends on \u2014 the structural fix that makes the other improvements meaningful.</p>` }
+  ]
+},
+{
+  id:'ag16', area:'agile', track:'Cases & practice', title:'Case B \u2014 scale up, and sequence with WSJF', min:30,
+  concept:`<p><b>Scenario.</b> One successful Scrum team on a growing product must become <em>four</em> teams. Leadership is debating frameworks \u2014 some want SAFe immediately, others a lighter Scrum-of-Scrums or LeSS. Meanwhile the combined backlog has more high-value items than capacity, with painful cross-team dependencies. You need two decisions: <em>which scaling approach</em>, and <em>how to sequence the backlog</em>.</p>
+  <p>For sequencing you\u2019ll use <strong>WSJF</strong> = Cost of Delay \u00F7 Job Size \u2014 do the highest WSJF first.</p>`,
+  deep:`<p><b>Scaling choice.</b> Four teams on one product is the home ground for the <em>lightest</em> coordination that works \u2014 keep a single Product Backlog and Product Owner accountability and add a Scrum-of-Scrums or adopt LeSS, while actively <em>descaling</em> dependencies (organise teams around features, not components, so they can deliver end-to-end). Reach for SAFe only when scale, regulatory governance and the need for synchronised, executive-visible PI Planning genuinely exceed what a lighter model can hold \u2014 typically many teams and multiple ARTs, not four teams. Adopting SAFe\u2019s overhead for four teams usually adds process without solving the real problem (dependencies), which descaling addresses directly.</p>
+  <p><b>WSJF practice.</b> WSJF rewards small, high-value, time-critical work \u2014 exactly what you want when capacity is the binding constraint. Compute it per item and order descending. Note how a smaller job with the same Cost of Delay outranks a big one, and how a huge but lower-value item sinks.</p>`,
+  exercises:[
+    { type:'numeric', prompt:'Sequence three backlog items with WSJF = Cost of Delay \u00F7 Job Size.',
+      fields:[
+        { label:'Item A \u2014 CoD 20, Job Size 4 \u2192 WSJF', answer:5, tol:0.1 },
+        { label:'Item B \u2014 CoD 18, Job Size 2 \u2192 WSJF', answer:9, tol:0.1 },
+        { label:'Item C \u2014 CoD 30, Job Size 10 \u2192 WSJF', answer:3, tol:0.1 },
+        { label:'WSJF of the item you should do FIRST', answer:9, tol:0.1 } ],
+      solution:`<p>A = 20/4 = 5, B = 18/2 = 9, C = 30/10 = 3. Highest WSJF first \u2192 Item B (9). Note the largest Cost of Delay (C) ranks last because its job size is huge \u2014 WSJF favours small, valuable, urgent work.</p>` },
+    { type:'classify', prompt:'Lighter scaling, or reach for SAFe?',
+      categories:['Start light (LeSS / Scrum-of-Scrums)','Reach for SAFe'],
+      items:[
+        { text:'4 teams, one product, want minimal extra process', answer:0 },
+        { text:'Hundreds of people, multiple ARTs, heavy compliance and top-down alignment', answer:1 },
+        { text:'Keep one shared Product Backlog and one PO across teams', answer:0 },
+        { text:'Need synchronised PI cadence and portfolio governance at enterprise scale', answer:1 } ],
+      solution:`<p>A handful of teams on one product wants the lightest coordination (LeSS/Scrum-of-Scrums) plus descaling; SAFe earns its overhead only at large, governance-heavy, multi-ART scale.</p>` },
+    { type:'mcq', prompt:'Scaling principle.',
+      questions:[
+        { text:'A sound scaling principle is…', options:['Scale the org chart first','Descale the problem (remove dependencies) before adding framework','Always pick the biggest framework available','Split the backlog so each team has its own'], correct:1 } ],
+      solution:`<p>Reduce dependencies (teams around features, one shared backlog) before layering on heavy process \u2014 most "scaling pain" is dependency pain.</p>` }
+  ]
+}
+
+];
+
+if (typeof module !== "undefined") module.exports = { AGILE };
 /* ============ APP LOGIC ============ */
 (function(){
 "use strict";
@@ -2079,10 +2491,10 @@ const Store={
 };
 const KEY='pyquest:v2';
 
-const DATA={ python:CURRICULUM, lean:LEAN };
+const DATA={ python:CURRICULUM, lean:LEAN, agile:AGILE };
 let AREA='python', IDX=0;
-let state={ completed:{}, solved:{}, code:{}, xp:0, area:'python', last:{python:0,lean:0}, lang:'en', depth:'beginner' };
-function nounFor(a){ return t(a==='python'?'lessons':'modules'); }
+let state={ completed:{}, solved:{}, code:{}, xp:0, area:'python', last:{python:0,lean:0,agile:0}, lang:'en', depth:'beginner' };
+function nounFor(a){ return t(a==='lean'?'modules':'lessons'); }
 
 /* ---- pyodide + data packages ---- */
 let pyodide=null, pyReady=false, pyFailed=false, dataReady=false, dataLoading=null;
@@ -2192,7 +2604,7 @@ function relabelChrome(){
 function buildSidebar(){
   const nav=document.getElementById('sidebar'); nav.innerHTML='';
   const sw=document.createElement('div'); sw.className='area-switch';
-  sw.innerHTML=`<button class="aswitch ${AREA==='python'?'on':''}" data-a="python">&gt;&gt;&gt; Python</button><button class="aswitch ${AREA==='lean'?'on':''}" data-a="lean">\u25BF LEAN</button>`;
+  sw.innerHTML=`<button class="aswitch ${AREA==='python'?'on':''}" data-a="python">&gt;&gt;&gt; Python</button><button class="aswitch ${AREA==='lean'?'on':''}" data-a="lean">\u25BF LEAN</button><button class="aswitch ${AREA==='agile'?'on':''}" data-a="agile">\u25C6 Agile</button>`;
   nav.appendChild(sw);
   sw.querySelectorAll('.aswitch').forEach(b=>b.addEventListener('click',()=>switchArea(b.dataset.a)));
   const list=areaLessons(AREA), groups=[];
@@ -2521,6 +2933,32 @@ function lineSVG(values,labels,opt){ opt=opt||{}; var W=560,H=200,mL=60,mR=18,mT
   if(values.length>1) s+='<polyline fill="none" stroke="#3b6fb5" stroke-width="2" points="'+values.map(function(v,i){return X(i).toFixed(1)+','+Y(v).toFixed(1);}).join(' ')+'"/>';
   values.forEach(function(v,i){ s+='<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(v).toFixed(1)+'" r="3" fill="#3b6fb5"/>'; if(labels&&labels[i]!=null) s+='<text x="'+X(i).toFixed(1)+'" y="'+(mT+ph+14)+'" text-anchor="middle" font-size="9" fill="#69748a">'+labels[i]+'</text>'; });
   return s; }
+function burndownSVG(spec){ spec=spec||{}; var total=spec.total||30,days=spec.days||10,act=spec.actual||[]; var W=560,H=240,mL=46,mR=18,mT=20,mB=36,pw=W-mL-mR,ph=H-mT-mB; function X(d){return mL+pw*(d/days);} function Y(v){return mT+ph-ph*(v/(total||1));}
+ var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+ s+='<line x1="'+mL+'" y1="'+mT+'" x2="'+mL+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/><line x1="'+mL+'" y1="'+(mT+ph)+'" x2="'+(W-mR)+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/>';
+ s+='<line x1="'+X(0)+'" y1="'+Y(total)+'" x2="'+X(days)+'" y2="'+Y(0)+'" stroke="#9aa6b8" stroke-dasharray="5 4"/><text x="'+X(days)+'" y="'+(Y(0)-5)+'" text-anchor="end" font-size="9" fill="#69748a">ideal</text>';
+ if(act.length){ s+='<polyline fill="none" stroke="#3b6fb5" stroke-width="2" points="'+act.map(function(v,i){return X(i).toFixed(1)+','+Y(v).toFixed(1);}).join(' ')+'"/>'; act.forEach(function(v,i){ s+='<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(v).toFixed(1)+'" r="3" fill="#3b6fb5"/>'; }); }
+ s+='<text x="'+mL+'" y="14" font-size="10" fill="#69748a">story points remaining</text><text x="'+(W-mR)+'" y="'+(H-8)+'" text-anchor="end" font-size="9" fill="#69748a">sprint day \u2192</text></svg>'; return s; }
+function sprintCycleSVG(){ var W=640,H=210; var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+ function box(x,y,w,h,fill,stroke,label,sub){ var o='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="8" fill="'+fill+'" stroke="'+stroke+'"/>'; o+='<text x="'+(x+w/2)+'" y="'+(y+(sub?h/2-2:h/2+4))+'" text-anchor="middle" font-size="11" font-weight="600" fill="#11141b">'+label+'</text>'; if(sub)o+='<text x="'+(x+w/2)+'" y="'+(y+h/2+13)+'" text-anchor="middle" font-size="9" fill="#46526a">'+sub+'</text>'; return o; }
+ function arr(x1,y1,x2,y2){ return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#3b6fb5" stroke-width="1.6"/><polygon points="'+x2+','+y2+' '+(x2-6)+','+(y2-4)+' '+(x2-6)+','+(y2+4)+'" fill="#3b6fb5"/>'; }
+ s+=box(14,80,96,48,'#eef2f7','#cbd3df','Product','Backlog'); s+=arr(110,104,140,104);
+ s+=box(140,80,96,48,'#fff','#11141b','Sprint','Planning'); s+=arr(236,104,266,104);
+ s+=box(266,52,150,104,'#f4f7fa','#3b6fb5','Sprint','(1\u20134 weeks)');
+ s+='<circle cx="341" cy="120" r="22" fill="#fff" stroke="#cc9f00"/><text x="341" y="117" text-anchor="middle" font-size="8.5" fill="#8a6d00">Daily</text><text x="341" y="128" text-anchor="middle" font-size="8.5" fill="#8a6d00">Scrum</text>';
+ s+=arr(416,104,446,104); s+=box(446,52,90,48,'#fff','#11141b','Sprint','Review'); s+=box(446,108,90,48,'#fff','#11141b','Retro',''); s+=arr(491,100,491,108);
+ s+=arr(536,76,584,76); s+='<text x="560" y="70" text-anchor="middle" font-size="9" fill="#2e9e6b">Increment</text>';
+ s+='<path d="M446 132 C 300 200, 110 200, 62 130" fill="none" stroke="#9aa6b8" stroke-dasharray="4 3"/><polygon points="62,130 67,138 56,135" fill="#9aa6b8"/></svg>'; return s; }
+function cfdSVG(spec){ spec=spec||{}; var done=spec.done||[0,2,5,9,14,20],doing=spec.doing||[3,4,4,3,3,2],todo=spec.todo||[17,14,11,8,3,0]; var n=done.length; var W=560,H=240,mL=40,mR=92,mT=20,mB=30,pw=W-mL-mR,ph=H-mT-mB; var max=1; for(var i=0;i<n;i++){ max=Math.max(max,done[i]+doing[i]+todo[i]); } function X(i){return mL+pw*(n>1?i/(n-1):0);} function Y(v){return mT+ph-ph*(v/max);}
+ function band(lo,hi,color){ var up=[],dn=[]; for(var i=0;i<n;i++){ up.push(X(i).toFixed(1)+','+Y(hi(i)).toFixed(1)); } for(var j=n-1;j>=0;j--){ dn.push(X(j).toFixed(1)+','+Y(lo(j)).toFixed(1)); } return '<polygon points="'+up.concat(dn).join(' ')+'" fill="'+color+'"/>'; }
+ var c1=function(i){return done[i];},c2=function(i){return done[i]+doing[i];},c3=function(i){return done[i]+doing[i]+todo[i];},z=function(i){return 0;};
+ var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+ s+=band(z,c1,'#2e9e6b'); s+=band(c1,c2,'#3b6fb5'); s+=band(c2,c3,'#cbd3df');
+ s+='<line x1="'+mL+'" y1="'+mT+'" x2="'+mL+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/><line x1="'+mL+'" y1="'+(mT+ph)+'" x2="'+(W-mR)+'" y2="'+(mT+ph)+'" stroke="#cbd3df"/>';
+ s+='<rect x="'+(W-mR+8)+'" y="42" width="10" height="10" fill="#2e9e6b"/><text x="'+(W-mR+22)+'" y="51" font-size="9" fill="#46526a">Done</text>';
+ s+='<rect x="'+(W-mR+8)+'" y="58" width="10" height="10" fill="#3b6fb5"/><text x="'+(W-mR+22)+'" y="67" font-size="9" fill="#46526a">In progress</text>';
+ s+='<rect x="'+(W-mR+8)+'" y="74" width="10" height="10" fill="#cbd3df"/><text x="'+(W-mR+22)+'" y="83" font-size="9" fill="#46526a">To do</text>';
+ s+='<text x="'+mL+'" y="14" font-size="10" fill="#69748a">cumulative flow \u2014 band width = WIP</text></svg>'; return s; }
 function matrixSVG(items){
   var W=560,H=360,mL=58,mR=24,mT=24,mB=52,pw=W-mL-mR,ph=H-mT-mB;
   function X(v){ return mL+pw*((v-0.5)/5); } function Y(v){ return mT+ph-ph*((v-0.5)/5); }
@@ -2553,6 +2991,11 @@ function chartSVG(spec){
   if(spec.type==='barTakt') return barTaktSVG(spec.items,spec.takt);
   if(spec.type==='control') return controlChartSVG(spec);
   if(spec.type==='matrix') return matrixSVG(spec.items);
+  if(spec.type==='burndown') return burndownSVG(spec);
+  if(spec.type==='sprintcycle') return sprintCycleSVG();
+  if(spec.type==='cfd') return cfdSVG(spec);
+  if(spec.type==='velocity') return barsSVG(spec.items,{});
+  if(spec.type==='waterfall') return ganttSVG(spec.phases);
   return '';
 }
 
@@ -2599,6 +3042,15 @@ function buildWorksheet(tpl,key){
   } else if(kind==='a3'){
     el.className='a3-grid';
     [['background','Background',0],['current','Current condition',0],['goal','Goal / target',0],['analysis','Root-cause analysis',0],['countermeasures','Countermeasures',0],['plan','Plan (who/what/when)',0],['followup','Follow-up / results',1]].forEach(function(b){ var box=document.createElement('div'); box.className='a3-box'+(b[2]?' full':''); var l=document.createElement('label'); l.textContent=b[1]; box.appendChild(l); var ta=makeWs(key,b[0],b[1]+'\u2026'); ta.rows=3; box.appendChild(ta); el.appendChild(box); });
+  } else if(kind==='userstory'){
+    el.className='ws';
+    [['role','As a \u2026 (user / role)'],['want','I want \u2026 (capability)'],['benefit','So that \u2026 (value / outcome)'],['ac','Acceptance criteria (Given / When / Then)']].forEach(function(pr){ var r=document.createElement('div'); r.className='ws-row'; var l=document.createElement('label'); l.textContent=pr[1]; r.appendChild(l); r.appendChild(makeWs(key,pr[0],'')); el.appendChild(r); });
+  } else if(kind==='retro'){
+    el.className='ws ws-sipoc';
+    [['start','Start (begin doing)'],['stop','Stop (stop doing)'],['continue','Continue (keep doing)'],['actions','Action items (owner + date)']].forEach(function(pr){ var c=document.createElement('div'); c.className='ws-col'; var l=document.createElement('label'); l.textContent=pr[1]; c.appendChild(l); c.appendChild(makeWs(key,pr[0],'')); el.appendChild(c); });
+  } else if(kind==='roadmap'){
+    el.className='ws ws-sipoc';
+    [['goal','Product goal / outcome'],['now','Now (current)'],['next','Next (coming up)'],['later','Later (exploring)']].forEach(function(pr){ var c=document.createElement('div'); c.className='ws-col'; var l=document.createElement('label'); l.textContent=pr[1]; c.appendChild(l); c.appendChild(makeWs(key,pr[0],'')); el.appendChild(c); });
   } else if(kind==='aicanvas'){
     el.className='ws';
     [['proc','Process & Lean waste targeted'],['agents','Agent design (roles)'],['orch','Orchestration pattern'],['data','Data & feasibility'],['guard','Guardrails / controls (the Jidoka layer)'],['value','Value & KPIs (lead time, FTE, quality, revenue)'],['effort','Effort / complexity'],['owner','Owner & timeline']].forEach(function(pair){ var r=document.createElement('div'); r.className='ws-row'; var l=document.createElement('label'); l.textContent=pair[1]; r.appendChild(l); r.appendChild(makeWs(key,pair[0],'')); el.appendChild(r); });
@@ -2719,11 +3171,11 @@ function areaStats(a){
   return {tracks,exTotal,exSolved,lDone,lTotal:lessons.length};
 }
 function openDash(){
-  const py=areaStats('python'), ln=areaStats('lean');
-  const totLessons=py.lTotal+ln.lTotal, totDone=py.lDone+ln.lDone, totEx=py.exTotal+ln.exTotal, totSolved=py.exSolved+ln.exSolved;
+  const py=areaStats('python'), ln=areaStats('lean'), ag=areaStats('agile');
+  const totLessons=py.lTotal+ln.lTotal+ag.lTotal, totDone=py.lDone+ln.lDone+ag.lDone, totEx=py.exTotal+ln.exTotal+ag.exTotal, totSolved=py.exSolved+ln.exSolved+ag.exSolved;
   const pct=totLessons?Math.round(totDone/totLessons*100):0;
-  function areaBlock(title,st){
-    let h='<div class="dash-area"><h3>'+title+' \u2014 '+st.lDone+'/'+st.lTotal+' '+nounFor(title.toLowerCase().includes('python')?'python':'lean')+'</h3>';
+  function areaBlock(title,akey,st){
+    let h='<div class="dash-area"><h3>'+title+' \u2014 '+st.lDone+'/'+st.lTotal+' '+nounFor(akey)+'</h3>';
     Object.keys(st.tracks).forEach(tn=>{ const tr=st.tracks[tn]; const p=tr.et?Math.round(tr.es/tr.et*100):0;
       h+='<div class="trk"><div class="trk-row"><span>'+tn+'</span><span>'+tr.es+'/'+tr.et+' '+t('dashExercises')+'</span></div><div class="trk-bar"><i style="width:'+p+'%"></i></div></div>'; });
     return h+'</div>';
@@ -2735,7 +3187,7 @@ function openDash(){
       '<div class="dash-card"><div class="big">'+pct+'%</div><div class="lbl">'+t('dashOverall')+'</div></div>'+
       '<div class="dash-card"><div class="big">'+totSolved+'/'+totEx+'</div><div class="lbl">'+t('dashExercises')+'</div></div>'+
     '</div>'+
-    areaBlock('Python',py)+areaBlock('LEAN',ln)+
+    areaBlock('Python','python',py)+areaBlock('LEAN','lean',ln)+areaBlock('Agile','agile',ag)+
     '<div class="cert"><div class="ct">'+t('dashCert')+'</div><div class="cb">'+totDone+' / '+totLessons+' '+t('lessons')+'</div>'+
       '<div>'+t('dashLine')+'</div><div style="margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--muted)">'+t('dashGen')+': '+now+'</div></div>'+
     '<div style="margin-top:18px"><button class="run dash-print" id="dashPrint">'+t('dashPrint')+'</button></div>'+
@@ -2779,7 +3231,30 @@ DMAIC: Define - Measure - Analyse - Improve - Control
 8 wastes (DOWNTIME): Defects, Overproduction, Waiting,
   Non-utilised talent, Transportation, Inventory, Motion, Extra-processing
 5S: Sort - Set in order - Shine - Standardise - Sustain</pre></div>`;
-  refOv.innerHTML='<div class="modal"><div class="modal-head"><span class="prompt">&gt;&gt;&gt;</span> '+t('refTitle')+' \u00B7 '+(AREA==='python'?'Python':'LEAN')+'<button class="mclose" id="refX">'+t('dashClose')+'</button></div><div class="modal-body">'+(AREA==='python'?py:lean)+'</div></div>';
+  const agile = `
+  <div class="refsec"><h3>Scrum events (timeboxes, 1-month sprint)</h3><pre>Sprint Planning  <= 8h   -> Sprint Goal + plan
+Daily Scrum      15 min  -> developers re-plan the day
+Sprint Review    <= 4h   -> inspect increment w/ stakeholders
+Sprint Retro     <= 3h   -> improve the process
+(halve timeboxes for a 2-week sprint)</pre></div>
+  <div class="refsec"><h3>Roles & artifacts</h3><pre>Accountabilities: Product Owner | Scrum Master | Developers
+Artifacts: Product Backlog | Sprint Backlog | Increment
+Commitments: Product Goal | Sprint Goal | Definition of Done</pre></div>
+  <div class="refsec"><h3>Stories & estimation</h3><pre>Story: As a <role>, I want <capability>, so that <value>
+INVEST: Independent Negotiable Valuable Estimable Small Testable
+Velocity = avg points completed / sprint
+Sprints left = backlog points / velocity
+Little's Law: cycle time = WIP / throughput</pre></div>
+  <div class="refsec"><h3>Prioritisation & metrics</h3><pre>RICE  = Reach x Impact x Confidence / Effort
+WSJF  = Cost of Delay / Job Size
+CoD   = user-biz value + time criticality + risk/opp
+DORA  = deploy freq, lead time, change-fail %, MTTR</pre></div>
+  <div class="refsec"><h3>Scrum vs SAFe (hint)</h3><pre>Scrum = lightweight, team-level, 3 roles / 5 events
+SAFe  = enterprise, layered (team/ART/portfolio),
+        PI Planning on a fixed quarterly cadence,
+        more roles/artifacts -> alignment over autonomy</pre></div>`;
+  const refMap={python:py, lean:lean, agile:agile}; const refTitleMap={python:'Python', lean:'LEAN', agile:'Agile'};
+  refOv.innerHTML='<div class="modal"><div class="modal-head"><span class="prompt">&gt;&gt;&gt;</span> '+t('refTitle')+' \u00B7 '+(refTitleMap[AREA]||'')+'<button class="mclose" id="refX">'+t('dashClose')+'</button></div><div class="modal-body">'+(refMap[AREA]||agile)+'</div></div>';
   refOv.classList.add('open');
   refOv.querySelector('#refX').addEventListener('click',()=>refOv.classList.remove('open'));
 }
@@ -2810,6 +3285,10 @@ var TEMPLATES=[
  {name:'Pareto data sheet', desc:'Cause / count CSV for an 80/20 chart.', csv:function(){ return 'Cause,Count\n,,\n,,\n,,\n,,\nOther,\n'; }, csvname:'pareto-data-sheet.csv' },
  {name:'5S Audit', desc:'Score each S 1\u20135 with notes.', html:function(){ return printableHTML('5S Audit','<h1>5S Audit</h1><div class="sub">Area: ________   Auditor: ________   Date: ________</div><table><tr><th>S</th><th>What to check</th><th>Score (1\u20135)</th><th>Notes / actions</th></tr><tr><td>Sort</td><td>Only needed items present</td><td></td><td></td></tr><tr><td>Set in order</td><td>A place for everything, marked</td><td></td><td></td></tr><tr><td>Shine</td><td>Clean; cleaning = inspection</td><td></td><td></td></tr><tr><td>Standardise</td><td>Visual standards documented</td><td></td><td></td></tr><tr><td>Sustain</td><td>Audits &amp; discipline in place</td><td></td><td></td></tr></table>'); } },
  {name:'Kaizen Event Charter', desc:'Scope, target and team for a blitz.', html:function(){ return printableHTML('Kaizen Charter','<h1>Kaizen Event Charter</h1>'+_lines('Problem statement',2)+_lines('Scope / boundaries (in &amp; out)',2)+_lines('Goal &amp; target metrics',2)+_lines('Team &amp; sponsor',2)+_lines('Dates &amp; 30/60/90-day follow-up owner',2)); } },
+ {name:'User Story Canvas', desc:'As a / I want / So that, plus acceptance criteria.', html:function(){ return printableHTML('User Story', '<h1>User Story</h1><div class="sub">INVEST - PyQuest template</div>'+_box('As a ... (user or role)')+_box('I want ... (capability)')+_box('So that ... (value or outcome)')+_box('Acceptance criteria - Given / When / Then')); } },
+ {name:'Retrospective board', desc:'Start / Stop / Continue plus actions.', html:function(){ return printableHTML('Retrospective', '<h1>Retrospective</h1><div class="sub">Sprint: ____  Date: ____</div><table><tr><th>Start</th><th>Stop</th><th>Continue</th></tr>'+_rows(5,3)+'</table><h2>Action items - owner and date</h2><div class="box" style="min-height:90px"></div>'); } },
+ {name:'Now / Next / Later Roadmap', desc:'Outcome-based product roadmap.', html:function(){ return printableHTML('Roadmap', '<h1>Now / Next / Later Roadmap</h1>'+_lines('Product goal or outcome',1)+'<table><tr><th>Now</th><th>Next</th><th>Later</th></tr>'+_rows(6,3)+'</table>'); } },
+ {name:'Definition of Done', desc:'Shared quality bar for the increment.', html:function(){ return printableHTML('Definition of Done', '<h1>Definition of Done</h1><div class="sub">Criteria every item must meet</div>'+_lines('Code reviewed and merged',1)+_lines('Unit and integration tests pass',1)+_lines('Acceptance criteria met',1)+_lines('Docs and release notes updated',1)+_lines('No known critical defects',1)+_lines('Deployed to staging and demoable',1)); } },
  {name:'AI Use-Case Canvas', desc:'Scope an AI/agent transformation use case.', html:function(){ return printableHTML('AI Use-Case Canvas','<h1>AI Use-Case Canvas</h1><div class="sub">Lean \u00D7 AI \u00B7 PyQuest template</div><div class="grid2">'+_box('Process &amp; Lean waste targeted')+_box('Agent design (roles)')+_box('Orchestration pattern')+_box('Data &amp; feasibility')+_box('Guardrails / controls (Jidoka layer)')+_box('Value &amp; KPIs')+_box('Effort / complexity')+_box('Owner &amp; timeline')+'</div>'); } },
  {name:'Project Charter', desc:'Frame a Lean/AI improvement project.', html:function(){ return printableHTML('Project Charter','<h1>Project Charter</h1>'+_lines('Problem / opportunity',2)+_lines('Scope (in &amp; out)',2)+_lines('Goal &amp; target metrics',2)+_lines('Sponsor / team',2)+_lines('Milestones &amp; timeline',2)+_lines('Risks &amp; dependencies',2)); } },
  {name:'RACI matrix', desc:'Responsible / Accountable / Consulted / Informed.', html:function(){ return printableHTML('RACI','<h1>RACI Matrix</h1><div class="sub">R=Responsible \u00B7 A=Accountable \u00B7 C=Consulted \u00B7 I=Informed</div><table><tr><th>Activity / deliverable</th><th>Role 1</th><th>Role 2</th><th>Role 3</th><th>Role 4</th></tr>'+_rows(8,5)+'</table>'); } },
@@ -3319,7 +3798,7 @@ document.getElementById('refBtn').addEventListener('click',openRef);
 /* ---- language, menu, reset ---- */
 document.getElementById('langBtn').addEventListener('click',()=>{ lang=(lang==='en'?'es':'en'); save(); render(); });
 document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
-document.getElementById('resetBtn').addEventListener('click',()=>{ if(confirm(t('resetConfirm'))){ state={ completed:{}, solved:{}, code:{}, xp:0, area:AREA, last:{python:0,lean:0}, lang:lang, depth:state.depth||'beginner' }; IDX=0; save(); render(); } });
+document.getElementById('resetBtn').addEventListener('click',()=>{ if(confirm(t('resetConfirm'))){ state={ completed:{}, solved:{}, code:{}, xp:0, area:AREA, last:{python:0,lean:0,agile:0}, lang:lang, depth:state.depth||'beginner' }; IDX=0; save(); render(); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ dashOv.classList.remove('open'); refOv.classList.remove('open'); tmplOv.classList.remove('open'); aiOv.classList.remove('open'); studioOv.classList.remove('open'); guideOv.classList.remove('open'); } });
 
 /* ---- boot ---- */
@@ -3329,7 +3808,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ dashOv.classList.
  ".guide h3{font-size:13px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--py-blue-2);margin:18px 0 8px}"+
  ".guide .hero{background:linear-gradient(135deg,#11141b,#2c5a98);color:#fff;border-radius:14px;padding:20px 22px;margin-bottom:6px}"+
  ".guide .hero h2{margin:0 0 6px;font-size:21px}.guide .hero p{margin:0;font-size:13.5px;color:#d7e0ef;line-height:1.5}"+
- ".pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(max-width:680px){.pillars{grid-template-columns:1fr}.steps{grid-template-columns:1fr!important}}"+
+ ".pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}@media(max-width:680px){.pillars{grid-template-columns:1fr}.steps{grid-template-columns:1fr!important}}"+
  ".pillar{border:1px solid var(--line);border-radius:12px;padding:13px;background:var(--paper-2)}.pillar b{font-size:14px}.pillar p{margin:5px 0 0;font-size:12.5px;color:#46526a;line-height:1.45}"+
  ".steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}"+
  ".step{display:flex;gap:11px;border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff}"+
@@ -3344,7 +3823,7 @@ var GUIDE_HTML='<div class="guide-body">'
  +'<h3>What\u2019s inside</h3><div class="pillars">'
  +'<div class="pillar"><b>\u{1F40D} Python</b><p>30 hands-on lessons that run in your browser (real Python via Pyodide), each with an under-the-hood deep dive.</p></div>'
  +'<div class="pillar"><b>\u{1F4D0} LEAN</b><p>23 modules from the House of Lean to DMAIC \u2014 beginner + expert depth, with real VSM, Pareto, control-chart and Yamazumi diagrams.</p></div>'
- +'<div class="pillar"><b>\u2726 Lean \u00D7 AI Studio</b><p>An operating system to run programs: VSM builder, AI portfolio, prioritisation, execution and a program cockpit.</p></div>'
+ +'<div class="pillar"><b>\u{1F501} Agile / PM</b><p>16 lessons — Scrum, Kanban, ceremonies, user stories, prioritisation, waterfall, SAFe and Agile\u00D7AI — with quizzes and cases, from a PM / PdM view.</p></div>'+'<div class="pillar"><b>\u2726 Lean \u00D7 AI Studio</b><p>An operating system to run programs: VSM builder, AI portfolio, prioritisation, execution and a program cockpit.</p></div>'
  +'</div>'
  +'<h3>Run a program in 6 steps</h3><div class="steps">'
  +'<div class="step"><div class="stepnum">1</div><div><b>Map</b> <span class="tab">VSM Builder</span><p>Model the current value stream and design a future state \u2014 eliminate steps and cut wait. See PCE, lead time, WIP and the bottleneck live.</p></div></div>'
