@@ -3,7 +3,7 @@ import {
   Globe, User, Users, BookOpen, Brain, Layers, FileText, Lightbulb,
   Eye, EyeOff, Check, RotateCcw, ChevronRight, ChevronLeft, Play,
   Award, Sparkles, Home as HomeIcon, Library, ArrowLeft, HelpCircle,
-  X, GraduationCap, Target, Trophy, Shuffle, Plus, Settings, Lock
+  X, GraduationCap, Target, Trophy, Shuffle, Plus, Settings, Lock, BarChart3
 } from "lucide-react";
 
 /* ============================================================
@@ -18,12 +18,12 @@ const THEMES = {
     C: { felt: "#1b4332", feltDark: "#0f261c", feltLite: "#2d6a4f", ivory: "#f6f1e3", parch: "#ece4cf", ink: "#1d231f", brass: "#c9a227", brassDim: "#8f6f1c", red: "#b3261e", line: "#3a5d4c", line2: "#26463a", win: "#3f8f5e", soft: "#cdbf95" },
   },
   clean: {
-    name: { es: "Limpio", en: "Clean" }, sub: { es: "Claro, plano y moderno", en: "Light, flat, modern" }, ui: { maxW: "max-w-md", tips: false },
-    C: { felt: "#ffffff", feltDark: "#f1f3f5", feltLite: "#ffffff", ivory: "#111827", parch: "#374151", ink: "#ffffff", brass: "#0d9488", brassDim: "#99f6e4", red: "#dc2626", line: "#e5e7eb", line2: "#eef1f4", win: "#16a34a", soft: "#6b7280" },
+    name: { es: "Limpio", en: "Clean" }, sub: { es: "Claro, plano y moderno", en: "Light, flat, modern" }, ui: { maxW: "max-w-md", tips: false, page: "#e6eaef" },
+    C: { felt: "#eceff3", feltDark: "#ffffff", feltLite: "#f5f7fa", ivory: "#0f172a", parch: "#334155", ink: "#ffffff", brass: "#0d9488", brassDim: "#5eead4", red: "#dc2626", line: "#d3dae2", line2: "#e6eaef", win: "#15803d", soft: "#586273" },
   },
   ipad: {
-    name: { es: "iPad", en: "iPad" }, sub: { es: "Amplio para tablet", en: "Spacious for tablet" }, ui: { maxW: "max-w-3xl", tips: false },
-    C: { felt: "#ffffff", feltDark: "#eef1f5", feltLite: "#ffffff", ivory: "#0f172a", parch: "#334155", ink: "#ffffff", brass: "#4f46e5", brassDim: "#c7d2fe", red: "#e11d48", line: "#e2e8f0", line2: "#eef2f7", win: "#15803d", soft: "#64748b" },
+    name: { es: "iPad", en: "iPad" }, sub: { es: "Amplio para tablet", en: "Spacious for tablet" }, ui: { maxW: "max-w-3xl", tips: false, rootPx: 18, page: "#e3e8f0" },
+    C: { felt: "#e9edf3", feltDark: "#ffffff", feltLite: "#f4f7fb", ivory: "#0f172a", parch: "#334155", ink: "#ffffff", brass: "#4f46e5", brassDim: "#a5b4fc", red: "#e11d48", line: "#ccd6e3", line2: "#e3e9f1", win: "#15803d", soft: "#586273" },
   },
   tutor: {
     name: { es: "Tutor", en: "Tutor" }, sub: { es: "Sepia con consejos", en: "Sepia with tips" }, ui: { maxW: "max-w-md", tips: true },
@@ -3102,7 +3102,7 @@ const T = {
     thinking: "Pensando…", yourAuction: "Tu subasta", realAuctionLbl: "Subasta real (mesa)",
     compareTitle: "Tu subasta vs. la mesa real", matchTag: "igual", diffTag: "distinta",
     atTable: "En la mesa", meaningLbl: "Significa", passedOut: "Pasada (sin contrato)",
-    declarerTag: "declarante", partnerTag: "compañero", toDefeat: "para hundir", defeated: "¡Hundido!", contractMade: "Contrato cumplido", defendTitle: "Defiendes", levelExpert: "Experto", levelStd: "Estándar", difficulty: "Dificultad del juego", diffEasy: "Principiante", diffMed: "Intermedio", diffHard: "Experto", diffEasyD: "Los robots juegan flojo: ideal para aprender el carteo sin agobios.", suggestLbl: "Sugerencia", vulLbl: "Vul", vulYou: "tú", vulOpp: "rivales", vulBoth: "ambos", vulNone: "nadie", yourScore: "Tu puntuación", vulYesShort: "vulnerable", vulNoShort: "no vul.", planBtn: "Plan", planTitle: "Plan de carteo", sureWinners: "Ganadores seguros", estLosers: "Perdedoras est.", planNTgap: "Te faltan {n} baza(s): desarróllalas en tu palo más largo ({suit}) o con impasses antes de ceder la mano.", planNTok: "Tienes ganadores de sobra: cóbralos con cuidado de bloqueos y entradas.", planSuit: "Cuenta perdedoras, saca triunfos ({trump}) si controlas, y maneja las perdedoras con fallo, descarte o impasse antes de soltar el control.", optimalBtn: "Óptimo (doble-muerto)", calculating: "Calculando…", optimalLbl: "Óptimo", tricksWord: "bazas", exact: "exacto", estimated: "estimado", makes: "cumple", downN: "cae por {n}", optimalErr: "No se pudo calcular aquí (disponible en el navegador; o juega unas bazas y reintenta).", analyzeBtn: "Analizar la mano", analyzeTitle: "Análisis (doble-muerto)", youMade: "Hiciste {n} bazas.", analyzedFrom: "Análisis exacto desde el truco {t}.", analyzedNone: "El final no fue analizable con cálculo exacto aquí.", youPlayed: "jugaste", betterWas: "mejor", noErrors: "Sin errores en la parte analizada. ¡Bien jugado!", diffMedD: "Juego sólido y natural (motor por defecto).", diffHardD: "Información perfecta al seguir: ganan/cortan al menor coste. Muy exigente.", themesNav: "Temas", themesTitle: "Práctica temática", themesIntro: "Manos verificadas por doble-muerto para entrenar técnicas concretas.", themeDeclare: "Declaras", themeDefend: "Defiendes", themeDeal: "Mano", themePlay: "Jugar", themeDD: "Doble-muerto", themeRandom: "Mano aleatoria", themeRandomAny: "Mano aleatoria (cualquier tema)", leadTitle: "Análisis de la salida", yourLead: "Tu salida", defLead: "Salida del defensor", declMakes: "el declarante hace", leadOptimal: "Salida óptima ✓ (mejor defensa)", leadBest: "Mejor salida", reviewNav: "Repaso", reviewTitle: "Repaso de errores", reviewLead: "Salida", reviewYouDefend: "Defiendes desde el", reviewPickLead: "Elige tu salida.", reviewYourLead: "Tu salida", reviewBest: "Mejor", reviewOptimal: "¡Salida óptima! ✓", reviewAgain: "Otra vez", reviewGood: "Bien", reviewEasy: "Fácil", reviewNonePending: "No hay repasos pendientes", reviewDone: "¡Repaso completado!", reviewTotal: "manos en tu mazo de repaso", reviewNextDue: "Próximo repaso", reviewGradedN: "Repasaste {n} en esta sesión.", reviewEmptyHint: "tus errores de salida en las manos temáticas aparecerán aquí.", reviewPlay: "Carteo", reviewTrickN: "Truco {n}", reviewYouPlay: "juegas desde el", reviewWhatPlay: "¿Qué jugarías?", reviewTrick: "Baza", reviewYourHand: "Tu mano", reviewYouPlayed: "Jugaste", reviewCorrect: "¡Correcto! ✓", levelTest: "Test de nivel", mastery: "Maestría", overallMastery: "maestría global", skills: "Destrezas", skillBidding: "Subasta", skillCardplay: "Carteo", skillDefense: "Defensa", skillsHint: "Cobertura de estudio según tu progreso y tus repasos.", nextStep: "Siguiente paso", helpTitle: "Ayuda y glosario", glossary: "Glosario", glossarySearch: "Buscar término…", glossaryTerms: "términos", glossaryNone: "Sin resultados", tourSkip: "Saltar", tourStart: "¡Empezar!", tourReplay: "Ver la guía rápida", tourReplaySub: "Un recorrido por la app en 6 pasos", tourSteps: [
+    declarerTag: "declarante", partnerTag: "compañero", toDefeat: "para hundir", defeated: "¡Hundido!", contractMade: "Contrato cumplido", defendTitle: "Defiendes", levelExpert: "Experto", levelStd: "Estándar", difficulty: "Dificultad del juego", diffEasy: "Principiante", diffMed: "Intermedio", diffHard: "Experto", diffEasyD: "Los robots juegan flojo: ideal para aprender el carteo sin agobios.", suggestLbl: "Sugerencia", vulLbl: "Vul", vulYou: "tú", vulOpp: "rivales", vulBoth: "ambos", vulNone: "nadie", yourScore: "Tu puntuación", vulYesShort: "vulnerable", vulNoShort: "no vul.", planBtn: "Plan", planTitle: "Plan de carteo", sureWinners: "Ganadores seguros", estLosers: "Perdedoras est.", planNTgap: "Te faltan {n} baza(s): desarróllalas en tu palo más largo ({suit}) o con impasses antes de ceder la mano.", planNTok: "Tienes ganadores de sobra: cóbralos con cuidado de bloqueos y entradas.", planSuit: "Cuenta perdedoras, saca triunfos ({trump}) si controlas, y maneja las perdedoras con fallo, descarte o impasse antes de soltar el control.", optimalBtn: "Óptimo (doble-muerto)", calculating: "Calculando…", optimalLbl: "Óptimo", tricksWord: "bazas", exact: "exacto", estimated: "estimado", makes: "cumple", downN: "cae por {n}", optimalErr: "No se pudo calcular aquí (disponible en el navegador; o juega unas bazas y reintenta).", analyzeBtn: "Analizar la mano", analyzeTitle: "Análisis (doble-muerto)", youMade: "Hiciste {n} bazas.", analyzedFrom: "Análisis exacto desde el truco {t}.", analyzedNone: "El final no fue analizable con cálculo exacto aquí.", youPlayed: "jugaste", betterWas: "mejor", noErrors: "Sin errores en la parte analizada. ¡Bien jugado!", diffMedD: "Juego sólido y natural (motor por defecto).", diffHardD: "Información perfecta al seguir: ganan/cortan al menor coste. Muy exigente.", themesNav: "Temas", themesTitle: "Práctica temática", themesIntro: "Manos verificadas por doble-muerto para entrenar técnicas concretas.", themeDeclare: "Declaras", themeDefend: "Defiendes", themeDeal: "Mano", themePlay: "Jugar", themeDD: "Doble-muerto", themeRandom: "Mano aleatoria", themeRandomAny: "Mano aleatoria (cualquier tema)", leadTitle: "Análisis de la salida", yourLead: "Tu salida", defLead: "Salida del defensor", declMakes: "el declarante hace", leadOptimal: "Salida óptima ✓ (mejor defensa)", leadBest: "Mejor salida", reviewNav: "Repaso", reviewTitle: "Repaso de errores", reviewLead: "Salida", reviewYouDefend: "Defiendes desde el", reviewPickLead: "Elige tu salida.", reviewYourLead: "Tu salida", reviewBest: "Mejor", reviewOptimal: "¡Salida óptima! ✓", reviewAgain: "Otra vez", reviewGood: "Bien", reviewEasy: "Fácil", reviewNonePending: "No hay repasos pendientes", reviewDone: "¡Repaso completado!", reviewTotal: "manos en tu mazo de repaso", reviewNextDue: "Próximo repaso", reviewGradedN: "Repasaste {n} en esta sesión.", reviewEmptyHint: "tus errores de salida en las manos temáticas aparecerán aquí.", reviewPlay: "Carteo", reviewTrickN: "Truco {n}", reviewYouPlay: "juegas desde el", reviewWhatPlay: "¿Qué jugarías?", reviewTrick: "Baza", reviewYourHand: "Tu mano", reviewYouPlayed: "Jugaste", reviewCorrect: "¡Correcto! ✓", levelTest: "Test de nivel", mastery: "Maestría", overallMastery: "maestría global", skills: "Destrezas", skillBidding: "Subasta", skillCardplay: "Carteo", skillDefense: "Defensa", skillsHint: "Cobertura de estudio según tu progreso y tus repasos.", nextStep: "Siguiente paso", statsTitle: "Estadísticas", statsEmpty: "Juega manos para ver tus estadísticas y tendencias.", statContracts: "Contratos cumplidos", statDefense: "Defensa lograda", statLeads: "Salidas óptimas", statHands: "manos", statLeadsN: "salidas", statContractsTrend: "Contratos cumplidos (tendencia)", statLeadsTrend: "Salidas óptimas (tendencia)", statTestTrend: "Tests (% de acierto)", statActivity: "Actividad", statBuckets: "por bloques de 5", stat14d: "últimos 14 días", statTotalHands: "Manos jugadas", statReviews: "Repasos hechos", statsHint: "Calculado a partir de tu juego real registrado en este dispositivo.", helpTitle: "Ayuda y glosario", glossary: "Glosario", glossarySearch: "Buscar término…", glossaryTerms: "términos", glossaryNone: "Sin resultados", tourSkip: "Saltar", tourStart: "¡Empezar!", tourReplay: "Ver la guía rápida", tourReplaySub: "Un recorrido por la app en 6 pasos", tourSteps: [
   { t: "Bienvenido a Bridge Maestro", d: "Aprende bridge (5 cartas en mayores) paso a paso, en español o inglés. Cambia el idioma con el botón de la esquina." },
   { t: "Niveles y maestría", d: "Avanza por niveles. Cada uno mide tu maestría con lecciones, quiz, subasta, manos y un test final. El siguiente nivel se desbloquea al 40% del anterior." },
   { t: "Práctica de juego", d: "Juega manos completas con análisis doble-muerto exacto, además de práctica específica de subasta y de carteo." },
@@ -3152,7 +3152,7 @@ const T = {
     thinking: "Thinking…", yourAuction: "Your auction", realAuctionLbl: "Real auction (table)",
     compareTitle: "Your auction vs. the real table", matchTag: "same", diffTag: "different",
     atTable: "At the table", meaningLbl: "Means", passedOut: "Passed out (no contract)",
-    declarerTag: "declarer", partnerTag: "partner", toDefeat: "to defeat", defeated: "Defeated!", contractMade: "Contract made", defendTitle: "You defend", levelExpert: "Expert", levelStd: "Standard", difficulty: "Play difficulty", diffEasy: "Beginner", diffMed: "Intermediate", diffHard: "Expert", diffEasyD: "Robots play loosely: great for learning the play with no pressure.", suggestLbl: "Suggestion", vulLbl: "Vul", vulYou: "you", vulOpp: "opp.", vulBoth: "both", vulNone: "none", yourScore: "Your score", vulYesShort: "vulnerable", vulNoShort: "non-vul.", planBtn: "Plan", planTitle: "Play plan", sureWinners: "Sure winners", estLosers: "Est. losers", planNTgap: "You are {n} trick(s) short: develop them in your longest suit ({suit}) or with finesses before giving up the lead.", planNTok: "You have plenty of winners: cash them watching for blockages and entries.", planSuit: "Count losers, draw trumps ({trump}) if you control them, and handle losers by ruffing, discarding or finessing before releasing control.", optimalBtn: "Optimal (double-dummy)", calculating: "Calculating…", optimalLbl: "Optimal", tricksWord: "tricks", exact: "exact", estimated: "estimate", makes: "makes", downN: "down {n}", optimalErr: "Could not compute here (works in the browser; or play a few tricks and retry).", analyzeBtn: "Analyze the hand", analyzeTitle: "Analysis (double-dummy)", youMade: "You made {n} tricks.", analyzedFrom: "Exact analysis from trick {t}.", analyzedNone: "The ending was not exactly analyzable here.", youPlayed: "you played", betterWas: "better", noErrors: "No errors in the analyzed part. Well played!", diffMedD: "Solid, natural play (default engine).", diffHardD: "Perfect-information following: wins/ruffs at least cost. Very demanding.", themesNav: "Themes", themesTitle: "Thematic practice", themesIntro: "Double-dummy verified deals to drill specific techniques.", themeDeclare: "You declare", themeDefend: "You defend", themeDeal: "Deal", themePlay: "Play", themeDD: "Double-dummy", themeRandom: "Random deal", themeRandomAny: "Random deal (any theme)", leadTitle: "Opening-lead analysis", yourLead: "Your lead", defLead: "Defender's lead", declMakes: "declarer makes", leadOptimal: "Optimal lead ✓ (best defense)", leadBest: "Best lead", reviewNav: "Review", reviewTitle: "Mistakes review", reviewLead: "Lead", reviewYouDefend: "You defend as", reviewPickLead: "Choose your lead.", reviewYourLead: "Your lead", reviewBest: "Best", reviewOptimal: "Optimal lead! ✓", reviewAgain: "Again", reviewGood: "Good", reviewEasy: "Easy", reviewNonePending: "No reviews due", reviewDone: "Review complete!", reviewTotal: "deals in your review deck", reviewNextDue: "Next review", reviewGradedN: "You reviewed {n} this session.", reviewEmptyHint: "your opening-lead mistakes in themed deals will show up here.", reviewPlay: "Card play", reviewTrickN: "Trick {n}", reviewYouPlay: "you play from", reviewWhatPlay: "What would you play?", reviewTrick: "Trick", reviewYourHand: "Your hand", reviewYouPlayed: "You played", reviewCorrect: "Correct! ✓", levelTest: "Level test", mastery: "Mastery", overallMastery: "overall mastery", skills: "Skills", skillBidding: "Bidding", skillCardplay: "Card play", skillDefense: "Defense", skillsHint: "Study coverage based on your progress and reviews.", nextStep: "Next step", helpTitle: "Help & glossary", glossary: "Glossary", glossarySearch: "Search a term…", glossaryTerms: "terms", glossaryNone: "No results", tourSkip: "Skip", tourStart: "Start!", tourReplay: "See the quick guide", tourReplaySub: "A 6-step tour of the app", tourSteps: [
+    declarerTag: "declarer", partnerTag: "partner", toDefeat: "to defeat", defeated: "Defeated!", contractMade: "Contract made", defendTitle: "You defend", levelExpert: "Expert", levelStd: "Standard", difficulty: "Play difficulty", diffEasy: "Beginner", diffMed: "Intermediate", diffHard: "Expert", diffEasyD: "Robots play loosely: great for learning the play with no pressure.", suggestLbl: "Suggestion", vulLbl: "Vul", vulYou: "you", vulOpp: "opp.", vulBoth: "both", vulNone: "none", yourScore: "Your score", vulYesShort: "vulnerable", vulNoShort: "non-vul.", planBtn: "Plan", planTitle: "Play plan", sureWinners: "Sure winners", estLosers: "Est. losers", planNTgap: "You are {n} trick(s) short: develop them in your longest suit ({suit}) or with finesses before giving up the lead.", planNTok: "You have plenty of winners: cash them watching for blockages and entries.", planSuit: "Count losers, draw trumps ({trump}) if you control them, and handle losers by ruffing, discarding or finessing before releasing control.", optimalBtn: "Optimal (double-dummy)", calculating: "Calculating…", optimalLbl: "Optimal", tricksWord: "tricks", exact: "exact", estimated: "estimate", makes: "makes", downN: "down {n}", optimalErr: "Could not compute here (works in the browser; or play a few tricks and retry).", analyzeBtn: "Analyze the hand", analyzeTitle: "Analysis (double-dummy)", youMade: "You made {n} tricks.", analyzedFrom: "Exact analysis from trick {t}.", analyzedNone: "The ending was not exactly analyzable here.", youPlayed: "you played", betterWas: "better", noErrors: "No errors in the analyzed part. Well played!", diffMedD: "Solid, natural play (default engine).", diffHardD: "Perfect-information following: wins/ruffs at least cost. Very demanding.", themesNav: "Themes", themesTitle: "Thematic practice", themesIntro: "Double-dummy verified deals to drill specific techniques.", themeDeclare: "You declare", themeDefend: "You defend", themeDeal: "Deal", themePlay: "Play", themeDD: "Double-dummy", themeRandom: "Random deal", themeRandomAny: "Random deal (any theme)", leadTitle: "Opening-lead analysis", yourLead: "Your lead", defLead: "Defender's lead", declMakes: "declarer makes", leadOptimal: "Optimal lead ✓ (best defense)", leadBest: "Best lead", reviewNav: "Review", reviewTitle: "Mistakes review", reviewLead: "Lead", reviewYouDefend: "You defend as", reviewPickLead: "Choose your lead.", reviewYourLead: "Your lead", reviewBest: "Best", reviewOptimal: "Optimal lead! ✓", reviewAgain: "Again", reviewGood: "Good", reviewEasy: "Easy", reviewNonePending: "No reviews due", reviewDone: "Review complete!", reviewTotal: "deals in your review deck", reviewNextDue: "Next review", reviewGradedN: "You reviewed {n} this session.", reviewEmptyHint: "your opening-lead mistakes in themed deals will show up here.", reviewPlay: "Card play", reviewTrickN: "Trick {n}", reviewYouPlay: "you play from", reviewWhatPlay: "What would you play?", reviewTrick: "Trick", reviewYourHand: "Your hand", reviewYouPlayed: "You played", reviewCorrect: "Correct! ✓", levelTest: "Level test", mastery: "Mastery", overallMastery: "overall mastery", skills: "Skills", skillBidding: "Bidding", skillCardplay: "Card play", skillDefense: "Defense", skillsHint: "Study coverage based on your progress and reviews.", nextStep: "Next step", statsTitle: "Statistics", statsEmpty: "Play hands to see your stats and trends.", statContracts: "Contracts made", statDefense: "Defense success", statLeads: "Optimal leads", statHands: "hands", statLeadsN: "leads", statContractsTrend: "Contracts made (trend)", statLeadsTrend: "Optimal leads (trend)", statTestTrend: "Tests (% correct)", statActivity: "Activity", statBuckets: "in blocks of 5", stat14d: "last 14 days", statTotalHands: "Hands played", statReviews: "Reviews done", statsHint: "Computed from your real play logged on this device.", helpTitle: "Help & glossary", glossary: "Glossary", glossarySearch: "Search a term…", glossaryTerms: "terms", glossaryNone: "No results", tourSkip: "Skip", tourStart: "Start!", tourReplay: "See the quick guide", tourReplaySub: "A 6-step tour of the app", tourSteps: [
   { t: "Welcome to Bridge Maestro", d: "Learn bridge (5-card majors) step by step, in English or Spanish. Switch language with the corner button." },
   { t: "Levels & mastery", d: "Progress through levels. Each measures your mastery via lessons, quiz, bidding, deals and a final test. The next level unlocks at 40% of the previous." },
   { t: "Play practice", d: "Play full hands with exact double-dummy analysis, plus focused bidding and card-play drills." },
@@ -3180,7 +3180,7 @@ function PlayingCard({ card, onClick, dim, small, hidden }) {
   const red = SUIT_RED.has(card.s);
   return (
     <button onClick={onClick} disabled={!onClick}
-      style={{ width: w, height: h, background: dim ? "#d8d2c0" : C.ivory, color: red ? C.red : C.ink, borderRadius: 6, border: `1px solid ${onClick ? C.brass : "#bdb38f"}`, boxShadow: onClick ? "0 2px 5px rgba(0,0,0,.35)" : "0 1px 2px rgba(0,0,0,.25)", opacity: dim ? .55 : 1, cursor: onClick ? "pointer" : "default" }}
+      style={{ width: w, height: h, background: C.ivory, color: red ? C.red : C.ink, borderRadius: 6, border: `1px solid ${onClick ? C.brass : "#bdb38f"}`, boxShadow: onClick ? "0 2px 5px rgba(0,0,0,.35)" : "0 1px 2px rgba(0,0,0,.25)", opacity: dim ? .4 : 1, cursor: onClick ? "pointer" : "default" }}
       className="flex flex-col items-center justify-center font-semibold leading-none transition-transform hover:-translate-y-1">
       <span style={{ fontSize: small ? 16 : 20 }}>{card.r}</span>
       <span style={{ fontSize: small ? 17 : 22 }}>{card.s}</span>
@@ -3860,7 +3860,7 @@ function analyzeEndgame(deal, playedCards, declarer, threshold) {
   return { made: declWon, findings, analyzedFromTrick: analyzedFrom == null ? null : Math.floor(analyzedFrom / 4) + 1, userDeclares };
 }
 
-function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, onCapturePlay }) {
+function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, onCapturePlay, onLog }) {
   const hasAuction = !!(deal.auction && deal.auction.length);
   const ORD = ["N", "E", "S", "W"];
   const dealerSeat = deal.dealer || ORD[(Math.abs(deal.seed || 0)) % 4];
@@ -4011,9 +4011,17 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
     if (phase === "play" && g.finished && !firedRef.current) {
       firedRef.current = true;
       if (onComplete) onComplete(g.tricksNS >= needed);
-      if (AD.lt && g.played && g.played.length > 0 && onCaptureLead) {
+      const declSide = sideOfSeat(declarer);
+      const declTricks = declSide === "NS" ? g.tricksNS : g.tricksEW;
+      const made = declTricks >= needed;
+      const userDeclares = declSide === "NS";
+      if (onLog) onLog({ kind: "hand", role: userDeclares ? "declare" : "defend", made, success: userDeclares ? made : !made, themed: !!AD.lt });
+      if (AD.lt && g.played && g.played.length > 0) {
         const le = leadEval(AD, g.played[0]);
-        if (le && le.userIsLeader && le.lost > 0) onCaptureLead(AD.d, AD.contract, AD.lt, g.played[0], le.leadTricks, le.best);
+        if (le && le.userIsLeader) {
+          if (onLog) onLog({ kind: "lead", optimal: le.lost <= 0 });
+          if (le.lost > 0 && onCaptureLead) onCaptureLead(AD.d, AD.contract, AD.lt, g.played[0], le.leadTricks, le.best);
+        }
       }
     }
   }, [g.finished, phase]);
@@ -4555,6 +4563,30 @@ function recommendNext(user, e) {
   }
   if (due > 0) return { kind: "review", label: { es: `Repasa ${due} error${due > 1 ? "es" : ""}`, en: `Review ${due} mistake${due > 1 ? "s" : ""}` } };
   return { kind: "done", label: { es: "¡Has dominado todo lo disponible!", en: "You've mastered everything available!" } };
+}
+
+// ---------- Statistics from logged events ----------
+function computeStats(user) {
+  const ev = user.stats || [];
+  const hands = ev.filter(e => e.kind === "hand");
+  const declares = hands.filter(e => e.role === "declare");
+  const defends = hands.filter(e => e.role === "defend");
+  const leads = ev.filter(e => e.kind === "lead");
+  const tests = ev.filter(e => e.kind === "test");
+  const reviews = ev.filter(e => e.kind === "review");
+  const pct = (n, d) => d ? Math.round(100 * n / d) : 0;
+  const buckets = (arr, pred, B) => { B = B || 5; const out = []; for (let i = 0; i < arr.length; i += B) { const s = arr.slice(i, i + B); out.push(Math.round(100 * s.filter(pred).length / s.length)); } return out; };
+  const dayKey = (ts) => { const d = new Date(ts); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); };
+  const now = new Date(); const days = [];
+  for (let i = 13; i >= 0; i--) { const d = new Date(now); d.setDate(now.getDate() - i); const k = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); days.push({ k, c: hands.filter(e => dayKey(e.ts) === k).length, label: (d.getMonth() + 1) + "/" + d.getDate() }); }
+  return {
+    total: hands.length, declareN: declares.length, defendN: defends.length, leadN: leads.length, reviewN: reviews.length,
+    declareMadePct: pct(declares.filter(e => e.made).length, declares.length),
+    defendSuccessPct: pct(defends.filter(e => e.success).length, defends.length),
+    leadAccPct: pct(leads.filter(e => e.optimal).length, leads.length),
+    madeTrend: buckets(declares, e => e.made), leadTrend: buckets(leads, e => e.optimal),
+    days, testTrend: tests.map(t => Math.round(t.score * 100)),
+  };
 }
 
 function levelStats(level, prog, e) {
@@ -5127,6 +5159,7 @@ function Header({ lang, user, view, onNav, onSwitch, onToggleLang }) {
             <span style={{ color: C.ivory }} className="font-serif text-lg">{L.app}</span>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => onNav("stats")} style={{ color: view === "stats" ? C.ink : C.brass, background: view === "stats" ? C.brass : "transparent", border: `1px solid ${C.brassDim}`, borderRadius: 8 }} className="px-2 py-1 text-xs font-semibold flex items-center" title={L.statsTitle}><BarChart3 size={13} /></button>
             <button onClick={() => onNav("help")} style={{ color: view === "help" ? C.ink : C.brass, background: view === "help" ? C.brass : "transparent", border: `1px solid ${C.brassDim}`, borderRadius: 8 }} className="px-2 py-1 text-xs font-semibold flex items-center" title={L.helpTitle}><HelpCircle size={13} /></button>
             <button onClick={() => onNav("settings")} style={{ color: view === "settings" ? C.ink : C.brass, background: view === "settings" ? C.brass : "transparent", border: `1px solid ${C.brassDim}`, borderRadius: 8 }} className="px-2 py-1 text-xs font-semibold flex items-center" title={L.settingsTitle}><Settings size={13} /></button>
             <button onClick={onToggleLang} style={{ color: C.brass, border: `1px solid ${C.brassDim}`, borderRadius: 8 }} className="px-2 py-1 text-xs font-semibold flex items-center gap-1"><Globe size={12} />{lang.toUpperCase()}</button>
@@ -5300,6 +5333,88 @@ function HelpView({ lang, onTour }) {
         <ChevronRight size={20} />
       </button>
       <Glossary lang={lang} />
+    </div>
+  );
+}
+
+// ---------- Stats view (inline SVG charts, dependency-free) ----------
+function MiniLine({ data, color, max, unit }) {
+  max = max || 100; const h = 64, w = 280;
+  if (!data || data.length === 0) return null;
+  const n = data.length, step = n > 1 ? w / (n - 1) : 0;
+  const pt = (v, i) => `${n > 1 ? i * step : w / 2},${h - 6 - (Math.max(0, Math.min(max, v)) / max) * (h - 12)}`;
+  const poly = data.map(pt).join(" ");
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: 64 }} preserveAspectRatio="none">
+      {[0, 0.5, 1].map((g, i) => <line key={i} x1="0" x2={w} y1={6 + g * (h - 12)} y2={6 + g * (h - 12)} stroke={C.line} strokeWidth="0.5" />)}
+      {n > 1 && <polyline points={poly} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />}
+      {data.map((v, i) => { const [x, y] = pt(v, i).split(","); return <circle key={i} cx={x} cy={y} r={n > 1 ? 2.5 : 4} fill={color} />; })}
+    </svg>
+  );
+}
+function MiniBars({ data, color }) {
+  const h = 64, w = 280; const max = Math.max(1, ...data.map(d => d.c));
+  const n = data.length, bw = w / n;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: 64 }} preserveAspectRatio="none">
+      {data.map((d, i) => { const bh = (d.c / max) * (h - 10); return <rect key={i} x={i * bw + 1} y={h - bh} width={bw - 2} height={bh} fill={d.c ? color : C.line} rx="1" />; })}
+    </svg>
+  );
+}
+function StatTile({ label, value, sub, color }) {
+  return (
+    <div style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 12 }} className="p-3 flex-1 min-w-[90px]">
+      <div style={{ color: color || C.brass }} className="text-2xl font-bold">{value}</div>
+      <div style={{ color: C.ivory }} className="text-xs font-semibold">{label}</div>
+      {sub != null && <div style={{ color: C.soft }} className="text-[10px]">{sub}</div>}
+    </div>
+  );
+}
+function ChartCard({ title, hint, children }) {
+  return (
+    <div style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 12 }} className="p-3">
+      <div className="flex items-center justify-between mb-1"><span style={{ color: C.ivory }} className="text-sm font-semibold">{title}</span>{hint && <span style={{ color: C.soft }} className="text-[10px]">{hint}</span>}</div>
+      {children}
+    </div>
+  );
+}
+function StatsView({ lang, user }) {
+  const L = T[lang];
+  const s = computeStats(user);
+  if (s.total === 0 && s.reviewN === 0 && s.testTrend.length === 0) {
+    return (
+      <div className="flex flex-col gap-3">
+        <SectionTitle icon={BarChart3}>{L.statsTitle}</SectionTitle>
+        <div style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 12 }} className="p-6 text-center">
+          <BarChart3 size={32} style={{ color: C.brass }} className="mx-auto mb-2" />
+          <p style={{ color: C.soft }} className="text-sm">{L.statsEmpty}</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-3">
+      <SectionTitle icon={BarChart3}>{L.statsTitle}</SectionTitle>
+      <div className="flex gap-2 flex-wrap">
+        <StatTile label={L.statContracts} value={s.declareN ? s.declareMadePct + "%" : "—"} sub={`${s.declareN} ${L.statHands}`} color={C.win} />
+        <StatTile label={L.statDefense} value={s.defendN ? s.defendSuccessPct + "%" : "—"} sub={`${s.defendN} ${L.statHands}`} color={C.brass} />
+        <StatTile label={L.statLeads} value={s.leadN ? s.leadAccPct + "%" : "—"} sub={`${s.leadN} ${L.statLeadsN}`} color={C.red} />
+      </div>
+      {s.madeTrend.length >= 1 && (
+        <ChartCard title={L.statContractsTrend} hint={L.statBuckets}><MiniLine data={s.madeTrend} color={C.win} /></ChartCard>
+      )}
+      {s.leadTrend.length >= 1 && (
+        <ChartCard title={L.statLeadsTrend} hint={L.statBuckets}><MiniLine data={s.leadTrend} color={C.red} /></ChartCard>
+      )}
+      {s.testTrend.length >= 1 && (
+        <ChartCard title={L.statTestTrend}><MiniLine data={s.testTrend} color={C.brass} /></ChartCard>
+      )}
+      <ChartCard title={L.statActivity} hint={L.stat14d}><MiniBars data={s.days} color={C.brass} /></ChartCard>
+      <div className="flex gap-2 flex-wrap">
+        <StatTile label={L.statTotalHands} value={s.total} color={C.ivory} />
+        <StatTile label={L.statReviews} value={s.reviewN} color={C.ivory} />
+      </div>
+      <p style={{ color: C.soft }} className="text-[11px]">{L.statsHint}</p>
     </div>
   );
 }
@@ -5559,9 +5674,12 @@ export default function App() {
         return { ...u, reviews };
       });
     },
+    logEvent(ev) {
+      updateUser(u => { const s = (u.stats || []).concat([{ ts: Date.now(), ...ev }]); return { ...u, stats: s.length > 800 ? s.slice(s.length - 800) : s }; });
+    },
     seenTour() { updateUser(u => ({ ...u, seenTour: true })); },
     test(levelId, score) {
-      updateUser(u => { const p = { ...u.progress }; const lv = { ...(p[levelId] || {}) }; lv.testScore = Math.max(lv.testScore || 0, score); p[levelId] = lv; return { ...u, progress: p }; });
+      updateUser(u => { const p = { ...u.progress }; const lv = { ...(p[levelId] || {}) }; lv.testScore = Math.max(lv.testScore || 0, score); p[levelId] = lv; const stats = (u.stats || []).concat([{ ts: Date.now(), kind: "test", levelId, score }]); return { ...u, progress: p, stats: stats.length > 800 ? stats.slice(stats.length - 800) : stats }; });
     },
     capturePlay(item) {
       updateUser(u => {
@@ -5573,7 +5691,7 @@ export default function App() {
       });
     },
     gradeReview(id, grade) {
-      updateUser(u => ({ ...u, reviews: (u.reviews || []).map(c => c.id === id ? sm2(c, grade) : c) }));
+      updateUser(u => { const reviews = (u.reviews || []).map(c => c.id === id ? sm2(c, grade) : c); const stats = (u.stats || []).concat([{ ts: Date.now(), kind: "review", grade }]); return { ...u, reviews, stats: stats.length > 800 ? stats.slice(stats.length - 800) : stats }; });
     },
     deleteReview(id) {
       updateUser(u => ({ ...u, reviews: (u.reviews || []).filter(c => c.id !== id) }));
@@ -5600,8 +5718,8 @@ export default function App() {
   const navName = view.name === "level" ? "levels" : view.name;
 
   return (
-    <div style={{ background: `radial-gradient(circle at 50% 0%, ${C.felt}, ${C.feltDark} 80%)`, minHeight: "100vh", fontFamily: "ui-sans-serif, system-ui, sans-serif" }}>
-      <style>{`.font-serif{font-family:Georgia,'Times New Roman',serif;}`}</style>
+    <div style={{ background: UI.page || `radial-gradient(circle at 50% 0%, ${C.felt}, ${C.feltDark} 80%)`, minHeight: "100vh", fontFamily: "ui-sans-serif, system-ui, sans-serif" }}>
+      <style>{`html{font-size:${UI.rootPx || 16}px;}.font-serif{font-family:Georgia,'Times New Roman',serif;}`}</style>
       <Header lang={lang} user={user} view={navName}
         onNav={(k) => setView({ name: k, params: {} })}
         onSwitch={() => setCurrentId(null)}
@@ -5611,6 +5729,7 @@ export default function App() {
         {UI.tips && view.name !== "play" && <TipBanner lang={lang} />}
         {view.name === "settings" && <SettingsView lang={lang} theme={theme} onTheme={setTheme} />}
         {view.name === "help" && <HelpView lang={lang} onTour={() => setTourOpen(true)} />}
+        {view.name === "stats" && <StatsView lang={lang} user={user} />}
         {view.name === "dashboard" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onGoReview={() => setView({ name: "review", params: {} })} />}
         {view.name === "levels" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onGoReview={() => setView({ name: "review", params: {} })} />}
         {view.name === "level" && <LevelDetail levelId={view.params.levelId} lang={lang} user={user} marks={marks} initialTab={view.params.tab} onBack={() => setView({ name: "dashboard", params: {} })} onOpenDeal={openDeal} />}
@@ -5619,7 +5738,7 @@ export default function App() {
         {view.name === "themes" && <ThemePractice lang={lang} onPlay={(deal, title) => setView({ name: "play", params: { deal, title, fromTheme: true } })} />}
         {view.name === "review" && <ReviewView lang={lang} reviews={user.reviews} onGrade={(id, g) => marks.gradeReview(id, g)} />}
         {view.name === "play" && view.params.deal && (
-          <PlayPractice deal={view.params.deal} lang={lang} title={view.params.title} onCaptureLead={marks.captureLead} onCapturePlay={marks.capturePlay}
+          <PlayPractice deal={view.params.deal} lang={lang} title={view.params.title} onCaptureLead={marks.captureLead} onCapturePlay={marks.capturePlay} onLog={marks.logEvent}
             onExit={() => setView(view.params.fromTheme ? { name: "themes", params: {} } : { name: view.params.levelId ? "level" : "dashboard", params: view.params.levelId ? { levelId: view.params.levelId } : {} })}
             onComplete={() => { if (view.params.dealId) marks.deal(view.params.kind, view.params.levelId, view.params.dealId); }} />
         )}
