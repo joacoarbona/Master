@@ -518,6 +518,19 @@ function openGuidance() {
     + "<h3>◆ Govern</h3><p>Review Pack (incl. Benefits portfolio &amp; budget roll-up), Health Scan, Priority Lab, Capacity &amp; Budget, Team &amp; AI, Governance Year, Timeline.</p>"
     + "<h3>▲ Generate</h3><p>PPT Studio (branded artefacts &amp; deck JSON/HTML), AI Advisor.</p>"
     + "<h3>● Learn</h3><p>Team Charter, Resources &amp; playbook.</p>"
+    + "<h2>The six components of program management</h2><p>The jobs above are <i>how</i> you work; these are <i>what</i> a programme must cover. Each maps to where it lives in DCOS:</p>"
+    + "<h3>1 · Governance &amp; control</h3><p>Tailoring wizard (tier &amp; gates), Review Pack, Priority Lab (WSJF), Governance Year. <span class='tag'>T01 Charter</span><span class='tag'>T04 Status</span><span class='tag'>T05 SteerCo</span></p>"
+    + "<h3>2 · Stakeholder management</h3><p>Stakeholder map &amp; engagement, comms planning, generated from the Studio. <span class='tag'>T09 Stakeholders</span><span class='tag'>T11 Comms</span></p>"
+    + "<h3>3 · Benefits management</h3><p>Benefits portfolio (Review Pack), value at risk, owners. <span class='tag'>T02 Business Case</span><span class='tag'>T13 Benefits Tracker</span></p>"
+    + "<h3>4 · Planning &amp; delivery</h3><p>Workspace board, Plan/Gantt, Timeline, Delivery Canvas. <span class='tag'>T06 Plan</span><span class='tag'>T07 Board</span><span class='tag'>T15 Epic</span></p>"
+    + "<h3>5 · Risk &amp; issue management</h3><p>RAID in Project Data, Health Scan, and the Knowledge Graph (similar risks across projects). <span class='tag'>T03 RAID</span></p>"
+    + "<h3>6 · Resource &amp; financial management</h3><p>Capacity &amp; Budget (labour + non-labour, P50/P80), Team &amp; AI, board resources. <span class='tag'>CAI plan</span></p>"
+    + "<h2>A programme manager's cadence</h2>"
+    + "<h3>Every day</h3><p>Scan the Workspace board — what's blocked, what's due today (Dates view); triage any new risk/issue into RAID; a 30-second Advisor briefing on what needs attention.</p>"
+    + "<h3>Every week</h3><p>Set the RAG honestly in Project Data (amber with options, not green theatre); read the Review Pack; check the capacity heatmap for overload; one stakeholder touchpoint; generate the T04 status one-pager from live data.</p>"
+    + "<h3>Every two weeks</h3><p>Retro / day-30 hypothesis review; refresh the Knowledge Graph to catch shared resources and repeated risks; groom epics (T15) with a value hypothesis.</p>"
+    + "<h3>Every month</h3><p>Run the Health Scan; take the SteerCo (T05) with decisions up front; review the Benefits portfolio with owners; check envelope vs P80; clear the governance gate.</p>"
+    + "<h3>At each gate / quarter</h3><p>Re-run the tailoring wizard if scope shifted; on landing, produce the Closure &amp; Handover pack (T17) and hand benefits to the business to track.</p>"
     + "<h2>Knowledge Graph</h2><p>A live map of the portfolio. Filter by PM or project, then explore how each project connects to its risks, resources, benefits, decisions and logs. A resource on more than one project shows as a connector between them. Select a risk to reveal similar risks in other projects — so a single mitigation can be reused, and systemic issues surface.</p>"
     + "<h2>Getting started</h2><ol><li>Run the tailoring wizard on 2–3 live projects.</li><li>Work the board; read the Review Pack weekly, Health Scan monthly.</li><li>Open the Benefits portfolio at the SteerCo; generate the branded pack from live data.</li><li>Use the Knowledge Graph to spot shared resources and repeated risks across the portfolio.</li></ol>"
     + "<div class='foot'>AstraZeneca · OBU DSAI · DCOS Navigator · AI/tool-drafted, unconfirmed — review and sign</div></body></html>";
@@ -549,6 +562,25 @@ function IntroPage({ setTab }) {
         {card(C.lime, "Jump in", "Portfolio board", "Go straight to the RAG board — every project, comparable at a glance, with WSJF priority and value vs effort.", "Go to portfolio →", () => setTab("portfolio"))}
       </div>
       <div style={{ marginTop: 22, fontSize: 12, color: C.faint, fontFamily: MONO }}>Tip: the Knowledge Graph is also the fastest way to find a shared resource or a recurring risk across teams.</div>
+      <div style={{ marginTop: 24 }}>
+        <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 15, color: C.ink, marginBottom: 4 }}>Program management map</div>
+        <div style={{ fontSize: 12.5, color: C.mid, marginBottom: 12 }}>The six components a programme must cover — and where each lives in DCOS.</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12 }}>
+          {[
+            ["1 · Governance & control", C.mul, "Wizard · Review Pack · Priority Lab · Governance Year"],
+            ["2 · Stakeholder management", C.navy, "Stakeholder map (T09) · Comms plan (T11) — via Studio"],
+            ["3 · Benefits management", C.lime, "Benefits portfolio · Value tracker (T13) · Business case (T02)"],
+            ["4 · Planning & delivery", "#8A6200", "Workspace board · Plan/Gantt · Timeline · Delivery Canvas"],
+            ["5 · Risk & issue management", C.red, "RAID (Project Data) · Health Scan · Knowledge Graph"],
+            ["6 · Resource & financial mgmt", C.graph, "Capacity & Budget (P50/P80) · Team & AI · board resources"],
+          ].map(([t, col, body]) => (
+            <div key={t} style={{ background: "#fff", border: `1px solid ${C.line}`, borderLeft: `4px solid ${col}`, borderRadius: 12, padding: "13px 15px" }}>
+              <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 13, color: col }}>{t}</div>
+              <div style={{ fontSize: 12, color: C.mid, marginTop: 6, lineHeight: 1.4 }}>{body}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
