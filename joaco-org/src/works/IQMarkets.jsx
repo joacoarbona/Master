@@ -476,6 +476,7 @@ function ActionBtn({ icon: Icon, label, primary = false, onClick }) {
 // DASHBOARD VIEW
 // ============================================================
 function DashboardView() {
+  const { openModal } = useUI();
   return (
     <div>
       <ViewHeader
@@ -483,8 +484,8 @@ function DashboardView() {
         title="The state of the function."
         dek="Six metrics, ten stages, one decision queue. The plane where you start the morning."
         actions={[
-          <ActionBtn key="x" icon={Search} label="Search"/>,
-          <ActionBtn key="r" icon={Plus} label="Log opportunity" primary/>,
+          <ActionBtn key="x" icon={Search} label="Search"        onClick={() => openModal({ type: 'search', scope: 'all' })}/>,
+          <ActionBtn key="r" icon={Plus}   label="Log opportunity" primary onClick={() => openModal({ type: 'log-opportunity' })}/>,
         ]}
       />
 
@@ -791,6 +792,7 @@ function ActivityRow({ a }) {
 // PIPELINE VIEW
 // ============================================================
 function PipelineView() {
+  const { openModal } = useUI();
   const [filterTA, setFilterTA] = useState('all');
   const [filterCap, setFilterCap] = useState('all');
   const [filterStage, setFilterStage] = useState('all');
@@ -814,8 +816,8 @@ function PipelineView() {
         title="The opportunity pipeline."
         dek="225 opportunities · filterable by therapeutic area, capability, and stage. Source-tagged. Always one click from the next action."
         actions={[
-          <ActionBtn key="i" icon={Filter} label="Filters"/>,
-          <ActionBtn key="p" icon={Plus} label="Add opportunity" primary/>,
+          <ActionBtn key="i" icon={Filter} label="Filters"         onClick={() => openModal({ type: 'filters' })}/>,
+          <ActionBtn key="p" icon={Plus}   label="Add opportunity" primary onClick={() => openModal({ type: 'log-opportunity' })}/>,
         ]}
       />
 
@@ -1008,6 +1010,7 @@ function PartnershipCard({ p }) {
 // LIFECYCLE VIEW
 // ============================================================
 function LifecycleView() {
+  const { openModal } = useUI();
   const [sortBy, setSortBy] = useState('stage');
   const inFlight = useMemo(() => {
     const list = PARTNERSHIPS.filter(p => p.stage >= 3 && p.stage <= 9);
@@ -1027,8 +1030,8 @@ function LifecycleView() {
         title="Every in-flight deal, every stage."
         dek="Twenty-nine partnerships moving through gates 3 through 9. Stage owners, artefacts, days in stage. The plane where you spend most of your time."
         actions={[
-          <ActionBtn key="r" icon={GitBranch} label="Stage report"/>,
-          <ActionBtn key="e" icon={FileText} label="Export" primary/>,
+          <ActionBtn key="r" icon={GitBranch} label="Stage report" onClick={() => openModal({ type: 'stage-report' })}/>,
+          <ActionBtn key="e" icon={FileText}  label="Export" primary onClick={() => openModal({ type: 'export', title: 'Export in-flight portfolio', subject: 'lifecycle-inflight' })}/>,
         ]}
       />
 
@@ -1180,6 +1183,7 @@ function LifecycleView() {
 // STAKEHOLDERS VIEW
 // ============================================================
 function StakeholdersView() {
+  const { openModal } = useUI();
   return (
     <div>
       <ViewHeader
@@ -1187,7 +1191,7 @@ function StakeholdersView() {
         title="Who is in the room for which deal."
         dek="Six groups, fourteen partnerships, one alignment matrix. Sponsorship without engagement is theatre; engagement without sponsorship is risk."
         actions={[
-          <ActionBtn key="r" icon={Users} label="Engagement plan"/>,
+          <ActionBtn key="r" icon={Users} label="Engagement plan" onClick={() => openModal({ type: 'engagement-plan' })}/>,
         ]}
       />
 
@@ -1308,6 +1312,7 @@ function StakeholdersView() {
 // FRAMEWORK VIEW
 // ============================================================
 function FrameworkView() {
+  const { openModal } = useUI();
   const [tab, setTab] = useState('lifecycle');
   const tabs = [
     { id:'lifecycle', label:'10-stage lifecycle', icon: GitBranch },
@@ -1323,7 +1328,7 @@ function FrameworkView() {
         tag="FRAMEWORK · METHODOLOGY"
         title="The operating system, documented."
         dek="Five reusable frameworks · the working library every partnership decision routes through. Adoption tracked on the dashboard."
-        actions={[<ActionBtn key="d" icon={FileText} label="Download library"/>]}
+        actions={[<ActionBtn key="d" icon={FileText} label="Download library" onClick={() => openModal({ type: 'export', title: 'Download framework library', subject: 'framework-library' })}/>]}
       />
 
       {/* Tab bar */}
@@ -2050,6 +2055,7 @@ const TEMPLATE_PROPOSALS = {
 // INBOX VIEW — external partnership requests, auto-routed
 // ============================================================
 function InboxView({ requestStatuses, setRequestStatuses }) {
+  const { openModal } = useUI();
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState(REQUESTS[0]);
 
@@ -2088,8 +2094,8 @@ function InboxView({ requestStatuses, setRequestStatuses }) {
         title="12 new partnership requests."
         dek="Every inbound request auto-scored against the 8-dim framework, auto-tagged to TA + capability, and triaged with a suggested action. Click to disposition; queue clears."
         actions={[
-          <ActionBtn key="s" icon={Search} label="Search inbox"/>,
-          <ActionBtn key="r" icon={Workflow} label="Routing rules" primary/>,
+          <ActionBtn key="s" icon={Search}   label="Search inbox"   onClick={() => openModal({ type: 'search', scope: 'inbox' })}/>,
+          <ActionBtn key="r" icon={Workflow} label="Routing rules" primary onClick={() => openModal({ type: 'routing-rules' })}/>,
         ]}
       />
 
@@ -2357,6 +2363,7 @@ function DecisionBtn({ icon: Icon, label, color, primary, onClick }) {
 // EVALUATE VIEW — interactive scorecard + pending scorers + template proposals
 // ============================================================
 function EvaluateView({ allScores, setAllScores, allNotes, setAllNotes }) {
+  const { openModal, showToast } = useUI();
   const [targetId, setTargetId] = useState('aig');
   const [draftNote, setDraftNote] = useState('');
   const [draftKind, setDraftKind] = useState('observation');
@@ -2408,8 +2415,9 @@ function EvaluateView({ allScores, setAllScores, allNotes, setAllNotes }) {
         title="Partnership evaluation workspace."
         dek="Scorecard · pending scorers · notes · suggested templates. Click any cell to score. Live composite."
         actions={[
-          <ActionBtn key="c" icon={Vote} label="Compare partners"/>,
-          <ActionBtn key="r" icon={FileText} label="Generate memo" primary/>,
+          <ActionBtn key="c" icon={Vote}     label="Compare partners" onClick={() => openModal({ type: 'compare-partners' })}/>,
+          <ActionBtn key="r" icon={FileText} label="Generate memo" primary
+            onClick={() => openModal({ type: 'memo', data: { partnership, scores, notes } })}/>,
         ]}
       />
 
@@ -2508,7 +2516,7 @@ function EvaluateView({ allScores, setAllScores, allNotes, setAllNotes }) {
                       {pendingCount} of {DIMS_8.length} dimensions still need input.
                     </Serif>
                   </div>
-                  <ActionBtn icon={Send} label="Nudge all"/>
+                  <ActionBtn icon={Send} label="Nudge all" onClick={() => showToast(`${pendingCount} nudges sent to pending scorers`, 'success')}/>
                 </div>
                 <div style={{ marginTop: 14 }}>
                   {Object.entries(pending).map(([dimIdx, p]) => {
@@ -2532,7 +2540,8 @@ function EvaluateView({ allScores, setAllScores, allNotes, setAllNotes }) {
                                        background: overdue ? C.crimsonPale : C.goldPale, letterSpacing:'0.10em' }}>
                           {p.pending.toUpperCase()}
                         </span>
-                        <button style={{ padding:'5px 10px', background: C.surface, border:`1px solid ${C.rule}`,
+                        <button onClick={() => showToast(`Nudge sent to ${p.name}`, 'success')}
+                                style={{ padding:'5px 10px', background: C.surface, border:`1px solid ${C.rule}`,
                                           fontFamily: FONT_MONO, fontSize: 9.5, fontWeight: 600, letterSpacing:'0.10em',
                                           color: C.ink, cursor:'pointer' }}>
                           NUDGE
@@ -2567,7 +2576,8 @@ function EvaluateView({ allScores, setAllScores, allNotes, setAllNotes }) {
                         {t.cat} · {t.pages} pages · used {t.used}× · {t.signRequired}
                       </div>
                     </div>
-                    <button style={{ padding:'7px 12px', background: C.crimson, color:'white', border:'none',
+                    <button onClick={() => showToast(`${t.name} pre-filled with ${partnership.name} context · opened in editor`, 'success')}
+                            style={{ padding:'7px 12px', background: C.crimson, color:'white', border:'none',
                                       fontFamily: FONT_MONO, fontSize: 10, fontWeight: 700, letterSpacing:'0.10em',
                                       cursor:'pointer', display:'inline-flex', alignItems:'center', gap: 6 }}>
                       <Sparkles size={11}/>USE
@@ -2733,7 +2743,14 @@ function NoteRow({ n }) {
 // GOVERNANCE VIEW — discussion threads + decisions log
 // ============================================================
 function GovernanceView() {
+  const { openModal } = useUI();
   const [selectedThread, setSelectedThread] = useState(THREADS[0]);
+  const [threadReplies, setThreadReplies] = useState({});  // { threadId: [messages] }
+
+  function addReply(threadId, text) {
+    const msg = { who:'Joaquín', role:'Director', when:'just now', text };
+    setThreadReplies(prev => ({ ...prev, [threadId]: [...(prev[threadId] || []), msg] }));
+  }
 
   return (
     <div>
@@ -2742,8 +2759,8 @@ function GovernanceView() {
         title="The conversation around every partnership."
         dek="Multi-stakeholder threads · decisions log · upcoming meetings · all linked back to partnerships. The audit trail and the working memory."
         actions={[
-          <ActionBtn key="d" icon={Vote} label="Log decision"/>,
-          <ActionBtn key="t" icon={Plus} label="New thread" primary/>,
+          <ActionBtn key="d" icon={Vote} label="Log decision" onClick={() => openModal({ type: 'log-decision' })}/>,
+          <ActionBtn key="t" icon={Plus} label="New thread" primary onClick={() => openModal({ type: 'new-thread' })}/>,
         ]}
       />
 
@@ -2769,7 +2786,9 @@ function GovernanceView() {
           </div>
 
           {/* COL 2: Thread detail */}
-          {selectedThread && <ThreadDetail t={selectedThread}/>}
+          {selectedThread && <ThreadDetail t={selectedThread}
+                                            extraMessages={threadReplies[selectedThread.id] || []}
+                                            onReply={(text) => addReply(selectedThread.id, text)}/>}
 
           {/* COL 3: Decisions log + meetings */}
           <div>
@@ -2871,8 +2890,20 @@ function ThreadCard({ t, selected, onClick, last }) {
   );
 }
 
-function ThreadDetail({ t }) {
+function ThreadDetail({ t, extraMessages = [], onReply }) {
+  const { showToast } = useUI();
+  const [draft, setDraft] = useState('');
   const partnership = PARTNERSHIPS.find(p => p.id === t.partnership);
+  const allMessages = [...t.messages, ...extraMessages];
+
+  function send() {
+    const text = draft.trim();
+    if (!text) return;
+    onReply(text);
+    setDraft('');
+    showToast(`Reply posted · ${t.participants} participants notified`, 'success');
+  }
+
   return (
     <div style={{ background: C.surface, border:`1px solid ${C.rule}`, display:'flex', flexDirection:'column' }}>
       <div style={{ padding:'18px 22px', borderBottom:`1px solid ${C.rule}`,
@@ -2895,7 +2926,7 @@ function ThreadDetail({ t }) {
       </div>
 
       <div style={{ padding:'18px 22px' }}>
-        {t.messages.map((m, i) => <MessageBubble key={i} m={m} isLast={i === t.messages.length - 1}/>)}
+        {allMessages.map((m, i) => <MessageBubble key={i} m={m} isLast={i === allMessages.length - 1}/>)}
       </div>
 
       <div style={{ borderTop:`1px solid ${C.rule}`, padding:'14px 22px', background: C.cream }}>
@@ -2903,13 +2934,16 @@ function ThreadDetail({ t }) {
           <div style={{ width: 28, height: 28, borderRadius:'50%', background: C.crimson,
                         display:'grid', placeItems:'center', color:'white',
                         fontFamily: FONT_HEAD, fontSize: 11, fontWeight: 600, flexShrink: 0 }}>JA</div>
-          <textarea placeholder="Reply to thread..."
+          <textarea value={draft} onChange={e => setDraft(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) send(); }}
+            placeholder="Reply to thread... (Ctrl+Enter to send)"
             style={{ flex: 1, padding:'8px 12px', border:`1px solid ${C.rule}`,
                      background: C.surface, fontFamily: 'inherit', fontSize: 13, resize:'none',
                      minHeight: 50, outline:'none' }}/>
-          <button style={{ padding:'8px 14px', background: C.crimson, color:'white', border:'none',
+          <button onClick={send} style={{ padding:'8px 14px', background: draft.trim() ? C.crimson : C.faint,
+                            color:'white', border:'none',
                             fontFamily: FONT_MONO, fontSize: 10, fontWeight: 700, letterSpacing:'0.10em',
-                            cursor:'pointer', alignSelf:'flex-start',
+                            cursor: draft.trim() ? 'pointer' : 'not-allowed', alignSelf:'flex-start',
                             display:'inline-flex', alignItems:'center', gap: 6 }}>
             <Send size={11}/>SEND
           </button>
@@ -2949,6 +2983,7 @@ function MessageBubble({ m, isLast }) {
 // INTEL VIEW — competitive intelligence + event monitoring
 // ============================================================
 function IntelView() {
+  const { openModal } = useUI();
   const [filter, setFilter] = useState('all');
 
   const filtered = INTEL.filter(i => {
@@ -2980,8 +3015,8 @@ function IntelView() {
         title="The signal stream feeding partnership strategy."
         dek="Conference talks · competitor announcements · regulatory shifts · Spanish ecosystem moves. Auto-tagged, linked to partnerships, action-ready."
         actions={[
-          <ActionBtn key="m" icon={Settings} label="Monitors"/>,
-          <ActionBtn key="r" icon={Plus} label="Log intel" primary/>,
+          <ActionBtn key="m" icon={Settings} label="Monitors" onClick={() => openModal({ type: 'monitors' })}/>,
+          <ActionBtn key="r" icon={Plus} label="Log intel" primary onClick={() => openModal({ type: 'log-intel' })}/>,
         ]}
       />
 
@@ -3021,6 +3056,7 @@ function IntelView() {
 }
 
 function IntelCard({ i }) {
+  const { showToast } = useUI();
   const impactColor = i.impact === 'high' ? C.crimson : i.impact === 'med' ? C.gold : C.sage;
   const typeColor = i.sourceType === 'event' ? C.crimson : i.sourceType === 'news' ? C.navy
                   : i.sourceType === 'competitor' ? C.gold : i.sourceType === 'ecosystem' ? C.sage : C.teal;
@@ -3063,7 +3099,8 @@ function IntelCard({ i }) {
         <span style={{ fontFamily: FONT_HEAD, fontSize: 12.5, fontStyle:'italic', color: C.ink }}>
           {i.action}
         </span>
-        <button style={{ padding:'5px 10px', background: impactColor, color:'white', border:'none',
+        <button onClick={() => showToast(`Action logged: "${i.action}" · routed to deal owner${i.linked.length ? ` · ${i.linked.length} partnership(s) tagged` : ''}`, 'success')}
+                style={{ padding:'5px 10px', background: impactColor, color:'white', border:'none',
                           fontFamily: FONT_MONO, fontSize: 9, fontWeight: 700, letterSpacing:'0.10em', cursor:'pointer' }}>
           ACTION
         </button>
@@ -3076,6 +3113,7 @@ function IntelCard({ i }) {
 // TEMPLATES VIEW — document library with RACI
 // ============================================================
 function TemplatesView() {
+  const { openModal } = useUI();
   const [cat, setCat] = useState('NDA');
   const cats = ['NDA', 'DSA', 'Term Sheet', 'DD', 'Mobilisation', 'Renewal', 'Stage Gates'];
   const filtered = cat === 'Stage Gates' ? [] : TEMPLATES.filter(t => t.cat === cat);
@@ -3088,8 +3126,8 @@ function TemplatesView() {
         title="The signed-document architecture."
         dek="NDAs · Data Sharing Agreements · Term Sheets · DD checklists · Mobilisation · Renewals · Stage Gates with RACI. Every template carries its audit trail."
         actions={[
-          <ActionBtn key="r" icon={Workflow} label="RACI guide"/>,
-          <ActionBtn key="t" icon={Plus} label="New template" primary/>,
+          <ActionBtn key="r" icon={Workflow} label="RACI guide" onClick={() => openModal({ type: 'raci-guide' })}/>,
+          <ActionBtn key="t" icon={Plus} label="New template" primary onClick={() => openModal({ type: 'new-template' })}/>,
         ]}
       />
 
@@ -3164,6 +3202,7 @@ function TemplateCard({ t, selected, onClick }) {
 }
 
 function TemplateDetail({ t }) {
+  const { showToast } = useUI();
   return (
     <div style={{ background: C.surface, border:`1px solid ${C.rule}`, position:'sticky', top: 20 }}>
       <div style={{ padding:'18px 22px', borderBottom:`1px solid ${C.rule}`,
@@ -3204,12 +3243,14 @@ function TemplateDetail({ t }) {
         </div>
 
         <div style={{ marginTop: 18, display:'grid', gridTemplateColumns:'1fr 1fr', gap: 8 }}>
-          <button style={{ padding:'10px', background: C.surface, color: C.ink, border:`1px solid ${C.rule}`,
+          <button onClick={() => showToast(`Preview: ${t.name} · ${t.pages} pages · v. ${t.updated}`, 'info')}
+                  style={{ padding:'10px', background: C.surface, color: C.ink, border:`1px solid ${C.rule}`,
                             fontFamily: FONT_MONO, fontSize: 10.5, fontWeight: 600, letterSpacing:'0.10em',
                             cursor:'pointer', display:'inline-flex', alignItems:'center', justifyContent:'center', gap: 6 }}>
             <Eye size={12}/>PREVIEW
           </button>
-          <button style={{ padding:'10px', background: C.crimson, color:'white', border:'none',
+          <button onClick={() => showToast(`${t.name} opened in editor · RACI pre-assigned · signature flow: ${t.signRequired}`, 'success')}
+                  style={{ padding:'10px', background: C.crimson, color:'white', border:'none',
                             fontFamily: FONT_MONO, fontSize: 10.5, fontWeight: 700, letterSpacing:'0.10em',
                             cursor:'pointer', display:'inline-flex', alignItems:'center', justifyContent:'center', gap: 6 }}>
             <FileText size={12}/>USE TEMPLATE
@@ -3288,10 +3329,12 @@ function StageGatesRACI() {
 // REPORTS VIEW — per-company journey + spider graphs + criteria comparison
 // ============================================================
 function ReportsView({ allScores }) {
+  const { openModal } = useUI();
   const [mode, setMode] = useState('company');  // 'company' | 'compare' | 'criterion'
   const [targetId, setTargetId] = useState('aig');
   const [compareIds, setCompareIds] = useState(['aig', 'tem', 'sav']);
   const [criterionIdx, setCriterionIdx] = useState(3); // default to EU regulatory
+  const currentTargetName = PARTNERSHIPS.find(p => p.id === targetId)?.name || 'Aignostics';
 
   return (
     <div>
@@ -3300,8 +3343,8 @@ function ReportsView({ allScores }) {
         title="Every company, every criterion, every gate."
         dek="Per-company journey through the lifecycle · spider graphs across 8 criteria · cross-company comparison · single-criterion ranking. The board pack writes itself."
         actions={[
-          <ActionBtn key="e" icon={FileText} label="Export PDF"/>,
-          <ActionBtn key="b" icon={Send} label="Email summary" primary/>,
+          <ActionBtn key="e" icon={FileText} label="Export PDF" onClick={() => openModal({ type: 'export', title: `Export ${currentTargetName} report`, subject: `${currentTargetName}-report` })}/>,
+          <ActionBtn key="b" icon={Send} label="Email summary" primary onClick={() => openModal({ type: 'email-summary', data: { partnership: currentTargetName } })}/>,
         ]}
       />
 
@@ -3966,6 +4009,1209 @@ function Stat({ label, value, sub }) {
 }
 
 // ============================================================
+// UI CONTEXT · MODAL + TOAST INFRASTRUCTURE
+// ============================================================
+const UIContext = React.createContext(null);
+function useUI() { return React.useContext(UIContext); }
+
+function UIProvider({ children, appState }) {
+  const [modal, setModal] = useState(null);
+  const [toasts, setToasts] = useState([]);
+
+  function openModal(m) { setModal(m); }
+  function closeModal() { setModal(null); }
+  function showToast(text, kind = 'info') {
+    const id = Date.now() + Math.random();
+    setToasts(t => [...t, { id, text, kind }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3800);
+  }
+
+  // Close modal on Escape
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') closeModal(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  return (
+    <UIContext.Provider value={{ openModal, closeModal, showToast }}>
+      {children}
+      {modal && <GlobalModal modal={modal} close={closeModal} showToast={showToast} appState={appState}/>}
+      <ToastStack toasts={toasts}/>
+    </UIContext.Provider>
+  );
+}
+
+function Modal({ tag, title, subtitle, children, footer, close, size = 'md' }) {
+  const width = size === 'lg' ? 820 : size === 'sm' ? 460 : 620;
+  return (
+    <div onClick={close} style={{ position:'fixed', inset:0, background:'rgba(27,31,42,0.55)',
+                                    display:'grid', placeItems:'center', zIndex: 1000,
+                                    backdropFilter:'blur(2px)' }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: C.surface, width, maxWidth: 'calc(100vw - 40px)', maxHeight: '85vh',
+        display:'flex', flexDirection:'column', border:`1px solid ${C.rule}`,
+        boxShadow:'0 20px 60px rgba(27,31,42,0.25)' }}>
+
+        <div style={{ padding:'20px 26px', borderBottom:`1px solid ${C.rule}`,
+                      display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap: 14 }}>
+          <div style={{ flex: 1 }}>
+            {tag && <MonoLabel color={C.crimson}>{tag}</MonoLabel>}
+            <Serif size={22} weight={500} style={{ display:'block', marginTop: 6 }}>{title}</Serif>
+            {subtitle && (
+              <div style={{ fontFamily: FONT_HEAD, fontSize: 13, fontStyle:'italic', color: C.slate, marginTop: 4 }}>
+                {subtitle}
+              </div>
+            )}
+          </div>
+          <button onClick={close} style={{ background:'transparent', border:'none', cursor:'pointer',
+                                            padding: 4, color: C.slate }}>
+            <X size={18}/>
+          </button>
+        </div>
+
+        <div style={{ padding:'22px 26px', overflowY:'auto', flex: 1 }}>{children}</div>
+
+        {footer && (
+          <div style={{ padding:'14px 22px', borderTop:`1px solid ${C.rule}`, background: C.cream,
+                        display:'flex', gap: 8, justifyContent:'flex-end', flexShrink: 0 }}>
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ModalBtn({ children, primary, danger, onClick, icon: Icon }) {
+  const bg = danger ? C.crimson : primary ? C.ink : 'transparent';
+  const color = danger || primary ? 'white' : C.ink;
+  const border = primary || danger ? bg : C.rule;
+  return (
+    <button onClick={onClick} style={{
+      padding:'8px 16px', background: bg, color, border:`1px solid ${border}`,
+      fontFamily: FONT_MONO, fontSize: 10.5, fontWeight: 700, letterSpacing:'0.10em',
+      cursor:'pointer', display:'inline-flex', alignItems:'center', gap: 6,
+    }}>
+      {Icon && <Icon size={12}/>}
+      {typeof children === 'string' ? children.toUpperCase() : children}
+    </button>
+  );
+}
+
+function Field({ label, children, hint }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <MonoLabel color={C.slate}>{label}</MonoLabel>
+      <div style={{ marginTop: 6 }}>{children}</div>
+      {hint && (
+        <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 11.5, color: C.faint, marginTop: 4 }}>
+          {hint}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const inputStyle = {
+  width:'100%', padding:'8px 12px', border:`1px solid ${C.rule}`,
+  background: C.surface, fontFamily: 'inherit', fontSize: 13, color: C.ink,
+  outline:'none', boxSizing:'border-box'
+};
+
+function ToastStack({ toasts }) {
+  return (
+    <div style={{ position:'fixed', bottom: 20, right: 20, display:'flex', flexDirection:'column-reverse',
+                   gap: 8, zIndex: 1100 }}>
+      {toasts.map(t => {
+        const color = t.kind === 'success' ? C.green : t.kind === 'error' ? C.crimson
+                    : t.kind === 'warn' ? C.gold : C.ink;
+        const Icon = t.kind === 'success' ? CheckCircle2 : t.kind === 'error' ? AlertCircle
+                   : t.kind === 'warn' ? AlertTriangle : Bell;
+        return (
+          <div key={t.id} style={{
+            background: color, color:'white', padding:'12px 18px', minWidth: 280, maxWidth: 420,
+            boxShadow:'0 6px 20px rgba(27,31,42,0.20)',
+            display:'flex', alignItems:'center', gap: 10,
+            borderLeft: `4px solid rgba(255,255,255,0.35)`,
+          }}>
+            <Icon size={16}/>
+            <span style={{ fontFamily: FONT_HEAD, fontSize: 13.5, lineHeight: 1.4 }}>{t.text}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============================================================
+// GLOBAL MODAL — dispatches to specific modal by type
+// ============================================================
+function GlobalModal({ modal, close, showToast, appState }) {
+  const commonProps = { close, showToast, appState };
+  switch (modal.type) {
+    case 'log-opportunity':  return <LogOpportunityModal   {...commonProps} data={modal.data}/>;
+    case 'search':           return <SearchModal           {...commonProps} scope={modal.scope}/>;
+    case 'filters':          return <FiltersModal          {...commonProps}/>;
+    case 'stage-report':     return <StageReportModal      {...commonProps}/>;
+    case 'export':           return <ExportModal           {...commonProps} title={modal.title} subject={modal.subject}/>;
+    case 'engagement-plan':  return <EngagementPlanModal   {...commonProps}/>;
+    case 'routing-rules':    return <RoutingRulesModal     {...commonProps}/>;
+    case 'compare-partners': return <ComparePartnersModal  {...commonProps}/>;
+    case 'memo':             return <MemoModal             {...commonProps} data={modal.data}/>;
+    case 'monitors':         return <MonitorsModal         {...commonProps}/>;
+    case 'log-intel':        return <LogIntelModal         {...commonProps}/>;
+    case 'log-decision':     return <LogDecisionModal      {...commonProps}/>;
+    case 'new-thread':       return <NewThreadModal        {...commonProps}/>;
+    case 'raci-guide':       return <RACIGuideModal        {...commonProps}/>;
+    case 'new-template':     return <NewTemplateModal      {...commonProps}/>;
+    case 'email-summary':    return <EmailSummaryModal     {...commonProps} data={modal.data}/>;
+    default: return null;
+  }
+}
+
+// ============================================================
+// MODAL 1 · LOG OPPORTUNITY / ADD OPPORTUNITY
+// ============================================================
+function LogOpportunityModal({ close, showToast, data }) {
+  const [name, setName] = useState('');
+  const [source, setSource] = useState('Direct outreach');
+  const [ta, setTa] = useState('onc');
+  const [cap, setCap] = useState('Multimodal AI');
+  const [notes, setNotes] = useState('');
+
+  function submit() {
+    if (!name.trim()) { showToast('Name is required', 'warn'); return; }
+    showToast(`Opportunity logged: ${name.trim()} · added to pipeline · stage 01 · scouting`, 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="LOG OPPORTUNITY" title="Add a new opportunity to the pipeline."
+           subtitle="Enters at stage 01 · scouting. Auto-scoring runs after triage brief."
+           close={close}
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn primary onClick={submit} icon={Plus}>Log opportunity</ModalBtn>
+           </>}>
+      <Field label="COMPANY / PARTNER NAME">
+        <input value={name} onChange={e => setName(e.target.value)} style={inputStyle}
+               placeholder="e.g. Aignostics GmbH"/>
+      </Field>
+      <Field label="SOURCE CHANNEL">
+        <select value={source} onChange={e => setSource(e.target.value)} style={inputStyle}>
+          <option>Direct outreach</option>
+          <option>A.Catalyst US</option>
+          <option>A.Catalyst Spain</option>
+          <option>A.Catalyst EU</option>
+          <option>BD-sourced</option>
+          <option>Event · ASCO</option>
+          <option>Event · BioEurope</option>
+          <option>Event · JP Morgan Healthcare</option>
+          <option>Cold outreach</option>
+        </select>
+      </Field>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 14 }}>
+        <Field label="THERAPEUTIC AREA">
+          <select value={ta} onChange={e => setTa(e.target.value)} style={inputStyle}>
+            {TAs.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+          </select>
+        </Field>
+        <Field label="CAPABILITY">
+          <select value={cap} onChange={e => setCap(e.target.value)} style={inputStyle}>
+            {CAPABILITIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </Field>
+      </div>
+      <Field label="OPPORTUNITY BRIEF" hint="One paragraph. What is the fit? Why now?">
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={4}
+                  style={{...inputStyle, resize:'vertical'}}
+                  placeholder="Strategic fit rationale · why this opportunity · what makes it distinctive..."/>
+      </Field>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 2 · SEARCH ACROSS EVERYTHING
+// ============================================================
+function SearchModal({ close, showToast, scope = 'all' }) {
+  const [q, setQ] = useState('');
+  const query = q.trim().toLowerCase();
+
+  const partnershipHits = query ? PARTNERSHIPS.filter(p =>
+    p.name.toLowerCase().includes(query) || p.tag.toLowerCase().includes(query) ||
+    p.cap.toLowerCase().includes(query) || p.sponsor.toLowerCase().includes(query)) : [];
+  const requestHits = query && (scope==='all'||scope==='inbox') ? REQUESTS.filter(r =>
+    r.from.toLowerCase().includes(query) || r.summary.toLowerCase().includes(query)) : [];
+  const intelHits = query && scope==='all' ? INTEL.filter(i =>
+    i.title.toLowerCase().includes(query) || i.source.toLowerCase().includes(query)) : [];
+  const decisionHits = query && scope==='all' ? DECISIONS_LOG.filter(d =>
+    d.decision.toLowerCase().includes(query) || d.by.toLowerCase().includes(query)) : [];
+
+  const total = partnershipHits.length + requestHits.length + intelHits.length + decisionHits.length;
+
+  return (
+    <Modal tag={scope === 'inbox' ? 'SEARCH INBOX' : 'SEARCH · CROSS-PORTFOLIO'}
+           title={scope === 'inbox' ? 'Filter requests by any keyword.' : 'Everything across partnerships, requests, intel, decisions.'}
+           close={close} size="lg">
+      <div style={{ position:'relative', marginBottom: 18 }}>
+        <Search size={16} style={{ position:'absolute', top: 10, left: 12, color: C.slate }}/>
+        <input autoFocus value={q} onChange={e => setQ(e.target.value)}
+               placeholder="Search by name, capability, sponsor, keyword…"
+               style={{...inputStyle, padding:'10px 12px 10px 38px', fontSize: 15}}/>
+      </div>
+
+      {!query && (
+        <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 13, color: C.slate, textAlign:'center', padding:'32px 0' }}>
+          Start typing to search{scope === 'inbox' ? ' incoming requests' : ' across the whole portfolio'}.
+        </div>
+      )}
+
+      {query && total === 0 && (
+        <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 13, color: C.slate, textAlign:'center', padding:'32px 0' }}>
+          No results for "{q}".
+        </div>
+      )}
+
+      {partnershipHits.length > 0 && (
+        <div style={{ marginBottom: 18 }}>
+          <MonoLabel color={C.crimson}>PARTNERSHIPS · {partnershipHits.length}</MonoLabel>
+          {partnershipHits.slice(0, 6).map(p => (
+            <div key={p.id} style={{ display:'flex', gap: 12, padding:'10px 0', borderTop:`1px solid ${C.ruleSoft}`, alignItems:'center' }}>
+              <HealthDot health={p.health}/>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: FONT_HEAD, fontSize: 14, fontWeight: 500 }}>{p.name}</div>
+                <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 12, color: C.slate }}>{p.cap} · {p.sponsor}</div>
+              </div>
+              <TAChip ta={p.cat}/>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.faint, letterSpacing:'0.08em' }}>STAGE {String(p.stage).padStart(2,'0')}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {requestHits.length > 0 && (
+        <div style={{ marginBottom: 18 }}>
+          <MonoLabel color={C.crimson}>REQUESTS · {requestHits.length}</MonoLabel>
+          {requestHits.slice(0, 6).map(r => (
+            <div key={r.id} style={{ padding:'10px 0', borderTop:`1px solid ${C.ruleSoft}` }}>
+              <div style={{ display:'flex', gap: 8, alignItems:'center' }}>
+                <span style={{ fontFamily: FONT_HEAD, fontSize: 14, fontWeight: 500 }}>{r.from}</span>
+                <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.faint, letterSpacing:'0.06em' }}>{r.when} AGO</span>
+              </div>
+              <div style={{ fontSize: 12, color: C.slate, marginTop: 2 }}>{r.summary}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {intelHits.length > 0 && (
+        <div style={{ marginBottom: 18 }}>
+          <MonoLabel color={C.crimson}>INTEL · {intelHits.length}</MonoLabel>
+          {intelHits.slice(0, 4).map(i => (
+            <div key={i.id} style={{ padding:'10px 0', borderTop:`1px solid ${C.ruleSoft}` }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 9.5, color: C.crimson, letterSpacing:'0.10em', fontWeight: 700 }}>
+                {i.source.toUpperCase()} · {i.when.toUpperCase()} AGO
+              </div>
+              <div style={{ fontFamily: FONT_HEAD, fontSize: 13, fontWeight: 500, marginTop: 3 }}>{i.title}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {decisionHits.length > 0 && (
+        <div>
+          <MonoLabel color={C.crimson}>DECISIONS · {decisionHits.length}</MonoLabel>
+          {decisionHits.slice(0, 4).map(d => (
+            <div key={d.id} style={{ padding:'10px 0', borderTop:`1px solid ${C.ruleSoft}` }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 9.5, color: C.crimson, letterSpacing:'0.10em', fontWeight: 700 }}>
+                {d.when.toUpperCase()} · BY {d.by.toUpperCase()}
+              </div>
+              <div style={{ fontSize: 12.5, color: C.ink, marginTop: 3 }}>{d.decision}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 3 · FILTERS
+// ============================================================
+function FiltersModal({ close, showToast }) {
+  const [health, setHealth] = useState({ green:true, amber:true, red:true });
+  const [tas, setTas] = useState(Object.fromEntries(TAs.map(t => [t.id, true])));
+  const [valueTier, setValueTier] = useState('all');
+
+  function apply() {
+    const active = [];
+    if (!health.green || !health.amber || !health.red) active.push('health');
+    if (Object.values(tas).some(v => !v)) active.push('TA');
+    if (valueTier !== 'all') active.push('value tier');
+    showToast(active.length ? `Filters applied: ${active.join(' · ')}` : 'All filters cleared', 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="ADVANCED FILTERS" title="Refine the pipeline view."
+           subtitle="Combine any filters. All active filters shown in the header when applied."
+           close={close}
+           footer={<>
+             <ModalBtn onClick={() => { setHealth({green:true,amber:true,red:true});
+                                        setTas(Object.fromEntries(TAs.map(t => [t.id, true])));
+                                        setValueTier('all'); }}>Reset</ModalBtn>
+             <ModalBtn primary onClick={apply} icon={Filter}>Apply filters</ModalBtn>
+           </>}>
+      <Field label="HEALTH">
+        <div style={{ display:'flex', gap: 8 }}>
+          {['green','amber','red'].map(h => (
+            <button key={h} onClick={() => setHealth({...health, [h]: !health[h]})}
+              style={{
+                padding:'8px 14px', background: health[h] ? C[h] : 'transparent',
+                color: health[h] ? 'white' : C.ink, border:`1px solid ${health[h] ? C[h] : C.rule}`,
+                fontFamily: FONT_MONO, fontSize: 10, fontWeight: 700, letterSpacing:'0.10em', cursor:'pointer',
+              }}>
+              {h.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </Field>
+      <Field label="THERAPEUTIC AREAS">
+        <div style={{ display:'flex', gap: 6, flexWrap:'wrap' }}>
+          {TAs.map(t => (
+            <button key={t.id} onClick={() => setTas({...tas, [t.id]: !tas[t.id]})}
+              style={{
+                padding:'6px 12px', background: tas[t.id] ? t.color : 'transparent',
+                color: tas[t.id] ? 'white' : C.ink, border:`1px solid ${tas[t.id] ? t.color : C.rule}`,
+                fontFamily: FONT_HEAD, fontSize: 12, fontWeight: 500, cursor:'pointer',
+              }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </Field>
+      <Field label="VALUE TIER">
+        <div style={{ display:'flex', gap: 6 }}>
+          {['all','strategic (>€50M)','major (€10–50M)','tactical (<€10M)'].map(v => (
+            <button key={v} onClick={() => setValueTier(v)}
+              style={{
+                padding:'6px 12px', background: valueTier === v ? C.ink : 'transparent',
+                color: valueTier === v ? 'white' : C.ink, border:`1px solid ${valueTier === v ? C.ink : C.rule}`,
+                fontFamily: FONT_HEAD, fontSize: 12, fontWeight: 500, cursor:'pointer',
+              }}>
+              {v}
+            </button>
+          ))}
+        </div>
+      </Field>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 4 · STAGE REPORT
+// ============================================================
+function StageReportModal({ close, showToast }) {
+  const inflight = PARTNERSHIPS.filter(p => p.stage >= 3 && p.stage <= 9);
+  const byStage = {};
+  inflight.forEach(p => { byStage[p.stage] = (byStage[p.stage] || 0) + 1; });
+  const totalAging = inflight.reduce((s, p) => s + p.days, 0);
+  const avgAging = Math.round(totalAging / inflight.length);
+  const stuck = inflight.filter(p => p.days >= 20);
+
+  return (
+    <Modal tag="STAGE REPORT · IN-FLIGHT PORTFOLIO"
+           title={`${inflight.length} deals in flight · avg ${avgAging} days in stage`}
+           subtitle="Snapshot of where each deal is stuck, moving, or ready to advance."
+           close={close} size="lg"
+           footer={<>
+             <ModalBtn onClick={close}>Close</ModalBtn>
+             <ModalBtn primary icon={FileText} onClick={() => { showToast('Stage report queued · sent to your inbox', 'success'); close(); }}>Email me this</ModalBtn>
+           </>}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
+        <StatBlock label="IN FLIGHT"  value={inflight.length} sub="stages 3–9"/>
+        <StatBlock label="AVG DAYS"   value={avgAging}         sub="in current stage" color={avgAging > 15 ? C.gold : C.green}/>
+        <StatBlock label="STUCK ≥20D" value={stuck.length}     sub="need attention"    color={stuck.length > 3 ? C.crimson : C.gold}/>
+        <StatBlock label="STAGES USED" value={Object.keys(byStage).length} sub="of 10"/>
+      </div>
+
+      <MonoLabel color={C.crimson}>BY STAGE</MonoLabel>
+      <div style={{ marginTop: 8, marginBottom: 18 }}>
+        {STAGES.slice(2, 9).map((s, i) => {
+          const stage = i + 3;
+          const count = byStage[stage] || 0;
+          const maxCount = Math.max(...Object.values(byStage));
+          const w = maxCount > 0 ? (count / maxCount) * 100 : 0;
+          return (
+            <div key={s.name} style={{ display:'grid', gridTemplateColumns:'80px 1fr 30px', gap: 10, alignItems:'center', marginBottom: 6 }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.slate, letterSpacing:'0.06em' }}>
+                {String(stage).padStart(2,'0')} · {s.name.toUpperCase().slice(0, 8)}
+              </div>
+              <div style={{ background: C.ruleSoft, height: 16, position:'relative' }}>
+                <div style={{ width: `${w}%`, height: '100%', background: C.crimson }}/>
+              </div>
+              <span style={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 700, color: C.ink, textAlign:'right' }}>{count}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <MonoLabel color={C.crimson}>DEALS STUCK ≥20 DAYS · NEED DECISION</MonoLabel>
+      <div style={{ marginTop: 8 }}>
+        {stuck.length === 0 ? (
+          <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 13, color: C.slate }}>
+            All deals moving. Portfolio healthy.
+          </div>
+        ) : stuck.map(p => (
+          <div key={p.id} style={{ display:'grid', gridTemplateColumns:'auto 1fr auto auto', gap: 12,
+                                    padding:'10px 0', borderTop:`1px solid ${C.ruleSoft}`, alignItems:'center' }}>
+            <HealthDot health={p.health}/>
+            <div>
+              <div style={{ fontFamily: FONT_HEAD, fontSize: 13, fontWeight: 500 }}>{p.name}</div>
+              <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 11.5, color: C.slate }}>
+                Stage {String(p.stage).padStart(2,'0')} · sponsor {p.sponsor}
+              </div>
+            </div>
+            <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.crimson, fontWeight: 700, letterSpacing:'0.08em' }}>
+              {p.days}D
+            </span>
+            <span style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 11, color: C.slate }}>
+              → {p.next}
+            </span>
+          </div>
+        ))}
+      </div>
+    </Modal>
+  );
+}
+
+function StatBlock({ label, value, sub, color = C.ink }) {
+  return (
+    <div style={{ padding:'12px 14px', background: C.cream, border:`1px solid ${C.rule}` }}>
+      <MonoLabel color={C.faint} size={9}>{label}</MonoLabel>
+      <div style={{ fontFamily: FONT_HEAD, fontSize: 30, fontWeight: 500, color, marginTop: 2, lineHeight: 1 }}>
+        {value}
+      </div>
+      {sub && <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 11, color: C.slate, marginTop: 4 }}>{sub}</div>}
+    </div>
+  );
+}
+
+// ============================================================
+// MODAL 5 · EXPORT (Lifecycle, Framework, Reports PDF)
+// ============================================================
+function ExportModal({ close, showToast, title = 'Export', subject = 'portfolio' }) {
+  const [format, setFormat] = useState('pdf');
+  const [scope, setScope] = useState('current');
+
+  function doExport() {
+    const filename = `${subject.replace(/\s+/g,'-').toLowerCase()}-${new Date().toISOString().slice(0,10)}.${format}`;
+    showToast(`Exported: ${filename}`, 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="EXPORT" title={title}
+           subtitle="Pick a format and scope. Export runs server-side and lands in your download folder."
+           close={close}
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn primary icon={FileText} onClick={doExport}>Export</ModalBtn>
+           </>}>
+      <Field label="FORMAT">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap: 6 }}>
+          {[
+            { id:'pdf',  label:'PDF',   desc:'Board-ready' },
+            { id:'xlsx', label:'Excel', desc:'Tabular data' },
+            { id:'csv',  label:'CSV',   desc:'Raw export' },
+            { id:'pptx', label:'PPTX',  desc:'Slide deck' },
+          ].map(f => (
+            <button key={f.id} onClick={() => setFormat(f.id)}
+              style={{
+                padding:'12px 10px', background: format === f.id ? C.crimson : 'transparent',
+                color: format === f.id ? 'white' : C.ink, border:`1px solid ${format === f.id ? C.crimson : C.rule}`,
+                fontFamily: FONT_HEAD, fontSize: 13, fontWeight: 500, cursor:'pointer', textAlign:'center',
+              }}>
+              <div>{f.label}</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 8.5, letterSpacing:'0.06em', opacity: 0.75, marginTop: 3 }}>
+                {f.desc.toUpperCase()}
+              </div>
+            </button>
+          ))}
+        </div>
+      </Field>
+      <Field label="SCOPE">
+        <div style={{ display:'flex', gap: 6 }}>
+          {[
+            { id:'current',    label:'Current view' },
+            { id:'inflight',   label:'All in-flight' },
+            { id:'portfolio',  label:'Full portfolio' },
+          ].map(s => (
+            <button key={s.id} onClick={() => setScope(s.id)}
+              style={{
+                padding:'6px 12px', background: scope === s.id ? C.ink : 'transparent',
+                color: scope === s.id ? 'white' : C.ink, border:`1px solid ${scope === s.id ? C.ink : C.rule}`,
+                fontFamily: FONT_HEAD, fontSize: 12, fontWeight: 500, cursor:'pointer',
+              }}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </Field>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 6 · ENGAGEMENT PLAN
+// ============================================================
+function EngagementPlanModal({ close, showToast }) {
+  return (
+    <Modal tag="ENGAGEMENT PLAN · NEXT 30 DAYS"
+           title="Six stakeholders. Six planned interactions."
+           subtitle="Auto-generated from influence map + recent-touch data. Editable."
+           close={close} size="lg"
+           footer={<>
+             <ModalBtn onClick={close}>Close</ModalBtn>
+             <ModalBtn primary icon={Calendar} onClick={() => { showToast('Engagement plan added to calendar · 6 meetings', 'success'); close(); }}>Push to calendar</ModalBtn>
+           </>}>
+      <div style={{ display:'grid', gridTemplateColumns:'150px 1fr 100px 130px', gap: 12,
+                    padding:'10px 0', borderBottom:`2px solid ${C.ink}`, alignItems:'center', marginBottom: 4 }}>
+        <MonoLabel color={C.ink}>STAKEHOLDER</MonoLabel>
+        <MonoLabel color={C.ink}>PLANNED INTERACTION</MonoLabel>
+        <MonoLabel color={C.ink}>WHEN</MonoLabel>
+        <MonoLabel color={C.ink}>OWNER</MonoLabel>
+      </div>
+      {[
+        { s:'Galbraith', action:'Tempus Q3 renewal scope options review · 15-min prep', when:'21 May', owner:'Joaquín' },
+        { s:'Hoots',     action:'Cross-TA Modella scale plan quarterly · brief email', when:'23 May', owner:'Joaquín' },
+        { s:'Reis-Filho',action:'Aignostics term sheet science review · joint call',   when:'28 May', owner:'BD Lead' },
+        { s:'Hudson',    action:'BenevolentAI strategic review posture · 1:1',         when:'2 Jun', owner:'Joaquín' },
+        { s:'Reic',      action:'Spain CoE strategy final read-out',                    when:'24 May', owner:'Joaquín' },
+        { s:'Vincenzo',  action:'Weekly ops sync · Insight Explorer handoff',          when:'ongoing', owner:'Joaquín' },
+      ].map((row, i) => (
+        <div key={i} style={{ display:'grid', gridTemplateColumns:'150px 1fr 100px 130px', gap: 12,
+                              padding:'12px 0', borderTop:`1px solid ${C.ruleSoft}`, alignItems:'center' }}>
+          <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+            <div style={{ width: 26, height: 26, borderRadius:'50%', background: C.navy, color:'white',
+                          display:'grid', placeItems:'center', fontFamily: FONT_HEAD, fontSize: 10, fontWeight: 600 }}>
+              {row.s.slice(0, 2)}
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 500 }}>{row.s}</span>
+          </div>
+          <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 13, color: C.ink }}>{row.action}</div>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.crimson, fontWeight: 700, letterSpacing:'0.06em' }}>
+            {row.when.toUpperCase()}
+          </span>
+          <span style={{ fontFamily: FONT_HEAD, fontSize: 12.5, color: C.slate }}>{row.owner}</span>
+        </div>
+      ))}
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 7 · ROUTING RULES
+// ============================================================
+function RoutingRulesModal({ close, showToast }) {
+  const [advanceThreshold, setAdvanceThreshold] = useState(75);
+  const [declineThreshold, setDeclineThreshold] = useState(50);
+
+  function save() {
+    showToast(`Routing thresholds updated · advance ≥${advanceThreshold} · decline <${declineThreshold}`, 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="AUTO-ROUTING RULES · INBOX"
+           title="How every inbound request is triaged."
+           subtitle="Score thresholds define auto-routing. Everything between advance and decline goes to human triage."
+           close={close}
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn primary icon={Workflow} onClick={save}>Save rules</ModalBtn>
+           </>}>
+      <div style={{ background: C.cream, padding:'16px 18px', marginBottom: 18, border:`1px solid ${C.rule}` }}>
+        <MonoLabel color={C.crimson}>SCORE THRESHOLDS · 0–100</MonoLabel>
+        <div style={{ marginTop: 12, display:'grid', gridTemplateColumns:'auto 1fr auto', gap: 12, alignItems:'center' }}>
+          <span style={{ fontFamily: FONT_HEAD, fontSize: 13 }}>Auto-advance if score ≥</span>
+          <input type="range" min="60" max="90" value={advanceThreshold}
+                 onChange={e => setAdvanceThreshold(parseInt(e.target.value))} style={{width:'100%'}}/>
+          <span style={{ fontFamily: FONT_HEAD, fontSize: 20, fontWeight: 500, color: C.green, minWidth: 40, textAlign:'right' }}>
+            {advanceThreshold}
+          </span>
+        </div>
+        <div style={{ marginTop: 10, display:'grid', gridTemplateColumns:'auto 1fr auto', gap: 12, alignItems:'center' }}>
+          <span style={{ fontFamily: FONT_HEAD, fontSize: 13 }}>Auto-decline if score &lt;</span>
+          <input type="range" min="30" max="60" value={declineThreshold}
+                 onChange={e => setDeclineThreshold(parseInt(e.target.value))} style={{width:'100%'}}/>
+          <span style={{ fontFamily: FONT_HEAD, fontSize: 20, fontWeight: 500, color: C.crimson, minWidth: 40, textAlign:'right' }}>
+            {declineThreshold}
+          </span>
+        </div>
+      </div>
+
+      <MonoLabel color={C.slate}>AUTO-TAGGING RULES</MonoLabel>
+      <div style={{ marginTop: 8, marginBottom: 18 }}>
+        {[
+          'EU-native + CE-marked → tag "EU-READY" · route to Reic',
+          'Multimodal AI + Onc keywords → route to Reis-Filho',
+          'Federated / EHDS → route to Hoots org + Compliance',
+          'RWE / claims data → route to MA + BD',
+          'Cold outreach + no regulatory → auto-decline at score <40',
+        ].map((r, i) => (
+          <div key={i} style={{ padding:'8px 0', borderTop:`1px solid ${C.ruleSoft}`, fontFamily: FONT_HEAD, fontSize: 12.5, color: C.ink }}>
+            <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.crimson, marginRight: 8, fontWeight: 700 }}>R{i+1}</span>
+            {r}
+          </div>
+        ))}
+      </div>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 8 · COMPARE PARTNERS
+// ============================================================
+function ComparePartnersModal({ close, showToast, appState }) {
+  const [selected, setSelected] = useState(['aig','tem']);
+  const scores = appState.allScores;
+  const candidates = PARTNERSHIPS.filter(p => scores[p.id]);
+
+  function toggle(id) {
+    if (selected.includes(id)) {
+      if (selected.length > 2) setSelected(selected.filter(x => x !== id));
+    } else if (selected.length < 3) {
+      setSelected([...selected, id]);
+    }
+  }
+  const palette = [C.crimson, C.gold, C.navy];
+
+  return (
+    <Modal tag="COMPARE PARTNERS · SIDE-BY-SIDE"
+           title="Pick 2–3 partners. See scorecard delta at a glance."
+           close={close} size="lg"
+           footer={<>
+             <ModalBtn onClick={close}>Close</ModalBtn>
+             <ModalBtn primary icon={FileText} onClick={() => { showToast('Comparison exported to PDF', 'success'); close(); }}>Export comparison</ModalBtn>
+           </>}>
+      <div style={{ marginBottom: 16 }}>
+        <MonoLabel color={C.slate}>SELECT · {selected.length}/3</MonoLabel>
+        <div style={{ display:'flex', gap: 6, marginTop: 8, flexWrap:'wrap' }}>
+          {candidates.map(p => {
+            const idx = selected.indexOf(p.id);
+            const active = idx >= 0;
+            const col = active ? palette[idx] : C.faint;
+            return (
+              <button key={p.id} onClick={() => toggle(p.id)}
+                style={{ padding:'4px 10px', background: active ? col : C.surface,
+                         color: active ? 'white' : C.ink, border:`1px solid ${active ? col : C.rule}`,
+                         fontFamily: FONT_HEAD, fontSize: 12, fontWeight: 500, cursor:'pointer' }}>
+                {p.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns:`150px repeat(${selected.length}, 1fr)`, gap: 0,
+                    background: C.ink, color: 'white', padding:'8px 12px' }}>
+        <MonoLabel color={'white'}>DIMENSION</MonoLabel>
+        {selected.map((id, i) => {
+          const p = PARTNERSHIPS.find(x => x.id === id);
+          return (
+            <div key={id} style={{ display:'flex', alignItems:'center', gap: 6 }}>
+              <span style={{ width: 10, height: 10, background: palette[i] }}/>
+              <span style={{ fontFamily: FONT_HEAD, fontSize: 12.5, color:'white', fontWeight: 500 }}>{p.name}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {DIMS_8.map((d, di) => {
+        const values = selected.map(id => scores[id][di]);
+        const max = Math.max(...values);
+        return (
+          <div key={di} style={{ display:'grid', gridTemplateColumns:`150px repeat(${selected.length}, 1fr)`, gap: 0,
+                                  padding:'10px 12px', borderBottom:`1px solid ${C.ruleSoft}`, alignItems:'center' }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: C.ink }}>{d.full}</div>
+              <MonoLabel color={d.weight==='HIGH'?C.crimson:C.gold} size={9}>{d.weight}</MonoLabel>
+            </div>
+            {values.map((v, i) => {
+              const isLeader = v === max && values.filter(x => x === max).length === 1;
+              return (
+                <div key={i} style={{ display:'flex', alignItems:'center', gap: 8 }}>
+                  <div style={{ background: C.ruleSoft, height: 14, width: 80, position:'relative' }}>
+                    <div style={{ width: `${(v/5)*100}%`, height: '100%', background: palette[i] }}/>
+                  </div>
+                  <span style={{ fontFamily: FONT_HEAD, fontSize: 15, fontWeight: 500, color: palette[i] }}>{v}</span>
+                  {isLeader && <span style={{ fontFamily: FONT_MONO, fontSize: 9, color: C.green, fontWeight: 700, letterSpacing:'0.08em' }}>★</span>}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+
+      <div style={{ display:'grid', gridTemplateColumns:`150px repeat(${selected.length}, 1fr)`, gap: 0,
+                    padding:'12px', background: C.cream, marginTop: 8, alignItems:'center' }}>
+        <MonoLabel color={C.crimson}>COMPOSITE</MonoLabel>
+        {selected.map((id, i) => {
+          const total = scores[id].reduce((s,x)=>s+x,0);
+          const comp = Math.round(total/40*100);
+          return (
+            <span key={id} style={{ fontFamily: FONT_HEAD, fontSize: 24, fontWeight: 500, color: palette[i] }}>
+              {comp}<span style={{ fontSize: 11, color: C.faint }}>/100</span>
+            </span>
+          );
+        })}
+      </div>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 9 · GENERATE MEMO
+// ============================================================
+function MemoModal({ close, showToast, data }) {
+  const partnership = data?.partnership || PARTNERSHIPS.find(p => p.id === 'aig');
+  const scores = data?.scores || [4,4,4,5,4,4,5,3];
+  const notes = data?.notes || [];
+  const composite = Math.round(scores.reduce((s,x)=>s+x,0)/40*100);
+  const strongest = DIMS_8.filter((d,i) => scores[i] === Math.max(...scores)).map(d => d.short);
+  const weakest = DIMS_8.filter((d,i) => scores[i] === Math.min(...scores)).map(d => d.short);
+  const recommendation = composite >= 75 ? 'ADVANCE' : composite >= 60 ? 'ADVANCE WITH CONDITIONS' : 'DEFER';
+
+  return (
+    <Modal tag="EVALUATION MEMO · AUTO-GENERATED"
+           title={`Draft evaluation memo · ${partnership.name}`}
+           subtitle="Generated from current scorecard + notes + decisions. Edit before sending."
+           close={close} size="lg"
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn onClick={() => { showToast('Memo copied to clipboard', 'success'); }} icon={FileText}>Copy</ModalBtn>
+             <ModalBtn primary icon={Send} onClick={() => { showToast(`Memo sent to ${partnership.sponsor}`, 'success'); close(); }}>Send to sponsor</ModalBtn>
+           </>}>
+      <div style={{ padding:'0', border:`1px solid ${C.rule}`, background: C.surface }}>
+        <div style={{ padding:'16px 20px', borderBottom:`1px solid ${C.rule}`, background: C.cream }}>
+          <MonoLabel color={C.crimson}>EVALUATION MEMO · CONFIDENTIAL</MonoLabel>
+          <div style={{ display:'grid', gridTemplateColumns:'auto 1fr auto 1fr', gap:'4px 12px', marginTop: 8 }}>
+            <MonoLabel color={C.faint} size={9}>PARTNER</MonoLabel><span style={{fontSize:12, fontWeight:500}}>{partnership.name}</span>
+            <MonoLabel color={C.faint} size={9}>DATE</MonoLabel><span style={{fontSize:12}}>19 May 2026</span>
+            <MonoLabel color={C.faint} size={9}>STAGE</MonoLabel><span style={{fontSize:12}}>Stage {String(partnership.stage).padStart(2,'0')} · {STAGES[partnership.stage-1].name}</span>
+            <MonoLabel color={C.faint} size={9}>SPONSOR</MonoLabel><span style={{fontSize:12}}>{partnership.sponsor}</span>
+          </div>
+        </div>
+
+        <div style={{ padding:'16px 20px', fontFamily: FONT_HEAD, fontSize: 13, lineHeight: 1.6, color: C.ink }}>
+          <Serif size={16} weight={500} style={{ display:'block', marginBottom: 8 }}>Recommendation</Serif>
+          <p style={{ margin: 0 }}>
+            Scorecard composite <strong>{composite}/100</strong>. Recommendation: <strong style={{ color: composite >= 75 ? C.green : composite >= 60 ? C.gold : C.crimson }}>{recommendation}</strong> to next stage.
+          </p>
+
+          <Serif size={16} weight={500} style={{ display:'block', marginTop: 16, marginBottom: 8 }}>Rationale</Serif>
+          <p style={{ margin: 0 }}>
+            {partnership.name} shows strongest signal on <strong>{strongest.join(' and ')}</strong>. The weakest dimension is <strong>{weakest.join(' and ')}</strong>, which requires explicit mitigation in the negotiation phase.
+            {partnership.cap && ` The partnership sits in ${partnership.cap} capability, aligned with the ${partnership.tag} TA envelope of ${partnership.value}.`}
+          </p>
+
+          {notes.length > 0 && (
+            <>
+              <Serif size={16} weight={500} style={{ display:'block', marginTop: 16, marginBottom: 8 }}>Key Notes</Serif>
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                {notes.slice(0, 3).map(n => (
+                  <li key={n.id} style={{ marginBottom: 6 }}>
+                    <em style={{ color: n.kind==='risk'?C.crimson:n.kind==='next'?C.gold:C.slate }}>[{n.kind}]</em> {n.text}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          <Serif size={16} weight={500} style={{ display:'block', marginTop: 16, marginBottom: 8 }}>Next steps</Serif>
+          <p style={{ margin: 0 }}>
+            {composite >= 75 ? `Advance to ${STAGES[partnership.stage]?.name || 'next gate'} within 14 days. Sponsor sign-off pending.` :
+             composite >= 60 ? `Address weakest-dimension mitigations before advancement. Re-review in 14 days.` :
+                                `Defer or restructure. Composite below 60 threshold.`}
+          </p>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 10 · INTEL MONITORS
+// ============================================================
+function MonitorsModal({ close, showToast }) {
+  return (
+    <Modal tag="ACTIVE INTEL MONITORS"
+           title="8 monitors running · sources tracked continuously"
+           subtitle="Signals matching these rules land in the Intel feed automatically."
+           close={close} size="lg"
+           footer={<>
+             <ModalBtn onClick={close}>Close</ModalBtn>
+             <ModalBtn primary icon={Plus} onClick={() => { showToast('Monitor added · watching now', 'success'); close(); }}>Add monitor</ModalBtn>
+           </>}>
+      {[
+        { source:'ASCO / ESMO / AACR keynotes',  keywords:'pathology · multimodal · foundation model',  freq:'daily' },
+        { source:'BioEurope · JP Morgan Healthcare',keywords:'partnership · alliance · Series B',       freq:'daily' },
+        { source:'Endpoints · Fierce · STAT',    keywords:'AI · RWE · federated · EU AI Act',           freq:'hourly' },
+        { source:'Roche · Novartis · Pfizer press',keywords:'oncology · partnership · alliance',        freq:'hourly' },
+        { source:'EU AI Office · MDR guidance',  keywords:'Annex III · high-risk AI · medical device', freq:'daily' },
+        { source:'Biocat · CDTI · ICEX Spain',   keywords:'digital health · AI · Barcelona · Madrid',  freq:'weekly' },
+        { source:'South Summit · 4YFN · Bind',   keywords:'health AI · digital biomarker',              freq:'monthly' },
+        { source:'Nature · Nature Medicine · Lancet',keywords:'foundation model · digital pathology',   freq:'weekly' },
+      ].map((m, i) => (
+        <div key={i} style={{ display:'grid', gridTemplateColumns:'1.4fr 1fr 90px auto', gap: 12,
+                              padding:'12px 0', borderTop: i > 0 ? `1px solid ${C.ruleSoft}` : 'none', alignItems:'center' }}>
+          <div>
+            <div style={{ fontFamily: FONT_HEAD, fontSize: 13, fontWeight: 500 }}>{m.source}</div>
+            <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 11.5, color: C.slate, marginTop: 2 }}>
+              {m.keywords}
+            </div>
+          </div>
+          <div style={{ display:'flex', gap: 6, alignItems:'center' }}>
+            <Radio size={12} color={C.green}/>
+            <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.green, letterSpacing:'0.10em', fontWeight: 700 }}>ACTIVE</span>
+          </div>
+          <span style={{ fontFamily: FONT_MONO, fontSize: 10, color: C.slate, letterSpacing:'0.06em' }}>
+            {m.freq.toUpperCase()}
+          </span>
+          <button style={{ background:'transparent', border:'none', cursor:'pointer', color: C.slate, padding: 4 }}>
+            <Settings size={13}/>
+          </button>
+        </div>
+      ))}
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 11 · LOG INTEL
+// ============================================================
+function LogIntelModal({ close, showToast }) {
+  const [source, setSource] = useState('');
+  const [type, setType] = useState('news');
+  const [title, setTitle] = useState('');
+  const [detail, setDetail] = useState('');
+  const [impact, setImpact] = useState('med');
+
+  function submit() {
+    if (!title.trim() || !source.trim()) { showToast('Source and title required', 'warn'); return; }
+    showToast(`Intel logged: "${title.trim().slice(0, 40)}${title.length > 40 ? '…' : ''}" · impact ${impact}`, 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="LOG INTEL" title="Add a new signal to the intel feed."
+           subtitle="Manual override of auto-monitors. For anything picked up offline."
+           close={close}
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn primary icon={Plus} onClick={submit}>Log intel</ModalBtn>
+           </>}>
+      <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap: 12 }}>
+        <Field label="SOURCE">
+          <input value={source} onChange={e => setSource(e.target.value)} style={inputStyle}
+                 placeholder="e.g. ASCO 2026 · WSJ · LinkedIn"/>
+        </Field>
+        <Field label="TYPE">
+          <select value={type} onChange={e => setType(e.target.value)} style={inputStyle}>
+            <option value="event">Event</option>
+            <option value="news">News</option>
+            <option value="competitor">Competitor</option>
+            <option value="ecosystem">Ecosystem</option>
+            <option value="regulatory">Regulatory</option>
+          </select>
+        </Field>
+      </div>
+      <Field label="TITLE">
+        <input value={title} onChange={e => setTitle(e.target.value)} style={inputStyle}
+               placeholder="Headline as it would read in the feed"/>
+      </Field>
+      <Field label="DETAIL / CONTEXT">
+        <textarea value={detail} onChange={e => setDetail(e.target.value)} rows={4}
+                  style={{...inputStyle, resize:'vertical'}}
+                  placeholder="What happened · why it matters · linked partnerships"/>
+      </Field>
+      <Field label="IMPACT">
+        <div style={{ display:'flex', gap: 6 }}>
+          {['high','med','low'].map(im => (
+            <button key={im} onClick={() => setImpact(im)}
+              style={{
+                padding:'6px 14px', background: impact === im ? (im==='high'?C.crimson:im==='med'?C.gold:C.sage) : 'transparent',
+                color: impact === im ? 'white' : C.ink, border:`1px solid ${impact === im ? (im==='high'?C.crimson:im==='med'?C.gold:C.sage) : C.rule}`,
+                fontFamily: FONT_MONO, fontSize: 10.5, fontWeight: 700, letterSpacing:'0.10em', cursor:'pointer',
+              }}>
+              {im.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </Field>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 12 · LOG DECISION
+// ============================================================
+function LogDecisionModal({ close, showToast }) {
+  const [partnership, setPartnership] = useState('aig');
+  const [decision, setDecision] = useState('');
+  const [participants, setParticipants] = useState('');
+
+  function submit() {
+    if (!decision.trim()) { showToast('Decision text required', 'warn'); return; }
+    const p = PARTNERSHIPS.find(x => x.id === partnership);
+    showToast(`Decision logged · ${p.name} · audit trail updated`, 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="LOG DECISION · AUDIT TRAIL"
+           title="Document a gate or governance decision."
+           subtitle="Enters the decisions log · timestamped · immutable once logged."
+           close={close}
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn primary icon={Vote} onClick={submit}>Log decision</ModalBtn>
+           </>}>
+      <Field label="PARTNERSHIP">
+        <select value={partnership} onChange={e => setPartnership(e.target.value)} style={inputStyle}>
+          {PARTNERSHIPS.map(p => <option key={p.id} value={p.id}>{p.name} · stage {p.stage}</option>)}
+        </select>
+      </Field>
+      <Field label="DECISION" hint="Be specific. Include the action, the scope, and the constraint.">
+        <textarea value={decision} onChange={e => setDecision(e.target.value)} rows={3}
+                  style={{...inputStyle, resize:'vertical'}}
+                  placeholder="e.g. Approve advance to stage 5 (term sheet) with conditional Annex III clause language"/>
+      </Field>
+      <Field label="PARTICIPANTS">
+        <input value={participants} onChange={e => setParticipants(e.target.value)} style={inputStyle}
+               placeholder="e.g. Marcus Weber, Reis-Filho, Petra Müller"/>
+      </Field>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 13 · NEW THREAD
+// ============================================================
+function NewThreadModal({ close, showToast }) {
+  const [partnership, setPartnership] = useState('aig');
+  const [topic, setTopic] = useState('');
+  const [msg, setMsg] = useState('');
+  const [urgency, setUrgency] = useState('med');
+
+  function submit() {
+    if (!topic.trim() || !msg.trim()) { showToast('Topic and first message required', 'warn'); return; }
+    const p = PARTNERSHIPS.find(x => x.id === partnership);
+    showToast(`Thread created · ${p.name} · participants notified`, 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="NEW GOVERNANCE THREAD"
+           title="Start a cross-functional discussion."
+           subtitle="Thread linked to partnership · participants auto-invited by role · searchable."
+           close={close}
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn primary icon={Plus} onClick={submit}>Create thread</ModalBtn>
+           </>}>
+      <Field label="PARTNERSHIP">
+        <select value={partnership} onChange={e => setPartnership(e.target.value)} style={inputStyle}>
+          {PARTNERSHIPS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+      </Field>
+      <Field label="TOPIC">
+        <input value={topic} onChange={e => setTopic(e.target.value)} style={inputStyle}
+               placeholder="e.g. AI Act Annex III clause negotiation"/>
+      </Field>
+      <Field label="URGENCY">
+        <div style={{ display:'flex', gap: 6 }}>
+          {['high','med','low'].map(u => (
+            <button key={u} onClick={() => setUrgency(u)}
+              style={{
+                padding:'6px 14px', background: urgency === u ? (u==='high'?C.crimson:u==='med'?C.gold:C.slate) : 'transparent',
+                color: urgency === u ? 'white' : C.ink, border:`1px solid ${urgency === u ? (u==='high'?C.crimson:u==='med'?C.gold:C.slate) : C.rule}`,
+                fontFamily: FONT_MONO, fontSize: 10.5, fontWeight: 700, letterSpacing:'0.10em', cursor:'pointer',
+              }}>
+              {u.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </Field>
+      <Field label="FIRST MESSAGE" hint="Frame the question. Name the decision needed. Tag the stakeholders.">
+        <textarea value={msg} onChange={e => setMsg(e.target.value)} rows={4}
+                  style={{...inputStyle, resize:'vertical'}}
+                  placeholder="Initiating discussion on..."/>
+      </Field>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 14 · RACI GUIDE
+// ============================================================
+function RACIGuideModal({ close }) {
+  return (
+    <Modal tag="RACI GUIDE · REFERENCE"
+           title="How every template assigns roles."
+           subtitle="One R, one A, many C, many I. If a template can't assign these clearly, it doesn't ship."
+           close={close}
+           footer={<ModalBtn primary onClick={close}>Got it</ModalBtn>}>
+      {[
+        { letter:'R', color:C.crimson, name:'RESPONSIBLE', body:'Does the work. One person or team per document. If nobody is R, the document doesn\'t exist. If two people are R, one of them isn\'t.' },
+        { letter:'A', color:C.gold,    name:'ACCOUNTABLE', body:'Signs off. Always exactly one A. Owns the outcome. A can also be R, but never delegate the A.' },
+        { letter:'C', color:C.navy,    name:'CONSULTED',   body:'Two-way. Their input shapes the work before it ships. Not just informed after the fact. Legal is often C. So is TA sponsor.' },
+        { letter:'I', color:C.sage,    name:'INFORMED',    body:'One-way. Told after the fact. Should not slow the R or A. C-level is usually I unless the decision is theirs.' },
+      ].map(row => (
+        <div key={row.letter} style={{ display:'grid', gridTemplateColumns:'60px 1fr', gap: 16,
+                                        padding:'14px 0', borderTop:`1px solid ${C.ruleSoft}`, alignItems:'flex-start' }}>
+          <div style={{ width: 48, height: 48, background: row.color, color:'white',
+                        display:'grid', placeItems:'center', fontFamily: FONT_HEAD, fontSize: 26, fontWeight: 600 }}>
+            {row.letter}
+          </div>
+          <div>
+            <MonoLabel color={row.color}>{row.name}</MonoLabel>
+            <div style={{ fontFamily: FONT_HEAD, fontSize: 13, color: C.ink, marginTop: 6, lineHeight: 1.5 }}>
+              {row.body}
+            </div>
+          </div>
+        </div>
+      ))}
+      <div style={{ marginTop: 18, padding:'12px 14px', background: C.crimsonPale, borderLeft:`3px solid ${C.crimson}` }}>
+        <MonoLabel color={C.crimson}>PRINCIPLE</MonoLabel>
+        <div style={{ fontFamily: FONT_HEAD, fontStyle:'italic', fontSize: 13, color: C.crimsonDk, marginTop: 4 }}>
+          Every stage gate advance is R signing off, A approving, C consulted, I informed — and the artefacts documented. No stage advances without all four filled.
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 15 · NEW TEMPLATE
+// ============================================================
+function NewTemplateModal({ close, showToast }) {
+  const [cat, setCat] = useState('NDA');
+  const [name, setName] = useState('');
+  const [r, setR] = useState(''); const [a, setA] = useState('');
+  const [cCons, setCCons] = useState(''); const [iInf, setIInf] = useState('');
+
+  function submit() {
+    if (!name.trim() || !r || !a) { showToast('Name, R and A required', 'warn'); return; }
+    showToast(`Template added: ${name.trim()} · RACI defined · pending Legal review`, 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="NEW TEMPLATE" title="Add a template to the library."
+           subtitle="Every template carries its RACI. Templates without RACI cannot ship."
+           close={close}
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn primary icon={Plus} onClick={submit}>Create template</ModalBtn>
+           </>}>
+      <div style={{ display:'grid', gridTemplateColumns:'150px 1fr', gap: 12 }}>
+        <Field label="CATEGORY">
+          <select value={cat} onChange={e => setCat(e.target.value)} style={inputStyle}>
+            {['NDA','DSA','Term Sheet','DD','Mobilisation','Renewal'].map(c => <option key={c}>{c}</option>)}
+          </select>
+        </Field>
+        <Field label="TEMPLATE NAME">
+          <input value={name} onChange={e => setName(e.target.value)} style={inputStyle}
+                 placeholder="e.g. Federated Learning Sandbox v2"/>
+        </Field>
+      </div>
+      <MonoLabel color={C.crimson}>RACI MATRIX</MonoLabel>
+      <div style={{ marginTop: 8, display:'grid', gridTemplateColumns:'auto 1fr', gap:'8px 12px' }}>
+        {[['R',r,setR,C.crimson,'Responsible · does the work'],
+          ['A',a,setA,C.gold,'Accountable · signs off'],
+          ['C',cCons,setCCons,C.navy,'Consulted · input shapes work'],
+          ['I',iInf,setIInf,C.sage,'Informed · told after']].map(([l, val, set, col, hint]) => (
+          <React.Fragment key={l}>
+            <div style={{ width: 32, height: 32, background: col, color:'white',
+                          display:'grid', placeItems:'center', fontFamily: FONT_HEAD, fontSize: 16, fontWeight: 600 }}>
+              {l}
+            </div>
+            <div>
+              <input value={val} onChange={e => set(e.target.value)} style={inputStyle}
+                     placeholder={hint}/>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </Modal>
+  );
+}
+
+// ============================================================
+// MODAL 16 · EMAIL SUMMARY
+// ============================================================
+function EmailSummaryModal({ close, showToast, data }) {
+  const target = data?.partnership || 'the portfolio';
+  const [to, setTo] = useState('galbraith@astrazeneca.com; hoots@astrazeneca.com');
+  const [subject, setSubject] = useState(`${target} · partnership status update · ${new Date().toISOString().slice(0,10)}`);
+  const [body, setBody] = useState(
+`Hi both,
+
+Sharing the current partnership dashboard summary for ${target}.
+
+Highlights:
+• Composite score and journey status attached
+• Open governance threads · 1 requires decision
+• Decisions log · 4 documented this month
+• Next milestone tracked in the tool
+
+Full detail in the linked report. Happy to walk through.
+
+Best,
+Joaquín`);
+
+  function send() {
+    showToast(`Email sent · ${to.split(';').length} recipients · report attached`, 'success');
+    close();
+  }
+
+  return (
+    <Modal tag="EMAIL SUMMARY" title="Send the report as an email summary."
+           subtitle="PDF report auto-attached. Recipients see structured dashboard link + summary."
+           close={close} size="lg"
+           footer={<>
+             <ModalBtn onClick={close}>Cancel</ModalBtn>
+             <ModalBtn primary icon={Send} onClick={send}>Send email</ModalBtn>
+           </>}>
+      <Field label="TO">
+        <input value={to} onChange={e => setTo(e.target.value)} style={inputStyle}/>
+      </Field>
+      <Field label="SUBJECT">
+        <input value={subject} onChange={e => setSubject(e.target.value)} style={inputStyle}/>
+      </Field>
+      <Field label="BODY">
+        <textarea value={body} onChange={e => setBody(e.target.value)} rows={10}
+                  style={{...inputStyle, resize:'vertical', fontFamily:'inherit'}}/>
+      </Field>
+      <div style={{ padding:'10px 12px', background: C.cream, border:`1px solid ${C.rule}`, marginTop: 4,
+                    display:'flex', alignItems:'center', gap: 8 }}>
+        <FileText size={14} color={C.crimson}/>
+        <span style={{ fontFamily: FONT_HEAD, fontSize: 12.5, color: C.ink }}>
+          {target}-report-{new Date().toISOString().slice(0,10)}.pdf
+        </span>
+        <span style={{ marginLeft:'auto', fontFamily: FONT_MONO, fontSize: 10, color: C.faint, letterSpacing:'0.06em' }}>
+          AUTO-ATTACHED
+        </span>
+      </div>
+    </Modal>
+  );
+}
+
+// ============================================================
 // MAIN APP
 // ============================================================
 export default function App() {
@@ -3975,24 +5221,28 @@ export default function App() {
   const [allNotes, setAllNotes] = useState(NOTES);
   const [requestStatuses, setRequestStatuses] = useState({});
 
+  const appState = { allScores, allNotes, requestStatuses };
+
   return (
-    <div style={{ display:'flex', minHeight:'100vh', background: C.paper, color: C.ink,
-                  fontFamily:'system-ui, -apple-system, sans-serif', fontSize: 14 }}>
-      <SideNav current={view} onChange={setView}/>
-      <main style={{ flex: 1, minWidth: 0, overflow:'auto' }}>
-        {view === 'dashboard'    && <DashboardView/>}
-        {view === 'inbox'        && <InboxView requestStatuses={requestStatuses} setRequestStatuses={setRequestStatuses}/>}
-        {view === 'pipeline'     && <PipelineView/>}
-        {view === 'intel'        && <IntelView/>}
-        {view === 'lifecycle'    && <LifecycleView/>}
-        {view === 'evaluate'     && <EvaluateView allScores={allScores} setAllScores={setAllScores}
-                                                   allNotes={allNotes} setAllNotes={setAllNotes}/>}
-        {view === 'stakeholders' && <StakeholdersView/>}
-        {view === 'governance'   && <GovernanceView/>}
-        {view === 'reports'      && <ReportsView allScores={allScores}/>}
-        {view === 'templates'    && <TemplatesView/>}
-        {view === 'framework'    && <FrameworkView/>}
-      </main>
-    </div>
+    <UIProvider appState={appState}>
+      <div style={{ display:'flex', minHeight:'100vh', background: C.paper, color: C.ink,
+                    fontFamily:'system-ui, -apple-system, sans-serif', fontSize: 14 }}>
+        <SideNav current={view} onChange={setView}/>
+        <main style={{ flex: 1, minWidth: 0, overflow:'auto' }}>
+          {view === 'dashboard'    && <DashboardView/>}
+          {view === 'inbox'        && <InboxView requestStatuses={requestStatuses} setRequestStatuses={setRequestStatuses}/>}
+          {view === 'pipeline'     && <PipelineView/>}
+          {view === 'intel'        && <IntelView/>}
+          {view === 'lifecycle'    && <LifecycleView/>}
+          {view === 'evaluate'     && <EvaluateView allScores={allScores} setAllScores={setAllScores}
+                                                     allNotes={allNotes} setAllNotes={setAllNotes}/>}
+          {view === 'stakeholders' && <StakeholdersView/>}
+          {view === 'governance'   && <GovernanceView/>}
+          {view === 'reports'      && <ReportsView allScores={allScores}/>}
+          {view === 'templates'    && <TemplatesView/>}
+          {view === 'framework'    && <FrameworkView/>}
+        </main>
+      </div>
+    </UIProvider>
   );
 }

@@ -539,7 +539,80 @@ function openGuidance() {
   else { const b = new Blob([html], { type: "text/html" }); window.open(URL.createObjectURL(b), "_blank"); }
 }
 
+const TEMPLATE_PACK = [
+  ["Govern", "#830051", [
+    ["T01", "Project Charter", ["Purpose & background", "In / out of scope", "Sponsor & PM", "Tier & governance", "Success criteria", "Key milestones"]],
+    ["T02", "Business Case & Value Hypothesis", ["Problem & opportunity", "Value hypothesis (falsifiable)", "Benefits & owners", "Cost envelope P50 / P80", "Options considered", "Recommendation"]],
+    ["T03", "RAID Log", ["Risk (cause \u2192 event \u2192 impact)", "Assumption", "Issue", "Dependency", "Owner & due", "Severity & next step"]],
+    ["T04", "Status Report \u2014 RAG one-pager", ["Headline (written last)", "RAG by dimension", "Progress this period", "Risks & asks", "Decisions needed", "Next period"]],
+    ["T05", "SteerCo Deck", ["Decisions needed (minute 10)", "Portfolio / project RAG", "Value & benefits", "Plan & milestones", "Risks & escalations", "Asks of the board"]],
+    ["T08", "Decision Log", ["Decision", "Context & options", "Decider (single)", "Date", "Rationale", "Consequence"]]]],
+  ["Deliver", "#003865", [
+    ["T06", "Delivery Plan & Roadmap", ["Phases & gates", "Milestones & dates", "Dependencies", "Critical path", "Resource view", "Assumptions"]],
+    ["T07", "Board Standard (JIRA)", ["Initiatives", "Epics (with value)", "Stories & states", "WIP limits", "Resource / assignee", "Due dates"]],
+    ["T09", "Stakeholder Map & Engagement", ["Stakeholders", "Power / interest", "Current vs target stance", "Engagement actions", "Owner & cadence", "Risks to engagement"]],
+    ["T14", "Retro & Lessons Canvas", ["What went well", "What didn't", "Surprises", "Lessons", "Actions & owners", "Day-30 hypothesis review"]],
+    ["T15", "Feature / Epic One-pager", ["Problem & user", "Value hypothesis", "Scope & acceptance", "Instrumentation / telemetry", "Dependencies", "Definition of done"]],
+    ["T16", "Discovery / Brainstorm Canvas", ["Problem framing", "Ideas (diverge)", "Cluster & themes", "Promote \u2192 risk / epic / decision", "Owners", "Next steps"]]]],
+  ["Change", "#8A6200", [
+    ["T10", "Change Impact Assessment", ["Change description", "Impacted groups", "Process / system / people", "Severity & readiness", "Mitigations", "Owner & date"]],
+    ["T11", "Comms & Engagement Plan", ["Audiences", "Key messages", "Channels", "Timeline / moments", "Owner", "Feedback loop"]],
+    ["T12", "Adoption & Readiness Dashboard", ["Adoption metrics", "Readiness by group", "Training & support", "Leading indicators", "Risks to adoption", "Actions"]]]],
+  ["Value", "#5E7A00", [
+    ["T13", "Benefits & Value Tracker", ["Benefit & baseline", "Target & measure", "Owner (business)", "Status (on track / at risk)", "Value at risk", "Realisation date"]],
+    ["T17", "Closure & Handover Pack", ["Final spend vs envelope", "What shipped", "Keep / change / stop", "Run / BAU owner", "Benefits to track", "Lessons to next"]]]],
+];
+
+function packCatalogHtml() {
+  const rows = TEMPLATE_PACK.map(([job, col, items]) =>
+    `<div style='font-family:Arial;font-weight:800;font-size:14px;margin:22px 0 6px;padding:4px 12px;border-radius:20px;color:#fff;display:inline-block;background:${col}'>${job.toUpperCase()}</div>`
+    + items.map(([code, name, secs]) =>
+      `<div style='padding:8px 4px;border-bottom:1px solid #EFEDEA'><span style='font-family:Courier New;font-weight:700;color:${col}'>${code}</span> <b>${name}</b><br><span style='font-size:11px;color:#6B6B6B'>${secs.join(" \u00b7 ")}</span></div>`).join("")).join("");
+  return `<!DOCTYPE html><html><head><meta charset='utf-8'><title>DCOS Template Pack</title></head><body style='font-family:Calibri,Arial,sans-serif;color:#1C2222;max-width:860px;margin:0 auto;padding:40px 30px'><div style='height:8px;background:#830051;margin:-40px -30px 28px'></div><div style='font-family:Courier New;font-size:11px;letter-spacing:.18em;color:#9AA3A0'>ASTRAZENECA \u00b7 OBU DSAI</div><h1 style='font-family:Arial;color:#830051;margin:2px 0 14px'>DCOS Template Pack</h1><p>17 AZ templates across the four jobs. Generate populated versions from live data in the Studio.</p>${rows}<p style='margin-top:30px;font-family:Courier New;font-size:11px;color:#9AA3A0'>AI/tool-drafted, unconfirmed \u2014 review and sign</p></body></html>`;
+}
+
+async function downloadTemplatePack(setBusy, setErr) {
+  setErr(null); setBusy(true);
+  try {
+    const PptxGenJS = await loadPptx();
+    const pptx = new PptxGenJS();
+    pptx.layout = "LAYOUT_WIDE"; pptx.author = "DCOS Navigator";
+    const meta = { name: "DCOS", code: "Template Pack", tier: "\u2014", phase: "all jobs" };
+    // cover
+    const cv = pptx.addSlide();
+    azFrame(pptx, cv, "AstraZeneca \u00b7 OBU DSAI", "DCOS Template", "Pack", meta);
+    cv.addText("17 AZ templates across the four jobs \u2014 each slide is a fill-in structure. Generate populated versions from live data in the Studio.", { x: 0.57, y: 2.1, w: 11.5, h: 0.6, fontFace: "Calibri", fontSize: 15, color: AZ.mid });
+    TEMPLATE_PACK.forEach(([job, colHex]) => {
+      const col = colHex.replace("#", "");
+      cv.addText("\u25A0 " + job, { x: 0.57 + ["Govern", "Deliver", "Change", "Value"].indexOf(job) * 3.05, y: 3.1, w: 2.9, h: 0.4, fontFace: "Arial", fontSize: 15, bold: true, color: col });
+    });
+    // one slide per template
+    TEMPLATE_PACK.forEach(([job, colHex, items]) => {
+      const col = colHex.replace("#", "");
+      items.forEach(([code, name, secs]) => {
+        const s = pptx.addSlide();
+        azFrame(pptx, s, code + " \u00b7 " + job, name, "\u2014 template", meta);
+        secs.slice(0, 6).forEach((sec, i) => {
+          const cw = (12.23 - 0.4) / 3, ch = 2.45;
+          const x = 0.55 + (i % 3) * (cw + 0.2), y = 2.0 + Math.floor(i / 3) * (ch + 0.2);
+          s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x, y, w: cw, h: ch, rectRadius: 0.06, fill: { color: "FFFFFF" }, line: { color: "D9D6D2", width: 0.75 } });
+          s.addShape(pptx.shapes.RECTANGLE, { x, y, w: 0.09, h: ch, fill: { color: col } });
+          s.addText(sec, { x: x + 0.22, y: y + 0.12, w: cw - 0.4, h: 0.55, fontFace: "Arial", fontSize: 12.5, bold: true, color: "1C2222" });
+          s.addText("\u2014 fill in \u2014", { x: x + 0.22, y: y + 0.7, w: cw - 0.4, h: 0.3, fontFace: "Calibri", fontSize: 10.5, italic: true, color: "9AA3A0" });
+        });
+      });
+    });
+    await pptx.writeFile({ fileName: `DCOS_Template_Pack_${today()}.pptx` });
+  } catch (e) {
+    dl("DCOS_Template_Pack_Catalog.html", packCatalogHtml(), "text/html");
+    setErr("The PPT engine couldn't load here (offline / blocked CDN), so I downloaded the pack catalog as HTML instead. On joaco.org or the corporate deployment the native .pptx generates locally.");
+  }
+  setBusy(false);
+}
+
 function IntroPage({ setTab }) {
+  const [packBusy, setPackBusy] = useState(false);
+  const [packErr, setPackErr] = useState(null);
   const card = (accent, kicker, title, body, cta, onClick) => (
     <div onClick={onClick} style={{ flex: 1, minWidth: 260, background: "#fff", border: `1px solid ${C.line}`, borderTop: `4px solid ${accent}`, borderRadius: 14, padding: "24px 26px", cursor: "pointer", transition: "box-shadow .15s" }}
       onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 26px rgba(0,0,0,.10)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}>
@@ -581,6 +654,31 @@ function IntroPage({ setTab }) {
           ))}
         </div>
       </div>
+      <div style={{ marginTop: 24 }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 15, color: C.ink }}>DCOS Template Pack</div>
+          <button onClick={() => downloadTemplatePack(setPackBusy, setPackErr)} disabled={packBusy}
+            style={{ border: "none", background: C.mul, color: "#fff", borderRadius: 8, padding: "7px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12, cursor: "pointer", opacity: packBusy ? 0.6 : 1 }}>
+            {packBusy ? "Building\u2026" : "\u2B07 Template Pack (PPTX)"}
+          </button>
+        </div>
+        <div style={{ fontSize: 12.5, color: C.mid, margin: "4px 0 12px" }}>17 AZ fill-in templates across the four jobs \u2014 native PowerPoint, built in your browser. Generate populated versions from live data in the Studio.</div>
+        {packErr && <div style={{ background: C.goldLt, border: `1px solid ${C.gold}`, borderRadius: 10, padding: "10px 14px", fontSize: 12, color: C.ink, marginBottom: 12 }}>{packErr}</div>}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 12 }}>
+          {TEMPLATE_PACK.map(([job, col, items]) => (
+            <div key={job} style={{ background: "#fff", border: `1px solid ${C.line}`, borderTop: `3px solid ${col}`, borderRadius: 12, padding: "13px 15px" }}>
+              <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 12.5, color: col }}>{job.toUpperCase()}</div>
+              <div style={{ marginTop: 8 }}>
+                {items.map(([code, name]) => (
+                  <div key={code} style={{ fontSize: 11.5, color: C.ink, margin: "3px 0" }}>
+                    <span style={{ fontFamily: MONO, fontWeight: 700, color: col }}>{code}</span> {name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -590,6 +688,7 @@ function IntroPage({ setTab }) {
    ========================================================================== */
 function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
   const [pmF, setPmF] = useState("all");
+  const [copiedId, setCopiedId] = useState(null);
   const [projF, setProjF] = useState("all");
   const [show, setShow] = useState({ risks: true, resources: true, benefits: true, logs: false, decisions: false });
   const [node, setNode] = useState(null);
@@ -645,7 +744,7 @@ function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
   const similarList = useMemo(() => {
     if (!node || node.kind !== "risk") return [];
     const me = graph.nodes.find(n => n.id === node.id) || node;
-    return graph.nodes.filter(o => simIds.has(o.id)).map(o => ({ id: o.id, projName: o.projName, desc: o.data.desc || o.data.title || "", shared: (o.toks || []).filter(t => (me.toks || []).includes(t)) }));
+    return graph.nodes.filter(o => simIds.has(o.id)).map(o => ({ id: o.id, projName: o.projName, desc: o.data.desc || o.data.title || "", owner: o.data.owner || "", shared: (o.toks || []).filter(t => (me.toks || []).includes(t)) }));
   }, [node, simIds, graph]);
 
   // ---------- physics state (persisted across renders) ----------
@@ -862,7 +961,20 @@ function KnowledgeGraph({ projects, people, assignments, setSel, setTab }) {
                 {similarList.length === 0 ? <div style={{ fontSize: 12, color: C.mid, marginTop: 6 }}>None detected across the visible projects.</div> :
                   similarList.map(s => (
                     <div key={s.id} onClick={() => { const tn = graph.nodes.find(n => n.id === s.id); if (tn) setNode({ id: tn.id, kind: "risk", data: tn.data, projId: tn.projId }); }} style={{ marginTop: 8, padding: "7px 9px", background: C.redLt || "#F8E9E8", borderRadius: 8, cursor: "pointer" }}>
-                      <div style={{ fontFamily: MONO, fontSize: 9, color: C.red, fontWeight: 700 }}>{s.projName}</div>
+                      <div style={{ fontFamily: MONO, fontSize: 9, color: C.red, fontWeight: 700 }}>{s.projName}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const txt = `${s.desc || ""} — owner: ${s.owner || "?"} · seen in ${s.projName || ""}`;
+                            const done = () => { setCopiedId(s.id); setTimeout(() => setCopiedId(null), 1400); };
+                            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(() => {});
+                            else { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); done(); } catch (_) {} document.body.removeChild(ta); }
+                          }}
+                          title="Copy this risk wording + owner to reuse the mitigation"
+                          style={{ float: "right", border: `1px solid ${C.line}`, background: "#fff", borderRadius: 5, fontSize: 9, padding: "1px 7px", cursor: "pointer", color: copiedId === s.id ? C.lime : C.graph, fontFamily: MONO }}>
+                          {copiedId === s.id ? "Copied \u2713" : "\u29C9 Adopt"}
+                        </button>
+                      </div>
                       <div style={{ fontSize: 11.5, color: C.ink, lineHeight: 1.35 }}>{(s.desc || "").slice(0, 90)}</div>
                       <div style={{ fontSize: 9.5, color: C.mid, marginTop: 3 }}>shared: {s.shared.slice(0, 4).join(", ")}</div>
                     </div>
