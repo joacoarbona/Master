@@ -586,20 +586,64 @@ async function downloadTemplatePack(setBusy, setErr) {
       const col = colHex.replace("#", "");
       cv.addText("\u25A0 " + job, { x: 0.57 + ["Govern", "Deliver", "Change", "Value"].indexOf(job) * 3.05, y: 3.1, w: 2.9, h: 0.4, fontFace: "Arial", fontSize: 15, bold: true, color: col });
     });
-    // one slide per template
+    // one slide per template \u2014 varied structures matching Template Pack v3
+    const LAYOUT = { T03: "table", T08: "table", T10: "table", T11: "table", T13: "table",
+                     T02: "cols", T14: "cols", T17: "cols", T07: "cols4", T06: "timeline", T09: "matrix" };
+    const fillIn = (s, x, y, w) => s.addText("\u2014 fill in \u2014", { x, y, w, h: 0.3, fontFace: "Calibri", fontSize: 10.5, italic: true, color: "9AA3A0" });
     TEMPLATE_PACK.forEach(([job, colHex, items]) => {
       const col = colHex.replace("#", "");
       items.forEach(([code, name, secs]) => {
         const s = pptx.addSlide();
         azFrame(pptx, s, code + " \u00b7 " + job, name, "\u2014 template", meta);
-        secs.slice(0, 6).forEach((sec, i) => {
-          const cw = (12.23 - 0.4) / 3, ch = 2.45;
-          const x = 0.55 + (i % 3) * (cw + 0.2), y = 2.0 + Math.floor(i / 3) * (ch + 0.2);
-          s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x, y, w: cw, h: ch, rectRadius: 0.06, fill: { color: "FFFFFF" }, line: { color: "D9D6D2", width: 0.75 } });
-          s.addShape(pptx.shapes.RECTANGLE, { x, y, w: 0.09, h: ch, fill: { color: col } });
-          s.addText(sec, { x: x + 0.22, y: y + 0.12, w: cw - 0.4, h: 0.55, fontFace: "Arial", fontSize: 12.5, bold: true, color: "1C2222" });
-          s.addText("\u2014 fill in \u2014", { x: x + 0.22, y: y + 0.7, w: cw - 0.4, h: 0.3, fontFace: "Calibri", fontSize: 10.5, italic: true, color: "9AA3A0" });
-        });
+        const kind = LAYOUT[code] || "grid";
+        if (kind === "table") {
+          const heads = secs.slice(0, 5), W = 12.23, cw = W / heads.length, y0 = 2.0;
+          s.addShape(pptx.shapes.RECTANGLE, { x: 0.55, y: y0, w: W, h: 0.5, fill: { color: col } });
+          heads.forEach((hh, i) => s.addText(hh.toUpperCase(), { x: 0.55 + i * cw + 0.1, y: y0, w: cw - 0.2, h: 0.5, fontFace: "Courier New", fontSize: 8.5, bold: true, color: "FFFFFF", valign: "middle" }));
+          for (let r = 0; r < 7; r++)
+            s.addShape(pptx.shapes.RECTANGLE, { x: 0.55, y: y0 + 0.5 + r * 0.62, w: W, h: 0.62, fill: { color: r % 2 ? "FBFAF9" : "FFFFFF" }, line: { color: "D9D6D2", width: 0.5 } });
+        } else if (kind === "cols" || kind === "cols4") {
+          const n = kind === "cols4" ? 4 : 3, gap = 0.25, cw = (12.23 - gap * (n - 1)) / n;
+          for (let i = 0; i < n; i++) {
+            const cx = 0.55 + i * (cw + gap);
+            s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: cx, y: 2.0, w: cw, h: 4.6, rectRadius: 0.06, fill: { color: "F6F4F2" } });
+            s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: cx, y: 2.0, w: cw, h: 0.5, rectRadius: 0.06, fill: { color: col } });
+            s.addText(secs[i] || "", { x: cx + 0.15, y: 2.0, w: cw - 0.3, h: 0.5, fontFace: "Arial", fontSize: 11.5, bold: true, color: "FFFFFF", valign: "middle" });
+            [0, 1, 2].forEach(j => fillIn(s, cx + 0.2, 2.75 + j * 0.55, cw - 0.4));
+          }
+        } else if (kind === "timeline") {
+          const phases = ["Mobilise", "Build", "Pilot", "Scale", "Embed"], W = 11.9, seg = W / 5, y = 2.7;
+          s.addShape(pptx.shapes.RECTANGLE, { x: 0.7, y: y + 0.1, w: W, h: 0.06, fill: { color: "D9D6D2" } });
+          phases.forEach((ph, i) => {
+            const cx = 0.7 + i * seg + seg / 2;
+            s.addShape(pptx.shapes.OVAL, { x: cx - 0.12, y, w: 0.24, h: 0.24, fill: { color: col } });
+            s.addText(ph, { x: cx - seg / 2 + 0.1, y: y - 0.6, w: seg - 0.2, h: 0.45, fontFace: "Arial", fontSize: 12, bold: true, color: "1C2222", align: "center" });
+            s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: cx - seg / 2 + 0.2, y: y + 0.5, w: seg - 0.4, h: 1.6, rectRadius: 0.06, fill: { color: "FFFFFF" }, line: { color: "D9D6D2", width: 0.75 } });
+            fillIn(s, cx - seg / 2 + 0.35, y + 1.1, seg - 0.7);
+          });
+          s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0.7, y: y + 2.4, w: W, h: 1.2, rectRadius: 0.06, fill: { color: "F6F4F2" } });
+          s.addText("Dependencies & critical path \u2014 fill in", { x: 0.9, y: y + 2.55, w: W - 0.4, h: 0.4, fontFace: "Arial", fontSize: 12, bold: true, color: "3F4444" });
+        } else if (kind === "matrix") {
+          const x0 = 2.2, y0 = 1.95, sz = 4.5;
+          s.addShape(pptx.shapes.RECTANGLE, { x: x0, y: y0, w: sz, h: sz, fill: { color: "FFFFFF" }, line: { color: "D9D6D2", width: 1 } });
+          s.addShape(pptx.shapes.RECTANGLE, { x: x0 + sz / 2, y: y0, w: 0.02, h: sz, fill: { color: "D9D6D2" } });
+          s.addShape(pptx.shapes.RECTANGLE, { x: x0, y: y0 + sz / 2, w: sz, h: 0.02, fill: { color: "D9D6D2" } });
+          [["Keep satisfied", 0, 0], ["Manage closely", 1, 0], ["Monitor", 0, 1], ["Keep informed", 1, 1]].forEach(([q, qx, qy]) =>
+            s.addText(q, { x: x0 + qx * sz / 2 + 0.12, y: y0 + qy * sz / 2 + 0.08, w: sz / 2 - 0.2, h: 0.35, fontFace: "Arial", fontSize: 11, bold: true, color: col }));
+          s.addText("INTEREST \u2192", { x: x0, y: y0 + sz + 0.08, w: sz, h: 0.3, fontFace: "Courier New", fontSize: 9.5, bold: true, color: "6B6B6B", align: "center" });
+          s.addText("\u2191 POWER", { x: x0 - 1.6, y: y0 + sz / 2 - 0.15, w: 1.4, h: 0.3, fontFace: "Courier New", fontSize: 9.5, bold: true, color: "6B6B6B", align: "center" });
+          s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: x0 + sz + 0.4, y: y0, w: 4.0, h: sz, rectRadius: 0.06, fill: { color: "F6F4F2" } });
+          s.addText("Actions by quadrant \u2014 who \u00b7 what \u00b7 by when", { x: x0 + sz + 0.6, y: y0 + 0.2, w: 3.6, h: 0.8, fontFace: "Arial", fontSize: 11.5, bold: true, color: "3F4444" });
+        } else {
+          secs.slice(0, 6).forEach((sec, i) => {
+            const cw = (12.23 - 0.4) / 3, ch = 2.45;
+            const x = 0.55 + (i % 3) * (cw + 0.2), y = 2.0 + Math.floor(i / 3) * (ch + 0.2);
+            s.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x, y, w: cw, h: ch, rectRadius: 0.06, fill: { color: "FFFFFF" }, line: { color: "D9D6D2", width: 0.75 } });
+            s.addShape(pptx.shapes.RECTANGLE, { x, y, w: 0.09, h: ch, fill: { color: col } });
+            s.addText(sec, { x: x + 0.22, y: y + 0.12, w: cw - 0.4, h: 0.55, fontFace: "Arial", fontSize: 12.5, bold: true, color: "1C2222" });
+            fillIn(s, x + 0.22, y + 0.7, cw - 0.4);
+          });
+        }
       });
     });
     await pptx.writeFile({ fileName: `DCOS_Template_Pack_${today()}.pptx` });
