@@ -27,6 +27,7 @@ const APPS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   "iq-markets": lazy(() => import("./works/IQMarkets.jsx")),
   "bridge": lazy(() => import("./works/Bridge.jsx")),
   "slidebuilder": lazy(() => import("./works/SlideBuilder.jsx")),
+  "postlabor": lazy(() => import("./works/Postlabor.jsx")),
 };
 
 type Route = { kind: "gabinete" | "fiesta" | "proyectos" } | { kind: "app"; id: string };
