@@ -141,12 +141,12 @@ export const DEFAULT_WORKS: Work[] = [
     href: "#/app/slidebuilder",
   },
    {
-    id: "PostLabor",
+    id: "PostlLabor",
     title: "PostLaborEconomy",
     description: "dossier",
     kind: "herramienta",
     initial: "L",
-    href: "#/app/PostLabor",
+    href: "#/app/postlabor",
   },
 ];
 
