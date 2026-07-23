@@ -140,7 +140,14 @@ export const DEFAULT_WORKS: Work[] = [
     initial: "S",
     href: "#/app/slidebuilder",
   },
-  slot(5),
+   {
+    id: "PostLabor",
+    title: "PostLaborEconomy",
+    description: "dossier",
+    kind: "herramienta",
+    initial: "L",
+    href: "#/app/PostLabor",
+  },
 ];
 
 const KIND_LABEL: Record<WorkKind, string> = {
