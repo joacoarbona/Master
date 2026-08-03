@@ -23,8 +23,8 @@ const DISP = "'Archivo', sans-serif", BODY = "'Inter', sans-serif", MONO = "'IBM
 
 /* ---- i18n (UI chrome; generated documents stay in corporate English) ---- */
 const I18N = {
-  en: { intro: "Home", graph: "Knowledge Graph", gStart: "START", portfolio: "Portfolio", week: "This Week", workspace: "Workspace", data: "Project Data", studio: "PPT Studio", health: "Health Scan", priority: "Priority Lab", canvas: "Delivery Canvas", review: "Review Pack", govyear: "Governance Year", timeline: "Timeline", advisor: "Advisor", capacity: "Capacity & Budget", whiteboard: "Whiteboard", team: "Team & AI Model", charter: "Team Charter", resources: "Resources", gRun: "RUN", gGovern: "GOVERN", gGenerate: "GENERATE", gLearn: "LEARN", subtitle: "delivery intelligence cockpit", persists: "data persists across sessions", saving: "saving\u2026", saved: "saved \u2713", saveerr: "save failed \u2014 retrying on next change", export: "Export JSON", import: "Import", langnote: "" },
-  es: { intro: "Inicio", graph: "Grafo de Conocimiento", gStart: "INICIO", portfolio: "Portafolio", week: "Esta Semana", workspace: "Espacio de Trabajo", data: "Datos del Proyecto", studio: "Estudio PPT", health: "Diagn\u00f3stico", priority: "Lab de Prioridades", canvas: "Canvas de Entrega", review: "Pack de Revisi\u00f3n", govyear: "A\u00f1o de Gobierno", timeline: "L\u00ednea de Tiempo", advisor: "Asesor IA", capacity: "Capacidad y Presupuesto", whiteboard: "Pizarra", team: "Equipo e IA", charter: "Carta del Equipo", resources: "Recursos", gRun: "EJECUTA", gGovern: "GOBIERNA", gGenerate: "GENERA", gLearn: "APRENDE", subtitle: "cockpit de inteligencia de delivery", persists: "los datos persisten entre sesiones", saving: "guardando\u2026", saved: "guardado \u2713", saveerr: "fallo al guardar \u2014 reintenta en el pr\u00f3ximo cambio", export: "Exportar JSON", import: "Importar", langnote: "Los documentos generados mantienen el ingl\u00e9s corporativo (est\u00e1ndar de entregables)." },
+  en: { intro: "Home", phome: "Portfolio Home", graph: "Knowledge Graph", gStart: "START", portfolio: "Portfolio", week: "This Week", workspace: "Workspace", data: "Project Data", studio: "PPT Studio", health: "Health Scan", priority: "Priority Lab", canvas: "Delivery Canvas", review: "Review Pack", govyear: "Governance Year", timeline: "Timeline", advisor: "Advisor", capacity: "Capacity & Budget", whiteboard: "Whiteboard", team: "Team & AI Model", charter: "Team Charter", resources: "Resources", strategy: "Strategy Alignment", opmodel: "Operating Model", gRun: "RUN", gGovern: "GOVERN", gAlign: "ALIGN", gGenerate: "GENERATE", gLearn: "LEARN", subtitle: "delivery intelligence cockpit", persists: "data persists across sessions", saving: "saving\u2026", saved: "saved \u2713", saveerr: "save failed \u2014 retrying on next change", export: "Export JSON", import: "Import", langnote: "" },
+  es: { intro: "Inicio", phome: "Inicio de Portafolio", graph: "Grafo de Conocimiento", gStart: "INICIO", portfolio: "Portafolio", week: "Esta Semana", workspace: "Espacio de Trabajo", data: "Datos del Proyecto", studio: "Estudio PPT", health: "Diagn\u00f3stico", priority: "Lab de Prioridades", canvas: "Canvas de Entrega", review: "Pack de Revisi\u00f3n", govyear: "A\u00f1o de Gobierno", timeline: "L\u00ednea de Tiempo", advisor: "Asesor IA", capacity: "Capacidad y Presupuesto", whiteboard: "Pizarra", team: "Equipo e IA", charter: "Carta del Equipo", resources: "Recursos", strategy: "Alineaci\u00f3n Estrat\u00e9gica", opmodel: "Modelo Operativo", gRun: "EJECUTA", gGovern: "GOBIERNA", gAlign: "ALINEA", gGenerate: "GENERA", gLearn: "APRENDE", subtitle: "cockpit de inteligencia de delivery", persists: "los datos persisten entre sesiones", saving: "guardando\u2026", saved: "guardado \u2713", saveerr: "fallo al guardar \u2014 reintenta en el pr\u00f3ximo cambio", export: "Exportar JSON", import: "Importar", langnote: "Los documentos generados mantienen el ingl\u00e9s corporativo (est\u00e1ndar de entregables)." },
 };
 
 const TIERS = { A: "Full Agile", B: "Hybrid", C: "Waterfall", D: "Light Touch" };
@@ -323,10 +323,1014 @@ function importJson(file, api) {
         if (Array.isArray(data.people)) api.setPeople(data.people);
         if (Array.isArray(data.assignments)) api.setAssignments(data.assignments);
         if (Array.isArray(data.programLinks)) api.setProgramLinks(data.programLinks);
+        if (Array.isArray(data.objectives)) api.setObjectives(data.objectives);
+        if (Array.isArray(data.priorities)) api.setPriorities(data.priorities);
+        if (Array.isArray(data.milestones)) api.setMilestones(data.milestones);
+        if (Array.isArray(data.squads)) api.setSquads(data.squads);
+        if (data.resViz && typeof data.resViz === "object") api.setResViz(data.resViz);
       } else alert("That file doesn't contain a Navigator portfolio (missing 'projects' array).");
     } catch { alert("Couldn't read that file — expected a Navigator JSON export."); }
   };
   r.readAsText(file);
+}
+
+
+/* ============================================================
+   PORTFOLIO HOME (v4.0) — executive rollup + weekly narrative
+   Doctrine: honest amber · P80 up / P50 managed · agents draft,
+   humans decide. Stamp: AI-drafted, unconfirmed — review and sign.
+   ============================================================ */
+function PortfolioHome({ projects, setSel, setTab }) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const dd = iso => { if (!iso) return null; const d = new Date(iso); if (isNaN(d.getTime())) return null; d.setHours(0, 0, 0, 0); return Math.round((d - today) / 86400000); };
+  const fmtD = iso => { const d = new Date(iso); return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }); };
+  const worst = p => { const vs = RAG_DIMS.map(d => (p.rag || {})[d] || "G"); return vs.includes("R") ? "R" : vs.includes("A") ? "A" : "G"; };
+  const wsjfScore = p => { const w = p.wsjf || {}; const s = Math.max(+w.size || 1, 1); return Math.round((((+w.bv || 0) + (+w.tc || 0) + (+w.rr || 0)) / s) * 10) / 10; };
+  const planOf = p => (p.plan || []).filter(m => m.due);
+  const nextMs = p => {
+    const open = planOf(p).filter(m => m.status !== "done").sort((a, b) => new Date(a.due) - new Date(b.due));
+    if (open.length) return { name: open[0].name, due: open[0].due, conf: open[0].conf ?? 80 };
+    if (p.keydata && p.keydata.milestoneDate) return { name: p.keydata.milestone, due: p.keydata.milestoneDate, conf: p.keydata.confidence ?? 80 };
+    return null;
+  };
+  const risksOf = p => (p.keydata && p.keydata.risks) || [];
+  const decsNeeded = p => ((p.keydata && p.keydata.decisions) || []).filter(d => d.status === "needed");
+  const bensOf = p => (p.keydata && p.keydata.benefits) || [];
+
+  const rank = { R: 0, A: 1, G: 2 };
+  const ordered = [...projects].sort((a, b) => (rank[worst(a)] - rank[worst(b)]) || (wsjfScore(b) - wsjfScore(a)));
+  const reds = projects.reduce((s, p) => s + RAG_DIMS.filter(d => (p.rag || {})[d] === "R").length, 0);
+  const allRisks = projects.flatMap(p => risksOf(p).map(r => ({ ...r, _code: p.code, _pid: p.id })));
+  const rOver = allRisks.filter(r => { const k = dd(r.due); return k !== null && k < 0; }).length;
+  const nextAll = projects.map(p => ({ p, m: nextMs(p) })).filter(x => x.m);
+  const ms30 = nextAll.filter(x => { const k = dd(x.m.due); return k !== null && k >= 0 && k <= 30; }).length;
+  const msOver = nextAll.filter(x => { const k = dd(x.m.due); return k !== null && k < 0; }).length;
+  const decN = projects.reduce((s, p) => s + decsNeeded(p).length, 0);
+  const benRisk = projects.reduce((s, p) => s + bensOf(p).filter(b => b.status === "at risk").length, 0);
+  const topRisks = allRisks
+    .slice().sort((a, b) => { const ka = dd(a.due), kb = dd(b.due); const la = ka !== null && ka < 0, lb = kb !== null && kb < 0; if (la !== lb) return la ? -1 : 1; return (ka ?? 9e9) - (kb ?? 9e9); })
+    .slice(0, 8);
+
+  /* weekly narrative — deterministic draft, human signs */
+  const wk = (() => { const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); const w = Math.ceil((((t - y0) / 86400000) + 1) / 7); return t.getUTCFullYear() + "-W" + String(w).padStart(2, "0"); })();
+  const [narr, setNarr] = useState("");
+  const [ledger, setLedger] = useState({});
+  const [flash, setFlash] = useState("");
+  useEffect(() => { (async () => { try { const r = await window.storage.get("dcos-nav-narratives"); if (r && r.value) setLedger(JSON.parse(r.value)); } catch (e) { /* none yet */ } })(); }, []);
+  const draft = () => {
+    const word = { R: "red", A: "amber", G: "green" };
+    const buckets = { R: [], A: [], G: [] };
+    ordered.forEach(p => buckets[worst(p)].push(p));
+    const sig = ["R", "A", "G"].filter(k => buckets[k].length).map(k => buckets[k].length + " " + word[k]).join(", ");
+    const parts = ["The portfolio holds " + projects.length + " project(s) this week — " + sig + ". Attention goes where the signal is worst; green lines are noted, not narrated."];
+    const close = [];
+    ["R", "A", "G"].forEach(lvl => buckets[lvl].forEach(p => {
+      const dims = lvl === "G" ? [] : RAG_DIMS.filter(d => (p.rag || {})[d] === lvl);
+      const m = nextMs(p); const rk = risksOf(p); const late = rk.filter(r => { const k = dd(r.due); return k !== null && k < 0; }).length;
+      let s = p.code + " " + p.name + " is " + word[lvl];
+      if (dims.length) s += " on " + dims.join(", ");
+      if (m) { const k = dd(m.due); if (k !== null) s += "; next milestone '" + m.name + "' is " + Math.abs(k) + " day(s) " + (k < 0 ? "late" : "out") + " at " + (m.conf ?? 80) + "% confidence"; }
+      if (late) s += "; " + late + " of " + rk.length + " open risk(s) are past their review date";
+      else if (rk.length) s += "; " + rk.length + " open risk(s), none past due";
+      s += ".";
+      const dn = decsNeeded(p);
+      if (dn.length) { s += " It needs a decision on: " + dn[0].text + "."; dn.forEach(d => close.push(d.text + " (" + p.code + ")")); }
+      parts.push(s);
+    }));
+    parts.push(close.length ? "Decisions for leadership this week: " + close.join("; ") + "." : "No decisions are pending leadership this week.");
+    setNarr(parts.join("\n\n")); setFlash("");
+  };
+  const saveNarr = async () => {
+    const next = { ...ledger, [wk]: { text: narr, at: new Date().toISOString().slice(0, 16).replace("T", " ") } };
+    setLedger(next);
+    try { await window.storage.set("dcos-nav-narratives", JSON.stringify(next)); setFlash("Saved " + wk + " to the narrative ledger."); }
+    catch (e) { setFlash("Storage unavailable — narrative kept for this session only."); }
+  };
+  const copyNarr = async () => { try { await navigator.clipboard.writeText(narr); setFlash("Copied to clipboard."); } catch (e) { setFlash("Copy blocked by the browser — select the text manually."); } };
+
+  /* 60-day milestone rail */
+  const Rail = () => {
+    const W = 980, LX = 130, RX = 14, ROWH = 30, TOPH = 30, S0 = -7, S1 = 60;
+    const lanes = ordered.slice(0, 10);
+    const H = TOPH + lanes.length * ROWH + 12;
+    const x = k => LX + ((k - S0) / (S1 - S0)) * (W - LX - RX);
+    return (
+      <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", display: "block" }} role="img" aria-label="Milestones over the next 60 days by project">
+        {[0, 14, 28, 42, 56].map(t => (
+          <g key={t}>
+            <line x1={x(t)} y1={TOPH - 8} x2={x(t)} y2={H - 8} stroke={C.line} strokeWidth="1" />
+            <text x={x(t)} y={13} textAnchor="middle" fontFamily={MONO} fontSize="9.5" fill={C.faint}>{t === 0 ? "today" : "+" + t + "d"}</text>
+          </g>
+        ))}
+        <line x1={x(0)} y1={TOPH - 8} x2={x(0)} y2={H - 8} stroke={C.gold} strokeWidth="2.5" />
+        {lanes.map((p, i) => {
+          const y = TOPH + i * ROWH + 15;
+          const dots = planOf(p).map(m => ({ k: dd(m.due), name: m.name, due: m.due, done: m.status === "done" })).filter(m => m.k !== null && m.k >= S0 && m.k <= S1);
+          const km = nextMs(p);
+          if (!dots.length && km) { const k = dd(km.due); if (k !== null && k >= S0 && k <= S1) dots.push({ k, name: km.name, due: km.due, done: false }); }
+          return (
+            <g key={p.id}>
+              <text x={LX - 10} y={y + 4} textAnchor="end" fontFamily={MONO} fontSize="10" fontWeight="700" fill={C.graph}>{p.code}</text>
+              <line x1={LX} y1={y} x2={W - RX} y2={y} stroke={C.soft} strokeWidth="9" strokeLinecap="round" />
+              {dots.map((m, j) => (
+                <circle key={j} cx={x(m.k)} cy={y} r="6" fill={m.done ? C.green : (m.k < 0 ? C.red : C.navy)} stroke="#fff" strokeWidth="1.5">
+                  <title>{m.name + " — " + fmtD(m.due) + (m.done ? " (done)" : (m.k < 0 ? " (overdue)" : ""))}</title>
+                </circle>
+              ))}
+            </g>
+          );
+        })}
+      </svg>
+    );
+  };
+
+  const secl = { fontFamily: MONO, fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", color: C.faint, margin: "22px 0 10px", fontWeight: 600 };
+  const Kpi = ({ label, value, sub, color }) => (
+    <div style={{ background: "#fff", border: "1px solid " + C.line, borderRadius: 12, padding: "13px 16px" }}>
+      <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase", color: C.faint }}>{label}</div>
+      <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 26, color: color || C.ink, marginTop: 4 }}>{value}</div>
+      {sub ? <div style={{ fontSize: 11, color: C.mid, marginTop: 3 }}>{sub}</div> : null}
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+        <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 20, color: C.ink }}>
+          Portfolio Home <span style={{ fontSize: 12, fontWeight: 600, color: C.faint }}>· executive rollup · as of {today.toISOString().slice(0, 10)}</span>
+        </div>
+        <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: ".12em", color: C.mul, fontWeight: 600 }}>AGENTS DRAFT · HUMANS DECIDE</div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, marginTop: 14 }}>
+        <Kpi label="Projects" value={projects.length} sub={(["R", "A", "G"].map(k => ordered.filter(p => worst(p) === k).length + k).join(" · "))} />
+        <Kpi label="Red dimensions" value={reds} color={reds ? C.red : C.green} />
+        <Kpi label="Milestones ≤ 30d" value={ms30} sub={msOver ? msOver + " overdue" : "none overdue"} color={msOver ? C.red : C.navy} />
+        <Kpi label="Open risks" value={allRisks.length} sub={rOver ? rOver + " past due" : null} color={rOver ? C.red : C.navy} />
+        <Kpi label="Decisions needed" value={decN} sub={benRisk ? benRisk + " benefit(s) at risk" : null} color={decN ? C.amber : C.green} />
+      </div>
+
+      <div style={secl}>Milestone look-ahead — 60 days</div>
+      <div style={{ background: "#fff", border: "1px solid " + C.line, borderRadius: 12, padding: "12px 14px" }}>
+        <Rail />
+        <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.faint, marginTop: 4 }}>
+          <span style={{ color: C.navy }}>●</span> planned&nbsp;&nbsp;<span style={{ color: C.red }}>●</span> overdue&nbsp;&nbsp;<span style={{ color: C.green }}>●</span> done&nbsp;&nbsp;<span style={{ color: C.gold }}>│</span> today
+        </div>
+      </div>
+
+      <div style={secl}>Executive rollup — worst first</div>
+      <div style={{ display: "grid", gap: 10 }}>
+        {ordered.map(p => {
+          const w = worst(p); const m = nextMs(p); const rk = risksOf(p);
+          const late = rk.filter(r => { const k = dd(r.due); return k !== null && k < 0; }).length;
+          const top = rk.slice().sort((a, b) => (dd(a.due) ?? 9e9) - (dd(b.due) ?? 9e9))[0];
+          const dn = decsNeeded(p); const k = m ? dd(m.due) : null;
+          return (
+            <div key={p.id} onClick={() => { setSel(p.id); setTab("data"); }} role="button" tabIndex={0}
+              onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { setSel(p.id); setTab("data"); } }}
+              style={{ background: "#fff", border: "1px solid " + C.line, borderRadius: 12, display: "flex", overflow: "hidden", cursor: "pointer" }}>
+              <div style={{ width: 6, flexShrink: 0, background: RAG_COLOR[w] }} />
+              <div style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "minmax(180px, 2fr) minmax(190px, 2fr) minmax(220px, 3fr)", gap: 12, alignItems: "center", flex: 1, minWidth: 0 }}>
+                <div style={{ minWidth: 0 }}>
+                  <Chip bg={C.mulLt} color={C.mul}>{p.code}</Chip>
+                  <div style={{ fontFamily: DISP, fontWeight: 800, fontSize: 15, color: C.ink, margin: "4px 0 2px" }}>{p.name}</div>
+                  <div style={{ fontSize: 11.5, color: C.faint }}>Tier {p.tier || "—"} · PM {p.pm || "—"} · WSJF <b style={{ color: C.mul }}>{wsjfScore(p)}</b></div>
+                </div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                  {RAG_DIMS.map(d => { const v = (p.rag || {})[d] || "G"; return <Chip key={d} bg={v === "G" ? C.limeLt : v === "A" ? C.goldLt : "#F8E9E8"} color={RAG_COLOR[v]}>{d.slice(0, 4)} {v}</Chip>; })}
+                </div>
+                <div style={{ fontSize: 12, color: C.ink, minWidth: 0 }}>
+                  <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span style={{ fontFamily: MONO, fontSize: 8.5, color: C.faint, letterSpacing: ".1em" }}>NEXT </span>
+                    {m && k !== null ? <><b style={{ color: k < 0 ? C.red : C.navy }}>{k < 0 ? Math.abs(k) + "d late" : "in " + k + "d"}</b> — {m.name} (conf {m.conf}%)</> : <span style={{ color: C.faint }}>no open milestones</span>}
+                  </div>
+                  <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 3 }}>
+                    <span style={{ fontFamily: MONO, fontSize: 8.5, color: C.faint, letterSpacing: ".1em" }}>RISK </span>
+                    {rk.length ? <>{rk.length} open{late ? <b style={{ color: C.red }}>, {late} overdue</b> : null}{top ? <span style={{ color: C.mid }}> — {top.desc}</span> : null}</> : <span style={{ color: C.faint }}>none</span>}
+                    {dn.length ? <b style={{ color: C.amber }}> · {dn.length} decision(s) needed</b> : null}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={secl}>Top open risks across the portfolio</div>
+      <div style={{ background: "#fff", border: "1px solid " + C.line, borderRadius: 12, padding: "6px 16px 12px", overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 560 }}>
+          <thead><tr>{["Project", "Risk", "Owner", "Due"].map(h => (
+            <th key={h} style={{ textAlign: "left", fontFamily: MONO, fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.faint, padding: "8px 12px 6px 0", borderBottom: "1.5px solid " + C.line }}>{h}</th>))}
+          </tr></thead>
+          <tbody>
+            {topRisks.map((r, i) => { const k = dd(r.due); return (
+              <tr key={r.id || i}>
+                <td style={{ padding: "7px 12px 7px 0", borderBottom: "1px solid " + C.soft }}>
+                  <Chip bg={C.mulLt} color={C.mul} style={{ cursor: "pointer" }} onClick={() => { setSel(r._pid); setTab("data"); }}>{r._code}</Chip></td>
+                <td style={{ padding: "7px 12px 7px 0", borderBottom: "1px solid " + C.soft, color: C.ink }}>{r.desc}</td>
+                <td style={{ padding: "7px 12px 7px 0", borderBottom: "1px solid " + C.soft, color: C.mid }}>{r.owner || "—"}</td>
+                <td style={{ padding: "7px 0", borderBottom: "1px solid " + C.soft, fontFamily: MONO, fontSize: 11, color: k !== null && k < 0 ? C.red : C.mid }}>{fmtD(r.due)}</td>
+              </tr>); })}
+            {!topRisks.length && <tr><td colSpan={4} style={{ padding: "10px 0", color: C.faint }}>No open risks in view.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+
+      <div style={secl}>Narrative Engine — weekly status, drafted for signature</div>
+      <div style={{ background: "#fff", border: "1px solid " + C.line, borderRadius: 12, padding: "14px 16px" }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <button onClick={draft} style={{ background: C.mul, color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>✍ Draft narrative</button>
+          <button onClick={saveNarr} disabled={!narr} style={{ background: "#fff", color: narr ? C.graph : C.faint, border: "1px solid " + C.line, borderRadius: 8, padding: "8px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: narr ? "pointer" : "default" }}>💾 Save to ledger</button>
+          <button onClick={copyNarr} disabled={!narr} style={{ background: "#fff", color: narr ? C.graph : C.faint, border: "1px solid " + C.line, borderRadius: 8, padding: "8px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12.5, cursor: narr ? "pointer" : "default" }}>⧉ Copy</button>
+          <span style={{ fontFamily: MONO, fontSize: 10, color: C.faint }}>Week {wk} · grounded only in portfolio data</span>
+        </div>
+        <textarea value={narr} onChange={e => setNarr(e.target.value)} rows={10} placeholder="Click Draft narrative to generate this week's status from the live portfolio."
+          style={{ width: "100%", marginTop: 10, border: "1px solid " + C.line, borderRadius: 8, padding: "10px 12px", fontFamily: BODY, fontSize: 13, lineHeight: 1.55, color: C.ink, resize: "vertical" }} />
+        {flash ? <div style={{ fontSize: 11.5, color: C.navy, marginTop: 6 }}>{flash}</div> : null}
+        <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.mul, marginTop: 8, fontWeight: 600 }}>“AI-drafted, unconfirmed — review and sign.” Edit before circulating.</div>
+        {Object.keys(ledger).length ? (
+          <div style={{ marginTop: 10, borderTop: "1px solid " + C.soft, paddingTop: 8 }}>
+            {Object.entries(ledger).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 3).map(([w2, v]) => (
+              <div key={w2} style={{ fontSize: 11.5, color: C.mid, marginBottom: 4 }}>
+                <b style={{ color: C.mul, fontFamily: MONO, fontSize: 10.5 }}>{w2}</b> · {v.at} — {String(v.text || "").slice(0, 120)}…
+              </div>))}
+          </div>) : null}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   OPERATING MODEL  —  resource canvas, shape/colour coding,
+   skill grouping, cross-functional squads. Reads people +
+   assignments (shared state); visual overrides in resViz;
+   squads in its own slice. Zoom/pan/drag, line-org vs squads.
+   ============================================================ */
+const OM_SHAPES = ["circle", "rounded", "hex", "diamond", "triangle", "pill"];
+const OM_PALETTE = ["#830051", "#003865", "#F0AB00", "#2E7D32", "#0F8A8A", "#8A5A00", "#6A3D9A", "#B3261E", "#5B6770", "#C2185B"];
+const OM_FN_ORDER = ["Delivery", "Product", "Data", "Engineering", "Change"];
+const OM_ROLE_COLOR = {
+  "Project Manager": "#830051", "Product Owner": "#003865", "BI Analyst": "#0F8A8A",
+  "Data Steward": "#2E7D32", "Engineer": "#8A5A00", "Change Lead": "#F0AB00",
+  "Change Analyst": "#6A3D9A", "Data Scientist": "#C2185B", "ML Engineer": "#B3261E",
+};
+const OM_TYPE_SHAPE = { "AZ Permanent": "circle", "Contractor": "diamond", "Vendor": "triangle", "Vacancy": "hex" };
+const omInitials = n => (n || "?").split(/[ .]+/).filter(Boolean).slice(0, 2).map(s => s[0]).join("").toUpperCase();
+function omShapeStyle(shape, color, size) {
+  const b = { background: color, width: size, height: size };
+  switch (shape) {
+    case "circle": return { ...b, borderRadius: "50%" };
+    case "rounded": return { ...b, borderRadius: size * 0.2 };
+    case "pill": return { ...b, borderRadius: size, width: size * 1.45 };
+    case "hex": return { ...b, clipPath: "polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)" };
+    case "diamond": return { ...b, clipPath: "polygon(50% 0,100% 50%,50% 100%,0 50%)" };
+    case "triangle": return { ...b, clipPath: "polygon(50% 5%,97% 95%,3% 95%)" };
+    default: return { ...b, borderRadius: "50%" };
+  }
+}
+function OmShapeIcon({ shape, color, size = 20 }) {
+  return <div style={{ ...omShapeStyle(shape, color, size), flex: "none", display: "inline-block" }} />;
+}
+
+function OperatingModel({ people, setPeople, assignments, projects, squads, setSquads, resViz, setResViz }) {
+  const [view, setView] = useState("line");
+  const [groupByRole, setGroup] = useState(false);
+  const [z, setZ] = useState({ s: 0.62, tx: 20, ty: 10 });
+  const [sel, setSel] = useState(null);
+  const [multi, setMulti] = useState([]);
+  const [drag, setDrag] = useState(null);
+  const wrapRef = useRef(null);
+  const panStart = useRef(null);
+
+  const COLW = 200, COLGAP = 34, NODEH = 104, NODEGAP = 18, TOP = 74, PADX = 30;
+  const functions = useMemo(() => {
+    const present = [...new Set((people || []).map(p => p.team).filter(Boolean))];
+    const ordered = OM_FN_ORDER.filter(f => present.includes(f));
+    present.forEach(f => { if (!ordered.includes(f)) ordered.push(f); });
+    return ordered.length ? ordered : OM_FN_ORDER;
+  }, [people]);
+
+  // resource = person merged with its visual override
+  const viz = id => resViz[id] || {};
+  const colOf = p => viz(p.id).color || OM_ROLE_COLOR[p.role] || "#5B6770";
+  const shpOf = p => viz(p.id).shape || (p.vacancy ? "hex" : OM_TYPE_SHAPE[p.type] || "circle");
+  const squadsOf = id => squads.filter(s => (s.memberIds || []).includes(id));
+
+  const setViz = (id, patch) => setResViz(v => ({ ...v, [id]: { ...(v[id] || {}), ...patch } }));
+  const updPerson = (id, patch) => setPeople(ps => ps.map(p => p.id === id ? { ...p, ...patch } : p));
+
+  /* layout */
+  const layout = useMemo(() => {
+    const pos = {}; const cols = []; const bands = [];
+    if (view === "line") {
+      functions.forEach((fn, ci) => {
+        const x0 = PADX + ci * (COLW + COLGAP);
+        let members = (people || []).filter(p => p.team === fn);
+        if (groupByRole) members = [...members].sort((a, b) => (a.role + a.name).localeCompare(b.role + b.name));
+        members.forEach((p, ri) => { pos[p.id] = { x: x0 + (COLW - 78) / 2, y: TOP + 30 + ri * (NODEH + NODEGAP) }; });
+        cols.push({ fn, x: x0 - 14, y: TOP - 6, w: COLW + 2, h: 60 + members.length * (NODEH + NODEGAP), count: members.length });
+      });
+    } else {
+      const rows = [...squads.map(s => ({ ...s })), { id: "__none", name: "Not in a squad", color: "#8A949B", memberIds: (people || []).filter(p => squadsOf(p.id).length === 0).map(p => p.id) }];
+      let y = TOP + 10;
+      rows.forEach(row => {
+        const members = (row.memberIds || []).map(id => (people || []).find(p => p.id === id)).filter(Boolean);
+        const byFn = {}; members.forEach(m => { (byFn[m.team] = byFn[m.team] || []).push(m); });
+        let x = PADX + 150; const rowStartY = y;
+        functions.forEach(fn => {
+          (byFn[fn] || []).forEach((m, i) => { pos[m.id] = { x: x + i * 120, y }; });
+          if (byFn[fn] && byFn[fn].length) x += byFn[fn].length * 120 + 24;
+        });
+        bands.push({ name: row.name, color: row.color, x: PADX + 140, y: rowStartY - 30, w: Math.max(x - (PADX + 150), 300) + 40, h: NODEH + 30, count: members.length, fnSpan: Object.keys(byFn).length });
+        y += NODEH + 66;
+      });
+    }
+    return { pos, cols, bands };
+  }, [people, squads, view, groupByRole, functions]);
+
+  const posOf = p => (view === "line" && viz(p.id).x != null) ? { x: viz(p.id).x, y: viz(p.id).y } : (layout.pos[p.id] || { x: 0, y: 0 });
+
+  /* zoom / pan / drag */
+  const onWheel = e => {
+    e.preventDefault();
+    const r = wrapRef.current.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    const ns = Math.min(2.2, Math.max(0.3, z.s * (e.deltaY < 0 ? 1.1 : 0.9))), k = ns / z.s;
+    setZ({ s: ns, tx: mx - (mx - z.tx) * k, ty: my - (my - z.ty) * k });
+  };
+  const zoomBtn = d => {
+    const r = wrapRef.current.getBoundingClientRect(), mx = r.width / 2, my = r.height / 2;
+    const ns = Math.min(2.2, Math.max(0.3, z.s * (d > 0 ? 1.15 : 0.87))), k = ns / z.s;
+    setZ({ s: ns, tx: mx - (mx - z.tx) * k, ty: my - (my - z.ty) * k });
+  };
+  const fit = () => setZ({ s: 0.62, tx: 20, ty: 10 });
+  const onDownBg = e => { if (e.target.closest("[data-node]")) return; setSel(null); panStart.current = { x: e.clientX - z.tx, y: e.clientY - z.ty }; };
+  const onMove = e => {
+    if (drag) {
+      const r = wrapRef.current.getBoundingClientRect();
+      setViz(drag.id, { x: (e.clientX - r.left - z.tx) / z.s - drag.dx, y: (e.clientY - r.top - z.ty) / z.s - drag.dy });
+      return;
+    }
+    if (panStart.current) setZ(zz => ({ ...zz, tx: e.clientX - panStart.current.x, ty: e.clientY - panStart.current.y }));
+  };
+  const onUp = () => { panStart.current = null; setDrag(null); };
+  const onNodeDown = (e, p) => {
+    e.stopPropagation();
+    if (e.shiftKey) { setMulti(m => m.includes(p.id) ? m.filter(x => x !== p.id) : [...m, p.id]); return; }
+    setSel(p.id);
+    if (view !== "line") return;
+    const pp = posOf(p), r = wrapRef.current.getBoundingClientRect();
+    setDrag({ id: p.id, dx: (e.clientX - r.left - z.tx) / z.s - pp.x, dy: (e.clientY - r.top - z.ty) / z.s - pp.y });
+  };
+
+  /* squads */
+  const formSquad = () => {
+    if (multi.length < 2) { alert("Shift-click at least two people first, then form a squad."); return; }
+    const name = prompt("Name this squad (a cross-functional team for a project):", "New squad");
+    if (!name) return;
+    const id = uid(), color = OM_PALETTE[(squads.length + 2) % OM_PALETTE.length];
+    setSquads(s => [...s, { id, name, color, project: "", memberIds: [...multi] }]);
+    setMulti([]);
+  };
+  const toggleMember = (rid, sid) => setSquads(list => list.map(s => s.id !== sid ? s : ({ ...s, memberIds: s.memberIds.includes(rid) ? s.memberIds.filter(m => m !== rid) : [...s.memberIds, rid] })));
+  const updSquad = (id, patch) => setSquads(list => list.map(s => s.id === id ? { ...s, ...patch } : s));
+  const delSquad = id => setSquads(list => list.filter(s => s.id !== id));
+
+  /* seed squads from real project assignments (one squad per project that has people) */
+  const seedSquadsFromAssignments = () => {
+    const byProj = {};
+    (assignments || []).forEach(a => { (byProj[a.projectId] = byProj[a.projectId] || []).push(a.personId); });
+    const made = Object.entries(byProj).filter(([, ids]) => ids.length).map(([pid, ids], i) => {
+      const pr = (projects || []).find(p => p.id === pid) || {};
+      return { id: uid(), name: (pr.name || pr.code || "Project") + " squad", color: OM_PALETTE[i % OM_PALETTE.length], project: pr.code || "", memberIds: [...new Set(ids)] };
+    });
+    if (!made.length) { alert("No assignments found to build squads from."); return; }
+    setSquads(made);
+  };
+
+  const selP = (people || []).find(p => p.id === sel);
+  const counts = useMemo(() => {
+    const byFn = {}; functions.forEach(f => byFn[f] = 0);
+    (people || []).forEach(p => byFn[p.team] = (byFn[p.team] || 0) + 1);
+    return { total: (people || []).length, byFn, vac: (people || []).filter(p => p.vacancy).length };
+  }, [people, functions]);
+
+  const S = {
+    side: { width: 262, flex: "none", background: "#fff", border: `1px solid ${C.line}`, borderRadius: 12, overflowY: "auto", padding: 14, maxHeight: 640 },
+    h3: { fontFamily: MONO, fontSize: 10, textTransform: "uppercase", letterSpacing: ".12em", color: C.mul, fontWeight: 600, margin: "0 0 8px", paddingBottom: 5, borderBottom: `1px solid ${C.line}` },
+    btn: { fontFamily: DISP, fontWeight: 700, fontSize: 12, border: `1px solid ${C.line}`, background: "#fff", color: C.ink, borderRadius: 7, padding: "6px 10px", cursor: "pointer" },
+    lbl: { display: "block", fontFamily: MONO, fontSize: 9, textTransform: "uppercase", letterSpacing: ".1em", color: C.faint, fontWeight: 600, marginBottom: 4 },
+    inp: { width: "100%", fontFamily: BODY, fontSize: 13, border: `1px solid ${C.line}`, borderRadius: 6, padding: "6px 8px", background: "#fff", color: C.ink },
+  };
+  const on = active => active ? { background: C.mul, color: "#fff", borderColor: C.mul } : {};
+
+  return (
+    <div>
+      <SectionIntro
+        title="Operating Model"
+        lead="The line org runs down the columns; squads cut across it. Where they cross is the operating model."
+        points={[
+          ["Colour = role / skill, shape = contract type.", "Same title clusters to the same colour automatically; override either per person on the right."],
+          ["Drag a tile to reposition it (line view).", "Shift-click tiles across columns, then Form squad to draw a cross-functional team for a project."],
+          ["Scroll to zoom, drag the background to pan.", "The gold badge on a tile means it belongs to one or more squads."],
+        ]}
+      />
+
+      {/* toolbar */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", margin: "14px 0", background: "#fff", border: `1px solid ${C.line}`, borderRadius: 10, padding: "8px 12px" }}>
+        <span style={S.lbl}>View</span>
+        <button style={{ ...S.btn, ...on(view === "line") }} onClick={() => setView("line")}>Line org</button>
+        <button style={{ ...S.btn, ...on(view === "squad") }} onClick={() => setView("squad")}>Squads</button>
+        <span style={{ ...S.lbl, marginLeft: 8 }}>Arrange</span>
+        <button style={{ ...S.btn, ...on(groupByRole), opacity: view === "line" ? 1 : .4 }} disabled={view !== "line"} onClick={() => setGroup(g => !g)}>Group by role</button>
+        <span style={{ ...S.lbl, marginLeft: 8 }}>Squad</span>
+        <button style={{ ...S.btn, background: C.navy, color: "#fff", borderColor: C.navy }} onClick={formSquad}>Form squad from selection ({multi.length})</button>
+        <button style={{ ...S.btn, fontSize: 11 }} onClick={seedSquadsFromAssignments} title="Create one squad per project from who is assigned to it">Squads from assignments</button>
+        {multi.length > 0 && <button style={{ ...S.btn, border: "none", color: C.mid }} onClick={() => setMulti([])}>clear</button>}
+        <span style={{ marginLeft: "auto", display: "inline-flex", gap: 4, alignItems: "center" }}>
+          <span style={S.lbl}>Zoom</span>
+          <button style={{ ...S.btn, fontWeight: 800 }} onClick={() => zoomBtn(-1)}>−</button>
+          <span style={{ fontFamily: MONO, fontSize: 11, color: C.mid, minWidth: 40, textAlign: "center" }}>{Math.round(z.s * 100)}%</span>
+          <button style={{ ...S.btn, fontWeight: 800 }} onClick={() => zoomBtn(1)}>+</button>
+          <button style={{ ...S.btn, border: "none", color: C.mid }} onClick={fit}>Fit</button>
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: 14 }}>
+        {/* left: legend + counts */}
+        <div style={S.side}>
+          <div style={{ marginBottom: 16 }}>
+            <div style={S.h3}>Colour = role / skill</div>
+            {functions.length > 0 && Object.entries(OM_ROLE_COLOR).filter(([role]) => (people || []).some(p => p.role === role)).map(([role, color]) => (
+              <div key={role} style={{ display: "flex", alignItems: "center", gap: 8, margin: "4px 0", fontSize: 12 }}>
+                <span style={{ width: 15, height: 15, borderRadius: 4, background: color, border: "1px solid rgba(0,0,0,.15)" }} />{role}
+              </div>
+            ))}
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={S.h3}>Shape = contract type</div>
+            {Object.entries(OM_TYPE_SHAPE).filter(([t]) => (people || []).some(p => p.type === t || (t === "Vacancy" && p.vacancy))).map(([t, shape]) => (
+              <div key={t} style={{ display: "flex", alignItems: "center", gap: 8, margin: "4px 0", fontSize: 12 }}>
+                <OmShapeIcon shape={shape} color="#5B6770" size={16} />{t}
+              </div>
+            ))}
+          </div>
+          <div>
+            <div style={S.h3}>Headcount</div>
+            {functions.map(fn => <div key={fn} style={{ fontSize: 12, margin: "3px 0" }}><b style={{ color: C.mul }}>{fn}</b>: {counts.byFn[fn] || 0}</div>)}
+            <div style={{ fontSize: 12, marginTop: 6 }}>Total <b>{counts.total}</b> · Vacancies <b style={{ color: C.amber }}>{counts.vac}</b> · Squads <b>{squads.length}</b></div>
+          </div>
+          <div style={{ fontSize: 10.5, color: C.faint, borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 14, fontStyle: "italic" }}>tailor to risk · agents draft, humans decide · AI/tool-drafted, unconfirmed — review and sign</div>
+        </div>
+
+        {/* canvas */}
+        <div ref={wrapRef} onWheel={onWheel} onMouseDown={onDownBg} onMouseMove={onMove} onMouseUp={onUp} onMouseLeave={onUp}
+          style={{ flex: 1, position: "relative", overflow: "hidden", height: 640, borderRadius: 12, border: `1px solid ${C.line}`, background: `radial-gradient(circle at 1px 1px, ${C.line} 1px, transparent 0) 0 0/26px 26px, ${C.bg}` }}>
+          <div style={{ position: "absolute", top: 0, left: 0, transformOrigin: "0 0", transform: `translate(${z.tx}px,${z.ty}px) scale(${z.s})` }}>
+            {view === "line" && layout.cols.map((f, i) => (
+              <div key={i}>
+                <div style={{ position: "absolute", left: f.x, top: f.y, width: f.w, height: f.h, borderRadius: 12, border: `1.5px dashed ${C.navyLt}`, background: "rgba(231,238,244,.3)", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", left: f.x, top: f.y + 10, width: f.w, textAlign: "center", fontFamily: DISP, fontSize: 12, fontWeight: 700, color: C.navy, textTransform: "uppercase", letterSpacing: ".04em" }}>{f.fn}</div>
+                <div style={{ position: "absolute", left: f.x, top: f.y + 30, width: f.w, textAlign: "center", fontSize: 10, color: C.faint }}>{f.count} {f.count === 1 ? "person" : "people"}</div>
+              </div>
+            ))}
+            {view === "squad" && layout.bands.map((f, i) => (
+              <div key={i}>
+                <div style={{ position: "absolute", left: f.x, top: f.y, width: f.w, height: f.h, borderRadius: 12, border: `2px solid ${f.color}`, pointerEvents: "none" }} />
+                <div style={{ position: "absolute", left: f.x + 12, top: f.y - 11, fontFamily: DISP, fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 10, color: "#fff", background: f.color }}>
+                  {f.name} · {f.count} {f.count === 1 ? "member" : "members"}{f.fnSpan > 1 ? ` · ${f.fnSpan} functions` : ""}
+                </div>
+              </div>
+            ))}
+            {(people || []).map(p => {
+              const pp = posOf(p), isSel = p.id === sel || multi.includes(p.id), sc = squadsOf(p.id).length;
+              return (
+                <div key={p.id} data-node onMouseDown={e => onNodeDown(e, p)}
+                  style={{ position: "absolute", left: pp.x, top: pp.y, display: "flex", flexDirection: "column", alignItems: "center", cursor: "grab", userSelect: "none" }}>
+                  <div style={{ ...omShapeStyle(shpOf(p), p.vacancy ? "#B9BCC0" : colOf(p), 54), display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: DISP, fontWeight: 700, fontSize: 15, boxShadow: "0 2px 6px rgba(28,34,34,.18)", position: "relative", outline: isSel ? `3px solid ${C.navy}` : "none", outlineOffset: 2 }}>
+                    <span style={shpOf(p) === "triangle" ? { marginTop: 8 } : {}}>{p.vacancy ? "—" : omInitials(p.name)}</span>
+                    {sc > 0 && <span style={{ position: "absolute", top: -6, right: -6, background: C.gold, color: C.navy, fontSize: 9, fontWeight: 700, borderRadius: 8, padding: "1px 5px", border: "1.5px solid #fff" }}>{sc}</span>}
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: C.ink, marginTop: 4, maxWidth: 84, textAlign: "center", lineHeight: 1.15, background: "rgba(250,248,246,.85)", padding: "1px 4px", borderRadius: 3 }}>{p.vacancy ? "Open role" : p.name}</div>
+                  <div style={{ fontSize: 9.5, color: C.mid, maxWidth: 88, textAlign: "center", lineHeight: 1.1 }}>{p.role}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* right: editor */}
+        <div style={S.side}>
+          {!selP && <div>
+            <div style={S.h3}>Edit a resource</div>
+            <div style={{ fontSize: 12, color: C.faint, fontStyle: "italic", padding: "8px 0" }}>Click a tile to change its colour, shape, function and squads. Shift-click several, then Form squad.</div>
+          </div>}
+          {selP && <>
+            <div style={{ marginBottom: 14 }}>
+              <div style={S.h3}>Resource</div>
+              <div style={{ marginBottom: 10 }}><label style={S.lbl}>Name</label><input style={S.inp} value={selP.vacancy ? "" : selP.name} placeholder={selP.vacancy ? "(vacant)" : ""} onChange={e => updPerson(selP.id, { name: e.target.value })} /></div>
+              <div style={{ marginBottom: 10 }}><label style={S.lbl}>Role / title</label><input style={S.inp} value={selP.role} onChange={e => updPerson(selP.id, { role: e.target.value })} /></div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <div style={{ flex: 1 }}><label style={S.lbl}>Function</label>
+                  <select style={S.inp} value={selP.team} onChange={e => updPerson(selP.id, { team: e.target.value })}>{functions.map(f => <option key={f}>{f}</option>)}</select></div>
+                <div style={{ flex: 1 }}><label style={S.lbl}>Type</label>
+                  <select style={S.inp} value={selP.type} onChange={e => updPerson(selP.id, { type: e.target.value })}>{["AZ Permanent", "Contractor", "Vendor", "Vacancy"].map(t => <option key={t}>{t}</option>)}</select></div>
+              </div>
+              <label style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: C.mid, cursor: "pointer" }}>
+                <input type="checkbox" checked={!!selP.vacancy} onChange={e => updPerson(selP.id, { vacancy: e.target.checked })} /> Vacant position
+              </label>
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <div style={S.h3}>Shape</div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {OM_SHAPES.map(s => {
+                  const active = shpOf(selP) === s;
+                  return <button key={s} onClick={() => setViz(selP.id, { shape: s })} style={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${active ? C.navy : C.line}`, background: active ? C.navy : "#fff", borderRadius: 7, cursor: "pointer" }}>
+                    <OmShapeIcon shape={s} color={active ? "#fff" : "#5B6770"} size={20} /></button>;
+                })}
+              </div>
+              <div style={{ ...S.h3, marginTop: 12 }}>Colour</div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {OM_PALETTE.map(c => <button key={c} onClick={() => setViz(selP.id, { color: c })} style={{ width: 28, height: 28, borderRadius: 6, background: c, border: "none", cursor: "pointer", outline: colOf(selP) === c ? `3px solid ${C.navy}` : "none", outlineOffset: 1 }} />)}
+              </div>
+              <button style={{ ...S.btn, border: "none", color: C.mid, fontSize: 11, marginTop: 8 }} onClick={() => setViz(selP.id, { color: undefined, shape: undefined })}>reset to legend defaults</button>
+            </div>
+            <div>
+              <div style={S.h3}>Squads</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                {squads.map(s => { const inS = s.memberIds.includes(selP.id); return <span key={s.id} onClick={() => toggleMember(selP.id, s.id)} style={{ fontSize: 11, padding: "3px 9px", borderRadius: 12, border: `1px solid ${inS ? "transparent" : C.line}`, cursor: "pointer", background: inS ? s.color : "#fff", color: inS ? "#fff" : C.ink }}>{s.name}</span>; })}
+                {squads.length === 0 && <span style={{ fontSize: 12, color: C.faint, fontStyle: "italic" }}>No squads yet.</span>}
+              </div>
+            </div>
+          </>}
+          {squads.length > 0 && <div style={{ marginTop: 16 }}>
+            <div style={S.h3}>Squads ({squads.length})</div>
+            {squads.map(s => (
+              <div key={s.id} style={{ marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${C.line}` }}>
+                <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
+                  <span style={{ width: 14, height: 14, borderRadius: 4, background: s.color }} />
+                  <input value={s.name} onChange={e => updSquad(s.id, { name: e.target.value })} style={{ flex: 1, border: "1px solid transparent", background: "transparent", fontFamily: DISP, fontWeight: 600, fontSize: 12.5, padding: "2px 4px", color: C.ink }} />
+                  <button onClick={() => delSquad(s.id)} style={{ border: "none", background: "transparent", color: C.red, cursor: "pointer", fontSize: 14 }}>×</button>
+                </div>
+                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <label style={{ fontFamily: MONO, fontSize: 9, color: C.faint }}>PROJECT</label>
+                  <select value={s.project} onChange={e => updSquad(s.id, { project: e.target.value })} style={{ flex: 1, fontSize: 12, padding: "3px 6px", border: `1px solid ${C.line}`, borderRadius: 6 }}>
+                    <option value="">—</option>
+                    {(projects || []).map(p => <option key={p.id} value={p.code}>{p.code} · {p.name}</option>)}
+                  </select>
+                </div>
+                <div style={{ fontSize: 11, color: C.faint, marginTop: 3, fontStyle: "italic" }}>{s.memberIds.length} members{(() => { const f = new Set(s.memberIds.map(m => ((people || []).find(p => p.id === m) || {}).team).filter(Boolean)); return f.size > 1 ? ` across ${f.size} functions` : ""; })()}</div>
+              </div>
+            ))}
+          </div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   STRATEGY ALIGNMENT  —  two-level golden thread
+   (company objective -> department priority -> project -> milestone)
+   + enabler / BAU / proposed balance. Objectives, priorities and
+   proof-point milestones live in their own slices; each project's
+   classification lives in project.sa (no schema collision).
+   ============================================================ */
+const SA_TYPE_META = {
+  enabler: { label: "Enabler — builds capability", color: "#830051" },
+  bau: { label: "BAU — keep running", color: "#5B6770" },
+  proposed: { label: "Proposed — not yet committed", color: "#C77800" },
+  unset: { label: "Unclassified", color: "#B9BCC0" },
+};
+const saOf = p => p.sa || { type: "", capability: "", contribution: "", priorityIds: [] };
+
+function StrategyAlignment({ projects, update, objectives, setObjectives, priorities, setPriorities, milestones, setMilestones, setTab, setSel }) {
+  const [sub, setSub] = useState("thread");
+  const [hot, setHot] = useState(null);
+  const [edit, setEdit] = useState(null);
+
+  const prioById = id => priorities.find(p => p.id === id);
+  const projById = id => projects.find(p => p.id === id);
+  const msByProj = pid => milestones.filter(m => m.projectId === pid);
+  const projByPrio = pid => projects.filter(pr => saOf(pr).priorityIds.includes(pid));
+  const prioByObj = oid => priorities.filter(p => (p.objectiveIds || []).includes(oid));
+  const ptype = pr => { const t = saOf(pr).type; return t || "unset"; };
+
+  const thread = useMemo(() => {
+    if (!hot) return null;
+    const objs = new Set(), pris = new Set(), prjs = new Set(), mss = new Set();
+    const up = pr => { prjs.add(pr.id); saOf(pr).priorityIds.forEach(pid => { pris.add(pid); ((prioById(pid) || {}).objectiveIds || []).forEach(o => objs.add(o)); }); msByProj(pr.id).forEach(m => mss.add(m.id)); };
+    if (hot.kind === "obj") { objs.add(hot.id); prioByObj(hot.id).forEach(p => { pris.add(p.id); projByPrio(p.id).forEach(up); }); }
+    if (hot.kind === "prio") { pris.add(hot.id); ((prioById(hot.id) || {}).objectiveIds || []).forEach(o => objs.add(o)); projByPrio(hot.id).forEach(up); }
+    if (hot.kind === "proj") { const pr = projById(hot.id); if (pr) up(pr); }
+    if (hot.kind === "ms") { const m = milestones.find(x => x.id === hot.id); if (m) { mss.add(m.id); const pr = projById(m.projectId); if (pr) up(pr); } }
+    return { objs, pris, prjs, mss };
+  }, [hot, projects, priorities, milestones, objectives]);
+  const dim = (kind, id) => { if (!thread) return false; const s = { obj: thread.objs, prio: thread.pris, proj: thread.prjs, ms: thread.mss }[kind]; return !s.has(id); };
+
+  const M = useMemo(() => {
+    const eff = { enabler: 0, bau: 0, proposed: 0, unset: 0 }, cnt = { enabler: 0, bau: 0, proposed: 0, unset: 0 };
+    projects.forEach(p => { const t = ptype(p); eff[t] += (+p.effort || 0); cnt[t]++; });
+    const tot = eff.enabler + eff.bau + eff.proposed + eff.unset || 1;
+    const capPct = Math.round(eff.enabler / tot * 100);
+    const unaligned = projects.filter(p => saOf(p).priorityIds.length === 0 || !saOf(p).contribution.trim());
+    const prioNo = priorities.filter(p => !(p.contribution || "").trim());
+    const objEnabler = {}; objectives.forEach(o => objEnabler[o.id] = false);
+    projects.filter(p => ptype(p) === "enabler").forEach(p => saOf(p).priorityIds.forEach(pid => ((prioById(pid) || {}).objectiveIds || []).forEach(o => objEnabler[o] = true)));
+    const objGaps = objectives.filter(o => !objEnabler[o.id]);
+    return { eff, cnt, tot, capPct, unaligned, prioNo, objGaps, objEnabler };
+  }, [projects, priorities, objectives]);
+
+  /* edits */
+  const setSA = (pr, patch) => update(pr.id, { sa: { ...saOf(pr), ...patch } });
+  const patchObj = (id, p) => setObjectives(a => a.map(x => x.id === id ? { ...x, ...p } : x));
+  const patchPrio = (id, p) => setPriorities(a => a.map(x => x.id === id ? { ...x, ...p } : x));
+  const patchMs = (id, p) => setMilestones(a => a.map(x => x.id === id ? { ...x, ...p } : x));
+  const addObj = () => { const id = uid(); setObjectives(a => [...a, { id, name: "New objective", description: "" }]); setEdit({ kind: "obj", id }); };
+  const addPrio = () => { const id = uid(); setPriorities(a => [...a, { id, name: "New priority", objectiveIds: [], contribution: "" }]); setEdit({ kind: "prio", id }); };
+  const addMs = pid => { const id = uid(); setMilestones(a => [...a, { id, projectId: pid, name: "New proof point", due: "", done: false, contribution: "" }]); };
+  const delObj = id => { setObjectives(a => a.filter(x => x.id !== id)); setPriorities(a => a.map(p => ({ ...p, objectiveIds: (p.objectiveIds || []).filter(o => o !== id) }))); };
+  const delPrio = id => { setPriorities(a => a.filter(x => x.id !== id)); projects.forEach(pr => { if (saOf(pr).priorityIds.includes(id)) setSA(pr, { priorityIds: saOf(pr).priorityIds.filter(x => x !== id) }); }); };
+  const delMs = id => setMilestones(a => a.filter(x => x.id !== id));
+
+  const seedAlignment = () => {
+    if (objectives.length || priorities.length) { if (!confirm("This adds example objectives and priorities alongside what you have. Continue?")) return; }
+    const o = [{ id: uid(), name: "Lead in oncology", description: "Grow share and outcomes across the oncology portfolio" },
+    { id: uid(), name: "AI-enabled commercial engine", description: "Every commercial decision supported by data and AI" },
+    { id: uid(), name: "Efficient, compliant operations", description: "Lower cost to serve, audit-ready by design" }];
+    const p = [{ id: uid(), name: "Field force runs on insight", objectiveIds: [o[0].id, o[1].id], contribution: "Puts a same-day answer in every rep's hands, so oncology conversations are evidence-led." },
+    { id: uid(), name: "One trusted data foundation", objectiveIds: [o[1].id, o[2].id], contribution: "A single governed layer means faster analytics and a shorter path to audit." },
+    { id: uid(), name: "Retire what no longer earns its keep", objectiveIds: [o[2].id], contribution: "Decommissioning legacy reporting frees budget and removes compliance surface." },
+    { id: uid(), name: "GenAI where it creates leverage", objectiveIds: [o[1].id], contribution: "" }];
+    setObjectives(a => [...a, ...o]); setPriorities(a => [...a, ...p]);
+    alert("Example objectives and priorities added. Now open each project and classify it (Enabler / BAU / Proposed) and link it to a priority.");
+  };
+
+  const contrib = (txt, miss) => (txt && txt.trim())
+    ? <div style={{ fontSize: 11, color: C.mid, marginTop: 6, borderTop: `1px dashed ${C.line}`, paddingTop: 5, lineHeight: 1.35 }}>{txt}</div>
+    : <div style={{ fontSize: 11, color: C.amber, fontWeight: 600, fontStyle: "italic", marginTop: 6, borderTop: `1px dashed ${C.line}`, paddingTop: 5 }}>⚠ {miss}</div>;
+
+  const stat = (n, label, color) => (
+    <div style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 16px", flex: 1, minWidth: 150 }}>
+      <div style={{ fontFamily: DISP, fontSize: 27, fontWeight: 800, lineHeight: 1, color }}>{n}</div>
+      <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.mid, marginTop: 6, textTransform: "uppercase", letterSpacing: ".06em" }}>{label}</div>
+    </div>
+  );
+  const tag = (t, small) => <span style={{ display: "inline-block", fontFamily: MONO, fontSize: small ? 8.5 : 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", padding: "1px 7px", borderRadius: 9, marginTop: small ? 0 : 6, background: SA_TYPE_META[t].color + "22", color: SA_TYPE_META[t].color }}>{small ? t[0].toUpperCase() : t}</span>;
+  const cardBase = { background: "#fff", border: `1px solid ${C.line}`, borderRadius: 9, padding: "10px 11px", marginBottom: 9, boxShadow: "0 1px 3px rgba(28,34,34,.06)", cursor: "pointer", position: "relative" };
+  const bandHd = (t, d, bg, fg) => <div style={{ textAlign: "center", padding: "9px 8px", borderRadius: "8px 8px 0 0", marginBottom: 10, background: bg, color: fg }}><div style={{ fontFamily: DISP, fontSize: 12.5, fontWeight: 700 }}>{t}</div><div style={{ fontSize: 10.5, opacity: .85, marginTop: 2 }}>{d}</div></div>;
+  const addBtn = (label, fn) => <button onClick={fn} style={{ border: `1px dashed ${C.line}`, background: "transparent", color: C.mid, width: "100%", padding: 9, borderRadius: 9, cursor: "pointer", fontFamily: DISP, fontWeight: 600, fontSize: 12 }}>{label}</button>;
+
+  const anchor = (kind, id) => () => setHot(h => h && h.kind === kind && h.id === id ? null : { kind, id });
+  const cst = (kind, id) => ({ ...cardBase, opacity: dim(kind, id) ? .28 : 1, ...(hot && hot.kind === kind && hot.id === id ? { borderColor: C.navy, boxShadow: `0 0 0 2px ${C.navy}` } : {}) });
+
+  return (
+    <div>
+      <SectionIntro
+        title="Strategy Alignment"
+        lead="Every project has to earn its line of sight — up through a priority, up to a company objective."
+        points={[
+          ["Two levels, always.", "First how each department priority advances a company objective; then how each project and milestone contributes through it."],
+          ["The bias we're making visible.", "Enabler builds a reusable capability; BAU keeps the lights on; Proposed isn't committed. The headline number is the share of effort building capabilities."],
+          ["Nothing is hidden — gaps are flagged.", "A project with no stated line of sight shows amber. The tool exists to force the question, not to make the board look tidy."],
+        ]}
+      />
+
+      {objectives.length === 0 && (
+        <div style={{ background: C.goldLt, border: `1px solid ${C.gold}`, borderRadius: 10, padding: "12px 16px", margin: "14px 0", fontSize: 13, display: "flex", alignItems: "center", gap: 12 }}>
+          <span>No company objectives or department priorities defined yet. Add them to build the cascade, or seed a worked example to see it against your real portfolio.</span>
+          <button onClick={seedAlignment} style={{ marginLeft: "auto", whiteSpace: "nowrap", fontFamily: DISP, fontWeight: 700, fontSize: 12, background: C.navy, color: "#fff", border: "none", borderRadius: 7, padding: "8px 12px", cursor: "pointer" }}>Seed example alignment</button>
+        </div>
+      )}
+
+      {/* sub-tabs */}
+      <div style={{ display: "flex", gap: 2, margin: "14px 0" }}>
+        {[["thread", "Line of sight"], ["score", "Scorecard"], ["enabler", "Enabler balance"], ["matrix", "Alignment matrix"]].map(([k, l]) => (
+          <button key={k} onClick={() => setSub(k)} style={{ border: "none", background: sub === k ? C.mul : "transparent", color: sub === k ? "#fff" : C.mid, fontFamily: DISP, fontWeight: 600, fontSize: 13, padding: "7px 14px", borderRadius: 7, cursor: "pointer" }}>{l}</button>
+        ))}
+      </div>
+
+      {/* headline stats */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
+        <div style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 16px", flex: 1, minWidth: 170 }}>
+          <div style={{ fontFamily: DISP, fontSize: 27, fontWeight: 800, lineHeight: 1, color: C.mul }}>{M.capPct}%</div>
+          <div style={{ fontFamily: MONO, fontSize: 9.5, color: C.mid, marginTop: 6, textTransform: "uppercase", letterSpacing: ".06em" }}>Effort building capabilities</div>
+          <div style={{ height: 7, borderRadius: 4, background: C.soft, marginTop: 9, overflow: "hidden", display: "flex" }}>
+            {["enabler", "bau", "proposed", "unset"].map(t => <span key={t} style={{ width: `${M.eff[t] / M.tot * 100}%`, background: SA_TYPE_META[t].color }} />)}
+          </div>
+        </div>
+        {stat(<>{M.cnt.enabler}<span style={{ fontSize: 15, color: C.faint }}> / {projects.length}</span></>, "Enabler projects", C.navy)}
+        {stat(M.unaligned.length, "Projects without a line of sight", M.unaligned.length ? C.amber : C.green)}
+        {stat(M.objGaps.length, "Objectives with no enabler", M.objGaps.length ? C.amber : C.green)}
+      </div>
+
+      {/* ---- LINE OF SIGHT ---- */}
+      {sub === "thread" && <>
+        {(M.unaligned.length > 0 || M.prioNo.length > 0) && (
+          <div style={{ background: C.goldLt, border: `1px solid ${C.gold}`, borderRadius: 9, padding: "10px 14px", fontSize: 12.5, color: C.amber, marginBottom: 14 }}>
+            ⚠ <b>{M.unaligned.length}</b> project(s) and <b>{M.prioNo.length}</b> priority(ies) have no stated line of sight. Click any card to complete it — an empty thread is a decision waiting to be made.
+          </div>
+        )}
+        <div style={{ fontSize: 11.5, color: C.mid, background: C.navyLt, borderRadius: 7, padding: "8px 11px", marginBottom: 12 }}>
+          Click any card to light up its full thread — the objective it rolls up to, and everything hanging beneath it. <b>Click again</b> to clear. Cards read left → right: <b>where the enterprise is going → how DSAI advances it → what we're building → the next proof point.</b>
+        </div>
+        <div style={{ overflowX: "auto", paddingBottom: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(230px,1fr))", gap: 0 }}>
+            {/* objectives */}
+            <div style={{ padding: "0 12px" }}>
+              {bandHd("Company objective", "where the enterprise is going", C.navy, "#fff")}
+              {objectives.map(o => (
+                <div key={o.id} style={cst("obj", o.id)} onClick={anchor("obj", o.id)} onDoubleClick={() => setEdit({ kind: "obj", id: o.id })}>
+                  <div style={{ fontFamily: DISP, fontSize: 12.5, fontWeight: 700, lineHeight: 1.25 }}>{o.name}</div>
+                  {o.description && <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>{o.description}</div>}
+                  {!M.objEnabler[o.id] && <span style={{ display: "inline-block", fontFamily: MONO, fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", padding: "1px 7px", borderRadius: 9, marginTop: 6, background: C.amber + "22", color: C.amber }}>no enabler yet</span>}
+                </div>
+              ))}
+              {addBtn("+ objective", addObj)}
+            </div>
+            {/* priorities */}
+            <div style={{ padding: "0 12px" }}>
+              {bandHd("Department priority", "how DSAI advances it", C.mul, "#fff")}
+              {priorities.map(p => (
+                <div key={p.id} style={cst("prio", p.id)} onClick={anchor("prio", p.id)} onDoubleClick={() => setEdit({ kind: "prio", id: p.id })}>
+                  <div style={{ fontFamily: DISP, fontSize: 12.5, fontWeight: 700, lineHeight: 1.25 }}>{p.name}</div>
+                  <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>→ {(p.objectiveIds || []).map(o => (objectives.find(x => x.id === o) || {}).name).filter(Boolean).join(", ") || "no objective linked"}</div>
+                  {contrib(p.contribution, "How does this advance the objective? Double-click to state it.")}
+                </div>
+              ))}
+              {addBtn("+ priority", addPrio)}
+            </div>
+            {/* projects */}
+            <div style={{ padding: "0 12px" }}>
+              {bandHd("Project", "what we're building", "#4A2740", "#fff")}
+              {projects.map(pr => {
+                const sa = saOf(pr), t = ptype(pr);
+                return (
+                  <div key={pr.id} style={{ ...cst("proj", pr.id), borderLeft: `4px solid ${SA_TYPE_META[t].color}`, borderStyle: t === "proposed" ? "dashed" : "solid", borderLeftStyle: "solid" }} onClick={anchor("proj", pr.id)} onDoubleClick={() => setEdit({ kind: "proj", id: pr.id })}>
+                    <div style={{ fontFamily: DISP, fontSize: 12.5, fontWeight: 700, lineHeight: 1.25 }}>{pr.code && <span style={{ color: C.faint }}>{pr.code} </span>}{pr.name}</div>
+                    <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>→ {sa.priorityIds.map(x => (prioById(x) || {}).name).filter(Boolean).join(", ") || <span style={{ color: C.amber }}>no priority — unaligned</span>}</div>
+                    {tag(t)}
+                    {t === "enabler" && sa.capability && <div style={{ fontSize: 10.5, color: C.mul, marginTop: 5, fontWeight: 600 }}>⚙ {sa.capability}</div>}
+                    {contrib(sa.contribution, "How does this contribute? Double-click to state it.")}
+                  </div>
+                );
+              })}
+            </div>
+            {/* milestones */}
+            <div style={{ padding: "0 12px" }}>
+              {bandHd("Milestone", "the next proof point", C.gold, C.navy)}
+              {projects.map(pr => msByProj(pr.id).map(m => (
+                <div key={m.id} style={cst("ms", m.id)} onClick={anchor("ms", m.id)} onDoubleClick={() => setEdit({ kind: "ms", id: m.id })}>
+                  <div style={{ fontFamily: DISP, fontSize: 12.5, fontWeight: 700, lineHeight: 1.25 }}>{m.done ? "✓ " : ""}{m.name}</div>
+                  <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>{pr.code || pr.name}{m.due ? ` · ${m.due}` : ""}</div>
+                  {contrib(m.contribution, "How does this milestone move the objective? Double-click.")}
+                </div>
+              )))}
+              {milestones.length === 0 && <div style={{ ...cardBase, cursor: "default", textAlign: "center", color: C.faint, fontSize: 12 }}>No proof points yet — add them from a project (double-click a project card).</div>}
+            </div>
+          </div>
+        </div>
+      </>}
+
+      {/* ---- SCORECARD ---- */}
+      {sub === "score" && <ScorecardSub {...{ objectives, projects, priorities, prioByObj, projByPrio, ptype, M, setEdit, tag }} />}
+      {/* ---- ENABLER ---- */}
+      {sub === "enabler" && <EnablerSub {...{ projects, M, ptype, setEdit }} />}
+      {/* ---- MATRIX ---- */}
+      {sub === "matrix" && <MatrixSub {...{ objectives, priorities, projects, ptype, tag }} />}
+
+      <div style={{ fontSize: 10.5, color: C.faint, marginTop: 24, fontStyle: "italic", textAlign: "center", paddingTop: 14, borderTop: `1px solid ${C.line}` }}>plan to P80, manage to P50 · honest amber with options · agents draft, humans decide · AI/tool-drafted, unconfirmed — review and sign</div>
+
+      {edit && <SAEditor {...{ edit, setEdit, objectives, priorities, projects, milestones, patchObj, patchPrio, patchMs, setSA, saOf, addMs, delObj, delPrio, delMs }} />}
+    </div>
+  );
+}
+
+function ScorecardSub({ objectives, projects, priorities, prioByObj, projByPrio, ptype, M, setEdit, tag }) {
+  const th = { padding: "10px 12px", textAlign: "left", fontFamily: MONO, fontSize: 9.5, textTransform: "uppercase", letterSpacing: ".06em", color: C.mid, fontWeight: 700, background: C.soft, borderBottom: `1px solid ${C.line}` };
+  const td = { padding: "10px 12px", fontSize: 12.5, borderBottom: `1px solid ${C.line}`, verticalAlign: "top" };
+  const rows = objectives.map(o => {
+    const pris = prioByObj(o.id); const projs = [];
+    pris.forEach(p => projByPrio(p.id).forEach(pr => { if (!projs.find(x => x.id === pr.id)) projs.push(pr); }));
+    const byType = { enabler: 0, bau: 0, proposed: 0, unset: 0 }; projs.forEach(p => byType[ptype(p)]++);
+    return { o, pris, projs, byType, value: projs.reduce((s, p) => s + (+p.value || 0), 0), effort: projs.reduce((s, p) => s + (+p.effort || 0), 0), hasEnabler: byType.enabler > 0 };
+  });
+  return (
+    <>
+      <div style={{ fontFamily: DISP, fontSize: 15, fontWeight: 700, margin: "6px 0 8px" }}>Objective scorecard</div>
+      <div style={{ fontSize: 11.5, color: C.mid, marginBottom: 12 }}>An objective with <b>no enabler project</b> is highlighted — we may be talking about it, but we aren't building the capability for it.</div>
+      {objectives.length === 0 ? <div style={{ color: C.faint, fontStyle: "italic" }}>Add objectives to see the scorecard.</div> :
+        <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(28,34,34,.06)" }}>
+          <thead><tr><th style={th}>Company objective</th><th style={th}>Department priorities</th><th style={{ ...th, textAlign: "center" }}>Projects</th><th style={th}>Mix (E / B / P)</th><th style={{ ...th, textAlign: "center" }}>Σ Value</th><th style={{ ...th, textAlign: "center" }}>Σ Effort</th><th style={th}>Capability</th></tr></thead>
+          <tbody>
+            {rows.map(r => (
+              <tr key={r.o.id} style={r.hasEnabler ? {} : { background: C.goldLt }}>
+                <td style={td}><b>{r.o.name}</b>{r.o.description && <div style={{ fontSize: 11, color: C.faint }}>{r.o.description}</div>}</td>
+                <td style={td}>{r.pris.length ? r.pris.map(p => p.name).join(" · ") : <span style={{ color: C.amber }}>none</span>}</td>
+                <td style={{ ...td, textAlign: "center" }}>{r.projs.length}</td>
+                <td style={td}>
+                  <div style={{ height: 16, borderRadius: 3, background: C.soft, display: "flex", overflow: "hidden", minWidth: 90 }}>
+                    {["enabler", "bau", "proposed", "unset"].map(t => r.byType[t] > 0 && <span key={t} title={`${t}: ${r.byType[t]}`} style={{ width: `${r.byType[t] / (r.projs.length || 1) * 100}%`, background: SA_TYPE_META[t].color }} />)}
+                  </div>
+                  <div style={{ fontSize: 10, color: C.faint, marginTop: 2 }}>{r.byType.enabler}E · {r.byType.bau}B · {r.byType.proposed}P{r.byType.unset ? ` · ${r.byType.unset}?` : ""}</div>
+                </td>
+                <td style={{ ...td, textAlign: "center" }}>{r.value}</td>
+                <td style={{ ...td, textAlign: "center" }}>{r.effort}</td>
+                <td style={td}>{r.hasEnabler ? <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: C.green, textTransform: "uppercase" }}>building</span> : <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: C.amber, textTransform: "uppercase" }}>gap</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>}
+      {M.unaligned.length > 0 && <>
+        <div style={{ fontFamily: DISP, fontSize: 15, fontWeight: 700, margin: "26px 0 8px" }}>Projects with no line of sight ({M.unaligned.length})</div>
+        <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(28,34,34,.06)" }}>
+          <thead><tr><th style={th}>Code</th><th style={th}>Project</th><th style={th}>Type</th><th style={th}>Why it's flagged</th><th style={th}></th></tr></thead>
+          <tbody>
+            {M.unaligned.map(p => (
+              <tr key={p.id}>
+                <td style={td}>{p.code || "—"}</td><td style={td}><b>{p.name}</b></td>
+                <td style={td}>{tag(ptype(p))}</td>
+                <td style={{ ...td, color: C.amber, fontSize: 12 }}>{saOf(p).priorityIds.length === 0 ? "No priority linked" : "No contribution stated"}</td>
+                <td style={td}><button onClick={() => setEdit({ kind: "proj", id: p.id })} style={{ fontFamily: DISP, fontWeight: 700, fontSize: 11, border: `1px solid ${C.line}`, background: "#fff", borderRadius: 6, padding: "3px 8px", cursor: "pointer", color: C.mul }}>Complete →</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </>}
+    </>
+  );
+}
+
+function EnablerSub({ projects, M, ptype, setEdit }) {
+  const th = { padding: "10px 12px", textAlign: "left", fontFamily: MONO, fontSize: 9.5, textTransform: "uppercase", letterSpacing: ".06em", color: C.mid, fontWeight: 700, background: C.soft, borderBottom: `1px solid ${C.line}` };
+  const td = { padding: "10px 12px", fontSize: 12.5, borderBottom: `1px solid ${C.line}` };
+  const seg = k => ({ width: `${M.eff[k] / M.tot * 100}%`, background: SA_TYPE_META[k].color });
+  const groups = [["enabler", "Enabler — builds a reusable capability"], ["bau", "BAU — keeps the lights on"], ["proposed", "Proposed — not yet committed"], ["unset", "Unclassified — needs a call"]];
+  return (
+    <>
+      <div style={{ fontFamily: DISP, fontSize: 15, fontWeight: 700, margin: "6px 0 8px" }}>Where the effort goes <span style={{ fontFamily: MONO, fontSize: 10.5, color: C.mid }}>· Σ {M.tot} effort points</span></div>
+      <div style={{ fontSize: 11.5, color: C.mid, marginBottom: 12 }}>Are we <b style={{ color: C.mul }}>investing in capabilities</b> that compound, or spending the year on run-work and ideas that never got committed?</div>
+      <div style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 10, padding: "18px 20px", marginBottom: 20 }}>
+        <div style={{ display: "flex", height: 34, borderRadius: 6, overflow: "hidden", marginBottom: 10 }}>
+          {["enabler", "bau", "proposed", "unset"].map(t => <span key={t} style={seg(t)} />)}
+        </div>
+        <div style={{ display: "flex", gap: 20, fontSize: 12, color: C.mid, flexWrap: "wrap" }}>
+          {["enabler", "bau", "proposed", "unset"].map(t => <span key={t}><span style={{ display: "inline-block", width: 9, height: 9, borderRadius: "50%", background: SA_TYPE_META[t].color, marginRight: 5 }} />{t[0].toUpperCase() + t.slice(1)} <b>{Math.round(M.eff[t] / M.tot * 100)}%</b> ({M.eff[t]} pts, {M.cnt[t]} proj)</span>)}
+        </div>
+      </div>
+      {groups.map(([type, label]) => {
+        const list = projects.filter(p => ptype(p) === type);
+        return (
+          <div key={type} style={{ marginBottom: 22 }}>
+            <div style={{ fontFamily: DISP, fontSize: 13, fontWeight: 700, margin: "6px 0 8px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 12, height: 12, borderRadius: "50%", background: SA_TYPE_META[type].color }} />{label} <span style={{ fontFamily: MONO, fontSize: 10.5, color: C.faint }}>({list.length})</span>
+            </div>
+            {list.length === 0 ? <div style={{ color: C.faint, fontSize: 12, fontStyle: "italic" }}>None.</div> :
+              <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(28,34,34,.06)" }}>
+                <thead><tr><th style={th}>Code</th><th style={th}>Project</th><th style={th}>Capability it builds</th><th style={{ ...th, textAlign: "center" }}>Value</th><th style={{ ...th, textAlign: "center" }}>Effort</th><th style={th}></th></tr></thead>
+                <tbody>{list.map(p => (
+                  <tr key={p.id}>
+                    <td style={td}>{p.code || "—"}</td><td style={td}><b>{p.name}</b></td>
+                    <td style={{ ...td, color: type === "enabler" ? C.mul : C.faint }}>{saOf(p).capability || (type === "enabler" ? <span style={{ color: C.amber }}>state the capability</span> : "—")}</td>
+                    <td style={{ ...td, textAlign: "center" }}>{p.value}</td><td style={{ ...td, textAlign: "center" }}>{p.effort}</td>
+                    <td style={td}><button onClick={() => setEdit({ kind: "proj", id: p.id })} style={{ fontFamily: DISP, fontWeight: 700, fontSize: 11, border: `1px solid ${C.line}`, background: "#fff", borderRadius: 6, padding: "3px 8px", cursor: "pointer", color: C.mul }}>Classify</button></td>
+                  </tr>
+                ))}</tbody>
+              </table>}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+function MatrixSub({ objectives, priorities, projects, ptype, tag }) {
+  const th = { padding: "8px 10px", fontFamily: MONO, fontSize: 9.5, color: C.mid, fontWeight: 700, background: C.soft, borderBottom: `1px solid ${C.line}` };
+  const rot = { ...th, writingMode: "vertical-rl", transform: "rotate(180deg)", whiteSpace: "nowrap", height: 120, verticalAlign: "bottom", textAlign: "left" };
+  const td = { padding: "8px 10px", fontSize: 12.5, borderBottom: `1px solid ${C.line}`, textAlign: "center" };
+  const mk = color => <span style={{ display: "inline-flex", width: 22, height: 22, borderRadius: 5, alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff", background: color }}>✓</span>;
+  return (
+    <>
+      <div style={{ fontFamily: DISP, fontSize: 15, fontWeight: 700, margin: "6px 0 8px" }}>Priorities × Objectives</div>
+      <div style={{ fontSize: 11.5, color: C.mid, marginBottom: 12 }}>A dense column is an objective many priorities push on; an empty one is an objective we've named but aren't resourcing.</div>
+      {objectives.length === 0 || priorities.length === 0 ? <div style={{ color: C.faint, fontStyle: "italic", marginBottom: 20 }}>Add objectives and priorities to see the matrix.</div> :
+        <table style={{ borderCollapse: "collapse", background: "#fff", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(28,34,34,.06)", marginBottom: 26 }}>
+          <thead><tr><th style={{ ...th, minWidth: 200, textAlign: "left" }}>Priority ↓ / Objective →</th>{objectives.map(o => <th key={o.id} style={rot}>{o.name}</th>)}</tr></thead>
+          <tbody>{priorities.map(p => (
+            <tr key={p.id}><td style={{ ...td, textAlign: "left" }}><b>{p.name}</b></td>
+              {objectives.map(o => <td key={o.id} style={td}>{(p.objectiveIds || []).includes(o.id) ? mk(C.mul) : <span style={{ color: C.line }}>·</span>}</td>)}
+            </tr>
+          ))}</tbody>
+        </table>}
+
+      <div style={{ fontFamily: DISP, fontSize: 15, fontWeight: 700, margin: "8px 0 8px" }}>Projects × Priorities</div>
+      {priorities.length === 0 ? <div style={{ color: C.faint, fontStyle: "italic" }}>Add priorities to see the matrix.</div> :
+        <table style={{ borderCollapse: "collapse", background: "#fff", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(28,34,34,.06)" }}>
+          <thead><tr><th style={{ ...th, minWidth: 200, textAlign: "left" }}>Project ↓ / Priority →</th>{priorities.map(p => <th key={p.id} style={rot}>{p.name}</th>)}</tr></thead>
+          <tbody>{projects.map(pr => (
+            <tr key={pr.id}><td style={{ ...td, textAlign: "left" }}><b>{pr.code && <span style={{ color: C.faint }}>{pr.code} </span>}{pr.name}</b> {tag(ptype(pr), true)}</td>
+              {priorities.map(p => <td key={p.id} style={td}>{saOf(pr).priorityIds.includes(p.id) ? mk(SA_TYPE_META[ptype(pr)].color) : <span style={{ color: C.line }}>·</span>}</td>)}
+            </tr>
+          ))}</tbody>
+        </table>}
+    </>
+  );
+}
+
+function SAEditor({ edit, setEdit, objectives, priorities, projects, milestones, patchObj, patchPrio, patchMs, setSA, saOf, addMs, delObj, delPrio, delMs }) {
+  const { kind, id } = edit;
+  const item = kind === "obj" ? objectives.find(x => x.id === id) : kind === "prio" ? priorities.find(x => x.id === id) : kind === "proj" ? projects.find(x => x.id === id) : milestones.find(x => x.id === id);
+  if (!item) return null;
+  const title = { obj: "Company objective", prio: "Department priority", proj: "Project", ms: "Proof point" }[kind];
+  const close = () => setEdit(null);
+  const lbl = { display: "block", fontFamily: MONO, fontSize: 9, textTransform: "uppercase", letterSpacing: ".08em", color: C.faint, fontWeight: 700, marginBottom: 4 };
+  const inp = { width: "100%", fontFamily: BODY, fontSize: 13, border: `1px solid ${C.line}`, borderRadius: 6, padding: "7px 9px", background: "#fff", color: C.ink };
+  const ta = { ...inp, minHeight: 52, resize: "vertical" };
+  const fld = { marginBottom: 13 };
+  const chip = (on, onClick, label) => <span onClick={onClick} style={{ fontSize: 11, padding: "4px 10px", borderRadius: 12, border: `1px solid ${on ? "transparent" : C.line}`, cursor: "pointer", background: on ? C.mul : "#fff", color: on ? "#fff" : C.ink }}>{label}</span>;
+  const sa = kind === "proj" ? saOf(item) : null;
+  const ms = kind === "proj" ? milestones.filter(m => m.projectId === id) : [];
+  const doDel = () => { if (kind === "obj") delObj(id); else if (kind === "prio") delPrio(id); else if (kind === "ms") delMs(id); setEdit(null); };
+
+  return (
+    <div onClick={close} style={{ position: "fixed", inset: 0, background: "rgba(28,34,34,.4)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 12, maxWidth: 560, width: "100%", maxHeight: "88vh", overflowY: "auto", boxShadow: "0 12px 40px rgba(0,0,0,.25)" }}>
+        <div style={{ background: C.mul, color: "#fff", padding: "12px 18px", fontFamily: DISP, fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", borderRadius: "12px 12px 0 0" }}>{title}<button onClick={close} style={{ marginLeft: "auto", background: "transparent", border: "none", color: "#fff", fontSize: 18, cursor: "pointer" }}>×</button></div>
+        <div style={{ padding: 18 }}>
+          {kind === "obj" && <>
+            <div style={fld}><label style={lbl}>Objective name</label><input style={inp} value={item.name} onChange={e => patchObj(id, { name: e.target.value })} /></div>
+            <div style={fld}><label style={lbl}>Description</label><textarea style={ta} value={item.description || ""} onChange={e => patchObj(id, { description: e.target.value })} /></div>
+          </>}
+          {kind === "prio" && <>
+            <div style={fld}><label style={lbl}>Priority name</label><input style={inp} value={item.name} onChange={e => patchPrio(id, { name: e.target.value })} /></div>
+            <div style={fld}><label style={lbl}>Serves which company objectives</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{objectives.map(o => chip((item.objectiveIds || []).includes(o.id), () => patchPrio(id, { objectiveIds: (item.objectiveIds || []).includes(o.id) ? item.objectiveIds.filter(x => x !== o.id) : [...(item.objectiveIds || []), o.id] }), o.name))}{objectives.length === 0 && <span style={{ fontSize: 11, color: C.faint }}>Add objectives first.</span>}</div>
+            </div>
+            <div style={fld}><label style={lbl}>How does this priority advance those objectives? <span style={{ color: C.amber }}>(level-1 line of sight)</span></label><textarea style={ta} value={item.contribution || ""} placeholder="e.g. Puts a same-day answer in every rep's hands…" onChange={e => patchPrio(id, { contribution: e.target.value })} /></div>
+          </>}
+          {kind === "proj" && <>
+            <div style={{ ...fld, display: "flex", gap: 10 }}>
+              <div style={{ width: 120 }}><label style={lbl}>Code</label><input style={inp} value={item.code || ""} placeholder="OBU-000" onChange={e => setSA(item, {}) || undefined} readOnly title="Code is managed in Portfolio" /></div>
+              <div style={{ flex: 1 }}><label style={lbl}>Project</label><input style={{ ...inp, background: C.soft }} value={item.name} readOnly title="Name is managed in Portfolio" /></div>
+            </div>
+            <div style={fld}><label style={lbl}>Type — the bias we're making visible</label>
+              <div style={{ display: "flex", border: `1px solid ${C.line}`, borderRadius: 7, overflow: "hidden" }}>
+                {["enabler", "bau", "proposed"].map(t => { const on = sa.type === t; return <button key={t} onClick={() => setSA(item, { type: t })} style={{ flex: 1, border: "none", padding: 8, fontFamily: DISP, fontWeight: 700, fontSize: 12, cursor: "pointer", background: on ? SA_TYPE_META[t].color : "#fff", color: on ? "#fff" : C.mid }}>{t}</button>; })}
+              </div>
+              <div style={{ fontSize: 11, color: C.faint, marginTop: 4 }}>{SA_TYPE_META[sa.type || "unset"].label}</div>
+            </div>
+            {sa.type === "enabler" && <div style={fld}><label style={lbl}>Capability it builds <span style={{ color: C.mul }}>(what becomes reusable)</span></label><input style={inp} value={sa.capability} placeholder="e.g. Reusable prompt + retrieval platform" onChange={e => setSA(item, { capability: e.target.value })} /></div>}
+            <div style={fld}><label style={lbl}>Serves which department priorities</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{priorities.map(p => chip(sa.priorityIds.includes(p.id), () => setSA(item, { priorityIds: sa.priorityIds.includes(p.id) ? sa.priorityIds.filter(x => x !== p.id) : [...sa.priorityIds, p.id] }), p.name))}{priorities.length === 0 && <span style={{ fontSize: 11, color: C.faint }}>Add priorities first.</span>}</div>
+            </div>
+            <div style={fld}><label style={lbl}>How does this project contribute? <span style={{ color: C.amber }}>(level-2 line of sight)</span></label><textarea style={ta} value={sa.contribution} placeholder="e.g. Turns scattered BI into a reusable answer layer…" onChange={e => setSA(item, { contribution: e.target.value })} /></div>
+            <div style={fld}><label style={lbl}>Proof points (milestones)</label>
+              {ms.map(m => (
+                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <input type="checkbox" checked={!!m.done} onChange={e => patchMs(m.id, { done: e.target.checked })} />
+                  <input style={{ ...inp, flex: 1 }} value={m.name} onChange={e => patchMs(m.id, { name: e.target.value })} />
+                  <input style={{ ...inp, width: 84 }} value={m.due || ""} placeholder="2026-09" onChange={e => patchMs(m.id, { due: e.target.value })} />
+                  <button onClick={() => delMs(m.id)} style={{ border: "none", background: "transparent", color: C.red, cursor: "pointer", fontSize: 13 }}>×</button>
+                </div>
+              ))}
+              {ms.map(m => (!(m.contribution || "").trim() && <div key={m.id + "c"} style={{ fontSize: 10.5, color: C.amber, margin: "-2px 0 6px 26px" }}>⚠ "{m.name}" has no stated contribution — double-click it in the cascade to add one</div>))}
+              <button onClick={() => addMs(id)} style={{ border: `1px dashed ${C.line}`, background: "transparent", color: C.mid, width: "100%", padding: 9, borderRadius: 9, cursor: "pointer", fontFamily: DISP, fontWeight: 600, fontSize: 12 }}>+ proof point</button>
+            </div>
+          </>}
+          {kind === "ms" && <>
+            <div style={fld}><label style={lbl}>Proof point</label><input style={inp} value={item.name} onChange={e => patchMs(id, { name: e.target.value })} /></div>
+            <div style={{ ...fld, display: "flex", gap: 10, alignItems: "flex-end" }}>
+              <div style={{ flex: 1 }}><label style={lbl}>Due (YYYY-MM)</label><input style={inp} value={item.due || ""} placeholder="2026-09" onChange={e => patchMs(id, { due: e.target.value })} /></div>
+              <label style={{ fontSize: 12, color: C.mid, paddingBottom: 8 }}><input type="checkbox" checked={!!item.done} onChange={e => patchMs(id, { done: e.target.checked })} /> Done</label>
+            </div>
+            <div style={fld}><label style={lbl}>How does this milestone move the objective?</label><textarea style={ta} value={item.contribution || ""} placeholder="e.g. Proves the answer layer works before scaling cost." onChange={e => patchMs(id, { contribution: e.target.value })} /></div>
+          </>}
+          <div style={{ display: "flex", marginTop: 8 }}>
+            {kind !== "proj" && <button onClick={doDel} style={{ border: `1px solid ${C.line}`, background: "#fff", color: C.red, borderRadius: 6, padding: "6px 12px", fontFamily: DISP, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Delete</button>}
+            <button onClick={close} style={{ marginLeft: "auto", background: C.navy, color: "#fff", border: "none", borderRadius: 6, padding: "6px 14px", fontFamily: DISP, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* shared intro block for both new sections */
+function SectionIntro({ title, lead, points }) {
+  return (
+    <div style={{ background: C.mulLt, borderRadius: 12, padding: "16px 18px" }}>
+      <div style={{ fontFamily: DISP, fontSize: 18, fontWeight: 800, color: C.mul }}>{title}</div>
+      <div style={{ fontSize: 13, color: C.ink, margin: "4px 0 12px", maxWidth: 720 }}>{lead}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 12 }}>
+        {points.map(([h, d], i) => (
+          <div key={i} style={{ background: "#fff", borderRadius: 8, padding: "10px 12px" }}>
+            <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 12.5, color: C.navy, marginBottom: 3 }}>{h}</div>
+            <div style={{ fontSize: 11.5, color: C.mid, lineHeight: 1.4 }}>{d}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
@@ -341,6 +1345,11 @@ export default function App() {
   const [charter, setCharter] = useState(null);
   const [people, setPeople] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [objectives, setObjectives] = useState([]);
+  const [priorities, setPriorities] = useState([]);
+  const [milestones, setMilestones] = useState([]);
+  const [squads, setSquads] = useState([]);
+  const [resViz, setResViz] = useState({});
   const T = k => (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k;
   const saveTimer = useRef(null);
   const loaded = useRef(false);
@@ -350,7 +1359,7 @@ export default function App() {
       try {
         const r = await window.storage.get(STORE_KEY);
         const data = r ? JSON.parse(r.value) : null;
-        if (data?.projects?.length) { setProjects(data.projects); setSel(data.projects[0].id); if (data.lang) setLang(data.lang); if (data.programLinks) setProgramLinks(data.programLinks); if (data.people) setPeople(data.people); if (data.assignments) setAssignments(data.assignments); if (data.charter) setCharter(data.charter); }
+        if (data?.projects?.length) { setProjects(data.projects); setSel(data.projects[0].id); if (data.lang) setLang(data.lang); if (data.programLinks) setProgramLinks(data.programLinks); if (data.people) setPeople(data.people); if (data.assignments) setAssignments(data.assignments); if (data.charter) setCharter(data.charter); if (data.objectives) setObjectives(data.objectives); if (data.priorities) setPriorities(data.priorities); if (data.milestones) setMilestones(data.milestones); if (data.squads) setSquads(data.squads); if (data.resViz) setResViz(data.resViz); }
         else { const s = seedProjects(); setProjects(s); setSel(s[0].id); const hr = seedHR(s); setPeople(hr.people); setAssignments(hr.assignments); }
       } catch { const s = seedProjects(); setProjects(s); setSel(s[0].id); const hr = seedHR(s); setPeople(hr.people); setAssignments(hr.assignments); }
       loaded.current = true;
@@ -363,7 +1372,7 @@ export default function App() {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       try {
-          const payload = JSON.stringify({ projects, lang, programLinks, people, assignments, charter });
+          const payload = JSON.stringify({ projects, lang, programLinks, people, assignments, charter, objectives, priorities, milestones, squads, resViz });
           await window.storage.set(STORE_KEY, payload);
           setSaveState("saved");
           rollSnapshot(payload).catch(() => {});
@@ -372,15 +1381,16 @@ export default function App() {
       setTimeout(() => setSaveState("idle"), 1600);
     }, 700);
     return () => clearTimeout(saveTimer.current);
-  }, [projects, lang, programLinks, people, assignments, charter]);
+  }, [projects, lang, programLinks, people, assignments, charter, objectives, priorities, milestones, squads, resViz]);
 
   const update = (id, patch) => setProjects(ps => ps.map(p => p.id === id ? { ...p, ...patch } : p));
   const project = projects?.find(p => p.id === sel) || null;
 
   const TAB_GROUPS = [
-    ["gStart", ["intro", "graph"]],
+    ["gStart", ["intro", "phome", "graph"]],
     ["gRun", ["portfolio", "week", "workspace", "data", "canvas", "whiteboard"]],
     ["gGovern", ["review", "health", "priority", "capacity", "team", "govyear", "timeline"]],
+    ["gAlign", ["strategy", "opmodel"]],
     ["gGenerate", ["studio", "advisor"]],
     ["gLearn", ["charter", "resources"]],
   ];
@@ -444,11 +1454,11 @@ export default function App() {
           }} style={{ border: "1px solid #4A5757", background: confirmAct === "clear" ? "#B3261E" : "transparent", color: confirmAct === "clear" ? "#fff" : "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>{confirmAct === "clear" ? "Delete everything?" : "Clear"}</button>
           <button onClick={() => setLang(l => l === "en" ? "es" : "en")} title={I18N[lang].langnote || "Switch UI language"} style={{ border: `1px solid ${C.gold}`, background: "transparent", color: C.gold, borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 700 }}>{lang === "en" ? "ES" : "EN"}</button>
           <button onClick={() => setShowBackup(true)} title="Backups & restore" style={{ border: "1px solid #4A5757", background: "transparent", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>↻ Backups</button>
-          <button onClick={() => exportJson({ projects, programLinks, people, assignments, lang, charter })} style={{ border: "1px solid #4A5757", background: "transparent", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>{T("export")}</button>
+          <button onClick={() => exportJson({ projects, programLinks, people, assignments, lang, charter, objectives, priorities, milestones, squads, resViz })} style={{ border: "1px solid #4A5757", background: "transparent", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>{T("export")}</button>
           <label style={{ border: "1px solid #4A5757", color: "#C9D2CF", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, cursor: "pointer", fontFamily: DISP, fontWeight: 600 }}>
             {T("import")}
             <input type="file" accept="application/json" style={{ display: "none" }}
-              onChange={e => importJson(e.target.files?.[0], { setProjects, setSel, setPeople, setAssignments, setProgramLinks })} />
+              onChange={e => importJson(e.target.files?.[0], { setProjects, setSel, setPeople, setAssignments, setProgramLinks, setObjectives, setPriorities, setMilestones, setSquads, setResViz })} />
           </label>
           <span style={{ fontFamily: MONO, fontSize: 10.5, color: saveState === "error" ? "#FF9B9B" : "#9FB0AC" }}>
             {saveState === "saving" ? T("saving") : saveState === "saved" ? T("saved") : saveState === "error" ? T("saveerr") : T("persists")}
@@ -476,6 +1486,7 @@ export default function App() {
       {lang === "es" && <div style={{ maxWidth: 1180, margin: "0 auto", padding: "10px 22px 0", fontSize: 11, color: C.faint }}>{I18N.es.langnote}</div>}
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 22px 60px" }}>
         {tab === "intro" && <IntroPage setTab={setTab} />}
+        {tab === "phome" && <PortfolioHome projects={projects} setSel={setSel} setTab={setTab} />}
         {tab === "graph" && <KnowledgeGraph projects={projects} people={people} assignments={assignments} setSel={setSel} setTab={setTab} />}
         {tab === "portfolio" && <Portfolio projects={projects} setProjects={setProjects} update={update} setSel={setSel} setTab={setTab} programLinks={programLinks} setProgramLinks={setProgramLinks} />}
         {tab === "week" && <WeekView projects={projects} />}
@@ -486,6 +1497,8 @@ export default function App() {
         {tab === "priority" && <PriorityLab projects={projects} update={update} />}
         {tab === "capacity" && <CapacityHub projects={projects} update={update} people={people} setPeople={setPeople} assignments={assignments} setAssignments={setAssignments} />}
         {tab === "team" && <TeamAI projects={projects} update={update} people={people} assignments={assignments} setTab={setTab} setSel={setSel} />}
+        {tab === "strategy" && <StrategyAlignment projects={projects} update={update} objectives={objectives} setObjectives={setObjectives} priorities={priorities} setPriorities={setPriorities} milestones={milestones} setMilestones={setMilestones} setTab={setTab} setSel={setSel} />}
+        {tab === "opmodel" && <OperatingModel people={people} setPeople={setPeople} assignments={assignments} projects={projects} squads={squads} setSquads={setSquads} resViz={resViz} setResViz={setResViz} />}
         {tab === "canvas" && <Canvas projects={projects} project={project} setSel={setSel} update={update} people={people} />}
         {tab === "whiteboard" && <WhiteboardTab projects={projects} project={project} setSel={setSel} update={update} />}
         {tab === "review" && <ReviewPack projects={projects} update={update} people={people} assignments={assignments} />}
