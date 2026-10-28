@@ -59,7 +59,8 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "tycoon", emoji: "🎮", title: "AI Product Tycoon", description: "Imperio Agéntico — estrategia PMO/IA", color: "c4", href: "#/app/tycoon" },
   { id: "innovation", emoji: "🧠", title: "Innovation position training", description: "Innovation position training", color: "c3", href: "#/app/innovation" },
   { id: "python_lean", emoji: "🧠", title: "Python training", description: "Python training and Lean", color: "c4", href: "#/app/python_lean" },
-  placeholderSlot(7, "c1"),
+  { id: "valdecanas", emoji: "⛳", title: "Isla de Valdecañas", description: "Golf 3D multijugador en la isla real", color: "c1", href: "/valdecanas/" },
+  placeholderSlot(7, "c2"),
 ];
 
 const STYLES = `
