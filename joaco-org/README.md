@@ -53,6 +53,15 @@ En ambos casos las URLs quedan:
 
 Dependencias ya instaladas: recharts, lucide-react, @supabase/supabase-js, tailwindcss.
 
+## Isla de Valdecañas (juego 3D multijugador)
+- Vive en public/valdecanas/ (index.html + data/). URL: joaco.org/valdecanas/
+- Se genera desde el repositorio joacoarbona/valdecanas (scripts/build_joaco.py):
+  no se edita a mano aquí.
+- Multijugador sin servidor propio: salas con código de 6 caracteres; los
+  mensajes viajan cifrados (AES-GCM, clave derivada del código) por dos
+  servidores MQTT públicos a la vez (EMQX y HiveMQ). La voz va directa entre
+  navegadores (WebRTC). Enlace de invitación: joaco.org/valdecanas/?sala=CODIGO
+
 ## Pendiente de configurar
 - MortgageSimulator: poner SUPABASE_URL y SUPABASE_ANON_KEY reales en
   src/works/MortgageSimulator.jsx (líneas ~25-26) para que guarde datos.
