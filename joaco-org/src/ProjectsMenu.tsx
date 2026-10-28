@@ -60,7 +60,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "innovation", emoji: "🧠", title: "Innovation position training", description: "Innovation position training", color: "c3", href: "#/app/innovation" },
   { id: "python_lean", emoji: "🧠", title: "Python training", description: "Python training and Lean", color: "c4", href: "#/app/python_lean" },
   { id: "valdecanas", emoji: "⛳", title: "Isla de Valdecañas", description: "Golf 3D multijugador en la isla real", color: "c1", href: "/valdecanas/" },
-  placeholderSlot(7, "c2"),
+  { id: "golf-madrid", emoji: "🏌️", title: "Golf en Madrid", description: "Puerta de Hierro y Club de Campo en 3D", color: "c2", href: "/golf-madrid/" },
 ];
 
 const STYLES = `
