@@ -1,4 +1,5 @@
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -45,44 +46,12 @@ const slot = (n: number): Work => ({
 
 export const DEFAULT_WORKS: Work[] = [
   {
-    id: "bpo-zero-based",
-    title: "BPO Zero-Based Operating Plan",
-    description: "Marco operativo base cero para OBU",
-    kind: "dossier",
-    initial: "B",
-    href: "/gabinete/bpo-zero-based-operating-plan.html",
-  },
-  {
-    id: "data-leadership",
-    title: "Data Project Leadership",
-    description: "Dossier de liderazgo de proyectos de datos",
-    kind: "dossier",
-    initial: "D",
-    href: "/gabinete/data-project-leadership-dossier.html",
-  },
-  {
-    id: "aic-bbu",
-    title: "AIC · BBU Senior Director",
-    description: "Dossier de preparación del rol",
-    kind: "dossier",
-    initial: "A",
-    href: "/gabinete/aic-bbu-senior-director-dossier.html",
-  },
-  {
     id: "progmgmt-navigator",
     title: "ProgMgmt Navigator",
     description: "Navegador de program management",
     kind: "herramienta",
     initial: "N",
     href: "/gabinete/progmgmt-navigator.html",
-  },
-  {
-    id: "pension-fire",
-    title: "FIRE & Convenio Especial",
-    description: "Simulador de pensión y cese anticipado",
-    kind: "simulador",
-    initial: "F",
-    href: "/gabinete/pension_simulator.html",
   },
   {
     id: "rescate-princesa",
@@ -305,12 +274,17 @@ export interface ElGabineteProps {
   /** Fired for real tiles; overrides href navigation. */
   onSelect?: (work: Work) => void;
   autoFocus?: boolean;
+  /** Heading and subtitle (the private area reuses this layout). */
+  title?: ReactNode;
+  subtitle?: ReactNode;
 }
 
 export default function ElGabinete({
   works = DEFAULT_WORKS,
   onSelect,
   autoFocus = true,
+  title,
+  subtitle,
 }: ElGabineteProps) {
   const [focused, setFocused] = useState(0);
   const tileRefs = useRef<Array<HTMLAnchorElement | null>>([]);
@@ -375,12 +349,9 @@ export default function ElGabinete({
 
       <header className="gab-head">
         <div className="gab-title">
-          <h1>
-            El <em>Gabinete</em>
-          </h1>
+          <h1>{title ?? <>El <em>Gabinete</em></>}</h1>
           <div className="gab-sub">
-            Dossiers, simuladores y herramientas — cada pieza es un HTML
-            independiente que se abre desde aquí.
+            {subtitle ?? "Dossiers, simuladores y herramientas — cada pieza es un HTML independiente que se abre desde aquí."}
           </div>
         </div>
         <div className="gab-count">

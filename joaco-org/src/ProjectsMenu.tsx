@@ -57,10 +57,10 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "iq-markets", emoji: "🧠", title: "IQ Markets", description: "Panel de mercados e inteligencia", color: "c2", href: "#/app/iq-markets" },
   { id: "hipoteca", emoji: "🏠", title: "Simulador Hipotecario", description: "Hipotecas España con datos BCE", color: "c3", href: "#/app/hipoteca" },
   { id: "tycoon", emoji: "🎮", title: "AI Product Tycoon", description: "Imperio Agéntico — estrategia PMO/IA", color: "c4", href: "#/app/tycoon" },
-  { id: "innovation", emoji: "🧠", title: "Innovation position training", description: "Innovation position training", color: "c3", href: "#/app/innovation" },
-  { id: "python_lean", emoji: "🧠", title: "Python training", description: "Python training and Lean", color: "c4", href: "#/app/python_lean" },
   { id: "valdecanas", emoji: "⛳", title: "Isla de Valdecañas", description: "Golf 3D multijugador en la isla real", color: "c1", href: "/valdecanas/" },
   { id: "golf-madrid", emoji: "🏌️", title: "Golf en Madrid", description: "Puerta de Hierro y Club de Campo en 3D", color: "c2", href: "/golf-madrid/" },
+  placeholderSlot(1, "c3"),
+  placeholderSlot(2, "c4"),
 ];
 
 const STYLES = `
