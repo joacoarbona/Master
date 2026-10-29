@@ -77,15 +77,7 @@ export const DEFAULT_WORKS: Work[] = [
     initial: "T",
     href: "#/app/atlas",
   },
-    {
-    id: "Innovation",
-    title: "Innovation application",
-    description: "Dossier for innovation",
-    kind: "dossier",
-    initial: "I",
-    href: "/gabinete/innovation.html",
-  },
-    {
+      {
     id: "python_lean",
     title: "Python and Lean",
     description: "Python learning and Lean basics",
