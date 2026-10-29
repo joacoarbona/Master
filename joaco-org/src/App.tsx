@@ -2,12 +2,14 @@ import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from "
 import ElGabinete from "./ElGabinete";
 import PartyGamesMenu from "./PartyGamesMenu";
 import ProjectsMenu from "./ProjectsMenu";
+import PrivateArea from "./PrivateArea";
 
 /**
  * Rutas:
  *   #/            → El Gabinete (portada)
  *   #/proyectos   → hub de proyectos
  *   #/fiesta      → hub de la fiesta
+ *   #/privado     → zona privada (con contraseña)
  *   #/app/<id>    → componente React del registro APPS
  *
  * Para añadir una app React nueva:
@@ -30,7 +32,7 @@ const APPS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   "postlabor": lazy(() => import("./works/PostLabor.jsx")),
 };
 
-type Route = { kind: "gabinete" | "fiesta" | "proyectos" } | { kind: "app"; id: string };
+type Route = { kind: "gabinete" | "fiesta" | "proyectos" | "privado" } | { kind: "app"; id: string };
 
 function routeFromHash(): Route {
   const h = window.location.hash;
@@ -38,6 +40,7 @@ function routeFromHash(): Route {
   if (app && APPS[app[1]]) return { kind: "app", id: app[1] };
   if (h.startsWith("#/fiesta")) return { kind: "fiesta" };
   if (h.startsWith("#/proyectos")) return { kind: "proyectos" };
+  if (h.startsWith("#/privado")) return { kind: "privado" };
   return { kind: "gabinete" };
 }
 
@@ -97,10 +100,12 @@ export default function App() {
         <a style={LINK_STYLE} href="#/">Gabinete</a>
         <a style={LINK_STYLE} href="#/proyectos">Proyectos</a>
         <a style={LINK_STYLE} href="#/fiesta">Fiesta</a>
+        <a style={LINK_STYLE} href="#/privado">Privado</a>
       </nav>
       {route.kind === "gabinete" && <ElGabinete autoFocus={false} />}
       {route.kind === "fiesta" && <PartyGamesMenu autoFocus={false} />}
       {route.kind === "proyectos" && <ProjectsMenu autoFocus={false} />}
+      {route.kind === "privado" && <PrivateArea />}
     </>
   );
 }
