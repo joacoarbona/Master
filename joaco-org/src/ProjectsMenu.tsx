@@ -59,7 +59,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "tycoon", emoji: "🎮", title: "AI Product Tycoon", description: "Imperio Agéntico — estrategia PMO/IA", color: "c4", href: "#/app/tycoon" },
   { id: "valdecanas", emoji: "⛳", title: "Isla de Valdecañas", description: "Golf 3D multijugador en la isla real", color: "c1", href: "/valdecanas/" },
   { id: "golf-madrid", emoji: "🏌️", title: "Golf en Madrid", description: "Puerta de Hierro y Club de Campo en 3D", color: "c2", href: "/golf-madrid/" },
-  placeholderSlot(1, "c3"),
+  { id: "irpf", emoji: "🧾", title: "IRPF 2016 → 2026", description: "Recaudación y progresividad en frío", color: "c3", href: "/proyectos/irpf-2016-2026.html" },
   placeholderSlot(2, "c4"),
 ];
 
