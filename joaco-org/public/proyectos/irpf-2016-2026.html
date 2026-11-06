@@ -251,6 +251,9 @@ footer{margin-top:24px;font-size:12px;color:var(--muted);text-align:center}
     </div>
     <div class="chart" id="waterfall"></div>
     <div class="tbl" id="wfTable" style="margin-top:8px"></div>
+    <details open style="margin-top:12px"><summary>¿Ha habido subidas de IRPF por ley, además de no deflactar? Desglose de los cambios normativos 2016 → 2026</summary>
+      <div class="tbl" id="normTable" style="margin-top:8px"></div>
+    </details>
     <div class="howto">
       <div><b>Efectos "neutrales"</b>Altas y bajas, crecimiento real e inflación con escala indexada: lo que habría crecido la cuota si los tramos y mínimos se actualizasen con el IPC.</div>
       <div><b>Progresividad en frío</b>Recaudación extra porque los umbrales de la escala, el mínimo personal y los 2.000 € de gastos siguen en euros de 2015 mientras las rentas suben con los precios.</div>
@@ -264,7 +267,7 @@ footer{margin-top:24px;font-size:12px;color:var(--muted);text-align:center}
       <p class="sub">Cuota ÷ renta bruta de un asalariado soltero sin hijos, 40 años, escala autonómica de referencia. Pasa el ratón para comparar; la línea vertical marca "Tu caso".</p>
       <div class="legend" id="rateLegend"></div>
       <div class="chart fluid" id="rates"></div>
-      <p class="small" style="margin:6px 0 0">Lectura: la distancia vertical entre la línea azul y la discontinua es la <b>progresividad en frío</b> en puntos de tipo medio. Por encima de ~25.000 € deflactar la ley 2026 equivale casi exactamente a la ley 2016 actualizada; por debajo, la ley 2026 es más generosa (reducción por trabajo y deducción SMI).</p>
+      <p class="small" style="margin:6px 0 0">Lectura: la distancia vertical entre la línea azul y la discontinua es la <b>progresividad en frío</b> en puntos de tipo medio. La distancia entre la verde (ley 2016 actualizada) y la discontinua (ley 2026 actualizada) son los <b>cambios de ley</b>: por debajo de ~25.000 € la ley 2026 cobra menos (reducción por trabajo y deducción SMI); entre 25.000 y 300.000 € las dos coinciden; por encima de 300.000 € (fuera del gráfico) la de 2026 cobra 2 puntos más.</p>
     </div>
     <div class="card" id="tucaso">
       <h2>Tu caso</h2>
@@ -456,6 +459,10 @@ const IRPF = (() => {
       dedSMI: (rit) => (rit <= 17094 ? 590.89 : rit <= 20048.45 ? 590.89 - 0.2 * (rit - 17094) : 0),
     },
   };
+
+  // Leyes híbridas para desglosar los cambios normativos 2016→2026 (se aplican en orden)
+  LAWS.h1 = { ...LAWS[2016], label: "2016 + tipo 47 % (>300.000 €)", scale: LAWS[2026].scale };
+  LAWS.h2 = { ...LAWS.h1, label: "… + reducción por trabajo 2024", red20: LAWS[2026].red20, red20Max: LAWS[2026].red20Max };
 
   /* ---------- Cotizaciones del trabajador por año de la renta ---------- */
   const SS = {
@@ -813,7 +820,7 @@ const IRPF = (() => {
     const { pop, exits, h } = buildPopT(p, year);
 
     const R16 = OFICIAL_2016.cuotaTotal;
-    let SnoJub = 0, Sreal0 = 0, Sreal = 0, Sidx = 0, Snom16 = 0, S26 = 0, Sdef = 0;
+    let SnoJub = 0, Sreal0 = 0, Sreal = 0, Sidx = 0, Snom16 = 0, S26 = 0, Sdef = 0, SH1 = 0, SH2 = 0;
     const tramoOut = TRAMOS.map(() => ({ n: 0, cuota: 0, cuotaIdx: 0, renta: 0, nIMV: 0 }));
     const grp = {}; // grupos: pens (pensionistas), jub (de ellos, nuevos jubilados), act (asalariados que siguen), jov, inm, otr, imv
     const addG = (k, w, c, g) => { const o = grp[k] || (grp[k] = { n: 0, cuota: 0, renta: 0 }); o.n += w; o.cuota += c; o.renta += g; };
@@ -850,6 +857,10 @@ const IRPF = (() => {
       Snom16 += a.w * k * cNom16;
       S26 += a.w * k * c26;
       Sdef += a.w * k * cDef;
+      if (year === 2026) {
+        SH1 += a.w * k * tax(person, { law: "h1", ssYear }).cuota;
+        SH2 += a.w * k * tax(person, { law: "h2", ssYear }).cuota;
+      }
       if (realNet < 12000) lowCountT += a.w;
       const o = tramoOut[t];
       o.n += a.w; o.cuota += a.w * k * c26; o.cuotaIdx += a.w * k * cDef; o.renta += a.w * a.gross;
@@ -903,7 +914,9 @@ const IRPF = (() => {
     for (const k in grp) grp[k].cuota *= scaleT;
     const censo = pop.reduce((s, a) => s + a.w, 0);
     const adj = (p.ajusteAhorro || 0) * 1e6;
+    const normParts = year === 2026 ? { top47: SH1 - Snom16, red20: SH2 - SH1, dedSMI: S26 - SH2 } : null;
     return {
+      normParts,
       year, pi, idx, h, steps, total: D5 + adj, totalCore: D5, totalDeflactado: D6 + adj, costeDeflactar: D5 - D6,
       censo, tramos: tramoOut, flows, exits, pop, grupos: grp, grupos16: grp16,
     };
@@ -1180,7 +1193,7 @@ if (typeof module !== "undefined") module.exports = IRPF;
     const p50 = pf("p50"), p70 = pf("p70"), p90 = pf("p90"), p30 = pf("p30"), smi = pf("smi"), pm = pf("penmed"), px = pf("penmax");
     const cmp = (v, rv, fmt) => (real ? "" : ` <span class="muted">(Real 2026: ${fmt(rv)})</span>`);
     const paras = [];
-    paras.push(`<b>Recaudación.</b> La cuota del IRPF pasa de 70.495 M€ en 2016 a <b>${fM(s.total)}</b> en 2026 (${fPs(s.total / M.OFICIAL_2016.cuotaTotal - 1)})${cmp(s.total, REF.total, fM)}. De ese aumento, <b>${fM(step("drag", s))}</b> (${fP(step("drag", s) / (s.total - M.OFICIAL_2016.cuotaTotal))}) es <span class="hl">progresividad en frío</span>: recaudación que llega solo porque la escala, el mínimo personal y los gastos deducibles siguen en euros de 2015. Deflactar costaría ${fM(s.costeDeflactar)} al año.`);
+    paras.push(`<b>Recaudación.</b> La cuota del IRPF pasa de 70.495 M€ en 2016 a <b>${fM(s.total)}</b> en 2026 (${fPs(s.total / M.OFICIAL_2016.cuotaTotal - 1)})${cmp(s.total, REF.total, fM)}. De ese aumento, <b>${fM(step("drag", s))}</b> (${fP(step("drag", s) / (s.total - M.OFICIAL_2016.cuotaTotal))}) es <span class="hl">progresividad en frío</span>: recaudación que llega solo porque la escala, el mínimo personal y los gastos deducibles siguen en euros de 2015. Deflactar costaría ${fM(s.costeDeflactar)} al año. Los <b>cambios de ley</b> suman en neto ${fMs(step("norma", s))}: la subida al 47 % por encima de 300.000 € aporta ${fMs(s.normParts.top47)}, mientras la mayor reducción por trabajo (${fMs(s.normParts.red20)}) y la deducción SMI (${fMs(s.normParts.dedSMI)}) restan. Las subidas legisladas del ahorro y de los planes de pensiones quedan fuera del motor.`);
     paras.push(`<b>Quién declara.</b> El censo pasa de 19,62 M a <b>${fMp(s.censo)}</b> declaraciones (${fPs(s.censo / N16 - 1)})${cmp(s.censo, REF.censo, fMp)}. Los <b>pensionistas</b> declarantes pasan de ${fMp(g16.pens.n)} (${fP(g16.pens.n / N16)} del censo) a <b>${fMp(pens.n)}</b> (${fP(pens.n / s.censo)}): ${fMp(g.jub ? g.jub.n : 0)} nuevos jubilados compensan los fallecimientos. Aportan ${fM(pens.cuota)} de cuota (${fE(pens.cuota / pens.n)} por pensionista frente a ${fE(g16.pens.cuota / g16.pens.n)} en 2016), pero las jubilaciones restan <b>${fM(-step("jub", s))}</b> porque la pensión, con tope de 47.034 €, sustituye a salarios más altos.`);
     paras.push(`<b>Nuevos declarantes.</b> La <b>inmigración</b> añade ${fMp(inm.n)} declarantes con una cuota media de <b>${fE(inm.n ? inm.cuota / inm.n : 0)} por nuevo trabajador</b> (${fM(inm.cuota)} en total, ${fP(inm.cuota / s.total)} de la recaudación), frente a una media de ${fE(cuotaMedia)} por declaración${real ? "" : ` <span class="muted">(Real 2026: ${fE(gr.inm.cuota / gr.inm.n)} por trabajador)</span>`}. Los <b>jóvenes</b> entran con ${fE(jov.n ? jov.cuota / jov.n : 0)} de media. Los <b>${fMp(imv.n)} perceptores del IMV</b> y de prestaciones declaran porque la ley les obliga desde 2021, pero su prestación está exenta: suman censo en el tramo más bajo con cuota prácticamente nula y <b>diluyen la cuota media</b>.`);
     paras.push(`<b>Poder adquisitivo.</b> Quien cobra el <b>SMI</b> a jornada completa gana un ${fPs(smi.total)} real. En <b>rentas bajas (P30)</b> el saldo es ${fPs(p30.total)}. En <b>rentas medias</b> (mediana, ${fE(p50.g16)} → ${fE(p50.g26)}) el salario bruto sube ${fPs(p50.brutoReal)} por encima del IPC, pero tras impuestos la renta disponible cambia un <b>${fPs(p50.total)}</b>: el IRPF resta ${fPP(p50.comp.irpf)} (de ellos ${fPP(p50.comp.irpfFrio)} por progresividad en frío)${real ? "" : ` <span class="muted">(Real 2026: ${fPs(pr("p50").total)})</span>`}. En <b>medias-altas (P70)</b> la pérdida es del ${fPs(p70.total)} y en <b>rentas altas (P90)</b> del ${fPs(p90.total)}, con ${fPP(p90.comp.irpfFrio)} de progresividad en frío. La <b>pensión media</b> pierde ${fPs(pm.total)} y la <b>máxima</b> ${fPs(px.total)}, porque la revalorización (${fPs(state.pensiones / 100)}) va por detrás del IPC (${fPs(state.ipc / 100)}).`);
@@ -1289,7 +1302,8 @@ if (typeof module !== "undefined") module.exports = IRPF;
       hit.addEventListener("mousemove", (e) => {
         const rv = REF.steps.find((x) => x.key === b.key).value;
         const share = b.type === "total" ? "" : `<br>${fP(b.value / totalInc)} del aumento total (${fM(totalInc)})`;
-        showTip(e, `<b>${esc(b.label)}</b><br>Escenario: ${b.type === "total" ? fM(b.value) : fMs(b.value)}${share}<br>Real 2026: ${b.type === "total" ? fM(rv) : fMs(rv)}<br><span style="opacity:.8">${STEP_HELP[b.key]}</span>`);
+        const np = b.key === "norma" && s.normParts ? `<br>Subida 47 % (&gt;300.000 €): ${fMs(s.normParts.top47)}<br>Reducción por trabajo: ${fMs(s.normParts.red20)}<br>Deducción SMI: ${fMs(s.normParts.dedSMI)}` : "";
+        showTip(e, `<b>${esc(b.label)}</b><br>Escenario: ${b.type === "total" ? fM(b.value) : fMs(b.value)}${share}<br>Real 2026: ${b.type === "total" ? fM(rv) : fMs(rv)}${np}<br><span style="opacity:.8">${STEP_HELP[b.key]}</span>`);
       });
       hit.addEventListener("mouseleave", hideTip);
     });
@@ -1300,6 +1314,33 @@ if (typeof module !== "undefined") module.exports = IRPF;
       return `<tr><td>${st.label}</td><td class="num sc">${f(st.value)}</td><td class="num">${f(rv)}</td><td class="num">${dM(st.value - rv)}</td></tr>`;
     }).join("");
     $("wfTable").innerHTML = `<table class="cmp"><thead><tr><th>Efecto</th><th>Escenario</th><th>Real 2026</th><th>Diferencia</th></tr></thead><tbody>${rows}</tbody></table>`;
+    renderNorm(s);
+  }
+  function renderNorm(s) {
+    const n = s.normParts, r = REF.normParts;
+    const mod = [
+      ["2021", "Tipo del 47 % para la base general por encima de 300.000 € (+2 puntos)", "Subida", n.top47, r.top47],
+      ["2018 · 2023 · 2024", "Reducción por rendimientos del trabajo: de 3.700 € a 7.302 € y hasta 19.747 € de rendimiento", "Rebaja", n.red20, r.red20],
+      ["2025 · 2026", "Deducción para perceptores del SMI (590,89 € en 2026)", "Rebaja", n.dedSMI, r.dedSMI],
+    ];
+    const tot = n.top47 + n.red20 + n.dedSMI, totR = r.top47 + r.red20 + r.dedSMI;
+    const noMod = [
+      ["2021 · 2023 · 2025", "Base del ahorro: tipo máximo del 23 % al 26 % (> 200.000 €), 27-28 % (2023) y 30 % (> 300.000 €, 2025)", "Subida", "Gobierno: ≈ 491 M€ en 2021-22 junto con el 47 %; en el ajuste de ahorro"],
+      ["2021 · 2022", "Planes de pensiones individuales: límite de aportación deducible de 8.000 € a 2.000 € y luego 1.500 €", "Subida", "Gobierno: ≈ 580 M€ en 2021-22; fuera del motor (queda en el ajuste de ahorro y otros)"],
+      ["2023 · 2024", "Alquiler de vivienda: la reducción general por arrendamiento baja del 60 % al 50 % en contratos nuevos", "Subida", "Sin cuantificar; en el ajuste de ahorro"],
+      ["2021-2025", "Deducciones por eficiencia energética de viviendas y vehículo eléctrico; ampliación de la deducción por maternidad (2023)", "Rebaja", "Sin cuantificar; fuera del motor (resta en el ajuste de ahorro y otros)"],
+      ["2024 · 2025", "Devoluciones a mutualistas (cotizaciones antiguas)", "Rebaja temporal", "AEAT: −1.155 M€ de cambios normativos en 2025, sobre todo por esta medida"],
+      ["2023-2026", "Escalas autonómicas: varias comunidades han deflactado o rebajado su tramo; otras lo han subido", "Mixto", "No modelado (escala autonómica de referencia)"],
+      ["2023-2026", "Cotizaciones del trabajador: MEI (0,10 % → 0,15 %) y cuota de solidaridad desde 2025", "Subida (no es IRPF)", "En la columna Cotizaciones del gráfico 3"],
+    ];
+    const tag = (k) => `<span class="tag ${k === "Subida" ? "mod" : k.startsWith("Rebaja") ? "off" : ""}">${k}</span>`;
+    $("normTable").innerHTML = `<table class="cmp"><thead><tr><th>Año</th><th style="text-align:left">Cambio de ley calculado por el motor</th><th style="text-align:left">Signo</th><th>Escenario</th><th>Real 2026</th></tr></thead><tbody>
+      ${mod.map((m) => `<tr><td>${m[0]}</td><td style="text-align:left;white-space:normal">${m[1]}</td><td style="text-align:left">${tag(m[2])}</td><td class="num sc">${fMs(m[3])}</td><td class="num">${fMs(m[4])}</td></tr>`).join("")}
+      </tbody><tfoot><tr><td></td><td style="text-align:left">Total cambios normativos (barra de la cascada)</td><td></td><td class="num">${fMs(tot)}</td><td class="num">${fMs(totR)}</td></tr></tfoot></table>
+      <table style="margin-top:10px"><thead><tr><th>Año</th><th style="text-align:left">Otros cambios de ley no calculados por el motor</th><th style="text-align:left">Signo</th><th style="text-align:left">Impacto / dónde queda</th></tr></thead><tbody>
+      ${noMod.map((m) => `<tr><td>${m[0]}</td><td style="text-align:left;white-space:normal">${m[1]}</td><td style="text-align:left">${tag(m[2])}</td><td style="text-align:left;white-space:normal" class="muted">${m[3]}</td></tr>`).join("")}
+      </tbody></table>
+      <p class="small" style="margin:8px 0 0"><b>Lectura:</b> sí ha habido subidas de IRPF por ley, pero se concentran en rentas muy altas, en las del ahorro y en los planes de pensiones. Para la gran mayoría de asalariados los cambios de ley han sido rebajas (reducción por trabajo y deducción SMI). Para ellos, la subida de verdad es la <b>progresividad en frío</b>, que no requiere ley: ${fM(s.steps.find((x) => x.key === "drag").value)} frente a ${fMs(tot)} netos de cambios legislados.</p>`;
   }
 
   /* ---------------- 2. Curva de tipo medio ---------------- */
