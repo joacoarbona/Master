@@ -60,7 +60,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "valdecanas", emoji: "⛳", title: "Isla de Valdecañas", description: "Golf 3D multijugador en la isla real", color: "c1", href: "/valdecanas/" },
   { id: "golf-madrid", emoji: "🏌️", title: "Golf en Madrid", description: "Puerta de Hierro y Club de Campo en 3D", color: "c2", href: "/golf-madrid/" },
   { id: "irpf", emoji: "🧾", title: "IRPF 2016 → 2026", description: "Recaudación y progresividad en frío", color: "c3", href: "/proyectos/irpf-2016-2026.html" },
-  placeholderSlot(2, "c4"),
+  { id: "puntocom-ia", emoji: "🫧", title: "Puntocom vs IA", description: "¿Burbuja? Laboratorio con escenarios", color: "c4", href: "/proyectos/puntocom-vs-ia.html" },
 ];
 
 const STYLES = `
