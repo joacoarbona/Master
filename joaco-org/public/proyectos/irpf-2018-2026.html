@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRPF 2018 → 2026 · Recaudación, progresividad en frío y quién paga</title>
+<meta name="description" content="Microsimulación calibrada con datos AEAT: de dónde sale el aumento del IRPF entre 2018 y 2026 y quién lo paga (asalariados, pensionistas, SMI, inmigración, IMV).">
+<style>
+:root{
+  --page:#f6f6f3; --surface:#fcfcfb; --card:#ffffff;
+  --ink:#0b0b0b; --ink2:#52514e; --muted:#77756f;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --pos:#2a78d6; --neg:#e34948; --tot:#52514e; --exit:#b9b7ae;
+  --accent:#2a78d6; --accent-soft:#eaf2fc; --note:#fff8e8; --note-b:#f3dfae;
+  --good:#006300; --bad:#b4302f;
+  --r:14px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink);font-size:14px;line-height:1.5}
+a{color:var(--accent)}
+.wrap{max-width:1360px;margin:0 auto;padding:20px 20px 60px}
+header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:600;color:var(--ink2);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px 10px}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--s3)}
+h1{font-size:28px;line-height:1.15;margin:10px 0 6px;letter-spacing:-.01em}
+.lede{color:var(--ink2);max-width:820px;margin:0}
+.toplinks{display:flex;gap:8px;flex-wrap:wrap}
+.btn{appearance:none;border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:#f0efea}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:hover{background:#2b2b2a}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.card h2{font-size:18px;margin:0 0 4px;letter-spacing:-.005em}
+.card .sub{color:var(--ink2);margin:0 0 14px;font-size:13px}
+.intro{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-bottom:18px}
+.intro ol{margin:8px 0 0;padding-left:20px}
+.intro li{margin:4px 0}
+.callout{background:var(--note);border:1px solid var(--note-b);border-radius:12px;padding:12px 14px;font-size:13px}
+.callout b{font-weight:700}
+.layout{display:grid;grid-template-columns:330px 1fr;gap:18px;align-items:start}
+aside.panel{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
+.panel .card{padding:16px}
+.panel h3{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin:16px 0 8px}
+.panel h3:first-of-type{margin-top:4px}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.preset{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:7px 8px;font:inherit;font-size:12px;font-weight:600;text-align:left;cursor:pointer;color:var(--ink)}
+.preset:hover{background:#f0efea}
+.preset[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:#0f3f7a}
+.preset-read{margin-top:8px;font-size:12px;color:var(--ink2);background:var(--surface);border:1px dashed var(--grid);border-radius:10px;padding:8px 10px}
+.ctl{margin:10px 0 12px}
+.ctl .row{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:600}
+.ctl .val{font-variant-numeric:tabular-nums;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0 6px;white-space:nowrap}
+.ctl .val.changed{background:var(--accent-soft);border-color:var(--accent)}
+.ctl input[type=range]{width:100%;accent-color:var(--ink);margin:4px 0 0}
+.ctl .help{font-size:11.5px;color:var(--muted);line-height:1.35}
+.panel .foot{display:flex;gap:6px;margin-top:10px}
+.net{font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-top:6px}
+main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.layout>*,.two>*,.intro>*,.kpis>*{min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.kpi .l{font-size:12px;color:var(--ink2);font-weight:600}
+.kpi .v{font-size:26px;font-weight:650;letter-spacing:-.01em;margin-top:2px}
+.kpi .d{font-size:12px;color:var(--ink2)}
+.kpi .d b{color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink2);margin:0 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.sw.line{height:3px;border-radius:2px;width:16px}
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto;min-width:680px}
+.chart.fluid svg{min-width:0}
+.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.howto div{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--ink2)}
+.howto b{color:var(--ink);display:block;margin-bottom:2px}
+.two{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:11.5px;color:var(--ink2);font-weight:650;background:var(--surface);position:sticky;top:0}
+tbody tr:hover{background:#fafaf7}
+tfoot td{font-weight:700;border-top:2px solid var(--axis);border-bottom:none}
+.num{font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+.muted{color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:650;border-radius:6px;padding:1px 6px;background:#f0efea;color:var(--ink2)}
+.tag.off{background:#e8f1fc;color:#0f3f7a}
+.tag.mod{background:#fdf0e9;color:#8a3a14}
+.tag.est{background:#fff4d6;color:#6b4a00}
+.calc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px;margin-bottom:10px}
+.calc label{font-size:12px;font-weight:600;color:var(--ink2);display:flex;flex-direction:column;gap:4px}
+.calc input,.calc select{width:100%;min-width:0;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--axis);border-radius:8px;background:#fff;color:var(--ink)}
+.calc .chk{flex-direction:row;align-items:center;grid-column:1/-1;font-weight:500}
+.calc .chk input{width:auto}
+.res td{white-space:normal}
+.res td:first-child{color:var(--ink2)}
+.proto{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.pc{border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.pc h4{margin:0;font-size:14px}
+.pc .role{font-size:12px;color:var(--ink2)}
+.pc .story{font-size:12.5px;color:var(--ink2);margin:0}
+.pc .head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.pc .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:auto}
+.pc .grid div{background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
+.pc .grid .k{font-size:11px;color:var(--muted);line-height:1.2}
+.pc .grid .v{font-size:12.5px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pc .flow{font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;background:#f0efea;color:var(--ink2);white-space:nowrap}
+.pill.down{background:#fdecec;color:#8f2322}
+.pill.up{background:#e8f1fc;color:#0f3f7a}
+.pill.new{background:#e5f6ef;color:#0b5d3f}
+dl.gloss{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 20px;margin:0}
+dl.gloss div{border-bottom:1px solid var(--grid);padding-bottom:8px}
+dl.gloss dt{font-weight:700;font-size:13px}
+dl.gloss dd{margin:2px 0 0;color:var(--ink2);font-size:12.5px}
+.guide{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.guide div{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--surface);font-size:12.5px;color:var(--ink2)}
+.guide b{display:block;color:var(--ink);font-size:13px;margin-bottom:4px}
+.guide .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-bottom:6px}
+.sources li{margin:4px 0;font-size:12.5px}
+details{border:1px solid var(--border);border-radius:10px;padding:8px 12px;background:var(--surface);margin-top:10px}
+details summary{cursor:pointer;font-weight:650;font-size:13px}
+#tooltip{position:fixed;pointer-events:none;z-index:50;background:#141413;color:#fff;font-size:12px;line-height:1.45;padding:9px 11px;border-radius:9px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.18);display:none}
+#tooltip b{font-weight:700}
+#tooltip .tk{display:block}
+#tooltip .tk .sw{vertical-align:-1px;margin-right:6px}
+#tooltip .sw{width:10px;height:10px}
+.anchors{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.anchors > div{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.anchors .l{font-size:11.5px;color:var(--ink2);font-weight:600}
+.anchors .v{font-size:17px;font-weight:650;font-variant-numeric:tabular-nums}
+.anchors .s{font-size:11px;color:var(--muted)}
+.fitbadge{font-size:12px;font-weight:700;border-radius:8px;padding:3px 8px}
+.fit-ok{background:#e5f6ef;color:#0b5d3f}.fit-mid{background:#fff4d6;color:#6b4a00}.fit-bad{background:#fdecec;color:#8f2322}
+.small{font-size:12px;color:var(--ink2)}
+
+.summary p{margin:0 0 10px;font-size:13.5px;line-height:1.6}
+.summary p:last-child{margin-bottom:0}
+.summary b{font-weight:700}
+.summary .hl{background:#fff4d6;border-radius:4px;padding:0 3px}
+.realbar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.realbar > div{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.realbar .l{font-size:11.5px;color:var(--ink2);font-weight:600}
+.realbar .v{font-size:16px;font-weight:650;font-variant-numeric:tabular-nums}
+.realbar .s{font-size:11px;color:var(--muted)}
+.kpi .r{font-size:12px;color:var(--ink2);margin-top:6px;padding-top:6px;border-top:1px dashed var(--grid)}
+.kpi .r b{color:var(--ink)}
+.delta-up{color:#0f3f7a;font-weight:700}.delta-down{color:#8f2322;font-weight:700}.delta-0{color:var(--muted)}
+.cmp td.sc{background:#f3f7fd}
+tr.sub td{font-size:11.5px;color:var(--ink2);background:#fbfbf8}
+tr.sub td:first-child{padding-left:22px}
+.badge-real{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:650;background:#f0efea;border-radius:999px;padding:3px 10px;color:var(--ink2)}
+.badge-real.diff{background:var(--accent-soft);color:#0f3f7a}
+footer{margin-top:24px;font-size:12px;color:var(--muted);text-align:center}
+@media (max-width:1100px){
+  .layout{grid-template-columns:1fr}
+  aside.panel{position:static;max-height:none}
+  .two,.intro{grid-template-columns:1fr}
+  .guide{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:700px){
+  .kpis,.realbar{grid-template-columns:repeat(2,1fr)}
+  .howto,.anchors{grid-template-columns:1fr}
+  dl.gloss,.guide{grid-template-columns:1fr}
+  h1{font-size:23px}
+}
+@media print{aside.panel{position:static}.btn{display:none}}
+</style>
+</head>
+<body>
+<div id="tooltip" role="tooltip"></div>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <span class="eyebrow"><span class="dot"></span> Microsimulación calibrada con estadística AEAT · régimen común</span>
+    <h1>IRPF 2018 → 2026: ¿de dónde sale el aumento de la recaudación y quién lo paga?</h1>
+    <p class="lede">Descompone el salto de la cuota del IRPF entre 2018 y 2026 en sus causas —más declarantes, jubilaciones, salarios reales, inflación, <b>progresividad en frío</b> y cambios de ley— y reparte la progresividad en frío entre asalariados, pensionistas y nuevos declarantes (jóvenes, inmigración, IMV). Usa un motor de cálculo del impuesto real para cada año y una población sintética que reproduce los tramos de la Agencia Tributaria de 2018.</p>
+  </div>
+  <nav class="toplinks">
+    <a class="btn" href="#guia">Guía de uso</a>
+    <a class="btn" href="#metodo">Metodología</a>
+    <a class="btn" href="#glosario">Glosario</a>
+    <a class="btn" href="#fuentes">Fuentes</a>
+  </nav>
+</header>
+
+<section class="intro">
+  <div class="card">
+    <h2>Qué responde esta herramienta</h2>
+    <p class="sub" style="margin-bottom:6px">La recaudación de caja del IRPF pasó de <b>82.859 M€ en 2018</b> a <b>142.466 M€ en 2025</b> (+71,9 %), mientras los precios subían un 22,5 % y el número de declaraciones un 19,5 % (2018-2024). ¿Cuánto de ese aumento es crecimiento "neutral" y cuánto es una subida de impuestos no legislada?</p>
+    <ol>
+      <li><b>Resumen:</b> lectura en texto del escenario y su diferencia frente al <b>Real 2026</b>.</li>
+      <li><b>Cascada (gráfico 1):</b> separa el aumento de la cuota en efectos sumables, siempre comparados con el Real 2026.</li>
+      <li><b>Quién paga (sección 2):</b> progresividad en frío por grupo (asalariados, pensionistas, jóvenes, inmigración, IMV), aportación fiscal del SMI frente a otros perfiles y datos oficiales de contraste.</li>
+      <li><b>Tipo medio por renta (gráfico 3) y "Tu caso":</b> cuánto pagas hoy frente a una escala que se hubiera actualizado con el IPC.</li>
+      <li><b>Poder adquisitivo (gráfico 4):</b> cuánto ha ganado o perdido cada nivel de renta, separando salario, cotizaciones, IRPF e impuestos indirectos.</li>
+      <li><b>Flujos (gráfico 5):</b> quién sube de tramo, quién cae al jubilarse, quién entra (incluidos los perceptores del IMV) y quién sale.</li>
+      <li><b>Validación:</b> el modelo se ejecuta para 2023 y 2024 y se compara con los datos oficiales, para que veas cuánto fiarte de él.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h2>Cómo leerlo en 30 segundos</h2>
+    <div class="callout" style="margin-top:8px">
+      Todo lo que ves en azul/naranja/verde es <b>resultado del escenario</b> que eliges en el panel izquierdo. Los datos con la etiqueta <span class="tag off">oficial</span> son fijos (AEAT, INE, BOE); los de <span class="tag mod">modelo</span> se recalculan; los de <span class="tag est">estimación</span> son supuestos documentados.
+    </div>
+    <p class="small" style="margin:10px 0 0">El escenario <b>Real 2026</b> reproduce los datos observados a noviembre de 2026 (IRPF de caja enero-agosto +11,6 %, salario medio +3,4 %, IPC de octubre 4,9 %, SMI 17.094 €, pensión máxima 47.034 €). Cuando mueves un control, todos los bloques muestran el escenario <b>frente al Real 2026</b> y la diferencia. Los demás escenarios responden a <i>"¿qué habría pasado si…?"</i>; debajo de cada uno se explica cómo leerlo.</p>
+  </div>
+</section>
+
+<div class="layout">
+<aside class="panel" aria-label="Parámetros del escenario">
+  <div class="card">
+    <h3>Escenarios</h3>
+    <div class="presets" id="presets"></div>
+    <div class="preset-read" id="presetRead"></div>
+    <div id="controls"></div>
+    <div class="net" id="netCenso"></div>
+    <div class="foot">
+      <button class="btn" id="btnReset" type="button">↺ Volver al Real 2026</button>
+    </div>
+  </div>
+</aside>
+
+<main>
+  <section class="card summary" id="resumen">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+      <h2>Resumen</h2><span class="badge-real" id="realBadge"></span>
+    </div>
+    <div id="summaryText" aria-live="polite"></div>
+  </section>
+  <section class="card" id="real2026">
+    <h2>Datos reales de 2026 que fijan la referencia</h2>
+    <p class="sub">Observados a noviembre de 2026. La referencia "Real 2026" del modelo está calibrada con ellos; cuando cambias parámetros, todo se compara contra ella.</p>
+    <div class="realbar" id="realBar"></div>
+  </section>
+  <section class="kpis" id="kpis" aria-live="polite"></section>
+
+  <section class="card" id="cascada">
+    <h2>1 · ¿De dónde sale el aumento de la cuota del IRPF? (2018 → 2026)</h2>
+    <p class="sub">Cuota resultante de la autoliquidación, en millones de euros. Cada barra flotante es un efecto; se suman en el orden indicado desde la cuota oficial de 2018 hasta la de 2026. La línea negra horizontal sobre la última barra marca el <b>Real 2026</b>; la tabla de debajo compara cada efecto con él.</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--tot)"></i>Nivel total (punto de partida y llegada)</span>
+      <span><i class="sw" style="background:var(--pos)"></i>Efecto que aumenta la cuota</span>
+      <span><i class="sw" style="background:var(--neg)"></i>Efecto que reduce la cuota</span>
+      <span><i class="sw line" style="background:#0b0b0b"></i>Real 2026 (referencia)</span>
+    </div>
+    <div class="chart" id="waterfall"></div>
+    <div class="tbl" id="wfTable" style="margin-top:8px"></div>
+    <details open style="margin-top:12px"><summary>¿Ha habido subidas de IRPF por ley, además de no deflactar? Desglose de los cambios normativos 2018 → 2026</summary>
+      <div class="tbl" id="normTable" style="margin-top:8px"></div>
+    </details>
+    <div class="howto">
+      <div><b>Efectos "neutrales"</b>Altas y bajas, crecimiento real e inflación con escala indexada: lo que habría crecido la cuota si los tramos y mínimos se actualizasen con el IPC.</div>
+      <div><b>Progresividad en frío</b>Recaudación extra porque los umbrales de la escala, el mínimo personal y los 2.000 € de gastos siguen en euros de 2015 mientras las rentas suben con los precios.</div>
+      <div><b>Cambios normativos y ahorro</b>Rebaja de julio de 2018 en año completo, subidas de la reducción por trabajo (2023, 2024), deducción SMI (2025-26), 47 % sobre 300.000 € (2021). La barra de ahorro y ganancias cuadra el modelo con la cuota real estimada de 2026.</div>
+    </div>
+  </section>
+
+  <section class="card" id="quienpaga">
+    <h2>2 · ¿Quién paga la progresividad en frío? Asalariados, pensionistas, SMI, inmigración e IMV</h2>
+    <p class="sub">Reparte la barra de progresividad en frío de la cascada entre los declarantes de 2026 según de dónde vienen: quienes ya declaraban en 2018 (asalariados y pensionistas), los que se han jubilado desde entonces y las altas del periodo. La columna de la derecha da la cifra por persona y su peso en el total.</p>
+    <div class="legend" id="grpLegend"></div>
+    <div class="chart" id="grpChart"></div>
+    <div class="tbl" id="grpTable" style="margin-top:8px"></div>
+    <h3 style="margin:18px 0 4px">Aportación fiscal anual por perfil (2026)</h3>
+    <p class="sub">Lo que paga al año una persona sola de cada perfil: IRPF, impuestos indirectos estimados y cotizaciones del trabajador y de la empresa. La línea discontinua marca el gasto sanitario público medio por habitante, solo como orden de magnitud. Pasa el ratón para ver 2018 frente a 2026.</p>
+    <div class="legend" id="aportLegend"></div>
+    <div class="chart" id="aportChart"></div>
+    <div class="tbl" id="aportTable" style="margin-top:8px"></div>
+    <h3 style="margin:18px 0 8px">Datos oficiales de contraste</h3>
+    <div class="anchors" id="contraste"></div>
+    <h3 style="margin:18px 0 4px">La hipótesis, punto por punto</h3>
+    <div class="callout small" id="hipotesis"></div>
+  </section>
+
+  <section class="two">
+    <div class="card">
+      <h2>3 · Tipo medio efectivo según renta bruta (2026)</h2>
+      <p class="sub">Cuota ÷ renta bruta de un asalariado soltero sin hijos, 40 años, escala autonómica de referencia. Pasa el ratón para comparar; la línea vertical marca "Tu caso".</p>
+      <div class="legend" id="rateLegend"></div>
+      <div class="chart fluid" id="rates"></div>
+      <p class="small" style="margin:6px 0 0">Lectura: la distancia vertical entre la línea azul y la discontinua es la <b>progresividad en frío</b> en puntos de tipo medio. La distancia entre la verde (ley 2018 actualizada) y la discontinua (ley 2026 actualizada) son los <b>cambios de ley</b>: por debajo de ~25.000 € la ley 2026 cobra menos (reducción por trabajo y deducción SMI); entre 25.000 y 300.000 € las dos coinciden; por encima de 300.000 € (fuera del gráfico) la de 2026 cobra 2 puntos más.</p>
+    </div>
+    <div class="card" id="tucaso">
+      <h2>Tu caso</h2>
+      <p class="sub">Cálculo individual exacto con la normativa de cada año, frente al Real 2026.</p>
+      <div class="calc">
+        <label>Situación<select id="cType"><option value="worker">Asalariado/a</option><option value="pensioner">Pensionista</option></select></label>
+        <label>Edad en 2026<input id="cAge" type="number" min="18" max="100" value="45"></label>
+        <label>Bruto anual 2018 (€)<input id="cG16" type="number" min="0" step="500" value="30000"></label>
+        <label>Bruto anual 2026 (€)<input id="cG26" type="number" min="0" step="500" value="41100"></label>
+        <label class="chk"><input id="cAuto" type="checkbox" checked> Calcular el bruto 2026 con la subida salarial del escenario</label>
+      </div>
+      <table class="res" id="calcOut"></table>
+    </div>
+  </section>
+
+  <section class="card" id="poder">
+    <h2>4 · Poder adquisitivo 2018 → 2026 por nivel de renta</h2>
+    <p class="sub">Variación de la renta disponible real (tras cotizaciones, IRPF e inflación) de una persona que se mantiene en el mismo percentil salarial (EPA) o pensión, en % de su renta neta de 2018. Las barras separan de dónde viene: a la derecha lo que suma, a la izquierda lo que resta. El punto negro es el total del escenario; el círculo hueco, el Real 2026.</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--s1)"></i>Salario o pensión bruta, en términos reales</span>
+      <span><i class="sw" style="background:var(--s2)"></i>Cotizaciones del trabajador (MEI, solidaridad)</span>
+      <span><i class="sw" style="background:var(--s3)"></i>IRPF (progresividad en frío + cambios de ley)</span>
+      <span><i class="sw" style="background:var(--s4)"></i>Impuestos indirectos dentro del IPC y otros tributos</span>
+      <span><i class="sw" style="background:#0b0b0b;border-radius:50%"></i>Total escenario</span>
+      <span><i class="sw" style="background:transparent;border:2px solid #0b0b0b;border-radius:50%"></i>Total Real 2026</span>
+    </div>
+    <div class="chart" id="poderChart"></div>
+    <div class="tbl" id="poderTable" style="margin-top:8px"></div>
+    <div class="callout" style="margin-top:12px"><b>Cómo leerlo.</b> "Salario bruto real" positivo significa que el sueldo subió más que el IPC. Si aun así el total es negativo, la pérdida viene de los impuestos: sobre todo del IRPF, porque la escala y el mínimo personal no se han actualizado desde 2015 (y tampoco desde 2018). El IPC ya incluye el IVA y los impuestos especiales; el control "IPC fiscal" solo separa qué parte de la inflación se debe a ellos. "Otros tributos" son cargas que el IPC no recoge (IBI, tasa de residuos…), en euros al año, por eso pesan más en las rentas bajas.</div>
+  </section>
+
+  <section class="card" id="flujos">
+    <h2>5 · Flujos de declarantes por tramo de renta (2018 → 2026)</h2>
+    <p class="sub">Izquierda: declarantes de 2018 por tramo (dato oficial) y altas del periodo 2018-2026. Derecha: declarantes de 2026 por tramo (modelo) y bajas. El grosor de cada banda es proporcional al número de personas. Los tramos son nominales, como en la estadística AEAT: subir de tramo no implica ganar más en términos reales.</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--s1)"></i>Permanece en su tramo</span>
+      <span><i class="sw" style="background:var(--s2)"></i>Sube de tramo</span>
+      <span><i class="sw" style="background:var(--s4)"></i>Baja de tramo (sobre todo por jubilación)</span>
+      <span><i class="sw" style="background:var(--s3)"></i>Nueva alta (jóvenes, inmigración, IMV, otras)</span>
+      <span><i class="sw" style="background:var(--exit)"></i>Baja censal (fallecimiento, emigración)</span>
+    </div>
+    <div class="chart" id="sankey"></div>
+    <details><summary>Ver los flujos en tabla</summary><div class="tbl" id="flowTable"></div></details>
+  </section>
+
+  <section class="card" id="tramos">
+    <h2>6 · Conciliación por tramo: escenario frente al Real 2026</h2>
+    <p class="sub">Censo y cuota por tramo de la estadística AEAT (rendimientos netos ya reducidos e imputaciones de renta, en euros nominales). La columna "2026 deflactada" aplica la ley 2026 con la escala, el mínimo personal y los gastos de 2.000 € actualizados con el IPC según el control "Deflactación".</p>
+    <div class="tbl" id="tramoTable"></div>
+  </section>
+
+  <section class="card" id="prototipos">
+    <h2>7 · Doce prototipos: cómo le ha ido a cada perfil</h2>
+    <p class="sub">Cálculo individual exacto (soltero, sin hijos, sin factor de calibración). <b>Prog. en frío</b> = cuota 2026 − cuota 2026 con escala deflactada. <b>Absorción</b> = parte de la subida del bruto que se va en IRPF. <b>Poder de compra</b> = variación de la renta neta tras IRPF y cotizaciones, descontado el IPC. Las cifras siguen a los controles del panel.</p>
+    <div class="proto" id="protoGrid"></div>
+  </section>
+
+  <section class="card" id="validacion">
+    <h2>8 · Validación: el modelo frente a los datos oficiales</h2>
+    <p class="sub">Con tus supuestos de comportamiento (progresión, jubilaciones, altas y bajas) y los datos macro reales de cada año, el modelo arranca en 2018, se ejecuta para 2023 y 2024 y se compara con la estadística de declarantes de la AEAT. Si mueves los controles demográficos a valores extremos, verás cómo empeora el ajuste. La cuota se compara sin el ajuste de ahorro y ganancias, que el modelo no calcula.</p>
+    <div class="anchors" id="anchors"></div>
+    <div style="height:14px"></div>
+    <div class="legend" id="censoLegend"></div>
+    <div class="chart" id="censoChart"></div>
+    <div class="two" style="margin-top:10px">
+      <div class="tbl" id="val2023"></div>
+      <div class="tbl" id="val2024"></div>
+    </div>
+  </section>
+
+  <section class="card" id="guia">
+    <h2>Guía de uso</h2>
+    <p class="sub">Cuatro pasos para sacarle partido.</p>
+    <div class="guide">
+      <div><span class="n">1</span><b>Elige un escenario</b>Empieza en <i>Real 2026</i>. Luego prueba <i>Salarios = IPC</i> para ver qué parte del aumento es pura inflación, o <i>Sin inmigración</i> para aislar el efecto de las altas (sección 2). Todo se compara con el Real 2026.</div>
+      <div><span class="n">2</span><b>Lee la cascada de izquierda a derecha</b>Cada barra responde a "¿cuánto cambia la cuota si añado este efecto a los anteriores?". El orden importa poco en los totales, pero algo en el reparto.</div>
+      <div><span class="n">3</span><b>Baja al detalle</b>En "Tu caso" introduce tu sueldo de 2018 y el actual. La fila <i>Progresividad en frío</i> es lo que pagas de más por no haberse actualizado la escala.</div>
+      <div><span class="n">4</span><b>Comprueba la fiabilidad</b>En Validación mira el error frente a 2023 y 2024. Un ajuste dentro de ±15 % por grupo es razonable para un modelo de este tamaño.</div>
+    </div>
+    <details open><summary>Cómo leer los escenarios e hipótesis</summary>
+      <div class="small" style="margin-top:8px">
+        <p><b>Salarios por nivel.</b> Hay tres subidas separadas porque no han crecido igual: los <i>bajos</i> (P30) empujados por el SMI (+66 % desde 2018), los <i>medios</i> (mediana a P70) con los convenios, y los <i>altos</i> (P90+). Datos EPA 2018-2024: P30 +25,5 %, mediana +21,9 %, P70 +21,6 %, frente a un IPC del +19,3 %. La <i>progresión individual</i> añade lo que gana quien acumula antigüedad (más al principio de la carrera). El <i>IPC acumulado</i> casi no cambia lo que se recauda: cambia cuánto del aumento es "neutral" y cuánto es progresividad en frío y pérdida de poder adquisitivo.</p>
+        <p><b>Demografía.</b> Altas menos bajas da el censo neto (abajo del panel). Con los valores del Real 2026 el censo 2024 cuadra con el oficial (24,63 M). Los perceptores del <b>IMV</b> están obligados a declarar desde 2021 aunque su prestación está exenta: entran en el tramo más bajo con cuota cero. Las jubilaciones reducen la cuota: la pensión sustituye al 80 % del salario, con el tope de la pensión máxima.</p>
+        <p><b>Recaudación y política fiscal.</b> "Ahorro y ganancias" es la cuota que el modelo no calcula (intereses, dividendos, plusvalías, actividades); está fijada para que el Real 2026 cuadre con la cuota estimada a partir de la caja real. "Deflactación" no altera la recaudación: alimenta el contrafactual "¿cuánto se recaudaría si la escala se hubiera actualizado con el X % del IPC?".</p>
+        <p><b>Poder adquisitivo.</b> "IPC fiscal" reparte la inflación entre precios e impuestos indirectos (IVA, especiales) sin cambiar el total. "Otros tributos" añade cargas que el IPC no mide, en euros al año por persona.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="card" id="metodo">
+    <h2>Metodología, supuestos y limitaciones</h2>
+    <div class="two">
+      <div class="small">
+        <p><b>1. Motor del impuesto.</b> Para cada año (2018, 2023, 2024, 2026) se codifica la ley: cotizaciones del trabajador (6,35 % en 2018; 6,50 % con MEI y cuota de solidaridad en 2026), gastos deducibles de 2.000 €, reducción por rendimientos del trabajo (art. 20 LIRPF: en 2018, la de 2015 más la mitad de la subida de julio de 2018; después 5.565 €, 6.498 € y 7.302 €; medida sobre el rendimiento neto previo, sin restar los 2.000 € de otros gastos), mínimo personal (5.550 €, +1.150 € desde 65 años, +1.400 € desde 75), escala general estatal + autonómica de referencia (19-45 %, 47 % por encima de 300.000 € desde 2021) y deducción para perceptores del SMI (590,89 € en 2026).</p>
+        <p><b>2. Población 2018.</b> 20,61 millones de declaraciones repartidas en los seis tramos oficiales de la AEAT de 2018, que clasifican por rendimientos netos <i>después</i> de la reducción por trabajo; dentro de cada tramo, 24 puntos de una lognormal (Pareto en la cola alta) separando asalariados y pensionistas (5,6 M, hipótesis), y la renta bruta se obtiene invirtiendo el motor.</p>
+        <p><b>3. Calibración.</b> Un factor estructural <i>k</i> por tramo (0,17 en el tramo más bajo; 0,66-0,94 en el resto) iguala la cuota del motor a la cuota oficial de 2018 (81.372 M€). Recoge lo que el motor no ve: declaraciones conjuntas, mínimos por descendientes, deducciones, escalas autonómicas reales y rentas del ahorro. Se mantiene constante en términos reales.</p>
+        <p><b>4. Evolución a 2026.</b> Cada asalariado de 2018 sube según su percentil salarial (SMI, P30, mediana-P70, P90+, datos EPA 2018), más una progresión individual con dispersión. Bajas (70 % pensionistas), jubilaciones (pensión = 80 % del salario, con tope), revalorización de pensiones y cuatro grupos de altas: jóvenes, inmigración (renta ≈ 1,2 × SMI), IMV y prestaciones (renta sujeta casi nula) y otras.</p>
+        <p><b>5. Descomposición.</b> Secuencial: (a) altas y bajas a renta real de 2018; (b) jubilaciones; (c) crecimiento real; (d) inflación con la ley 2018 indexada al IPC; (e) progresividad en frío = ley 2018 sin indexar − indexada; (f) cambios normativos = ley 2026 − ley 2018, desglosados con leyes intermedias; (g) ahorro y ganancias no modelados, fijado para cuadrar con la cuota real estimada de 2026 (caja enero-agosto +11,6 %). Los efectos (e) y (f) se calculan persona a persona, lo que permite repartirlos por grupo en la sección 2.</p>
+        <p><b>6. Poder adquisitivo y aportación.</b> Para cada percentil se calcula la renta disponible 2018 y 2026 con el motor y se descuenta el IPC. La aportación fiscal suma IRPF, cotizaciones del trabajador y de la empresa e impuestos indirectos estimados (14 % del gasto); es orientativa y no es un saldo fiscal completo.</p>
+      </div>
+      <div>
+        <div class="tbl" id="hypTable"></div>
+        <div class="callout" style="margin-top:12px"><b>Limitaciones.</b> No calcula la base del ahorro (dividendos, intereses, ganancias), las actividades económicas ni escalas autonómicas concretas: en 2018 quedan en el factor <i>k</i> y en 2026 en el ajuste de ahorro y ganancias. Es cuota devengada, no caja. El total de 2018 y el censo por tramo son oficiales; el reparto de la cuota por tramo es una estimación con la estructura de 2016. La cuota real 2026 es una estimación: caja 2025 × (1 + 11,6 %) × 0,976 (relación cuota/caja de 2023). Los percentiles EPA miden salarios mensuales del empleo principal, no la renta declarada. Los pensionistas declarantes de 2018 y el origen de las altas son hipótesis (la AEAT no publica declarantes por condición de pensionista ni por país de nacimiento; sí por nacionalidad). Como <i>k</i> es muy bajo en los tramos inferiores, el motor mide a la baja las rebajas concentradas allí: tómalo como cota baja. La "aportación fiscal" no es un saldo fiscal: no imputa pensiones, educación, desempleo ni bienes públicos.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="glosario">
+    <h2>Glosario</h2>
+    <dl class="gloss" id="gloss"></dl>
+  </section>
+
+  <section class="card" id="fuentes">
+    <h2>Fuentes</h2>
+    <ul class="sources">
+      <li>AEAT, <a href="https://sede.agenciatributaria.gob.es/Sede/datosabiertos/catalogo/hacienda/Estadistica_de_los_declarantes_del_IRPF.shtml" target="_blank" rel="noopener">Estadística de los declarantes del IRPF</a>: ejercicio 2018 (20.608.731 declaraciones por tramo; cuota resultante 81.371,8 M€; extranjeros 3.278,8 M€), 2022 (22,90 M), 2023 (23.987.211 declaraciones, 1.980.337 de extranjeros; cuota 117.674 M€) y 2024 (declaraciones por tramo).</li>
+      <li>Hacienda, <a href="https://www.hacienda.gob.es/SGT/Tributos/estadisticas/irpf/2019/libro-irpf-2019.pdf" target="_blank" rel="noopener">El IRPF en 2019</a> (20.608.731 declaraciones en 2018); IRPF de caja 2018: 82.859 M€.</li>
+      <li>Libre Mercado, con datos AEAT: los extranjeros aportaron el <a href="https://www.libertaddigital.com/libremercado/2026-04-30/los-extranjeros-aportan-solo-el-5-25-por-ciento-del-irpf-pese-a-representar-el-13-2-por-ciento-de-la-poblacion-1b-7395715/" target="_blank" rel="noopener">5,25 % de la cuota en 2023</a> (6.177 M€) y el <a href="https://www.libertaddigital.com/libremercado/2026-07-08/los-extranjeros-aportan-solo-el-5-19-por-ciento-del-irpf-pese-a-ser-el-14-por-ciento-de-la-poblacion-7430029/" target="_blank" rel="noopener">5,19 % en 2024</a> (6.894 M€).</li>
+      <li>AEAT, <a href="https://sede.agenciatributaria.gob.es/Sede/estadisticas/recaudacion-tributaria/informe-anual/ejercicio-2025/resumen.html" target="_blank" rel="noopener">Informe anual de recaudación tributaria 2025</a> (IRPF de caja 142.466 M€) e informes mensuales de 2026: IRPF enero-agosto 109.995 M€ (+11,6 %).</li>
+      <li>INE, <a href="https://www.ine.es/prensa/epa_2018_d.pdf" target="_blank" rel="noopener">Decil de salarios del empleo principal (EPA) 2018</a>: P30 1.260,9, mediana 1.642,3, P70 2.187,2 y P90 3.441,9 €/mes; <a href="https://ine.es/dyngs/Prensa/dsEPA2024.htm" target="_blank" rel="noopener">2024</a>: mediana 2.001,4, P30 1.582,2, P70 2.659,8.</li>
+      <li>INE, IPC base 2016 (2018 = 103,7) y base 2021; <a href="https://www.ine.es/dyngs/Prensa/IPC0926.htm" target="_blank" rel="noopener">IPC septiembre 2026</a> e indicador adelantado de octubre.</li>
+      <li>INE, Estadística Continua de Población: 10.004.581 residentes nacidos en el extranjero a 1 de enero de 2026; Anuario CIDOB de la Inmigración 2018: 6,2 M nacidos fuera a 1 de enero de 2018.</li>
+      <li>Seguridad Social: afiliados extranjeros 1.992.849 (diciembre 2018) y 3.135.003 (diciembre 2025); pensiones contributivas 9,57 M (2018) y 10,50 M (junio 2026); <a href="https://revista.seg-social.es/-/el-ingreso-m%C3%ADnimo-vital-llega-en-junio-a-m%C3%A1s-de-2.6-millones-de-personas-que-residen-en-860.458-hogares" target="_blank" rel="noopener">IMV junio 2026</a>: 860.458 hogares.</li>
+      <li>EPA (INE) vía Adecco: 3,52 M de ocupados de nacionalidad extranjera en septiembre de 2025 (16 %) y 6 % con doble nacionalidad; 2,2 M en el 2.º trimestre de 2018.</li>
+      <li>IMSERSO: pensiones no contributivas 451.780 (diciembre 2018) y 449.841 (agosto 2023).</li>
+      <li>Ministerio de Sanidad, Estadística de Gasto Sanitario Público: 1.522 € por habitante en 2018 y <a href="https://www.sanidad.gob.es/gabinete/notasPrensa.do?id=6908" target="_blank" rel="noopener">2.084 € en 2024</a>.</li>
+      <li>Impacto fiscal de la inmigración: OCDE, International Migration Outlook 2021 (−0,15 % del PIB en 2006-2018, positivo en 2016-2018), según <a href="https://es.ara.cat/opinion/inmigracion-bienestar-impacto-minimo_129_5590595.html" target="_blank" rel="noopener">Ara (2025)</a>; <a href="https://fundaciondisenso.org/wp-content/uploads/2026/06/20260623_InformeXXIX.pdf" target="_blank" rel="noopener">Fundación Disenso, Informe XXIX</a>; <a href="https://institutosantalucia.es/analisis/informe-efectos-economicos-inmigracion-espana/" target="_blank" rel="noopener">Instituto Santalucía (2026)</a>.</li>
+      <li>BOE: Ley 6/2018 (reducción por trabajo desde el 5 de julio de 2018); RD 1077/2017 (SMI 2018: 735,90 €); RDL 3/2026 y RD 241/2026 (pensiones 2026); RD 126/2026 (SMI 17.094 €); RDL 5/2026 art. 28 (deducción SMI); RDL 4/2024 (reducción art. 20).</li>
+      <li>Banco de España (2024): la no indexación elevó el IRPF en ~11.000 M€ entre 2019 y 2023. Gobierno, plan fiscal a Bruselas (2026): ~2.300 M€ extra en 2025 por no deflactar ese año.</li>
+    </ul>
+  </section>
+</main>
+</div>
+<footer>Modelo divulgativo de joaco.org · v3 (base 2018) · Actualizado el 7 de noviembre de 2026 · No es asesoramiento fiscal.</footer>
+</div>
+
+<script>
+/* ==========================================================================
+   Motor IRPF + microsimulación 2018 → 2026 (régimen común, contribuyente
+   individual sin descendientes, escala autonómica de referencia = estatal).
+   Se usa tal cual en el HTML (copiado dentro de <script>) y en los tests de node.
+   ========================================================================== */
+const IRPF = (() => {
+  const INF = Infinity;
+  const BASE = 2018;            // año base de la simulación
+  const HOR = 2026 - BASE;      // horizonte en años
+  // Reducción por rendimientos del trabajo (art. 20 LIRPF), sobre rendimiento neto previo
+  const red2015 = (rn) => (rn <= 11250 ? 3700 : rn <= 14450 ? 3700 - 1.15625 * (rn - 11250) : 0);
+  const red2019 = (rn) => (rn <= 13115 ? 5565 : rn <= 16825 ? 5565 - 1.5 * (rn - 13115) : 0);
+
+  /* ---------- Normativa por ejercicio ---------- */
+  // Escala combinada (estatal + autonómica de referencia). Límites superiores de cada tramo.
+  const LAWS = {
+    2018: {
+      // Ejercicio 2018: la Ley 6/2018 subió la reducción desde el 5 de julio; ese año se aplica
+      // la reducción anterior más el 50 % de la diferencia positiva con la nueva.
+      label: "Ley IRPF 2018 (Ley 26/2014 + Ley 6/2018 a medio año)",
+      scale: [[12450, 0.19], [20200, 0.24], [35200, 0.30], [60000, 0.37], [INF, 0.45]],
+      gastos: 2000,
+      minPers: 5550, min65: 1150, min75: 1400,
+      red20: (rn) => red2015(rn) + 0.5 * Math.max(0, red2019(rn) - red2015(rn)),
+      red20Max: 4632.5,
+      dedSMI: () => 0,
+    },
+    2023: {
+      label: "Ley IRPF 2023 (Ley 31/2022)",
+      scale: [[12450, 0.19], [20200, 0.24], [35200, 0.30], [60000, 0.37], [300000, 0.45], [INF, 0.47]],
+      gastos: 2000,
+      minPers: 5550, min65: 1150, min75: 1400,
+      red20: (rn) => (rn <= 14047.5 ? 6498 : rn <= 19747.5 ? 6498 - 1.14 * (rn - 14047.5) : 0),
+      red20Max: 6498,
+      dedSMI: () => 0,
+    },
+    2024: {
+      label: "Ley IRPF 2024 (RDL 4/2024)",
+      scale: [[12450, 0.19], [20200, 0.24], [35200, 0.30], [60000, 0.37], [300000, 0.45], [INF, 0.47]],
+      gastos: 2000,
+      minPers: 5550, min65: 1150, min75: 1400,
+      red20: (rn) =>
+        rn <= 14852 ? 7302
+        : rn <= 17673.52 ? 7302 - 1.75 * (rn - 14852)
+        : rn <= 19747.5 ? 2364.34 - 1.14 * (rn - 17673.52)
+        : 0,
+      red20Max: 7302,
+      dedSMI: () => 0,
+    },
+    2026: {
+      label: "Ley IRPF 2026 (RDL 4/2024 + RDL 5/2026)",
+      scale: [[12450, 0.19], [20200, 0.24], [35200, 0.30], [60000, 0.37], [300000, 0.45], [INF, 0.47]],
+      gastos: 2000,
+      minPers: 5550, min65: 1150, min75: 1400,
+      red20: (rn) =>
+        rn <= 14852 ? 7302
+        : rn <= 17673.52 ? 7302 - 1.75 * (rn - 14852)
+        : rn <= 19747.5 ? 2364.34 - 1.14 * (rn - 17673.52)
+        : 0,
+      red20Max: 7302,
+      // DA 61ª LIRPF (art. 28 RDL 5/2026): deducción para perceptores del SMI 2026
+      dedSMI: (rit) => (rit <= 17094 ? 590.89 : rit <= 20048.45 ? 590.89 - 0.2 * (rit - 17094) : 0),
+    },
+  };
+
+  // Leyes híbridas para desglosar los cambios normativos 2018→2026 (se aplican en orden)
+  LAWS.h0 = { ...LAWS[2018], label: "Ley 6/2018 en año completo (desde 2019)", red20: red2019, red20Max: 5565 };
+  LAWS.h1 = { ...LAWS.h0, label: "… + tipo 47 % (>300.000 €)", scale: LAWS[2026].scale };
+  LAWS.h2 = { ...LAWS.h1, label: "… + reducción por trabajo 2024", red20: LAWS[2026].red20, red20Max: LAWS[2026].red20Max };
+
+  /* ---------- Cotizaciones del trabajador por año de la renta ---------- */
+  const SS = {
+    2018: { rate: 0.0635, cap: 3803.7 * 12, sol: null },
+    2023: { rate: 0.0645, cap: 4495.5 * 12, sol: null },
+    2024: { rate: 0.0647, cap: 4720.5 * 12, sol: null },
+    2026: { rate: 0.0650, cap: 5101.2 * 12, sol: [[0.10, 0.0115], [0.50, 0.0125], [INF, 0.0146]] },
+  };
+
+  /* ---------- Parámetros macro oficiales por año ---------- */
+  const MACRO = {
+    // IPC base 2021: 2016 = 93,22 y +3,7 % 2016→2018 (IPC base 2016: 103,7)
+    2018: { smi: 735.9 * 14, pmax: 2580.13 * 14, salarioMedio: 24009.12, ipc: 93.22 * 1.037 },
+    2023: { smi: 1080 * 14, pmax: 3059.23 * 14, salarioMedio: 28049.94, ipc: 112.2 },
+    2024: { smi: 1134 * 14, pmax: 3175.04 * 14, salarioMedio: 29540.26, ipc: 115.29 },
+    2026: { smi: 1221 * 14, pmax: 3359.6 * 14, salarioMedio: null, ipc: null },
+  };
+
+  function scaleTax(base, scale, idx) {
+    let tax = 0, prev = 0;
+    for (const [hi0, r] of scale) {
+      const hi = hi0 * idx;
+      if (base <= prev) break;
+      tax += (Math.min(base, hi) - prev) * r;
+      prev = hi;
+    }
+    return tax;
+  }
+  function marginalRate(base, scale, idx) {
+    for (const [hi0, r] of scale) if (base <= hi0 * idx) return r;
+    return scale[scale.length - 1][1];
+  }
+
+  function ssWorker(gross, year) {
+    const p = SS[year];
+    const capped = Math.min(gross, p.cap);
+    let c = capped * p.rate;
+    if (p.sol && gross > p.cap) {
+      // cuota de solidaridad: el trabajador soporta 1/6 del tipo
+      let prev = 0;
+      for (const [hiShare, r] of p.sol) {
+        const hi = p.cap * hiShare;
+        const ex = gross - p.cap;
+        if (ex <= prev) break;
+        c += (Math.min(ex, hi) - prev) * r / 6;
+        prev = hi;
+      }
+    }
+    return c;
+  }
+
+  /**
+   * Cuota IRPF de un contribuyente.
+   * person: { gross, type: 'worker'|'pensioner', age }
+   * opts: { law: 2018|2023|2024|2026|h0|h1|h2, ssYear, idx (indexación de umbrales: escala, mínimos, gastos),
+   *         idxRed20 (indexa también la reducción art. 20) }
+   */
+  function tax(person, opts) {
+    const L = LAWS[opts.law];
+    const idx = opts.idx || 1;
+    const idxR = opts.idxRed20 ? idx : 1;
+    const gross = Math.max(0, person.gross);
+    const ss = person.type === "worker" ? ssWorker(gross, opts.ssYear || opts.law) : 0;
+    // Art. 20 LIRPF: la reducción se calcula sobre el rendimiento neto previo, es decir,
+    // íntegro menos los gastos de las letras a) a e) del art. 19.2 (cotizaciones), SIN
+    // restar los 2.000 € de "otros gastos" (letra f). Luego se restan ambos (saldo ≥ 0).
+    const rnPre = Math.max(0, gross - ss);
+    const gastos = Math.min(L.gastos * idx, rnPre);
+    const rnPrev = rnPre - gastos;
+    const red = Math.min(rnPrev, L.red20(rnPre / idxR) * idxR);
+    const base = Math.max(0, rnPrev - red);
+    let minimo = L.minPers;
+    if (person.age >= 65) minimo += L.min65;
+    if (person.age >= 75) minimo += L.min75;
+    minimo *= idx;
+    const cuotaIntegra = Math.max(0, scaleTax(base, L.scale, idx) - scaleTax(Math.min(minimo, base), L.scale, idx));
+    const ded = Math.min(cuotaIntegra, L.dedSMI(gross));
+    const cuota = cuotaIntegra - ded;
+    const neto = gross - ss - cuota;
+    return {
+      gross, ss, rnPrev, red, base, minimo, cuotaIntegra, ded, cuota, neto,
+      tipoMedio: gross > 0 ? cuota / gross : 0,
+      tipoMarginal: base > minimo ? marginalRate(base, L.scale, idx) : 0,
+    };
+  }
+
+  // Renta del tramo AEAT: rendimientos netos a integrar en la base (ya aplicada la
+  // reducción del art. 20 de la ley del año). law por defecto = año de la renta.
+  function netIncome(person, ssYear, law) {
+    const L = LAWS[law || ssYear];
+    const ss = person.type === "worker" ? ssWorker(person.gross, ssYear) : 0;
+    const rnPre = Math.max(0, person.gross - ss);
+    const rn = Math.max(0, rnPre - 2000);
+    return Math.max(0, rn - Math.min(rn, L.red20(rnPre)));
+  }
+  function grossFromNet(net, type, ssYear) {
+    let lo = 0, hi = net * 1.3 + 12000;
+    for (let i = 0; i < 70; i++) {
+      const mid = (lo + hi) / 2;
+      if (netIncome({ gross: mid, type }, ssYear) < net) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  /* ---------- Datos oficiales (AEAT) ---------- */
+  // Tramos de rendimientos e imputaciones (renta neta declarada), en euros.
+  const TRAMOS = [
+    { id: 0, label: "< 12.000 €", short: "<12k", lo: 0, hi: 12000 },
+    { id: 1, label: "12.000 – 21.000 €", short: "12–21k", lo: 12000, hi: 21000 },
+    { id: 2, label: "21.000 – 30.000 €", short: "21–30k", lo: 21000, hi: 30000 },
+    { id: 3, label: "30.000 – 60.000 €", short: "30–60k", lo: 30000, hi: 60000 },
+    { id: 4, label: "60.000 – 150.000 €", short: "60–150k", lo: 60000, hi: 150000 },
+    { id: 5, label: "> 150.000 €", short: ">150k", lo: 150000, hi: INF },
+  ];
+  // Ejercicio 2018 (AEAT, Estadística de los declarantes del IRPF): declaraciones por tramo
+  // (oficial, 20.608.731) y cuota resultante de la autoliquidación total (oficial, 81.371,8 M€).
+  // El reparto de la cuota por tramo es una estimación: cuota media por tramo de 2016 × censo 2018,
+  // descontando la rebaja de julio de 2018 en los tramos bajos, y cuadrada con el total oficial.
+  const OFICIAL_BASE = (() => {
+    const n = [8020599, 4641263, 3392427, 3699249, 743265, 111928];
+    const avg16 = [600e6 / 7676000, 6800e6 / 4748000, 11300e6 / 3140000, 25950e6 / 3320000, 15100e6 / 645348, 10745e6 / 91408];
+    const raw = n.map((x, i) => x * avg16[i] * 1.03);
+    raw[0] -= 100e6; raw[1] -= 600e6; // rebaja de la reducción por trabajo (julio 2018)
+    const total = 81371.8e6;
+    const fixed = raw[0] + raw[1];
+    const f = (total - fixed) / (raw[2] + raw[3] + raw[4] + raw[5]);
+    const cuota = raw.map((x, i) => (i < 2 ? x : x * f));
+    return { n, cuota, nTotal: 20608731, cuotaTotal: total };
+  })();
+  // Declarantes y cuota por nacionalidad (AEAT, "Resumen del impuesto por nacionalidad")
+  const NACIONALIDAD = {
+    decl: { 2016: { ext: 1107306, tot: 19621728 }, 2022: { ext: 1852892, tot: 22898072 }, 2023: { ext: 1980337, tot: 23987211 } },
+    cuota: {
+      2017: { ext: 2794.46e6 },
+      2018: { ext: 3278.84e6, tot: 81371.8e6, extPos: 645758, totPos: 13693242 },
+      2023: { ext: 6177e6, tot: 117673.8e6, extPos: 1070000, totPos: 16651601 },
+      2024: { ext: 6894e6, share: 0.0519, extPos: 1101001, totPos: 17117219 },
+    },
+  };
+  // Ejercicio 2023 (AEAT vía prensa): tramos agregados <21k | 21–30k | 30–60k | >60k
+  const OFICIAL_2023 = {
+    n: [13070000, 4380000, 5300000, 1346400],
+    cuota: [8010e6, 16470e6, 44120e6, 49599e6],
+    nTotal: 23980000, cuotaTotal: 117645e6,
+  };
+  // Ejercicio 2024 (AEAT): declaraciones por tramo
+  const OFICIAL_2024 = { n: [8642158, 4039038, 4566083, 5797497, 1369675, 213510], nTotal: 24628279 };
+
+  // Pensionistas declarantes 2018 por tramo (hipótesis del modelo)
+  const PENS_BASE = [2250000, 1950000, 850000, 550000, 0, 0];
+
+  /* ---------- Utilidades estadísticas ---------- */
+  function erf(x) {
+    const s = Math.sign(x); x = Math.abs(x);
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const t = 1 / (1 + p * x);
+    const y = 1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return s * y;
+  }
+  const normCdf = (z) => 0.5 * (1 + erf(z / Math.SQRT2));
+  function normInv(p) {
+    // Acklam
+    const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239];
+    const b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155211897];
+    const c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+    const d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416];
+    const pl = 0.02425;
+    let q, r;
+    if (p < pl) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    if (p > 1 - pl) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    q = p - 0.5; r = q * q;
+    return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+  }
+  // cuantiles de una lognormal condicionada a [lo, hi)
+  function condLognormalPoints(mu, sigma, lo, hi, k) {
+    const Flo = lo > 0 ? normCdf((Math.log(lo) - mu) / sigma) : 0;
+    const Fhi = hi === INF ? 1 : normCdf((Math.log(hi) - mu) / sigma);
+    const pts = [];
+    for (let j = 0; j < k; j++) {
+      const p = Flo + (Fhi - Flo) * (j + 0.5) / k;
+      pts.push(Math.exp(mu + sigma * normInv(p)));
+    }
+    return pts;
+  }
+  function lognormalPoints(median, sigma, k) {
+    const pts = [];
+    for (let j = 0; j < k; j++) pts.push(median * Math.exp(sigma * normInv((j + 0.5) / k)));
+    return pts;
+  }
+
+  const tramoOf = (net) => {
+    for (let i = TRAMOS.length - 1; i >= 0; i--) if (net >= TRAMOS[i].lo) return i;
+    return 0;
+  };
+
+  /* ---------- Población del año base (2018) ---------- */
+  const K = 24; // puntos por tramo y tipo
+  function buildPopBase() {
+    const mu = Math.log(15500), sigma = 0.85;
+    const pop = [];
+    TRAMOS.forEach((t, i) => {
+      const nTot = OFICIAL_BASE.n[i];
+      const nPen = PENS_BASE[i];
+      const nWork = nTot - nPen;
+      // trabajadores (y resto de rentas)
+      let ptsW;
+      if (i === 5) {
+        // >150k: Pareto α≈2 entre 150k y 601k + cola >601k (8.481 declarantes, media ≈1,2 M€)
+        const alpha = 2.0;
+        ptsW = [];
+        for (let j = 0; j < K - 2; j++) {
+          const p = (j + 0.5) / (K - 2);
+          const lo = 150000, hi = 601000;
+          const Fh = 1 - Math.pow(lo / hi, alpha);
+          ptsW.push(lo / Math.pow(1 - p * Fh, 1 / alpha));
+        }
+        ptsW.push(800000, 1600000);
+      } else {
+        ptsW = condLognormalPoints(mu, sigma, Math.max(t.lo, 300), t.hi, K);
+      }
+      ptsW.forEach((net, j) => {
+        let w = nWork / ptsW.length;
+        if (i === 5) w = j < K - 2 ? (nWork - 8481) / (K - 2) : 8481 / 2;
+        pop.push({ w, type: "worker", age: 45, netB: net, grossB: grossFromNet(net, "worker", BASE), tramoB: i, origin: "c" });
+      });
+      if (nPen > 0) {
+        const hiP = i === 3 ? 34100 : t.hi; // pensión máxima 2018 ≈ 36.122 € brutos
+        const ptsP = condLognormalPoints(Math.log(11000), 0.6, Math.max(t.lo, 2500), hiP, K);
+        ptsP.forEach((net) => pop.push({ w: nPen / K, type: "pensioner", age: 72, netB: net, grossB: grossFromNet(net, "pensioner", BASE), tramoB: i, origin: "c" }));
+      }
+    });
+    return pop;
+  }
+  const POPB = buildPopBase();
+
+  /* ---------- Calibración: factor estructural k por tramo ---------- */
+  // k recoge lo que el motor no ve: tributación conjunta, mínimos por descendientes,
+  // deducciones, escalas autonómicas reales y otras rentas.
+  const CAL = (() => {
+    const eng = TRAMOS.map(() => 0), cnt = TRAMOS.map(() => 0), logc = TRAMOS.map(() => 0);
+    for (const a of POPB) {
+      const c = tax({ gross: a.grossB, type: a.type, age: a.age }, { law: BASE, ssYear: BASE }).cuota;
+      eng[a.tramoB] += a.w * c; cnt[a.tramoB] += a.w; logc[a.tramoB] += a.w * Math.log(Math.max(a.netB, 500));
+    }
+    const k = eng.map((e, i) => OFICIAL_BASE.cuota[i] / Math.max(e, 1));
+    const extra0 = 0; // (reservado) cuota adicional por declarante de tramo bajo
+    const centers = logc.map((l, i) => l / cnt[i]);
+    return { k, extra0, centers, engine: eng };
+  })();
+  // nivel base con k interpolado (para medir el sesgo de interpolación)
+  CAL.base0 = POPB.reduce((s, a) => s + a.w * kOfRaw(a.netB) * tax({ gross: a.grossB, type: a.type, age: a.age }, { law: BASE, ssYear: BASE }).cuota, 0);
+  function kOfRaw(n) { return kOf(n); }
+  function kOf(realNet) {
+    const x = Math.log(Math.max(realNet, 500));
+    const c = CAL.centers, k = CAL.k;
+    if (x <= c[0]) return k[0];
+    for (let i = 0; i < c.length - 1; i++) if (x <= c[i + 1]) {
+      const f = (x - c[i]) / (c[i + 1] - c[i]);
+      return k[i] + f * (k[i + 1] - k[i]);
+    }
+    return k[k.length - 1];
+  }
+
+  /* ---------- Escenario por defecto ("Real 2026": cierre 2026 calibrado) ---------- */
+  const DEFAULTS = {
+    salBajos: 34.5,      // % salarios bajos (P30 EPA) 2018→2026: +25,5 % hasta 2024 + 2025-26
+    salMedios: 29.9,     // % salarios medios (P50–P70 EPA): +21,7 % hasta 2024 + convenios 2025-26
+    salAltos: 29.5,      // % salarios altos (P90+): +21,4 % hasta 2024 + 2025-26
+    ipc: 27.0,           // % IPC acumulado (medias anuales) 2018→2026
+    pensiones: 26.1,     // % revalorización acumulada 2019–2026
+    carrera: 16.0,       // % progresión individual adicional (antigüedad, ascensos) en 8 años
+    arrastre: 100,       // % de la subida del SMI que llega a los salarios ≤ SMI 2018
+    jubilacion: 14.5,    // % de asalariados 2018 jubilados en 2026
+    altasJovenes: 2.75,  // M
+    altasInmig: 1.6,     // M
+    altasIMV: 1.3,       // M declarantes por IMV / prestaciones (obligados a declarar desde 2021)
+    altasOtras: 2.05,    // M (reincorporaciones, parcialidad, pluripagadores)
+    bajas: 2.4,          // M (fallecimientos, emigración, dejar de declarar)
+    deflac: 100,         // % del IPC aplicado en el contrafactual "escala deflactada"
+    ajusteAhorro: 0,     // M€ cuota del ahorro y ganancias no modelada (se calibra con el dato real 2026)
+    ipcImpuestos: 0.5,   // puntos del IPC acumulado debidos a impuestos indirectos (IVA, especiales)
+    otrosImp: 200,       // €/año de impuestos y tasas fuera del IPC (IBI, tasa de residuos...)
+  };
+  const PEN_DEF = 1 + DEFAULTS.pensiones / 100; // revalorización que lleva la pensión máxima a la oficial de 2026
+  // Parámetros oficiales para validar contra 2023 y 2024 (crecimiento por percentil EPA desde 2018)
+  const VALID = {
+    2023: { salBajos: 21.7, salMedios: 16.6, salAltos: 16.6, pensiones: 15.0 },
+    2024: { salBajos: 25.5, salMedios: 21.7, salAltos: 21.4, pensiones: 19.4 },
+  };
+  // Anclas salariales 2018 (EPA, salario mensual × 12): P30 1.260,9 · P50 1.642,3 · P70 2.187,2 · P90 3.441,9
+  const ANCLAS = { smi: 10302.6, p30: 15130.8, p50: 19707.6, p70: 26246.4, p90: 41302.8 };
+  function wageGrowth(g0, p, year) {
+    const yr = year || 2026;
+    const smiG = MACRO[yr].smi / MACRO[BASE].smi - 1;
+    const gLo = p.salBajos / 100, gM = p.salMedios / 100, gA = p.salAltos / 100;
+    const a = (p.arrastre ?? 100) / 100;
+    const gS = a * smiG + (1 - a) * gLo;
+    const pts = [[ANCLAS.smi, gS], [ANCLAS.p30, gLo], [ANCLAS.p50, gM], [ANCLAS.p70, gM], [ANCLAS.p90, gA]];
+    if (g0 <= pts[0][0]) return gS;
+    if (g0 >= pts[pts.length - 1][0]) return gA;
+    for (let i = 0; i < pts.length - 1; i++) if (g0 <= pts[i + 1][0]) {
+      const f = Math.log(g0 / pts[i][0]) / Math.log(pts[i + 1][0] / pts[i][0]);
+      return pts[i][1] + f * (pts[i + 1][1] - pts[i][1]);
+    }
+    return gA;
+  }
+  const CARW = { lo: 1.0, hi: 0.4 };
+  const DISP = [-0.48, -0.16, 0.16, 0.48]; // dispersión individual de la progresión en el horizonte (calibrada con 2023 y 2024)
+  function carreraPeso(g0) {
+    const x = Math.log(g0 / ANCLAS.p50);
+    const xlo = Math.log(ANCLAS.p30 / ANCLAS.p50), xhi = Math.log(ANCLAS.p90 / ANCLAS.p50);
+    if (x <= xlo) return CARW.lo;
+    if (x >= xhi) return CARW.hi;
+    return x < 0 ? 1 + (x / xlo) * (CARW.lo - 1) : 1 + (x / xhi) * (CARW.hi - 1);
+  }
+  const meanWageGrowth = (p) => 0.15 * p.salBajos / 100 + 0.45 * p.salMedios / 100 + 0.40 * p.salAltos / 100;
+
+  // Distribución de renta bruta de las altas (mediana relativa y dispersión lognormal)
+  const ENTR = {
+    jov: { med: 0.65, sig: 0.75 },   // × salario medio del año (incluye años incompletos)
+    inm: { med: 1.20, sig: 0.65 },   // × SMI del año
+    otr: { med: 0.40, sig: 1.20 },   // × salario medio del año (parcialidad, pluripagadores)
+    imv: { med: 0.03, sig: 1.20 },   // × salario medio del año: renta sujeta casi nula (el IMV está exento)
+  };
+
+  /* ---------- Población en el horizonte ---------- */
+  // h: fracción del horizonte 2018-2026 transcurrida (1 = 2026; 0,625 = 2023)
+  function buildPopT(p, year) {
+    const h = year === 2026 ? 1 : (year - BASE) / HOR;
+    const pen = p.pensiones / 100, car = (p.carrera / 100) * (year === 2026 ? 1 : (year - BASE) / HOR);
+    const r = (p.jubilacion / 100) * h;
+    const macro = MACRO[year];
+    const pmax = year === 2026 ? MACRO[2026].pmax * (1 + pen) / PEN_DEF : macro.pmax;
+    const avgWage = MACRO[BASE].salarioMedio * (1 + meanWageGrowth(p));
+    const smi = macro.smi;
+    // bajas: 70 % pensionistas (fallecimientos), 30 % activos (emigración, salida)
+    const bajas = p.bajas * 1e6 * h;
+    const wPen = POPB.filter((a) => a.type === "pensioner").reduce((s, a) => s + a.w, 0);
+    const wWork = POPB.filter((a) => a.type === "worker").reduce((s, a) => s + a.w, 0);
+    const survPen = Math.max(0, 1 - (0.7 * bajas) / wPen);
+    const survWork = Math.max(0, 1 - (0.3 * bajas) / wWork);
+    const pop = [];
+    const exits = TRAMOS.map(() => 0);
+    for (const a of POPB) {
+      if (a.type === "pensioner") {
+        const w = a.w * survPen; exits[a.tramoB] += a.w - w;
+        pop.push({ ...a, w, gross: a.grossB * (1 + pen), age: a.age + HOR * h, flow: "cont" });
+      } else {
+        const w0 = a.w * survWork; exits[a.tramoB] += a.w - w0;
+        const wRet = w0 * r, wStay = w0 - wRet;
+        // crecimiento salarial según el percentil de 2018 (SMI, bajos, medios, altos)
+        const gw = wageGrowth(a.grossB, p, year);
+        // la progresión individual es mayor al principio de la carrera (salarios bajos) y menor arriba
+        const carW = carreraPeso(a.grossB);
+        // heterogeneidad individual: tres trayectorias (peor, media, mejor) alrededor de la progresión media
+        for (const z of DISP) pop.push({ ...a, w: wStay / DISP.length, gross: a.grossB * (1 + gw) * Math.max(0.5, 1 + car * carW + z * h), age: a.age + HOR * h, flow: "cont" });
+        if (wRet > 0) {
+          const pension = Math.min(0.8 * a.grossB * (1 + gw), pmax);
+          pop.push({ ...a, w: wRet, type: "pensioner", gross: pension, age: 66, flow: "jub" });
+        }
+      }
+    }
+    // altas
+    const addGroup = (n, median, sigma, origin) => {
+      const pts = lognormalPoints(median, sigma, 40);
+      pts.forEach((gross) => pop.push({ w: (n * 1e6 * h) / pts.length, type: "worker", age: origin === "jov" ? 27 : 35, gross, tramoB: -1, origin, flow: "alta" }));
+    };
+    addGroup(p.altasJovenes, ENTR.jov.med * avgWage, ENTR.jov.sig, "jov");
+    addGroup(p.altasInmig, ENTR.inm.med * smi, ENTR.inm.sig, "inm");
+    addGroup(p.altasOtras, ENTR.otr.med * avgWage, ENTR.otr.sig, "otr");
+    addGroup(p.altasIMV, ENTR.imv.med * avgWage, ENTR.imv.sig, "imv");
+    return { pop, exits, h, avgWage, smi, pmax };
+  }
+
+  /* ---------- Simulación completa + descomposición ---------- */
+  function simulate(p, year = 2026) {
+    const law = year;
+    const ssYear = year;
+    const pi = year === 2026 ? p.ipc / 100 : MACRO[year].ipc / MACRO[BASE].ipc - 1;
+    const idx = 1 + pi;
+    const { pop, exits, h } = buildPopT(p, year);
+
+    const RB = OFICIAL_BASE.cuotaTotal;
+    let SnoJub = 0, Sreal0 = 0, Sreal = 0, Sidx = 0, SnomB = 0, S26 = 0, Sdef = 0, SH0 = 0, SH1 = 0, SH2 = 0;
+    const tramoOut = TRAMOS.map(() => ({ n: 0, cuota: 0, cuotaIdx: 0, renta: 0, nIMV: 0 }));
+    const grp = {}; // grupos: pens (pensionistas), jub (de ellos, nuevos jubilados), act (asalariados que siguen), jov, inm, otr, imv
+    const addG = (k, w, c, g, x) => {
+      const o = grp[k] || (grp[k] = { n: 0, cuota: 0, renta: 0, frio: 0, norma: 0, cuotaIdx: 0, cuotaB: 0, nB: 0 });
+      o.n += w; o.cuota += c; o.renta += g; o.frio += x.frio; o.norma += x.norma; o.cuotaIdx += x.cuotaIdx;
+      if (x.cuotaB !== null) { o.cuotaB += x.cuotaB; o.nB += w; }
+    };
+    const flows = {}; // "from|to|kind" → peso
+    let lowCount0 = 0, lowCountT = 0;
+
+    for (const a of POPB) if (a.tramoB === 0) lowCount0 += a.w;
+
+    for (const a of pop) {
+      if (a.w <= 0) continue;
+      const person = { gross: a.gross, type: a.type, age: a.age };
+      const net = netIncome(person, ssYear);
+      const realNet = net / idx;
+      const k = kOf(realNet);
+      const t = tramoOf(net);
+      // 1) renta real sin crecimiento real: continuistas a su renta 2018; jubilados y altas a su renta real
+      let gross0;
+      if (a.flow === "cont") gross0 = a.grossB;
+      else gross0 = a.gross / idx;
+      const p0 = { gross: gross0, type: a.type, age: a.age };
+      const c0 = tax(p0, { law: BASE, ssYear: BASE }).cuota;
+      const cReal = tax({ gross: a.gross / idx, type: a.type, age: a.age }, { law: BASE, ssYear: BASE }).cuota;
+      const cIdx = tax(person, { law: BASE, ssYear, idx, idxRed20: true }).cuota;
+      const cNomB = tax(person, { law: BASE, ssYear }).cuota;
+      const c26 = tax(person, { law, ssYear }).cuota;
+      const cDef = tax(person, { law, ssYear, idx: 1 + (p.deflac / 100) * pi }).cuota;
+      const kk = a.flow === "cont" ? kOf(a.netB) : k;
+      Sreal0 += a.w * kk * c0;
+      // mismo nivel pero sin jubilaciones: el jubilado sigue como asalariado a su renta 2018
+      if (a.flow === "jub") SnoJub += a.w * kOf(a.netB) * tax({ gross: a.grossB, type: "worker", age: 45 }, { law: BASE, ssYear: BASE }).cuota;
+      else SnoJub += a.w * kk * c0;
+      Sreal += a.w * k * cReal;
+      Sidx += a.w * k * cIdx;
+      SnomB += a.w * k * cNomB;
+      S26 += a.w * k * c26;
+      Sdef += a.w * k * cDef;
+      if (year === 2026) {
+        SH0 += a.w * k * tax(person, { law: "h0", ssYear }).cuota;
+        SH1 += a.w * k * tax(person, { law: "h1", ssYear }).cuota;
+        SH2 += a.w * k * tax(person, { law: "h2", ssYear }).cuota;
+      }
+      if (realNet < 12000) lowCountT += a.w;
+      const o = tramoOut[t];
+      o.n += a.w; o.cuota += a.w * k * c26; o.cuotaIdx += a.w * k * cDef; o.renta += a.w * a.gross;
+      if (a.origin === "imv") o.nIMV += a.w;
+      const gk = a.flow === "alta" ? a.origin : a.type === "pensioner" ? "pens" : "act";
+      // desglose por grupo: progresividad en frío, cambios de ley y cuota del año base (mismas personas)
+      const cB = a.flow === "alta" ? null : a.w * kOf(a.netB) * tax({ gross: a.grossB, type: a.type === "pensioner" && a.flow === "jub" ? "worker" : a.type, age: a.flow === "jub" ? 58 : a.age - HOR * h }, { law: BASE, ssYear: BASE }).cuota;
+      const x = { frio: a.w * k * (cNomB - cIdx), norma: a.w * k * (c26 - cNomB), cuotaIdx: a.w * k * cIdx, cuotaB: cB };
+      addG(gk, a.w, a.w * k * c26, a.w * a.gross, x);
+      if (a.flow === "jub") addG("jub", a.w, a.w * k * c26, a.w * a.gross, x);
+      // flujos para el Sankey
+      const from = a.flow === "alta" ? "alta:" + a.origin : "t" + a.tramoB;
+      let kind = a.flow === "alta" ? "alta" : a.flow === "jub" ? (t < a.tramoB ? "jubBaja" : "jub") : t > a.tramoB ? "asc" : t < a.tramoB ? "desc" : "cont";
+      const key = from + "|t" + t + "|" + kind;
+      flows[key] = (flows[key] || 0) + a.w;
+    }
+    // cuota de "otras rentas" del tramo bajo (constante real por declarante)
+    const extra = (n, f) => CAL.extra0 * n * f;
+    const L0 = RB;
+    // sesgo de la interpolación de k respecto a la base oficial (se descuenta en todos los niveles)
+    const bias = CAL.base0 + extra(lowCount0, 1) - RB;
+    const lvl = (x) => x - bias;
+    const D1a = lvl(SnoJub + extra(lowCountT, 1));
+    const D1 = lvl(Sreal0 + extra(lowCountT, 1));
+    const D2 = lvl(Sreal + extra(lowCountT, 1));
+    const D3 = Sidx + extra(lowCountT, idx) - bias * idx;
+    const D4 = SnomB + extra(lowCountT, idx) - bias * idx;
+    const D5 = S26 + extra(lowCountT, idx) - bias * idx;
+    const D6 = Sdef + extra(lowCountT, idx) - bias * idx;
+    tramoOut[0].cuota += extra(lowCountT, idx); tramoOut[0].cuotaIdx += extra(lowCountT, idx);
+
+    const steps = [
+      { key: "base", label: "Cuota 2018 (oficial)", value: L0, type: "total" },
+      { key: "censo", label: "Altas y bajas de declarantes", value: D1a - L0, type: "delta" },
+      { key: "jub", label: "Jubilaciones (paso a pensión)", value: D1 - D1a, type: "delta" },
+      { key: "real", label: "Crecimiento real de rentas", value: D2 - D1, type: "delta" },
+      { key: "infl", label: "Inflación con escala indexada (neutral)", value: D3 - D2, type: "delta" },
+      { key: "drag", label: "Progresividad en frío (escala congelada)", value: D4 - D3, type: "delta" },
+      { key: "norma", label: "Cambios normativos 2018→" + year, value: D5 - D4, type: "delta" },
+      { key: "ahorro", label: "Ahorro y ganancias (ajuste a dato real)", value: (p.ajusteAhorro || 0) * 1e6, type: "delta" },
+      { key: "total", label: "Cuota " + year + (year === 2026 ? " (escenario)" : " (modelo)"), value: D5 + (p.ajusteAhorro || 0) * 1e6, type: "total" },
+    ];
+    // grupos de 2018 (base) para comparar
+    const grpB = { pens: { n: 0, cuota: 0 }, act: { n: 0, cuota: 0 } };
+    for (const a of POPB) {
+      const c = kOf(a.netB) * tax({ gross: a.grossB, type: a.type, age: a.age }, { law: BASE, ssYear: BASE }).cuota;
+      const g = grpB[a.type === "pensioner" ? "pens" : "act"]; g.n += a.w; g.cuota += a.w * c;
+    }
+    const scaleB = RB / (grpB.pens.cuota + grpB.act.cuota);
+    grpB.pens.cuota *= scaleB; grpB.act.cuota *= scaleB;
+    // escala los grupos 2026 al total del modelo (descuenta el sesgo de calibración)
+    const sumG = ["pens", "act", "jov", "inm", "otr", "imv"].reduce((s, k) => s + (grp[k] ? grp[k].cuota : 0), 0);
+    const scaleT = D5 / Math.max(1, sumG);
+    for (const k in grp) grp[k].cuota *= scaleT;
+    const censo = pop.reduce((s, a) => s + a.w, 0);
+    const adj = (p.ajusteAhorro || 0) * 1e6;
+    const normParts = year === 2026 ? { red18: SH0 - SnomB, top47: SH1 - SH0, red20: SH2 - SH1, dedSMI: S26 - SH2 } : null;
+    return {
+      normParts,
+      year, pi, idx, h, steps, total: D5 + adj, totalCore: D5, totalDeflactado: D6 + adj, costeDeflactar: D5 - D6,
+      censo, tramos: tramoOut, flows, exits, pop, grupos: grp, gruposB: grpB,
+    };
+  }
+
+  /* ---------- Poder adquisitivo por nivel de renta (2018 → 2026) ---------- */
+  const PERFILES = [
+    { id: "smi", label: "SMI a jornada completa", gB: MACRO[2018].smi, type: "worker", grow: () => MACRO[2026].smi / MACRO[BASE].smi - 1 },
+    { id: "p30", label: "Rentas bajas (P30)", gB: ANCLAS.p30, type: "worker", grow: (p) => p.salBajos / 100 },
+    { id: "p50", label: "Rentas medias (mediana)", gB: ANCLAS.p50, type: "worker", grow: (p) => p.salMedios / 100 },
+    { id: "p70", label: "Medias-altas (P70)", gB: ANCLAS.p70, type: "worker", grow: (p) => p.salMedios / 100 },
+    { id: "p90", label: "Altas (P90)", gB: ANCLAS.p90, type: "worker", grow: (p) => p.salAltos / 100 },
+    { id: "p99", label: "Muy altas (80.000 € en 2018)", gB: 80000, type: "worker", grow: (p) => p.salAltos / 100 },
+    { id: "penmed", label: "Pensión media de jubilación", gB: 15260, type: "pensioner", grow: (p) => p.pensiones / 100, age: [70, 78] },
+    { id: "penmax", label: "Pensión máxima", gB: MACRO[2018].pmax, type: "pensioner", grow: (p) => (MACRO[2026].pmax * (1 + p.pensiones / 100) / PEN_DEF) / MACRO[2018].pmax - 1, age: [68, 76] },
+  ];
+  // Cotización empresarial (contingencias comunes 23,6 %, desempleo 5,5 %, FOGASA 0,2 %, FP 0,6 %,
+  // AT/EP medio 1,5 %; MEI 0,75 % en 2026) con la misma base máxima; cuota de solidaridad: 5/6 a la empresa.
+  const SS_EMP = { 2018: 0.314, 2023: 0.3189, 2024: 0.3198, 2026: 0.3215 };
+  function ssEmployer(gross, year) {
+    const p = SS[year];
+    let c = Math.min(gross, p.cap) * SS_EMP[year];
+    if (p.sol && gross > p.cap) {
+      let prev = 0;
+      for (const [hiShare, r] of p.sol) {
+        const hi = p.cap * hiShare, ex = gross - p.cap;
+        if (ex <= prev) break;
+        c += (Math.min(ex, hi) - prev) * r * 5 / 6;
+        prev = hi;
+      }
+    }
+    return c;
+  }
+  // Aportación fiscal anual de un perfil: IRPF, cotizaciones (trabajador y empresa) e impuestos
+  // indirectos estimados (propensión al consumo × tipo efectivo sobre el gasto).
+  function aportacion(gross, type, age, year, tInd) {
+    const t = tax({ gross, type, age }, { law: year, ssYear: year });
+    const emp = type === "worker" ? ssEmployer(gross, year) : 0;
+    const prop = t.neto < 15000 ? 0.95 : t.neto < 25000 ? 0.88 : t.neto < 40000 ? 0.8 : t.neto < 60000 ? 0.72 : 0.62;
+    const ind = t.neto * prop * (tInd ?? 0.14);
+    return { irpf: t.cuota, ssTrab: t.ss, ssEmp: emp, indirectos: ind, general: t.cuota + ind, cotiz: t.ss + emp, total: t.cuota + ind + t.ss + emp, neto: t.neto };
+  }
+  function poder(p) {
+    const pi = p.ipc / 100, d = 1 + pi, tau = (p.ipcImpuestos || 0) / 100, dx = Math.max(0.5, d - tau);
+    return PERFILES.map((f) => {
+      const aB = f.age ? f.age[0] : 40, a26 = f.age ? f.age[1] : 50;
+      const g26 = f.gB * (1 + f.grow(p));
+      const tB = tax({ gross: f.gB, type: f.type, age: aB }, { law: BASE, ssYear: BASE });
+      const t26 = tax({ gross: g26, type: f.type, age: a26 }, { law: 2026, ssYear: 2026 });
+      const tIx = tax({ gross: g26, type: f.type, age: a26 }, { law: 2026, ssYear: 2026, idx: d });
+      const nB = tB.neto;
+      // componentes en % de la renta neta 2018 (euros de 2018, IPC sin la parte fiscal)
+      const salario = (g26 / dx - f.gB) / nB;
+      const cotiz = -(t26.ss / dx - tB.ss) / nB;
+      const irpfFrio = -((t26.cuota - tIx.cuota) / dx) / nB;
+      const irpfResto = -(tIx.cuota / dx - tB.cuota) / nB;
+      const indirectos = t26.neto / d / nB - t26.neto / dx / nB;
+      const otros = -((p.otrosImp || 0) / d) / nB;
+      const netoReal = t26.neto / d / nB - 1;
+      return {
+        ...f, g26, tB, t26, tIx, brutoReal: g26 / d / f.gB - 1, netoReal,
+        comp: { salario, cotiz, irpf: irpfFrio + irpfResto, irpfFrio, irpfResto, indirectos, otros },
+        total: netoReal + otros,
+      };
+    });
+  }
+
+  // Datos reales 2026 observados (AEAT, INE) y estimación de cierre
+  const REAL2026 = {
+    cajaEneAgo: 109995e6, cajaEneAgoVar: 0.116, caja2025: 142466e6,
+    cajaEstim: 142466e6 * 1.116, cuotaEstim: 142466e6 * 1.116 * 0.976,
+    salarioMedioVar: 0.034, conveniosVar: 0.030, ipcOct: 0.049,
+    imvHogares: 860458, imvPersonas: 2.6e6,
+  };
+  // Contexto 2018 → 2026 (INE, Seguridad Social, IMSERSO, Ministerio de Sanidad)
+  const CONTEXTO = {
+    nacidosFuera: { 2018: 6.2e6, 2026: 10004581 },          // residentes nacidos en el extranjero a 1 de enero
+    afiliadosExt: { 2018: 1992849, 2025: 3135003 },          // afiliados extranjeros, media de diciembre
+    ocupadosExtEPA: { 2018: 2.2e6, 2025: 3.52e6 },           // ocupados de nacionalidad extranjera (EPA, T2-2018 y sept. 2025)
+    pnc: { 2018: 451780, 2023: 449841 },                     // pensiones no contributivas (IMSERSO, dic. 2018 y ago. 2023)
+    pensiones: { 2018: 9572422, 2026: 10498828 },            // pensiones contributivas en nómina
+    pensionistas2026: 9.4e6,
+    gastoSanitarioPC: { 2018: 1522, 2024: 2084 },            // gasto sanitario público por habitante (EGSP)
+  };
+
+  return { BASE, HOR, CARW, DISP, ENTR, LAWS, VALID, ANCLAS, wageGrowth, meanWageGrowth, PERFILES, poder, REAL2026, SS, MACRO, TRAMOS, OFICIAL_BASE, OFICIAL_2023, OFICIAL_2024, PENS_BASE, NACIONALIDAD, CONTEXTO, DEFAULTS, CAL, POPB,
+    tax, netIncome, grossFromNet, tramoOf, simulate, kOf, ssEmployer, aportacion };
+})();
+if (typeof module !== "undefined") module.exports = IRPF;
+
+</script>
+<script>
+(() => {
+  const M = IRPF;
+  const $ = (id) => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+
+  /* ---------------- Formato ---------------- */
+  const G = { useGrouping: "always" };
+  const mk = (o) => { try { return new Intl.NumberFormat("es-ES", { ...o, ...G }); } catch (e) { return new Intl.NumberFormat("es-ES", o); } };
+  const nf0 = mk({ maximumFractionDigits: 0 });
+  const nf1 = mk({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const nf2 = mk({ minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fM = (x) => nf0.format(Math.round(x / 1e6)) + " M€";
+  const fMs = (x) => (x >= 0 ? "+" : "−") + nf0.format(Math.abs(Math.round(x / 1e6))) + " M€";
+  const fE = (x) => nf0.format(Math.round(x)) + " €";
+  const fEs = (x) => (x >= 0 ? "+" : "−") + nf0.format(Math.abs(Math.round(x))) + " €";
+  const fP = (x, d = 1) => (d === 0 ? nf0 : nf1).format(x * 100) + " %";
+  const fPs = (x) => (x >= 0 ? "+" : "−") + nf1.format(Math.abs(x * 100)) + " %";
+  const fPP = (x) => (x >= 0 ? "+" : "−") + nf1.format(Math.abs(x * 100)) + " pp";
+  const fMp = (x) => nf2.format(x / 1e6) + " M";
+  const fMps = (x) => (x >= 0 ? "+" : "−") + nf2.format(Math.abs(x / 1e6)) + " M";
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  // diferencia escenario − real, con clase de color
+  const dCls = (d, tol) => (Math.abs(d) <= tol ? "delta-0" : d > 0 ? "delta-up" : "delta-down");
+  const dM = (d) => `<span class="${dCls(d, 5e6)}">${Math.abs(d) < 5e6 ? "=" : fMs(d)}</span>`;
+  const dPp = (d) => `<span class="${dCls(d, 0.0005)}">${Math.abs(d) < 0.0005 ? "=" : fPP(d)}</span>`;
+  const dMp = (d) => `<span class="${dCls(d, 5000)}">${Math.abs(d) < 5000 ? "=" : fMps(d)}</span>`;
+  const dE = (d) => `<span class="${dCls(d, 0.5)}">${Math.abs(d) < 0.5 ? "=" : fEs(d)}</span>`;
+
+  /* ---------------- Tooltip ---------------- */
+  const tip = $("tooltip");
+  function showTip(e, html) {
+    tip.innerHTML = html;
+    tip.style.display = "block";
+    const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = e.clientX + pad, y = e.clientY + pad;
+    if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
+    if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  const hideTip = () => (tip.style.display = "none");
+  function el(tag, attrs = {}, parent) {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function svgRoot(container, W, H, label) {
+    container.innerHTML = "";
+    const s = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label });
+    container.appendChild(s);
+    return s;
+  }
+  function text(parent, x, y, str, attrs = {}) {
+    const t = el("text", { x, y, "font-size": 11, fill: "#52514e", ...attrs }, parent);
+    t.textContent = str;
+    return t;
+  }
+  function niceStep(max, n = 5) {
+    const raw = max / n, p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const m = raw / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  }
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const barPath = (x0, bot, top, bw, up) => {
+    const h = Math.abs(bot - top), r = Math.min(4, h / 2);
+    if (up) return `M${x0},${bot} V${top + r} Q${x0},${top} ${x0 + r},${top} H${x0 + bw - r} Q${x0 + bw},${top} ${x0 + bw},${top + r} V${bot} Z`;
+    return `M${x0},${top} V${bot - r} Q${x0},${bot} ${x0 + r},${bot} H${x0 + bw - r} Q${x0 + bw},${bot} ${x0 + bw},${bot - r} V${top} Z`;
+  };
+
+  /* ---------------- Referencia "Real 2026" ---------------- */
+  const D = { ...M.DEFAULTS };
+  // el ajuste de ahorro y ganancias se fija para que el Real 2026 cuadre con la cuota real estimada
+  D.ajusteAhorro = Math.round((M.REAL2026.cuotaEstim - M.simulate({ ...D, ajusteAhorro: 0 }, 2026).totalCore) / 1e8) * 100;
+  const REF = M.simulate(D, 2026);
+  const REFP = M.poder(D);
+
+  /* ---------------- Escenarios ---------------- */
+  const realGrowth = (s) => (1 + s / 100) / 1.270;
+  const PRESETS = [
+    { id: "central", label: "Real 2026", p: {},
+      read: "<b>Cómo leerlo:</b> reproduce los datos observados de 2026. Desde 2018: salarios bajos +34,5 %, medios +29,9 %, altos +29,5 %; IPC +27,0 %; SMI +66 %; pensiones +26,1 %. Censo ≈ 25,9 M. Es la referencia contra la que se compara todo lo demás." },
+    { id: "salipc", label: "Salarios = IPC", p: { salBajos: 27.0, salMedios: 27.0, salAltos: 27.0, carrera: 0, arrastre: 0 },
+      read: "<b>Cómo leerlo:</b> todos los salarios suben exactamente lo que el IPC y no hay efecto SMI. Lo que suba la cuota por encima de la inflación es progresividad en frío o cambios de ley: la prueba más limpia del \"impuesto inflacionario\"." },
+    { id: "sinsmi", label: "Sin efecto SMI", p: { arrastre: 0, salBajos: 29.9 },
+      read: "<b>Cómo leerlo:</b> los salarios bajos suben como los medios y el SMI no tira de ellos. Muestra cuánto del aumento de la cuota y del censo en tramos medios se debe a la subida del salario mínimo." },
+    { id: "ipcbajo", label: "Inflación 2 % anual", p: { ipc: 17.2, salBajos: +(realGrowth(34.5) * 117.2 - 100).toFixed(1), salMedios: +(realGrowth(29.9) * 117.2 - 100).toFixed(1), salAltos: +(realGrowth(29.5) * 117.2 - 100).toFixed(1), pensiones: 17.2 },
+      read: "<b>Cómo leerlo:</b> mundo contrafactual sin el choque de 2022-23 ni el repunte de 2026 (IPC 2 % al año) y con los mismos salarios reales. Menos inflación significa menos progresividad en frío aunque la escala siga congelada." },
+    { id: "sininm", label: "Sin inmigración", p: { altasInmig: 0 },
+      read: "<b>Cómo leerlo:</b> elimina los 1,6 M de declarantes nuevos de origen inmigrante desde 2018. Muestra cuánto aportan en cuota por persona frente a la media: suman censo y recaudación, pero menos por cabeza (sección 2)." },
+    { id: "envej", label: "Más jubilaciones", p: { jubilacion: 21, bajas: 2.9 },
+      read: "<b>Cómo leerlo:</b> acelera la salida de la generación del baby boom. La barra roja de jubilaciones crece: cada directivo que se jubila pasa de pagar decenas de miles a la cuota de una pensión máxima." },
+    { id: "impuestos", label: "Más presión indirecta", p: { ipcImpuestos: 2.0, otrosImp: 500 },
+      read: "<b>Cómo leerlo:</b> supone que 2 puntos de la inflación acumulada se deben a subidas de IVA e impuestos especiales y que IBI, tasa de residuos y similares cuestan 500 € más al año que en 2018. No cambia la recaudación de IRPF; mira el gráfico 4 de poder adquisitivo." },
+    { id: "deflac50", label: "Deflactar solo 50 %", p: { deflac: 50 },
+      read: "<b>Cómo leerlo:</b> la recaudación del escenario no cambia; cambia el contrafactual. El resumen y la tabla 6 muestran cuánto costaría actualizar la escala con la mitad del IPC acumulado desde 2018." },
+  ];
+  const GROUPS = [
+    { title: "Salarios y precios", items: [
+      { key: "salBajos", label: "Salarios bajos (P30) 2018→2026", min: 5, max: 60, step: 0.5, unit: "%", help: "EPA: P30 1.260,9 → 1.582,2 €/mes (+25,5 %) entre 2018 y 2024 + 2025-26. Tiran de ellos las subidas del SMI." },
+      { key: "salMedios", label: "Salarios medios (mediana–P70)", min: 5, max: 55, step: 0.5, unit: "%", help: "EPA 2018-2024: mediana +21,9 % y P70 +21,6 %; convenios 2025 +3,5 % y 2026 +3,0 %." },
+      { key: "salAltos", label: "Salarios altos (P90+)", min: 5, max: 55, step: 0.5, unit: "%", help: "EPA: P90 3.441,9 €/mes en 2018, ≈ +21,4 % hasta 2024 + 2025-26." },
+      { key: "arrastre", label: "Efecto SMI sobre salarios ≤ SMI 2018", min: 0, max: 100, step: 5, unit: "% del SMI", help: "100 % = quien cobraba el SMI en 2018 (10.303 €) sube con el SMI (+66 % hasta 17.094 €)." },
+      { key: "carrera", label: "Progresión individual (antigüedad, ascensos)", min: 0, max: 40, step: 1, unit: "%", help: "Mejora media adicional de quien sigue trabajando de 2018 a 2026 (completa en salarios bajos y medios, ×0,4 en altos, con dispersión individual). Calibrado con AEAT 2023-24." },
+      { key: "ipc", label: "IPC acumulado 2018→2026", min: 5, max: 40, step: 0.1, unit: "%", help: "Medias anuales INE: +22,5 % de 2018 a 2025; 2026 estimado (ene-oct, octubre 4,9 %)." },
+      { key: "pensiones", label: "Revalorización de pensiones", min: 5, max: 40, step: 0.1, unit: "%", help: "Revalorizaciones oficiales 2019-2026 acumuladas: +26,1 % (8,5 % en 2023)." },
+    ] },
+    { title: "Demografía del censo (millones, 2018-2026)", items: [
+      { key: "altasJovenes", label: "Altas: jóvenes (primer empleo)", min: 0, max: 5, step: 0.05, unit: "M", help: "Cohortes que entran en el mercado laboral." },
+      { key: "altasInmig", label: "Altas: inmigración", min: 0, max: 4, step: 0.05, unit: "M", help: "Nuevos residentes que declaran; renta mediana ≈ 1,2 × SMI. Referencia AEAT: las declaraciones de extranjeros pasan de 1,11 M (2016) a 1,98 M (2023), sin contar a los ya nacionalizados." },
+      { key: "altasIMV", label: "Altas: IMV y prestaciones", min: 0, max: 3, step: 0.05, unit: "M", help: "Perceptores del Ingreso Mínimo Vital, obligados a declarar desde 2021 (860.458 hogares en junio de 2026). Su prestación está exenta: cuota ≈ 0." },
+      { key: "altasOtras", label: "Altas: otras", min: 0, max: 5, step: 0.05, unit: "M", help: "Reincorporaciones, parcialidad y pluripagadores obligados a declarar." },
+      { key: "bajas", label: "Bajas: fallecimientos y salidas", min: 0, max: 5, step: 0.05, unit: "M", help: "70 % pensionistas (fallecimientos), 30 % activos (emigración, dejar de declarar)." },
+      { key: "jubilacion", label: "Asalariados de 2018 jubilados en 2026", min: 0, max: 30, step: 1, unit: "%", help: "Pensión = 80 % del salario, con el tope de la pensión máxima." },
+    ] },
+    { title: "Recaudación y política fiscal", items: [
+      { key: "ajusteAhorro", label: "Ahorro, ganancias y otros no modelados", min: 0, max: 30000, step: 100, unit: "M€", help: "Cuota de intereses, dividendos, plusvalías y actividades que el motor no calcula. En el Real 2026 se fija para cuadrar con la cuota estimada a partir de la caja real (ene-ago +11,6 %)." },
+      { key: "deflac", label: "Deflactación de la escala (contrafactual)", min: 0, max: 100, step: 5, unit: "% del IPC", help: "Actualiza tramos, mínimo personal y gastos de 2.000 € con este % del IPC. Solo afecta al contrafactual." },
+    ] },
+    { title: "Poder adquisitivo: otros impuestos", items: [
+      { key: "ipcImpuestos", label: "IPC fiscal: puntos de inflación por impuestos indirectos", min: -3, max: 6, step: 0.1, unit: "pp", help: "Parte del IPC acumulado debida a IVA e impuestos especiales (IPC − IPC a impuestos constantes). Rebajas de 2022-23 y 2026, subidas de 2024-25: estimación neta +0,5 pp." },
+      { key: "otrosImp", label: "Otros tributos fuera del IPC", min: 0, max: 2000, step: 25, unit: "€/año", help: "IBI, tasa de residuos (obligatoria desde 2025) y similares: coste adicional anual frente a 2018, por persona." },
+    ] },
+  ];
+  const ALLCTL = GROUPS.flatMap((g) => g.items);
+  let state = { ...D };
+  let presetId = "central";
+
+  function fmtCtl(c, v) {
+    if (c.unit === "M") return nf2.format(v) + " M";
+    if (c.unit === "M€") return nf0.format(v) + " M€";
+    if (c.unit === "€/año") return nf0.format(v) + " €/año";
+    if (c.unit === "pp") return (v >= 0 ? "+" : "−") + nf1.format(Math.abs(v)) + " pp";
+    if (c.unit === "%") return (c.key === "jubilacion" ? "" : "+") + nf1.format(v) + " %";
+    return nf0.format(v) + " " + c.unit;
+  }
+  function buildControls() {
+    const pr = $("presets");
+    PRESETS.forEach((p) => {
+      const b = document.createElement("button");
+      b.className = "preset"; b.type = "button"; b.textContent = p.label; b.dataset.id = p.id;
+      b.addEventListener("click", () => applyPreset(p.id));
+      pr.appendChild(b);
+    });
+    const box = $("controls");
+    GROUPS.forEach((g) => {
+      const h = document.createElement("h3"); h.textContent = g.title; box.appendChild(h);
+      g.items.forEach((c) => {
+        const d = document.createElement("div"); d.className = "ctl";
+        d.innerHTML = `<div class="row"><label for="in_${c.key}">${c.label}</label><span class="val" id="v_${c.key}"></span></div>
+          <input type="range" id="in_${c.key}" min="${c.min}" max="${c.max}" step="${c.step}" value="${state[c.key]}">
+          <div class="help">${c.help} <span class="muted">Real 2026: ${fmtCtl(c, D[c.key])}</span></div>`;
+        box.appendChild(d);
+        d.querySelector("input").addEventListener("input", (e) => {
+          state[c.key] = parseFloat(e.target.value);
+          presetId = null;
+          schedule();
+        });
+      });
+    });
+    $("btnReset").addEventListener("click", () => applyPreset("central"));
+  }
+  function applyPreset(id) {
+    const p = PRESETS.find((x) => x.id === id);
+    state = { ...D, ...p.p };
+    presetId = id;
+    ALLCTL.forEach((c) => ($("in_" + c.key).value = state[c.key]));
+    schedule();
+  }
+  const isReal = () => ALLCTL.every((c) => Math.abs(state[c.key] - D[c.key]) < 1e-9);
+  function syncControls() {
+    ALLCTL.forEach((c) => {
+      const v = $("v_" + c.key);
+      v.textContent = fmtCtl(c, state[c.key]);
+      v.classList.toggle("changed", Math.abs(state[c.key] - D[c.key]) > 1e-9);
+    });
+    document.querySelectorAll(".preset").forEach((b) => b.setAttribute("aria-pressed", b.dataset.id === presetId ? "true" : "false"));
+    const p = PRESETS.find((x) => x.id === presetId);
+    $("presetRead").innerHTML = p ? p.read : "<b>Escenario personalizado.</b> Los valores resaltados en azul difieren del Real 2026. Todas las tablas muestran la diferencia frente a él.";
+    const neto = state.altasJovenes + state.altasInmig + state.altasIMV + state.altasOtras - state.bajas;
+    $("netCenso").innerHTML = `Censo neto: <b>${neto >= 0 ? "+" : "−"}${nf2.format(Math.abs(neto))} M</b> desde 2018 (20,61 M) → 2026 ≈ <b>${nf2.format(M.OFICIAL_BASE.nTotal / 1e6 + neto)} M</b> declaraciones <span class="muted">(oficial 2024: 24,63 M)</span>`;
+    const real = isReal();
+    const b = $("realBadge");
+    b.className = "badge-real" + (real ? "" : " diff");
+    b.textContent = real ? "Escenario = Real 2026" : `Escenario "${p ? p.label : "personalizado"}" frente al Real 2026`;
+  }
+
+  /* ---------------- Render principal ---------------- */
+  let raf = null;
+  function schedule() { if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
+  let SIM = null, POD = null;
+
+  function render() {
+    raf = null;
+    syncControls();
+    SIM = M.simulate(state, 2026);
+    POD = M.poder(state);
+    renderSummary(SIM, POD);
+    renderKPIs(SIM);
+    renderWaterfall(SIM);
+    renderGrupos(SIM, POD);
+    renderRates();
+    renderCalc();
+    renderPoder(POD);
+    renderSankey(SIM);
+    renderTramos(SIM);
+    renderProtos();
+    renderValidation();
+  }
+
+  /* ---------------- Resumen narrativo ---------------- */
+  const BASEC = () => M.OFICIAL_BASE.cuotaTotal, BASEN = () => M.OFICIAL_BASE.nTotal;
+  // grupos derivados: pensionistas que ya lo eran en 2018 = pensionistas − nuevos jubilados
+  function gruposDe(s) {
+    const g = s.grupos, z = { n: 0, cuota: 0, renta: 0, frio: 0, norma: 0, cuotaIdx: 0, cuotaB: 0, nB: 0 };
+    const pens = g.pens || z, jub = g.jub || z;
+    const prev = {}; for (const k in z) prev[k] = pens[k] - jub[k];
+    return { act: g.act || z, prev, jub, pens, jov: g.jov || z, inm: g.inm || z, otr: g.otr || z, imv: g.imv || z };
+  }
+  function renderSummary(s, pod) {
+    const real = isReal();
+    const G = gruposDe(s), GR = gruposDe(REF), gB = s.gruposB;
+    const NB = BASEN(), CB = BASEC();
+    const step = (k, sim) => sim.steps.find((x) => x.key === k).value;
+    const cuotaMedia = s.total / s.censo;
+    const pf = (id) => pod.find((x) => x.id === id), pr = (id) => REFP.find((x) => x.id === id);
+    const p50 = pf("p50"), p70 = pf("p70"), p90 = pf("p90"), p30 = pf("p30"), smi = pf("smi"), pm = pf("penmed"), px = pf("penmax");
+    const cmp = (v, rv, fmt) => (real ? "" : ` <span class="muted">(Real 2026: ${fmt(rv)})</span>`);
+    const drag = step("drag", s), np = s.normParts;
+    const per = (o, k) => (o.n > 0 ? o[k] / o.n : 0);
+    const paras = [];
+    paras.push(`<b>Recaudación.</b> La cuota del IRPF pasa de 81.372 M€ en 2018 a <b>${fM(s.total)}</b> en 2026 (${fPs(s.total / CB - 1)})${cmp(s.total, REF.total, fM)}. De ese aumento, <b>${fM(drag)}</b> (${fP(drag / (s.total - CB))}) es <span class="hl">progresividad en frío</span>: recaudación que llega solo porque la escala, el mínimo personal y los gastos deducibles siguen en euros de 2015 mientras precios y salarios suben. Deflactar la escala desde 2018 costaría ${fM(s.costeDeflactar)} al año. Los <b>cambios de ley</b> desde 2018 suman en neto ${fMs(step("norma", s))}: la subida al 47 % por encima de 300.000 € aporta ${fMs(np.top47)}, mientras la rebaja de 2018 en año completo (${fMs(np.red18)}), la mayor reducción por trabajo de 2023-24 (${fMs(np.red20)}) y la deducción SMI (${fMs(np.dedSMI)}) restan.`);
+    paras.push(`<b>Quién paga la progresividad en frío.</b> Los asalariados que ya declaraban en 2018 cargan con <b>${fM(G.act.frio)}</b> (${fE(per(G.act, "frio"))} por persona y año). Los <b>pensionistas</b> pagan <b>${fM(G.pens.frio)}</b>: ${fM(G.prev.frio)} quienes ya cobraban pensión en 2018 (${fE(per(G.prev, "frio"))} cada uno) y ${fM(G.jub.frio)} los que se han jubilado desde entonces. Los nuevos declarantes aportan menos: jóvenes ${fM(G.jov.frio)}, inmigración ${fM(G.inm.frio)} y otras altas ${fM(G.otr.frio)}; los perceptores del IMV, prácticamente nada.${real ? "" : ` <span class="muted">(Real 2026: asalariados ${fM(GR.act.frio)}, pensionistas ${fM(GR.pens.frio)})</span>`}`);
+    paras.push(`<b>Pensionistas.</b> Los declarantes con pensión pasan de ${fMp(gB.pens.n)} (${fP(gB.pens.n / NB)} del censo) a <b>${fMp(G.pens.n)}</b> (${fP(G.pens.n / s.censo)}): ${fMp(G.jub.n)} nuevos jubilados compensan los fallecimientos. Quien ya era pensionista en 2018 pagaba ${fE(per(G.prev, "cuotaB") )} de cuota media y en 2026 paga <b>${fE(per(G.prev, "cuota"))}</b> (${fPs(per(G.prev, "cuota") / Math.max(1, per(G.prev, "cuotaB")) - 1)}), con una pensión que ha subido ${fPs(state.pensiones / 100)} y precios que han subido ${fPs(state.ipc / 100)}. Aun así, las jubilaciones restan <b>${fM(-step("jub", s))}</b> a la recaudación, porque la pensión, con tope de 47.034 €, sustituye a salarios más altos.`);
+    paras.push(`<b>SMI, inmigración e IMV.</b> Quien cobra el <b>SMI</b> ha pasado de 10.303 a 17.094 € brutos (+66 %) sin pagar IRPF ni antes ni ahora: la ley ha ido subiendo la reducción por trabajo y en 2025 creó la deducción SMI precisamente para eso. Sí cotiza más: ${fE(M.aportacion(10302.6, "worker", 35, 2018).cotiz)} → <b>${fE(M.aportacion(17094, "worker", 35, 2026).cotiz)}</b> al año entre trabajador y empresa. La <b>inmigración</b> añade ${fMp(G.inm.n)} declarantes con una cuota media de <b>${fE(per(G.inm, "cuota"))}</b>, frente a ${fE(cuotaMedia)} de media${real ? "" : ` <span class="muted">(Real 2026: ${fE(per(GR.inm, "cuota"))})</span>`}; según la AEAT, los declarantes de nacionalidad extranjera aportaron el 5,2 % de la cuota en 2024 con algo más del 8 % de las declaraciones. Los <b>${fMp(G.imv.n)} perceptores del IMV</b> declaran porque la ley les obliga desde 2021, pero su prestación está exenta: suman censo con cuota prácticamente nula. Las pensiones no contributivas no han crecido (unas 450.000 en 2018 y en 2023).`);
+    paras.push(`<b>Poder adquisitivo.</b> El <b>SMI</b> a jornada completa gana un ${fPs(smi.total)} real. En <b>rentas bajas (P30)</b> el saldo es ${fPs(p30.total)}. En <b>rentas medias</b> (mediana, ${fE(p50.gB)} → ${fE(p50.g26)}) el bruto sube ${fPs(p50.brutoReal)} por encima del IPC, pero la renta disponible cambia un <b>${fPs(p50.total)}</b>: el IRPF resta ${fPP(p50.comp.irpf)} (${fPP(p50.comp.irpfFrio)} por progresividad en frío)${real ? "" : ` <span class="muted">(Real 2026: ${fPs(pr("p50").total)})</span>`}. En <b>medias-altas (P70)</b> el saldo es ${fPs(p70.total)} y en <b>altas (P90)</b> ${fPs(p90.total)}, con ${fPP(p90.comp.irpfFrio)} de progresividad en frío. La <b>pensión media</b> cambia ${fPs(pm.total)} y la <b>máxima</b> ${fPs(px.total)}.`);
+    paras.push(`<b>Contraste con los datos.</b> Entre 2018 y 2024 la mediana salarial de la EPA subió un 21,9 % y el P70 un 21,6 %, frente a un IPC del 19,3 %: fuera del SMI, los salarios brutos van ligeramente por delante de los precios, y en 2026 los convenios (+3,0 %) quedan por debajo del IPC (≈ 3,7 %). La pérdida de las rentas medias y altas viene de los impuestos que no se actualizan, no del bruto. La sección 2 detalla quién paga y quién entra.`);
+    if (!real) {
+      const dTot = s.total - REF.total;
+      const dc = s.censo - REF.censo;
+      paras.unshift(`<span class="badge-real diff">Diferencia frente al Real 2026</span> Con este escenario la cuota 2026 es <b>${fMs(dTot)}</b> (${fPs(s.total / REF.total - 1)}), el censo ${Math.abs(dc) < 5000 ? "no cambia" : fMps(dc)} y la progresividad en frío ${fMs(step("drag", s) - step("drag", REF))}. La renta disponible real de la mediana cambia ${fPP(p50.total - pr("p50").total)} frente al Real 2026.`);
+    }
+    $("summaryText").innerHTML = paras.map((p) => `<p>${p}</p>`).join("");
+  }
+
+  /* ---------------- Datos reales 2026 ---------------- */
+  function renderRealBar() {
+    const R = M.REAL2026;
+    const items = [
+      ["IRPF de caja ene-ago 2026", fM(R.cajaEneAgo), `${fPs(R.cajaEneAgoVar)} vs 2025 · AEAT`],
+      ["Cierre estimado 2026", fM(R.cajaEstim), `caja · cuota ≈ ${fM(R.cuotaEstim)} (estimación)`],
+      ["Salarios 2026", "+3,4 % / +3,0 %", "salario medio (AEAT) / convenios (Trabajo)"],
+      ["IPC 2026", "4,9 % oct · ≈3,7 % media", "INE · IPC acumulado 2018-26 ≈ +27,0 %"],
+      ["SMI 2026", "17.094 €/año", "1.221 € × 14 · +66 % desde 2018 · cuota 0"],
+      ["Pensiones 2026", "+2,7 % · máx. 47.034 €", "revalorización; mínimas +7 %"],
+      ["IMV junio 2026", "860.458 hogares", "2,6 M personas · obligadas a declarar"],
+      ["Escala IRPF", "Sin deflactar desde 2015", "salvo reducción por trabajo y deducción SMI"],
+    ];
+    $("realBar").innerHTML = items.map((i) => `<div><div class="l">${i[0]}</div><div class="v">${i[1]}</div><div class="s">${i[2]}</div></div>`).join("");
+  }
+
+  /* ---------------- KPIs ---------------- */
+  function renderKPIs(s) {
+    const base = BASEC();
+    const inc = s.total - base;
+    const drag = s.steps.find((x) => x.key === "drag").value, dragR = REF.steps.find((x) => x.key === "drag").value;
+    const p50 = POD.find((x) => x.id === "p50"), p50r = REFP.find((x) => x.id === "p50");
+    const k = [
+      { l: "Cuota IRPF 2026", v: fM(s.total), d: `<b>${fPs(s.total / base - 1)}</b> vs. 81.372 M€ de 2018 <span class="tag off">oficial</span>`, r: `Real 2026: <b>${fM(REF.total)}</b> · ${dM(s.total - REF.total)}` },
+      { l: "Progresividad en frío acumulada", v: fM(drag), d: `<b>${fP(drag / inc)}</b> del aumento; ${fE(drag / s.censo)} por declarante`, r: `Real 2026: <b>${fM(dragR)}</b> · ${dM(drag - dragR)}` },
+      { l: "Poder adquisitivo rentas medias", v: fPs(p50.total), d: `Mediana salarial, renta disponible real 2018→2026`, r: `Real 2026: <b>${fPs(p50r.total)}</b> · ${dPp(p50.total - p50r.total)}` },
+      { l: "Declaraciones 2026", v: fMp(s.censo), d: `<b>${fPs(s.censo / BASEN() - 1)}</b> vs. 20,61 M · cuota media <b>${fE(s.total / s.censo)}</b>`, r: `Real 2026: <b>${fMp(REF.censo)}</b> · ${dMp(s.censo - REF.censo)}` },
+    ];
+    $("kpis").innerHTML = k.map((x) => `<div class="kpi"><div class="l">${x.l}</div><div class="v num">${x.v}</div><div class="d">${x.d}</div><div class="r">${x.r}</div></div>`).join("");
+  }
+
+  /* ---------------- 1. Cascada ---------------- */
+  const STEP_HELP = {
+    base: "Cuota resultante de la autoliquidación del ejercicio 2018 según la AEAT (20,61 M de declaraciones). Ya incluye medio año de la rebaja de julio de 2018.",
+    censo: "Más declarantes a renta real de 2018: jóvenes, inmigración, IMV y otras altas, menos fallecimientos y salidas. Las altas entran con rentas bajas, por eso aportan menos cuota por persona.",
+    jub: "Asalariados que pasan a pensionistas: la pensión sustituye ~80 % del salario y la pensión máxima recorta a los salarios altos.",
+    real: "Lo que suben las rentas por encima del IPC (salarios por percentil, progresión individual, efecto SMI), con la ley de 2018.",
+    infl: "Si la escala, el mínimo personal y los gastos se hubieran indexado al IPC, la cuota subiría exactamente con los precios: este efecto es neutral.",
+    drag: "Recaudación extra por no actualizar los umbrales: rentas que solo crecen con la inflación saltan a tramos con tipos más altos y el mínimo personal pierde valor.",
+    norma: "Cambios legislados desde 2018: la rebaja de julio de 2018 en año completo, tipo del 47 % sobre 300.000 € (2021), mayor reducción por rendimientos del trabajo (2023, 2024) y deducción SMI (2025-26).",
+    ahorro: "Cuota que el modelo no calcula (intereses, dividendos, ganancias patrimoniales, actividades). En el Real 2026 cuadra el modelo con la cuota estimada a partir de la caja real de 2026.",
+    total: "Cuota resultante 2026 del escenario. La línea negra marca el Real 2026.",
+  };
+  const SHORT = { base: "Cuota 2018 (oficial)", censo: "Altas y bajas", jub: "Jubilaciones", real: "Crecimiento real de rentas", infl: "Inflación (neutral)", drag: "Progresividad en frío", norma: "Cambios normativos", ahorro: "Ahorro y ganancias", total: "Cuota 2026" };
+  function wrapLabel(str, max = 14) {
+    const words = str.split(" "), lines = [];
+    let cur = "";
+    words.forEach((w) => {
+      if ((cur + " " + w).trim().length > max && cur) { lines.push(cur); cur = w; } else cur = (cur + " " + w).trim();
+    });
+    if (cur) lines.push(cur);
+    return lines.slice(0, 3);
+  }
+  function renderWaterfall(s) {
+    const W = 920, H = 410, m = { t: 30, r: 12, b: 74, l: 66 };
+    const svg = svgRoot($("waterfall"), W, H, "Cascada de efectos sobre la cuota del IRPF 2018-2026");
+    let cum = 0;
+    const bars = s.steps.map((st) => {
+      if (st.type === "total") { cum = st.value; return { ...st, y0: 0, y1: st.value }; }
+      const y0 = cum; cum += st.value; return { ...st, y0, y1: cum };
+    });
+    const ymax = Math.max(REF.total, ...bars.map((b) => Math.max(b.y0, b.y1))) * 1.1;
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const y = (v) => m.t + ih - (v / ymax) * ih;
+    const band = iw / bars.length, bw = 24;
+    const step = niceStep(ymax, 5);
+    for (let v = 0; v <= ymax; v += step) {
+      el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: v === 0 ? css("--axis") : css("--grid"), "stroke-width": 1 }, svg);
+      text(svg, m.l - 8, y(v) + 4, nf0.format(v / 1e6), { "text-anchor": "end", fill: "#77756f" });
+    }
+    text(svg, m.l - 8, m.t - 12, "M€", { "text-anchor": "end", fill: "#77756f" });
+    const totalInc = s.total - s.steps[0].value;
+    bars.forEach((b, i) => {
+      const cx = m.l + band * i + band / 2;
+      const top = y(Math.max(b.y0, b.y1)), bot = y(Math.min(b.y0, b.y1));
+      const color = b.type === "total" ? css("--tot") : b.value >= 0 ? css("--pos") : css("--neg");
+      if (i < bars.length - 1) {
+        const nx = m.l + band * (i + 1) + band / 2;
+        el("line", { x1: cx + bw / 2, x2: nx - bw / 2, y1: y(b.y1), y2: y(b.y1), stroke: css("--axis"), "stroke-width": 1 }, svg);
+      }
+      const up = b.type === "total" || b.value >= 0;
+      if (Math.abs(bot - top) >= 1) el("path", { d: barPath(cx - bw / 2, bot, top, bw, up), fill: color }, svg);
+      else el("line", { x1: cx - bw / 2, x2: cx + bw / 2, y1: top, y2: top, stroke: color, "stroke-width": 2 }, svg);
+      const lbl = b.type === "total" ? nf0.format(Math.round(b.value / 1e6)) : (b.value >= 0 ? "+" : "−") + nf0.format(Math.abs(Math.round(b.value / 1e6)));
+      text(svg, cx, up ? top - 6 : bot + 14, lbl, { "text-anchor": "middle", fill: "#0b0b0b", "font-weight": 650, "font-size": 12 });
+      if (b.key === "total") {
+        // marca del Real 2026
+        const yr = y(REF.total);
+        el("line", { x1: cx - bw / 2 - 10, x2: cx + bw / 2 + 10, y1: yr, y2: yr, stroke: "#0b0b0b", "stroke-width": 2 }, svg);
+        if (!isReal()) text(svg, cx + bw / 2 + 12, yr + 4, "Real", { fill: "#0b0b0b", "font-weight": 650 });
+      }
+      wrapLabel(SHORT[b.key] || b.label).forEach((ln, j) => text(svg, cx, H - m.b + 18 + j * 13, ln, { "text-anchor": "middle", "font-size": 11, fill: "#52514e" }));
+      const hit = el("rect", { x: m.l + band * i, y: m.t, width: band, height: ih, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", (e) => {
+        const rv = REF.steps.find((x) => x.key === b.key).value;
+        const share = b.type === "total" ? "" : `<br>${fP(b.value / totalInc)} del aumento total (${fM(totalInc)})`;
+        const np = b.key === "norma" && s.normParts ? `<br>Rebaja de 2018 en año completo: ${fMs(s.normParts.red18)}<br>Subida 47 % (&gt;300.000 €): ${fMs(s.normParts.top47)}<br>Reducción por trabajo 2023-24: ${fMs(s.normParts.red20)}<br>Deducción SMI: ${fMs(s.normParts.dedSMI)}` : "";
+        showTip(e, `<b>${esc(b.label)}</b><br>Escenario: ${b.type === "total" ? fM(b.value) : fMs(b.value)}${share}<br>Real 2026: ${b.type === "total" ? fM(rv) : fMs(rv)}${np}<br><span style="opacity:.8">${STEP_HELP[b.key]}</span>`);
+      });
+      hit.addEventListener("mouseleave", hideTip);
+    });
+    // tabla escenario vs real
+    const rows = s.steps.map((st) => {
+      const rv = REF.steps.find((x) => x.key === st.key).value;
+      const f = st.type === "total" ? fM : fMs;
+      return `<tr><td>${st.label}</td><td class="num sc">${f(st.value)}</td><td class="num">${f(rv)}</td><td class="num">${dM(st.value - rv)}</td></tr>`;
+    }).join("");
+    $("wfTable").innerHTML = `<table class="cmp"><thead><tr><th>Efecto</th><th>Escenario</th><th>Real 2026</th><th>Diferencia</th></tr></thead><tbody>${rows}</tbody></table>`;
+    renderNorm(s);
+  }
+  function renderNorm(s) {
+    const n = s.normParts, r = REF.normParts;
+    const mod = [
+      ["2018 → 2019", "Ley 6/2018 en año completo: la reducción por trabajo subió de 3.700 € a 5.565 € en julio de 2018, así que ese año solo contó la mitad del aumento", "Rebaja", n.red18, r.red18],
+      ["2021", "Tipo del 47 % para la base general por encima de 300.000 € (+2 puntos)", "Subida", n.top47, r.top47],
+      ["2023 · 2024", "Reducción por rendimientos del trabajo: de 5.565 € a 7.302 €; se anula en 19.747,5 € de rendimiento neto previo (≈ 21.100 € brutos; en 2018, ≈ 18.000 €). Al aprobarlas, Hacienda estimó 1.881 M€ (2023) y 1.385 M€ en retenciones (2024); el motor calibrado da menos (ver Metodología)", "Rebaja", n.red20, r.red20],
+      ["2025 · 2026", "Deducción para perceptores del SMI (590,89 € en 2026)", "Rebaja", n.dedSMI, r.dedSMI],
+    ];
+    const tot = n.red18 + n.top47 + n.red20 + n.dedSMI, totR = r.red18 + r.top47 + r.red20 + r.dedSMI;
+    const noMod = [
+      ["2021 · 2023 · 2025", "Base del ahorro: tipo máximo del 23 % al 26 % (> 200.000 €), 27-28 % (2023) y 30 % (> 300.000 €, 2025)", "Subida", "Gobierno: ≈ 491 M€ en 2021-22 junto con el 47 %; en el ajuste de ahorro"],
+      ["2021 · 2022", "Planes de pensiones individuales: límite de aportación deducible de 8.000 € a 2.000 € y luego 1.500 €", "Subida", "Gobierno: ≈ 580 M€ en 2021-22; fuera del motor (queda en el ajuste de ahorro y otros)"],
+      ["2023 · 2024", "Alquiler de vivienda: la reducción general por arrendamiento baja del 60 % al 50 % en contratos nuevos", "Subida", "Sin cuantificar; en el ajuste de ahorro"],
+      ["2021-2025", "Deducciones por eficiencia energética de viviendas y vehículo eléctrico; ampliación de la deducción por maternidad (2023)", "Rebaja", "Sin cuantificar; fuera del motor (resta en el ajuste de ahorro y otros)"],
+      ["2024 · 2025", "Devoluciones a mutualistas (cotizaciones antiguas)", "Rebaja temporal", "AEAT: −1.155 M€ de cambios normativos en 2025, sobre todo por esta medida"],
+      ["2023-2026", "Escalas autonómicas: varias comunidades han deflactado o rebajado su tramo; otras lo han subido", "Mixto", "No modelado (escala autonómica de referencia)"],
+      ["2023-2026", "Cotizaciones del trabajador: MEI (0,10 % → 0,15 %) y cuota de solidaridad desde 2025", "Subida (no es IRPF)", "En la columna Cotizaciones del gráfico 4"],
+    ];
+    const tag = (k) => `<span class="tag ${k === "Subida" ? "mod" : k.startsWith("Rebaja") ? "off" : ""}">${k}</span>`;
+    $("normTable").innerHTML = `<table class="cmp"><thead><tr><th>Año</th><th style="text-align:left">Cambio de ley calculado por el motor</th><th style="text-align:left">Signo</th><th>Escenario</th><th>Real 2026</th></tr></thead><tbody>
+      ${mod.map((m) => `<tr><td>${m[0]}</td><td style="text-align:left;white-space:normal">${m[1]}</td><td style="text-align:left">${tag(m[2])}</td><td class="num sc">${fMs(m[3])}</td><td class="num">${fMs(m[4])}</td></tr>`).join("")}
+      </tbody><tfoot><tr><td></td><td style="text-align:left">Total cambios normativos (barra de la cascada)</td><td></td><td class="num">${fMs(tot)}</td><td class="num">${fMs(totR)}</td></tr></tfoot></table>
+      <table style="margin-top:10px"><thead><tr><th>Año</th><th style="text-align:left">Otros cambios de ley no calculados por el motor</th><th style="text-align:left">Signo</th><th style="text-align:left">Impacto / dónde queda</th></tr></thead><tbody>
+      ${noMod.map((m) => `<tr><td>${m[0]}</td><td style="text-align:left;white-space:normal">${m[1]}</td><td style="text-align:left">${tag(m[2])}</td><td style="text-align:left;white-space:normal" class="muted">${m[3]}</td></tr>`).join("")}
+      </tbody></table>
+      <p class="small" style="margin:8px 0 0"><b>Lectura:</b> sí ha habido subidas de IRPF por ley, pero se concentran en rentas muy altas, en las del ahorro y en los planes de pensiones. Para la gran mayoría de asalariados los cambios de ley han sido rebajas (reducción por trabajo y deducción SMI). Para ellos, la subida de verdad es la <b>progresividad en frío</b>, que no requiere ley: ${fM(s.steps.find((x) => x.key === "drag").value)} frente a ${fMs(tot)} netos de cambios legislados.</p>`;
+  }
+
+  /* ---------------- 2. Quién paga: grupos, SMI, inmigración e IMV ---------------- */
+  const GRP_ROWS = [
+    { k: "act", label: "Asalariados que ya declaraban en 2018" },
+    { k: "prev", label: "Pensionistas que ya lo eran en 2018" },
+    { k: "jub", label: "Jubilados desde 2018" },
+    { k: "jov", label: "Altas: jóvenes" },
+    { k: "inm", label: "Altas: inmigración" },
+    { k: "otr", label: "Altas: otras" },
+    { k: "imv", label: "Altas: IMV y prestaciones" },
+  ];
+  const APORT_SEG = [
+    { key: "irpf", label: "IRPF", color: "--s3", op: 1 },
+    { key: "indirectos", label: "IVA e impuestos especiales (estimado)", color: "--s4", op: 1 },
+    { key: "ssTrab", label: "Cotización del trabajador", color: "--s2", op: 1 },
+    { key: "ssEmp", label: "Cotización de la empresa", color: "--s2", op: 0.5 },
+  ];
+  function renderGrupos(s, pod) {
+    const G = gruposDe(s), GR = gruposDe(REF);
+    const totFrio = s.steps.find((x) => x.key === "drag").value;
+    const per = (o, k) => (o.n > 0 ? o[k] / o.n : 0);
+    // gráfico A: progresividad en frío por grupo
+    const W = 920, rowH = 34, m = { t: 24, r: 210, b: 26, l: 270 };
+    const H = m.t + m.b + rowH * GRP_ROWS.length;
+    const svg = svgRoot($("grpChart"), W, H, "Progresividad en frío 2026 por grupo de declarantes");
+    const xmax = Math.max(...GRP_ROWS.map((r) => Math.max(G[r.k].frio, GR[r.k].frio))) * 1.08;
+    const iw = W - m.l - m.r - 86, x = (v) => m.l + (Math.max(0, v) / xmax) * iw;
+    const st = niceStep(xmax, 5);
+    for (let v = 0; v <= xmax; v += st) {
+      el("line", { x1: x(v), x2: x(v), y1: m.t - 4, y2: H - m.b, stroke: v === 0 ? css("--axis") : css("--grid") }, svg);
+      text(svg, x(v), H - m.b + 16, nf0.format(v / 1e6), { "text-anchor": "middle", fill: "#77756f" });
+    }
+    text(svg, m.l, m.t - 10, "M€ de progresividad en frío en 2026", { fill: "#77756f" });
+    text(svg, W - m.r + 12, m.t - 10, "por persona · % del total", { fill: "#77756f" });
+    GRP_ROWS.forEach((r, i) => {
+      const o = G[r.k], ro = GR[r.k];
+      const cy = m.t + rowH * i + rowH / 2, bh = 16;
+      text(svg, m.l - 10, cy - 1, r.label, { "text-anchor": "end", fill: "#0b0b0b", "font-weight": 600, "font-size": 12 });
+      text(svg, m.l - 10, cy + 12, `${fMp(o.n)} declarantes`, { "text-anchor": "end", fill: "#77756f", "font-size": 10.5 });
+      if (x(o.frio) - x(0) >= 1) el("path", { d: `M${x(0)},${cy - bh / 2} H${x(o.frio) - 3} Q${x(o.frio)},${cy - bh / 2} ${x(o.frio)},${cy - bh / 2 + 3} V${cy + bh / 2 - 3} Q${x(o.frio)},${cy + bh / 2} ${x(o.frio) - 3},${cy + bh / 2} H${x(0)} Z`, fill: css("--s3") }, svg);
+      if (!isReal()) el("line", { x1: x(ro.frio), x2: x(ro.frio), y1: cy - bh / 2 - 4, y2: cy + bh / 2 + 4, stroke: "#0b0b0b", "stroke-width": 2 }, svg);
+      text(svg, x(Math.max(0, o.frio)) + 6, cy + 4, fM(o.frio), { fill: "#0b0b0b", "font-weight": 650, "font-size": 11.5 });
+      text(svg, W - m.r + 12, cy + 4, `${fE(per(o, "frio"))} · ${fP(o.frio / totFrio)}`, { fill: "#52514e", "font-size": 12 });
+      const hit = el("rect", { x: 0, y: cy - rowH / 2, width: W, height: rowH, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", (e) => showTip(e, `<b>${esc(r.label)}</b><br>${fMp(o.n)} declarantes en 2026<br>Cuota 2026: <b>${fM(o.cuota)}</b> (${fE(per(o, "cuota"))} por persona)<br>Progresividad en frío: <b>${fM(o.frio)}</b> (${fE(per(o, "frio"))} por persona)<br>Cambios de ley: ${fMs(o.norma)}<br>Real 2026: ${fM(ro.frio)} de progresividad en frío`));
+      hit.addEventListener("mouseleave", hideTip);
+    });
+    $("grpLegend").innerHTML = `<span><i class="sw" style="background:var(--s3)"></i>Progresividad en frío del grupo (escenario)</span><span><i class="sw line" style="background:#0b0b0b"></i>Real 2026 (solo si cambias parámetros)</span>`;
+    // tabla B
+    const rows = GRP_ROWS.map((r) => {
+      const o = G[r.k], ro = GR[r.k];
+      const cB = o.nB > 0 ? o.cuotaB / o.nB : null;
+      return `<tr><td>${r.label}</td><td class="num">${fMp(o.n)}</td><td class="num">${fM(o.cuota)}</td><td class="num">${cB === null ? "—" : nf0.format(cB)} → ${nf0.format(per(o, "cuota"))}</td><td class="num sc"><b>${fM(o.frio)}</b></td><td class="num">${fE(per(o, "frio"))}</td><td class="num">${fP(o.frio / totFrio)}</td><td class="num">${fM(ro.frio)}</td></tr>`;
+    }).join("");
+    const sumN = GRP_ROWS.reduce((a, r) => a + G[r.k].n, 0), sumC = GRP_ROWS.reduce((a, r) => a + G[r.k].cuota, 0), sumF = GRP_ROWS.reduce((a, r) => a + G[r.k].frio, 0);
+    $("grpTable").innerHTML = `<table class="cmp"><thead><tr><th>Grupo (declarantes de 2026)</th><th>Declarantes</th><th>Cuota 2026</th><th>Cuota media 2018 → 2026 (€)</th><th>Prog. en frío</th><th>por persona</th><th>% del frío</th><th>Real 2026</th></tr></thead><tbody>${rows}</tbody>
+      <tfoot><tr><td>Total</td><td class="num">${fMp(sumN)}</td><td class="num">${fM(sumC)}</td><td class="num">→ ${nf0.format(sumC / sumN)}</td><td class="num">${fM(sumF)}</td><td class="num">${fE(sumF / sumN)}</td><td class="num">100 %</td><td class="num">${fM(REF.steps.find((x) => x.key === "drag").value)}</td></tr></tfoot></table>
+      <p class="small" style="margin:8px 0 0">Progresividad en frío = cuota con la ley de 2018 sin actualizar − la misma ley con todos sus umbrales indexados al IPC, para cada persona y con el factor de calibración de su tramo. Los grupos suman la barra de la cascada. "Cuota media 2018" sigue a las mismas personas: los jubilados desde 2018 aparecen con la cuota que pagaban como asalariados. Sin el ajuste de ahorro y ganancias. Pasa el ratón por el gráfico para ver también los cambios de ley por grupo.</p>`;
+    // gráfico C: aportación fiscal por perfil
+    const pfs = [
+      { id: "smi", label: "SMI a jornada completa", t: "worker", a: [27, 35] },
+      { id: "p30", label: "Rentas bajas (P30)", t: "worker", a: [32, 40] },
+      { id: "p50", label: "Mediana salarial", t: "worker", a: [37, 45] },
+      { id: "p90", label: "Rentas altas (P90)", t: "worker", a: [42, 50] },
+      { id: "penmed", label: "Pensión media de jubilación", t: "pensioner", a: [70, 78] },
+    ].map((f) => { const pr = pod.find((x) => x.id === f.id); return { ...f, gB: pr.gB, g26: pr.g26, a18: M.aportacion(pr.gB, f.t, f.a[0], M.BASE), a26: M.aportacion(pr.g26, f.t, f.a[1], 2026) }; });
+    const san = M.CONTEXTO.gastoSanitarioPC;
+    const W2 = 920, rowH2 = 40, m2 = { t: 24, r: 110, b: 28, l: 230 };
+    const H2 = m2.t + m2.b + rowH2 * pfs.length;
+    const svg2 = svgRoot($("aportChart"), W2, H2, "Aportación fiscal anual por perfil en 2026");
+    const xm2 = Math.max(...pfs.map((f) => f.a26.total)) * 1.05;
+    const iw2 = W2 - m2.l - m2.r, x2 = (v) => m2.l + (v / xm2) * iw2;
+    const st2 = niceStep(xm2, 6);
+    for (let v = 0; v <= xm2; v += st2) {
+      el("line", { x1: x2(v), x2: x2(v), y1: m2.t - 4, y2: H2 - m2.b, stroke: v === 0 ? css("--axis") : css("--grid") }, svg2);
+      text(svg2, x2(v), H2 - m2.b + 16, nf0.format(v / 1000) + "k €", { "text-anchor": "middle", fill: "#77756f" });
+    }
+    const xs = x2(san[2024]);
+    el("line", { x1: xs, x2: xs, y1: m2.t - 6, y2: H2 - m2.b, stroke: "#0b0b0b", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, svg2);
+    text(svg2, xs + 4, m2.t - 10, `Gasto sanitario público por habitante (2024): ${fE(san[2024])}`, { fill: "#0b0b0b", "font-size": 11 });
+    pfs.forEach((f, i) => {
+      const cy = m2.t + rowH2 * i + rowH2 / 2, bh = 18;
+      text(svg2, m2.l - 10, cy - 2, f.label, { "text-anchor": "end", fill: "#0b0b0b", "font-weight": 600, "font-size": 12 });
+      text(svg2, m2.l - 10, cy + 12, `bruto ${fE(f.g26)}`, { "text-anchor": "end", fill: "#77756f", "font-size": 10.5 });
+      let acc = 0;
+      APORT_SEG.forEach((sg) => {
+        const v = f.a26[sg.key]; if (v <= 0) return;
+        const xa = x2(acc), xb = x2(acc + v); acc += v;
+        if (xb - xa < 0.5) return;
+        el("rect", { x: xa + (xa > m2.l ? 1 : 0), y: cy - bh / 2, width: Math.max(0.5, xb - xa - 1), height: bh, rx: 3, fill: css(sg.color), "fill-opacity": sg.op }, svg2);
+      });
+      text(svg2, x2(acc) + 6, cy + 4, fE(f.a26.total), { fill: "#0b0b0b", "font-weight": 650, "font-size": 11.5 });
+      const hit = el("rect", { x: 0, y: cy - rowH2 / 2, width: W2, height: rowH2, fill: "transparent" }, svg2);
+      hit.addEventListener("mousemove", (e) => showTip(e, `<b>${esc(f.label)}</b> · bruto ${fE(f.gB)} (2018) → ${fE(f.g26)} (2026)` + APORT_SEG.map((sg) => `<div class="tk"><i class="sw" style="background:var(${sg.color});opacity:${sg.op}"></i>${sg.label}: ${fE(f.a18[sg.key])} → <b>${fE(f.a26[sg.key])}</b></div>`).join("") + `<div style="margin-top:4px">Total: ${fE(f.a18.total)} → <b>${fE(f.a26.total)}</b></div>`));
+      hit.addEventListener("mouseleave", hideTip);
+    });
+    $("aportLegend").innerHTML = APORT_SEG.map((sg) => `<span><i class="sw" style="background:var(${sg.color});opacity:${sg.op}"></i>${sg.label}</span>`).join("") + `<span><i class="sw line" style="background:repeating-linear-gradient(90deg,#0b0b0b 0 5px,transparent 5px 8px)"></i>Gasto sanitario público por habitante</span>`;
+    const ar = (a, b) => `${nf0.format(a)} → ${nf0.format(b)}`;
+    $("aportTable").innerHTML = `<table class="cmp"><thead><tr><th>Perfil (€/año, 2018 → 2026)</th><th>Bruto</th><th>IRPF</th><th>IVA e imp. especiales</th><th>Para gasto general</th><th>Cotizaciones</th><th>Total</th></tr></thead><tbody>${pfs.map((f) => `<tr><td>${f.label}</td><td class="num">${ar(f.gB, f.g26)}</td><td class="num">${ar(f.a18.irpf, f.a26.irpf)}</td><td class="num">${ar(f.a18.indirectos, f.a26.indirectos)}</td><td class="num sc"><b>${ar(f.a18.general, f.a26.general)}</b></td><td class="num">${ar(f.a18.cotiz, f.a26.cotiz)}</td><td class="num">${ar(f.a18.total, f.a26.total)}</td></tr>`).join("")}</tbody></table>
+      <p class="small" style="margin:8px 0 0">"Para gasto general" = IRPF + impuestos indirectos; "Cotizaciones" = trabajador + empresa. Persona sola sin hijos. Impuestos indirectos: 14 % del gasto, con un gasto del 62-95 % de la renta neta según nivel (supuesto). Cotización empresarial: 31,4 % en 2018 y 32,2 % en 2026 (incluye MEI y un AT/EP medio del 1,5 %). Referencia de gasto: sanidad pública ${fE(san[2018])} por habitante en 2018 y ${fE(san[2024])} en 2024; no incluye educación, pensiones ni otros servicios, y varía mucho con la edad.</p>`;
+    // tarjetas de contraste
+    const C = M.CONTEXTO, NA = M.NACIONALIDAD;
+    const shareDecl23 = NA.decl[2023].ext / NA.decl[2023].tot;
+    const cards = [
+      ["Residentes nacidos en el extranjero", `${nf1.format(C.nacidosFuera[2018] / 1e6)} M → ${nf1.format(C.nacidosFuera[2026] / 1e6)} M`, "1 de enero de 2018 y 2026 · INE. Incluye niños, mayores, inactivos y nacionalizados", "off"],
+      ["Afiliados de nacionalidad extranjera", `${nf2.format(C.afiliadosExt[2018] / 1e6)} M → ${nf2.format(C.afiliadosExt[2025] / 1e6)} M`, "media de diciembre 2018 y 2025 · Seguridad Social", "off"],
+      ["Ocupados de nacionalidad extranjera (EPA)", `${nf1.format(C.ocupadosExtEPA[2018] / 1e6)} M → ${nf2.format(C.ocupadosExtEPA[2025] / 1e6)} M`, "T2-2018 y sept. 2025 · más ≈ 6 % de ocupados con doble nacionalidad", "off"],
+      ["Declaraciones de extranjeros", `${nf2.format(NA.decl[2016].ext / 1e6)} M → ${nf2.format(NA.decl[2023].ext / 1e6)} M`, `2016 y 2023 · ${fP(shareDecl23)} de las declaraciones en 2023 · AEAT`, "off"],
+      ["Cuota IRPF de extranjeros", `${fM(NA.cuota[2018].ext)} → ${fM(NA.cuota[2024].ext)}`, `2018 (${fP(NA.cuota[2018].ext / NA.cuota[2018].tot)}) y 2024 (${fP(NA.cuota[2024].share)} del total) · AEAT`, "off"],
+      ["Inmigración en el modelo", `${fMp(G.inm.n)} altas · ${fE(per(G.inm, "cuota"))}/persona`, `cuota media de las altas por inmigración en 2026; media general ${fE(s.total / s.censo)}`, "mod"],
+      ["Pensiones no contributivas", `${nf0.format(C.pnc[2018])} → ${nf0.format(C.pnc[2023])}`, "diciembre 2018 y agosto 2023 · IMSERSO: no crecen", "off"],
+      ["Ingreso Mínimo Vital", `${nf0.format(M.REAL2026.imvHogares)} hogares`, "junio 2026 · 2,6 M personas · creado en 2020; declaran con cuota ≈ 0", "off"],
+      ["Gasto sanitario público por habitante", `${fE(san[2018])} → ${fE(san[2024])}`, "2018 y 2024 · Ministerio de Sanidad (EGSP)", "off"],
+    ];
+    $("contraste").innerHTML = cards.map((c) => `<div><div class="l">${c[0]} <span class="tag ${c[3]}">${c[3] === "off" ? "oficial" : "modelo"}</span></div><div class="v">${c[1]}</div><div class="s">${c[2]}</div></div>`).join("");
+    // lectura de la hipótesis
+    const smi = pod.find((x) => x.id === "smi"), p50 = pod.find((x) => x.id === "p50");
+    const aS = pfs[0], aM = pfs[2];
+    $("hipotesis").innerHTML = `
+      <p><b>1. "Hacienda gana mucho por no deflactar, también con los pensionistas".</b> <span class="tag mod">Se sostiene</span> La progresividad en frío aporta ${fM(totFrio)} en 2026 (${fP(totFrio / (s.total - BASEC()))} del aumento desde 2018). Los pensionistas pagan ${fM(G.pens.frio)} de ella (${fP(G.pens.frio / totFrio)}), ${fE(per(G.prev, "frio"))} al año quien ya era pensionista en 2018, aunque las pensiones se revalorizan con el IPC: la pensión sí se actualiza, la escala no.</p>
+      <p><b>2. "El SMI ha subido mucho con poco impacto en impuestos".</b> <span class="tag mod">Cierto para el IRPF, no para las cotizaciones</span> El SMI subió un 66 % y su IRPF sigue en cero por decisión legal. Pero lo que generan en cotizaciones pasa de ${fE(aS.a18.cotiz)} a ${fE(aS.a26.cotiz)} al año, y en impuestos indirectos (estimados) de ${fE(aS.a18.indirectos)} a ${fE(aS.a26.indirectos)}. Lo que aporta al gasto general (IRPF + indirectos, ${fE(aS.a26.general)}) ${aS.a26.general < san[2024] ? "queda por debajo del" : "supera el"} gasto sanitario público medio por habitante (${fE(san[2024])}); la mediana aporta ${fE(aM.a26.general)}. Las cotizaciones financian pensiones y desempleo, que generan derechos futuros.</p>
+      <p><b>3. "4-5 millones de inmigrantes han entrado en el mercado laboral".</b> <span class="tag est">Matizar</span> Lo que ha crecido unos 3,8 millones es la población nacida fuera (de ${nf1.format(C.nacidosFuera[2018] / 1e6)} a ${nf1.format(C.nacidosFuera[2026] / 1e6)} M). En empleo, los afiliados extranjeros suben ${nf2.format((C.afiliadosExt[2025] - C.afiliadosExt[2018]) / 1e6)} M y los ocupados extranjeros de la EPA ≈ ${nf1.format((C.ocupadosExtEPA[2025] - C.ocupadosExtEPA[2018]) / 1e6)} M (más los nacionalizados). Sus salarios son más bajos: aportan el ${fP(NA.cuota[2024].share)} de la cuota con el ${fP(shareDecl23)} de las declaraciones, y su cuota creció más deprisa que la total (de ${fP(NA.cuota[2018].ext / NA.cuota[2018].tot)} a ${fP(NA.cuota[2024].share)}).</p>
+      <p><b>4. "Consumen recursos como la sanidad".</b> <span class="tag est">Depende del horizonte y del empleo</span> Cualquier persona con renta baja aporta en impuestos generales menos de lo que cuesta de media la sanidad, sea cual sea su origen. Los estudios para España no coinciden: la OCDE estimó un saldo de la inmigración de −0,15 % del PIB en 2006-2018 (positivo en 2016-2018); la Fundación Disenso calcula un saldo negativo a lo largo de la vida salvo salarios altos; el Instituto Santalucía lo ve modesto. La variable clave en todos es la tasa de empleo y el salario, más que el uso de servicios.</p>
+      <p><b>5. "Y los pensionistas no contributivos".</b> <span class="tag est">No explican el cambio</span> Las pensiones no contributivas se mantienen en unas 450.000. Lo nuevo es el IMV (creado en 2020): ${fMp(G.imv.n)} declarantes en el modelo que suman censo con cuota cero. Diluyen la cuota media, pero no cambian la recaudación.</p>`;
+  }
+
+  /* ---------------- 2. Curva de tipo medio ---------------- */
+  const RATE_SERIES = [
+    { key: "r26", label: "Ley 2026 (real)", color: "--s1" },
+    { key: "rdef", label: "Ley 2026 con escala deflactada", color: "--s2" },
+    { key: "rB", label: "Ley 2018 indexada a precios 2026", color: "--s3" },
+  ];
+  function rateAt(gross, kind) {
+    const pi = state.ipc / 100;
+    const person = { gross, type: "worker", age: 40 };
+    if (kind === "r26") return M.tax(person, { law: 2026, ssYear: 2026 });
+    if (kind === "rdef") return M.tax(person, { law: 2026, ssYear: 2026, idx: 1 + (state.deflac / 100) * pi });
+    return M.tax(person, { law: M.BASE, ssYear: 2026, idx: 1 + pi, idxRed20: true });
+  }
+  function renderRates() {
+    $("rateLegend").innerHTML = RATE_SERIES.map((s) => `<span><i class="sw line" style="${s.key === "rdef" ? `background:repeating-linear-gradient(90deg,var(${s.color}) 0 5px,transparent 5px 8px)` : `background:var(${s.color})`}${s.key === "rB" ? ";height:4px" : ""}"></i>${s.label}${s.key === "rdef" ? ` (${nf0.format(state.deflac)} % del IPC)` : ""}</span>`).join("") +
+      `<span><i class="sw line" style="background:#0b0b0b;height:1px"></i>Tu caso</span>`;
+    const W = 620, H = 330, m = { t: 14, r: 16, b: 40, l: 46 };
+    const svg = svgRoot($("rates"), W, H, "Tipo medio efectivo del IRPF por renta bruta");
+    const xmax = 150000, ymax = 0.4;
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const x = (v) => m.l + (v / xmax) * iw, y = (v) => m.t + ih - (v / ymax) * ih;
+    for (let v = 0; v <= ymax + 1e-9; v += 0.1) {
+      el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: v === 0 ? css("--axis") : css("--grid") }, svg);
+      text(svg, m.l - 6, y(v) + 4, nf0.format(v * 100) + " %", { "text-anchor": "end", fill: "#77756f" });
+    }
+    for (let v = 0; v <= xmax; v += 25000) text(svg, x(v), H - m.b + 16, v === 0 ? "0" : nf0.format(v / 1000) + "k €", { "text-anchor": "middle", fill: "#77756f" });
+    text(svg, W - m.r, H - 6, "Renta bruta anual (2026)", { "text-anchor": "end", fill: "#77756f" });
+    const xs = []; for (let g = 6000; g <= xmax; g += 1000) xs.push(g);
+    const data = {};
+    RATE_SERIES.forEach((s) => (data[s.key] = xs.map((g) => rateAt(g, s.key))));
+    ["rB", "r26", "rdef"].forEach((key) => {
+      const s = RATE_SERIES.find((r) => r.key === key);
+      const d = xs.map((g, i) => `${i ? "L" : "M"}${x(g).toFixed(1)},${y(data[key][i].tipoMedio).toFixed(1)}`).join(" ");
+      el("path", { d, fill: "none", stroke: css(s.color), "stroke-width": key === "rB" ? 4 : 2, "stroke-linejoin": "round", "stroke-linecap": "round", ...(key === "rdef" ? { "stroke-dasharray": "6 5" } : {}) }, svg);
+    });
+    const lastI = xs.length - 1;
+    text(svg, W - m.r, y(data.r26[lastI].tipoMedio) - 8, "2026 real", { "text-anchor": "end", fill: "#0b0b0b", "font-weight": 650 });
+    text(svg, W - m.r, y(data.rdef[lastI].tipoMedio) + 34, "deflactada ≈ 2018 indexada", { "text-anchor": "end", fill: "#52514e" });
+    const g26 = currentCalc().g26;
+    if (g26 > 0 && g26 <= xmax) {
+      el("line", { x1: x(g26), x2: x(g26), y1: m.t, y2: m.t + ih, stroke: "#0b0b0b", "stroke-width": 1 }, svg);
+      text(svg, x(g26) + 4, m.t + 10, "Tu caso", { fill: "#0b0b0b", "font-weight": 650 });
+    }
+    const cross = el("line", { y1: m.t, y2: m.t + ih, stroke: css("--axis"), "stroke-width": 1, visibility: "hidden" }, svg);
+    const dots = RATE_SERIES.map((s) => el("circle", { r: 4, fill: css(s.color), stroke: "#fcfcfb", "stroke-width": 2, visibility: "hidden" }, svg));
+    const hit = el("rect", { x: m.l, y: m.t, width: iw, height: ih, fill: "transparent" }, svg);
+    hit.addEventListener("mousemove", (e) => {
+      const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+      const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+      const g = Math.max(6000, Math.min(xmax, Math.round(((p.x - m.l) / iw) * xmax / 1000) * 1000));
+      const i = xs.indexOf(g);
+      if (i < 0) return;
+      cross.setAttribute("x1", x(g)); cross.setAttribute("x2", x(g)); cross.setAttribute("visibility", "visible");
+      RATE_SERIES.forEach((s, j) => { dots[j].setAttribute("cx", x(g)); dots[j].setAttribute("cy", y(data[s.key][i].tipoMedio)); dots[j].setAttribute("visibility", "visible"); });
+      const rows = RATE_SERIES.map((s) => `<div class="tk"><i class="sw" style="background:var(${s.color})"></i>${s.label}: <b>${fP(data[s.key][i].tipoMedio)}</b> · ${fE(data[s.key][i].cuota)}</div>`).join("");
+      showTip(e, `<b>Renta bruta ${fE(g)}</b>${rows}<div style="margin-top:4px;opacity:.85">Progresividad en frío: <b>${fEs(data.r26[i].cuota - data.rdef[i].cuota)}</b>/año</div>`);
+    });
+    hit.addEventListener("mouseleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); dots.forEach((d) => d.setAttribute("visibility", "hidden")); });
+  }
+
+  /* ---------------- Tu caso ---------------- */
+  function autoG26(type, g16, p) {
+    return Math.round(g16 * (1 + (type === "worker" ? M.wageGrowth(g16, p) : p.pensiones / 100)));
+  }
+  function currentCalc() {
+    const type = $("cType").value, age = parseFloat($("cAge").value) || 45;
+    const g16 = Math.max(0, parseFloat($("cG16").value) || 0);
+    let g26 = Math.max(0, parseFloat($("cG26").value) || 0);
+    if ($("cAuto").checked) { g26 = autoG26(type, g16, state); $("cG26").value = g26; }
+    return { type, age, g16, g26 };
+  }
+  function calcFor(c, p) {
+    const pi = p.ipc / 100, d = 1 + pi, tau = (p.ipcImpuestos || 0) / 100;
+    const a16 = c.age - M.HOR;
+    const t16 = M.tax({ gross: c.g16, type: c.type === "pensioner" && a16 < 60 ? "worker" : c.type, age: a16 }, { law: M.BASE, ssYear: M.BASE });
+    const p26 = { gross: c.g26, type: c.type, age: c.age };
+    const t26 = M.tax(p26, { law: 2026, ssYear: 2026 });
+    const tdef = M.tax(p26, { law: 2026, ssYear: 2026, idx: 1 + (p.deflac / 100) * pi });
+    const real = t16.neto > 0 ? (t26.neto - (p.otrosImp || 0)) / d / t16.neto - 1 : NaN;
+    return { t16, t26, tdef, real, tau };
+  }
+  function renderCalc() {
+    const c = currentCalc();
+    const r = calcFor(c, state);
+    const cr = $("cAuto").checked ? { ...c, g26: autoG26(c.type, c.g16, D) } : c;
+    const rr = calcFor(cr, D);
+    const dG = c.g26 - c.g16, dC = r.t26.cuota - r.t16.cuota;
+    const rows = [
+      ["Cuota IRPF 2018", fE(r.t16.cuota), `tipo medio ${fP(r.t16.tipoMedio)}`, ""],
+      ["Cuota IRPF 2026", fE(r.t26.cuota), `tipo medio ${fP(r.t26.tipoMedio)} · marginal ${fP(r.t26.tipoMarginal, 0)}`, fE(rr.t26.cuota)],
+      [`Cuota 2026 con escala deflactada (${nf0.format(state.deflac)} % IPC)`, fE(r.tdef.cuota), "", fE(rr.tdef.cuota)],
+      ["<b>Progresividad en frío</b>", `<b>${fEs(r.t26.cuota - r.tdef.cuota)}</b>`, "al año", fEs(rr.t26.cuota - rr.tdef.cuota)],
+      ["Subida de la cuota vs. del bruto", dG > 0 ? `${fPs(r.t16.cuota > 0 ? dC / r.t16.cuota : 0)} vs. ${fPs(dG / Math.max(1, c.g16))}` : "—", dG > 0 ? `Hacienda se queda el ${fP(dC / dG)} de la subida` : "", ""],
+      ["Neto (tras IRPF y cotizaciones)", `${fE(r.t16.neto)} → ${fE(r.t26.neto)}`, "", fE(rr.t26.neto)],
+      ["Poder de compra (incl. otros tributos)", isFinite(r.real) ? `<span class="${r.real >= 0 ? "pos" : "neg"}"><b>${fPs(r.real)}</b></span>` : "—", "descontado el IPC", isFinite(rr.real) ? fPs(rr.real) : "—"],
+    ];
+    $("calcOut").innerHTML = `<thead><tr><th></th><th>Escenario</th><th>Real 2026</th></tr></thead><tbody>` + rows.map((x) => `<tr><td>${x[0]}</td><td class="num">${x[1]}<div class="muted" style="font-size:11px">${x[2]}</div></td><td class="num muted">${x[3] || "—"}</td></tr>`).join("") + `</tbody>`;
+  }
+  ["cType", "cAge", "cG16", "cG26", "cAuto"].forEach((id) => $(id).addEventListener("input", () => {
+    if (id === "cG26") $("cAuto").checked = false;
+    renderCalc(); renderRates();
+  }));
+
+  /* ---------------- 3. Poder adquisitivo ---------------- */
+  const POD_COMP = [
+    { key: "salario", label: "Salario/pensión bruta real", color: "--s1" },
+    { key: "cotiz", label: "Cotizaciones", color: "--s2" },
+    { key: "irpf", label: "IRPF", color: "--s3" },
+    { key: "impind", label: "Impuestos indirectos y otros", color: "--s4" },
+  ];
+  function compVals(f) { return { salario: f.comp.salario, cotiz: f.comp.cotiz, irpf: f.comp.irpf, impind: f.comp.indirectos + f.comp.otros }; }
+  function renderPoder(pod) {
+    const W = 920, rowH = 40, m = { t: 26, r: 120, b: 30, l: 230 };
+    const H = m.t + m.b + rowH * pod.length;
+    const svg = svgRoot($("poderChart"), W, H, "Poder adquisitivo 2018-2026 por nivel de renta");
+    const others = pod.filter((f) => f.id !== "smi");
+    let xmin = 0, xmax = 0;
+    [...others, ...REFP.filter((f) => f.id !== "smi")].forEach((f) => {
+      const v = compVals(f);
+      const neg = Object.values(v).filter((x) => x < 0).reduce((a, b) => a + b, 0);
+      const pos = Object.values(v).filter((x) => x > 0).reduce((a, b) => a + b, 0);
+      xmin = Math.min(xmin, neg, f.total); xmax = Math.max(xmax, pos, f.total);
+    });
+    xmin = Math.floor((xmin - 0.01) * 50) / 50; xmax = Math.ceil((xmax + 0.01) * 50) / 50;
+    const iw = W - m.l - m.r;
+    const x = (v) => m.l + ((Math.max(xmin, Math.min(xmax, v)) - xmin) / (xmax - xmin)) * iw;
+    const st = niceStep(xmax - xmin, 6);
+    for (let v = Math.ceil(xmin / st) * st; v <= xmax + 1e-9; v += st) {
+      el("line", { x1: x(v), x2: x(v), y1: m.t - 4, y2: H - m.b, stroke: Math.abs(v) < 1e-9 ? "#3d3c39" : css("--grid"), "stroke-width": 1 }, svg);
+      text(svg, x(v), H - m.b + 16, (v > 0 ? "+" : v < 0 ? "−" : "") + nf0.format(Math.abs(v * 100)) + " %", { "text-anchor": "middle", fill: "#77756f" });
+    }
+    text(svg, m.l, m.t - 10, "← resta poder adquisitivo", { fill: "#77756f" });
+    text(svg, W - m.r, m.t - 10, "suma →", { "text-anchor": "end", fill: "#77756f" });
+    pod.forEach((f, i) => {
+      const cy = m.t + rowH * i + rowH / 2, bh = 18;
+      const v = compVals(f);
+      text(svg, m.l - 10, cy - 2, f.label, { "text-anchor": "end", fill: "#0b0b0b", "font-weight": 600, "font-size": 12 });
+      text(svg, m.l - 10, cy + 12, `${fE(f.gB)} → ${fE(f.g26)}`, { "text-anchor": "end", fill: "#77756f", "font-size": 10.5 });
+      let pos = 0, neg = 0;
+      POD_COMP.forEach((c) => {
+        const val = v[c.key];
+        if (Math.abs(val) < 1e-6) return;
+        let a, b;
+        if (val > 0) { a = pos; b = pos + val; pos = b; } else { a = neg + val; b = neg; neg = a; }
+        const xa = x(a), xb = x(b);
+        if (xb - xa < 0.5) return;
+        el("rect", { x: xa + (val > 0 && a > 0 ? 1 : 0), y: cy - bh / 2, width: Math.max(0.5, xb - xa - 1), height: bh, rx: 3, fill: css(c.color) }, svg);
+      });
+      // recorte de barras que salen del eje (SMI)
+      if (pos > xmax) text(svg, x(xmax) - 4, cy + 4, "»", { "text-anchor": "end", fill: "#fff", "font-weight": 700, "font-size": 14 });
+      const rf = REFP.find((r) => r.id === f.id);
+      if (!isReal()) el("circle", { cx: x(rf.total), cy, r: 5.5, fill: "none", stroke: "#0b0b0b", "stroke-width": 2 }, svg);
+      el("circle", { cx: x(f.total), cy, r: 4.5, fill: "#0b0b0b", stroke: "#fcfcfb", "stroke-width": 2 }, svg);
+      text(svg, W - m.r + 10, cy + 4, fPs(f.total), { fill: f.total >= 0 ? "#006300" : "#b4302f", "font-weight": 700, "font-size": 12.5 });
+      if (!isReal()) text(svg, W - m.r + 64, cy + 4, `(${fPs(rf.total)})`, { fill: "#77756f", "font-size": 11 });
+      const hit = el("rect", { x: 0, y: cy - rowH / 2, width: W, height: rowH, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", (e) => {
+        const rows = POD_COMP.map((c) => `<div class="tk"><i class="sw" style="background:var(${c.color})"></i>${c.label}: <b>${fPP(v[c.key])}</b></div>`).join("");
+        showTip(e, `<b>${esc(f.label)}</b><br>Bruto ${fE(f.gB)} → ${fE(f.g26)} (${fPs(f.brutoReal)} real)${rows}<div style="margin-top:4px">IRPF: progresividad en frío ${fPP(f.comp.irpfFrio)}, resto ${fPP(f.comp.irpfResto)}</div><div style="margin-top:4px"><b>Total ${fPs(f.total)}</b> · Real 2026: ${fPs(rf.total)}</div>`);
+      });
+      hit.addEventListener("mouseleave", hideTip);
+    });
+    if (!isReal()) text(svg, W - m.r + 64, m.t - 10, "(Real)", { fill: "#77756f" });
+    // tabla
+    const rows = pod.map((f) => {
+      const rf = REFP.find((r) => r.id === f.id);
+      return `<tr><td>${f.label}</td><td class="num">${fE(f.gB)} → ${fE(f.g26)}</td><td class="num">${fPs(f.brutoReal)}</td><td class="num">${fPP(f.comp.cotiz)}</td><td class="num">${fPP(f.comp.irpfFrio)}</td><td class="num">${fPP(f.comp.irpfResto)}</td><td class="num">${fPP(f.comp.indirectos)}</td><td class="num">${fPP(f.comp.otros)}</td><td class="num sc"><b class="${f.total >= 0 ? "pos" : "neg"}">${fPs(f.total)}</b></td><td class="num">${fPs(rf.total)}</td><td class="num">${dPp(f.total - rf.total)}</td></tr>`;
+    }).join("");
+    $("poderTable").innerHTML = `<table class="cmp"><thead><tr><th>Perfil (mismo percentil)</th><th>Bruto 2018 → 2026</th><th>Bruto real</th><th>Cotizaciones</th><th>IRPF: prog. en frío</th><th>IRPF: resto</th><th>Imp. indirectos (IPC)</th><th>Otros tributos</th><th>Total escenario</th><th>Real 2026</th><th>Diferencia</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="small" style="margin:8px 0 0">Las columnas en pp suman (salvo redondeo) el total, que es la variación de la renta disponible real. "Bruto real" es solo informativo: la parte del salario ya está dentro de las columnas. Soltero sin hijos, escala autonómica de referencia; pensionistas de 70 y 68 años en 2018. La pensión media de 2018 (≈ 1.090 €/mes) se sigue con la revalorización; la media de 2026 es más alta porque las nuevas pensiones son mayores.</p>`;
+  }
+
+  /* ---------------- 4. Sankey ---------------- */
+  const KIND = {
+    cont: { label: "Permanece en su tramo", color: "--s1" },
+    asc: { label: "Sube de tramo", color: "--s2" },
+    desc: { label: "Baja de tramo", color: "--s4" },
+    alta: { label: "Nueva alta", color: "--s3" },
+    exit: { label: "Baja censal", color: "--exit" },
+  };
+  const ALTA_LABEL = { "alta:jov": "Altas: jóvenes", "alta:inm": "Altas: inmigración", "alta:imv": "Altas: IMV y prestaciones", "alta:otr": "Altas: otras" };
+  function sankeyLinks(s) {
+    const links = [];
+    for (const key in s.flows) {
+      const [from, to, kind0] = key.split("|");
+      let kind = kind0;
+      if (kind0 === "jub") kind = "cont";
+      if (kind0 === "jubBaja") kind = "desc";
+      links.push({ from, to, kind, v: s.flows[key] });
+    }
+    s.exits.forEach((v, i) => links.push({ from: "t" + i, to: "exit", kind: "exit", v }));
+    const agg = {};
+    links.forEach((l) => { const k = l.from + "|" + l.to + "|" + l.kind; agg[k] = agg[k] ? { ...agg[k], v: agg[k].v + l.v } : { ...l }; });
+    return Object.values(agg).filter((l) => l.v > 1500);
+  }
+  function renderSankey(s) {
+    const links = sankeyLinks(s);
+    const left = [...M.TRAMOS.map((t, i) => ({ id: "t" + i, label: t.short + " (2018)" })), ...Object.keys(ALTA_LABEL).map((k) => ({ id: k, label: ALTA_LABEL[k] }))];
+    const right = [...M.TRAMOS.map((t, i) => ({ id: "t" + i, label: t.short + " (2026)" })), { id: "exit", label: "Bajas censales" }];
+    left.forEach((n) => (n.v = links.filter((l) => l.from === n.id).reduce((a, l) => a + l.v, 0)));
+    right.forEach((n) => (n.v = links.filter((l) => l.to === n.id).reduce((a, l) => a + l.v, 0)));
+    const W = 980, H = 600, m = { t: 10, b: 10 }, nodeW = 14, xL = 200, xR = W - 200 - nodeW, gap = 10;
+    const svg = svgRoot($("sankey"), W, H, "Flujos de declarantes por tramo 2018-2026");
+    const totL = left.reduce((a, n) => a + n.v, 0), totR = right.reduce((a, n) => a + n.v, 0);
+    const minSlot = 28, avail = H - m.t - m.b;
+    const fit = (nodes, tot) => {
+      let sc = (avail - gap * (nodes.length - 1)) / tot;
+      for (let it = 0; it < 6; it++) {
+        const extra = nodes.reduce((a, n) => a + Math.max(0, minSlot - n.v * sc), 0);
+        sc = (avail - gap * (nodes.length - 1) - extra) / tot;
+      }
+      return sc;
+    };
+    const scale = Math.min(fit(left, totL), fit(right, totR));
+    const stack = (nodes) => {
+      const used = nodes.reduce((a, n) => a + Math.max(minSlot, n.v * scale), 0) + gap * (nodes.length - 1);
+      let yy = m.t + (avail - used) / 2;
+      nodes.forEach((n) => { n.h = Math.max(1, n.v * scale); n.slot = Math.max(minSlot, n.h); n.y = yy + (n.slot - n.h) / 2; yy += n.slot + gap; });
+    };
+    stack(left); stack(right);
+    const li = (id) => left.findIndex((n) => n.id === id), ri = (id) => right.findIndex((n) => n.id === id);
+    const outOff = {}, inOff = {};
+    left.forEach((n) => (outOff[n.id] = n.y));
+    right.forEach((n) => (inOff[n.id] = n.y));
+    [...links].sort((a, b) => li(a.from) - li(b.from) || ri(a.to) - ri(b.to)).forEach((l) => { l.y0 = outOff[l.from]; outOff[l.from] += l.v * scale; });
+    [...links].sort((a, b) => ri(a.to) - ri(b.to) || li(a.from) - li(b.from)).forEach((l) => { l.y1 = inOff[l.to]; inOff[l.to] += l.v * scale; });
+    const gLinks = el("g", {}, svg);
+    const paths = [];
+    const x0 = xL + nodeW, x1 = xR, xm = (x0 + x1) / 2;
+    [...links].sort((a, b) => b.v - a.v).forEach((l) => {
+      const w = l.v * scale;
+      const d = `M${x0},${l.y0} C${xm},${l.y0} ${xm},${l.y1} ${x1},${l.y1} L${x1},${l.y1 + w} C${xm},${l.y1 + w} ${xm},${l.y0 + w} ${x0},${l.y0 + w} Z`;
+      const p = el("path", { d, fill: css(KIND[l.kind].color), opacity: 0.55 }, gLinks);
+      p.dataset.from = l.from; p.dataset.to = l.to;
+      paths.push(p);
+      const fromLbl = left[li(l.from)].label, toLbl = right[ri(l.to)].label;
+      p.addEventListener("mousemove", (e) => {
+        p.setAttribute("opacity", 0.9);
+        showTip(e, `<div class="tk"><i class="sw" style="background:var(${KIND[l.kind].color})"></i><b>${KIND[l.kind].label}</b></div>${esc(fromLbl)} → ${esc(toLbl)}<br><b>${fMp(l.v)}</b> declarantes (${fP(l.v / left[li(l.from)].v)} de su origen)`);
+      });
+      p.addEventListener("mouseleave", () => { p.setAttribute("opacity", 0.55); hideTip(); });
+    });
+    const drawNode = (n, xpos, side) => {
+      el("rect", { x: xpos, y: n.y, width: nodeW, height: n.h, rx: 3, fill: n.id.startsWith("alta") ? css("--s3") : n.id === "exit" ? css("--exit") : "#3d3c39" }, svg);
+      const tx = side === "L" ? xpos - 8 : xpos + nodeW + 8;
+      const cy = n.y + n.h / 2;
+      text(svg, tx, cy - 1, n.label, { "text-anchor": side === "L" ? "end" : "start", fill: "#0b0b0b", "font-weight": 600, "font-size": 12 });
+      text(svg, tx, cy + 12, fMp(n.v), { "text-anchor": side === "L" ? "end" : "start", fill: "#52514e", "font-size": 11 });
+      const hit = el("rect", { x: side === "L" ? xpos - 170 : xpos, y: n.y - 2, width: 184, height: n.h + 4, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", (e) => {
+        paths.forEach((p) => p.setAttribute("opacity", (side === "L" ? p.dataset.from : p.dataset.to) === n.id ? 0.85 : 0.12));
+        showTip(e, `<b>${esc(n.label)}</b><br>${fMp(n.v)} declarantes${n.id === "alta:imv" ? "<br>Prestación exenta: cuota ≈ 0, tramo más bajo" : ""}`);
+      });
+      hit.addEventListener("mouseleave", () => { paths.forEach((p) => p.setAttribute("opacity", 0.55)); hideTip(); });
+    };
+    left.forEach((n) => drawNode(n, xL, "L"));
+    right.forEach((n) => drawNode(n, xR, "R"));
+    const rows = [...links].sort((a, b) => li(a.from) - li(b.from) || ri(a.to) - ri(b.to));
+    $("flowTable").innerHTML = `<table><thead><tr><th>Origen</th><th>Destino</th><th>Tipo de flujo</th><th>Declarantes</th></tr></thead><tbody>${rows.map((l) => `<tr><td>${esc(left[li(l.from)].label)}</td><td style="text-align:left">${esc(right[ri(l.to)].label)}</td><td style="text-align:left">${KIND[l.kind].label}</td><td class="num">${fMp(l.v)}</td></tr>`).join("")}</tbody></table>`;
+  }
+
+  /* ---------------- 5. Tabla por tramo ---------------- */
+  function renderTramos(s) {
+    const O = M.OFICIAL_BASE;
+    let rows = "", tot = { n16: 0, n24: 0, n26: 0, nR: 0, c16: 0, c26: 0, cR: 0, cd: 0 };
+    M.TRAMOS.forEach((t, i) => {
+      const o = s.tramos[i], r = REF.tramos[i];
+      const n16 = O.n[i], c16 = O.cuota[i], n24 = M.OFICIAL_2024.n[i];
+      tot.n16 += n16; tot.n24 += n24; tot.n26 += o.n; tot.nR += r.n; tot.c16 += c16; tot.c26 += o.cuota; tot.cR += r.cuota; tot.cd += o.cuotaIdx;
+      rows += `<tr><td>${t.label}</td><td class="num">${fMp(n16)}</td><td class="num">${fMp(n24)}</td><td class="num sc">${fMp(o.n)}</td><td class="num">${fMp(r.n)}</td>
+        <td class="num">${fE(c16 / n16)}</td><td class="num sc">${fE(o.cuota / Math.max(1, o.n))}</td>
+        <td class="num">${fM(c16)}</td><td class="num sc"><b>${fM(o.cuota)}</b></td><td class="num">${fM(r.cuota)}</td><td class="num">${dM(o.cuota - r.cuota)}</td><td class="num">${fM(o.cuotaIdx)}</td></tr>`;
+      if (i === 0) rows += `<tr class="sub"><td>de ellos: IMV y prestaciones exentas</td><td class="num">0,00 M</td><td class="num">≤ 1,53 M*</td><td class="num sc">${fMp(o.nIMV)}</td><td class="num">${fMp(r.nIMV)}</td><td class="num">—</td><td class="num sc">≈ 0 €</td><td class="num">—</td><td class="num sc">≈ 0 M€</td><td class="num">≈ 0 M€</td><td class="num">—</td><td class="num">—</td></tr>`;
+    });
+    $("tramoTable").innerHTML = `<table class="cmp"><thead><tr><th>Tramo AEAT (rend. netos reducidos)</th><th>Censo 2018 <span class="tag off">oficial</span></th><th>Censo 2024 <span class="tag off">oficial</span></th><th>Censo 2026 escenario</th><th>Censo Real 2026</th><th>Cuota media 2018</th><th>Cuota media 2026</th><th>Cuota 2018 <span class="tag est">estim.</span></th><th>Cuota 2026 escenario</th><th>Cuota Real 2026</th><th>Diferencia</th><th>2026 deflactada</th></tr></thead>
+      <tbody>${rows}</tbody><tfoot><tr><td>Total (sin ajuste de ahorro)</td><td class="num">${fMp(tot.n16)}</td><td class="num">${fMp(tot.n24)}</td><td class="num">${fMp(tot.n26)}</td><td class="num">${fMp(tot.nR)}</td><td class="num">${fE(tot.c16 / tot.n16)}</td><td class="num">${fE(tot.c26 / tot.n26)}</td><td class="num">${fM(tot.c16)}</td><td class="num">${fM(tot.c26)}</td><td class="num">${fM(tot.cR)}</td><td class="num">${dM(tot.c26 - tot.cR)}</td><td class="num">${fM(tot.cd)}</td></tr></tfoot></table>
+      <p class="small" style="margin:8px 0 0">* En 2024 la AEAT registró 1,53 M de declaraciones con resultado negativo o cero, entre ellas las de los perceptores del IMV. Lectura: la cuota media de cada tramo apenas sube porque los tramos son nominales; el aumento llega porque millones de declarantes <b>cambian de tramo</b> (gráfico 5). Hoy se superan los 60.000 € con rentas que, en euros de 2018, equivalen a ~${fE(60000 / (1 + state.ipc / 100))}. La cuota 2018 por tramo reparte el total oficial (81.372 M€) con la estructura de 2016.</p>`;
+  }
+
+  /* ---------------- 6. Prototipos ---------------- */
+  function protos(p) {
+    const wg = (g) => g * (1 + M.wageGrowth(g, p));
+    const avg26 = M.MACRO[M.BASE].salarioMedio * (1 + M.meanWageGrowth(p));
+    const pmax26 = M.MACRO[2026].pmax * (1 + p.pensiones / 100) / (1 + M.DEFAULTS.pensiones / 100);
+    const sm = M.MACRO[M.BASE].salarioMedio;
+    return [
+      { n: "Sofía, 40 años", r: "Asalariada de salario medio", s: "Cobraba el salario medio de 2018 (24.009 €) y sube como su percentil. Su sueldo va algo por delante del IPC; su cuota, bastante más.", a: { g: sm, t: "worker", age: 32 }, b: { g: wg(sm), t: "worker", age: 40 } },
+      { n: "Javier, 43 años", r: "Clase media con convenio", s: "Revisión salarial de convenio. Puede saltar de un tipo marginal al siguiente sin haber ascendido.", a: { g: 30000, t: "worker", age: 35 }, b: { g: wg(30000), t: "worker", age: 43 } },
+      { n: "David, 50 años", r: "Mando intermedio", s: "Su base liquidable puede superar los 60.000 € y entrar en el marginal del 45 %, aunque en euros de 2018 su sueldo apenas ha cambiado.", a: { g: 52000, t: "worker", age: 42 }, b: { g: wg(52000), t: "worker", age: 50 } },
+      { n: "Elena, 48 años", r: "Directiva", s: "Sueldo alto que crece con los salarios altos. Paga la mayor cifra absoluta de progresividad en frío, pero de las menores en % de su renta.", a: { g: 135000, t: "worker", age: 40 }, b: { g: wg(135000), t: "worker", age: 48 } },
+      { n: "Lucía, 29 años", r: "Joven: de prácticas a fija", s: "En 2018 hacía prácticas; hoy tiene un contrato indefinido (85 % del salario medio). Su cuota sube mucho, sobre todo por progresión real.", a: { g: 10500, t: "worker", age: 21 }, b: { g: 0.85 * avg26, t: "worker", age: 29 } },
+      { n: "Iñigo, 26 años", r: "Primer empleo", s: "Entra en el censo con un empleo junior (62 % del salario medio). La reducción por rendimientos del trabajo le rebaja la base.", a: null, b: { g: 0.62 * avg26, t: "worker", age: 26 } },
+      { n: "Ana, 35 años", r: "Cobraba el SMI en 2018 y lo sigue cobrando", s: "Su sueldo pasó de 10.303 a 17.094 € (+66 %). No pagaba IRPF y sigue sin pagarlo: la reducción por trabajo y la deducción SMI lo garantizan. Es quien más poder adquisitivo gana.", a: { g: 10302.6, t: "worker", age: 27 }, b: { g: 17094, t: "worker", age: 35 } },
+      { n: "Mamadou, 31 años", r: "Nuevo residente a SMI", s: "Llegó después de 2018. Hostelería a jornada completa con el SMI de 2026 (17.094 €): cuota IRPF cero, pero cotiza y paga IVA.", a: null, b: { g: 17094, t: "worker", age: 31 } },
+      { n: "Rosa, 38 años", r: "Perceptora del IMV", s: "Hogar con dos hijos y un trabajo de pocas horas (3.000 €). El IMV (exento) completa la renta. Declara porque la ley la obliga desde 2021: suma censo en el tramo más bajo con cuota cero.", a: null, b: { g: 3000, t: "worker", age: 38 } },
+      { n: "Carmen, 81 años", r: "Pensión mínima de viudedad", s: "Su pensión mínima subió un 43 % (9.197 → 13.107 €), por encima del IPC; sigue sin pagar IRPF gracias al mínimo de mayores de 75.", a: { g: 9196.6, t: "pensioner", age: 73 }, b: { g: 13106.8, t: "pensioner", age: 81 } },
+      { n: "Manuel, 78 años", r: "Pensión máxima", s: "La pensión máxima pasó de 36.122 a 47.034 € (+30 %). Su base cruza los 35.200 € y pasa del marginal del 30 % al del 37 %.", a: { g: M.MACRO[M.BASE].pmax, t: "pensioner", age: 70 }, b: { g: pmax26, t: "pensioner", age: 78 } },
+      { n: "Fernando, 66 años", r: "Directivo que se jubila", s: "De 85.000 € de salario a la pensión máxima. Su cuota se desploma: es el efecto rojo de 'jubilaciones' en la cascada.", a: { g: 85000, t: "worker", age: 58 }, b: { g: pmax26, t: "pensioner", age: 66 }, down: true },
+    ];
+  }
+  function renderProtos() {
+    const pi = state.ipc / 100;
+    const ref = protos(D);
+    const html = protos(state).map((p, idx) => {
+      const pr = ref[idx];
+      const t16 = p.a ? M.tax({ gross: p.a.g, type: p.a.t, age: p.a.age }, { law: M.BASE, ssYear: M.BASE }) : null;
+      const t26 = p.b ? M.tax({ gross: p.b.g, type: p.b.t, age: p.b.age }, { law: 2026, ssYear: 2026 }) : null;
+      const tdf = p.b ? M.tax({ gross: p.b.g, type: p.b.t, age: p.b.age }, { law: 2026, ssYear: 2026, idx: 1 + (state.deflac / 100) * pi }) : null;
+      const tr = pr.b ? M.tax({ gross: pr.b.g, type: pr.b.t, age: pr.b.age }, { law: 2026, ssYear: 2026 }) : null;
+      const tr16 = p.a ? M.TRAMOS[M.tramoOf(M.netIncome({ gross: p.a.g, type: p.a.t }, M.BASE))].short : "Fuera";
+      const tr26 = p.b ? M.TRAMOS[M.tramoOf(M.netIncome({ gross: p.b.g, type: p.b.t }, 2026))].short : "Baja";
+      const pillCls = !p.a ? "new" : !p.b ? "" : p.down ? "down" : "up";
+      let poder = "—";
+      if (t16 && t26 && t16.neto > 0) { const r = (t26.neto - state.otrosImp) / (1 + pi) / t16.neto - 1; poder = `<span class="${r >= 0 ? "pos" : "neg"}">${fPs(r)}</span>`; }
+      else if (!p.a) poder = "Nueva renta";
+      const drag = t26 ? t26.cuota - tdf.cuota : null;
+      const absor = t16 && t26 && p.b.g > p.a.g && !p.down ? fP((t26.cuota - t16.cuota) / (p.b.g - p.a.g)) : "—";
+      const realLine = t26 && tr && (Math.abs(tr.cuota - t26.cuota) > 0.5 || Math.abs(pr.b.g - p.b.g) > 0.5)
+        ? `<div class="small">Real 2026: bruto ${fE(pr.b.g)} · cuota ${fE(tr.cuota)} · diferencia ${dE(t26.cuota - tr.cuota)}</div>` : "";
+      return `<div class="pc"><div class="head"><div><h4>${p.n}</h4><div class="role">${p.r}</div></div><span class="pill ${pillCls}">${tr16} → ${tr26}</span></div>
+        <p class="story">${p.s}</p>
+        <div class="flow">Bruto: <b>${p.a ? fE(p.a.g) : "—"}</b> → <b>${p.b ? fE(p.b.g) : "—"}</b><br>Cuota IRPF: <b>${t16 ? fE(t16.cuota) : "—"}</b> → <b>${t26 ? fE(t26.cuota) : "—"}</b> · Marginal: ${t16 ? fP(t16.tipoMarginal, 0) : "—"} → ${t26 ? fP(t26.tipoMarginal, 0) : "—"}</div>
+        ${realLine}
+        <div class="grid">
+          <div><span class="k">Tipo medio</span><span class="v">${t16 ? fP(t16.tipoMedio) : "—"} → ${t26 ? fP(t26.tipoMedio) : "—"}</span></div>
+          <div><span class="k">Prog. en frío</span><span class="v">${drag === null ? "—" : fEs(drag)}</span></div>
+          <div><span class="k">Absorción</span><span class="v">${absor}</span></div>
+          <div><span class="k">Poder de compra</span><span class="v">${poder}</span></div>
+        </div></div>`;
+    }).join("");
+    $("protoGrid").innerHTML = html;
+  }
+
+  /* ---------------- 7. Validación ---------------- */
+  function renderValidation() {
+    const beh = { carrera: state.carrera, jubilacion: state.jubilacion, altasJovenes: state.altasJovenes, altasInmig: state.altasInmig, altasIMV: state.altasIMV, altasOtras: state.altasOtras, bajas: state.bajas, arrastre: state.arrastre, deflac: state.deflac, ajusteAhorro: 0 };
+    const r23 = M.simulate({ ...D, ...beh, ...M.VALID[2023] }, 2023);
+    const r24 = M.simulate({ ...D, ...beh, ...M.VALID[2024] }, 2024);
+    const n = r23.tramos.map((t) => t.n), c = r23.tramos.map((t) => t.cuota);
+    const agg = [n[0] + n[1], n[2], n[3], n[4] + n[5]], aggc = [c[0] + c[1], c[2], c[3], c[4] + c[5]];
+    const lab4 = ["< 21.000 €", "21.000 – 30.000 €", "30.000 – 60.000 €", "> 60.000 €"];
+    const errs = [];
+    const row = (mod, off, isM) => { const e = mod / off - 1; errs.push(Math.abs(e)); return `<td class="num">${isM ? fMp(off) : fM(off)}</td><td class="num">${isM ? fMp(mod) : fM(mod)}</td><td class="num ${Math.abs(e) > 0.2 ? "neg" : ""}">${fPs(e)}</td>`; };
+    let h23 = "";
+    lab4.forEach((l, i) => { h23 += `<tr><td>${l}</td>${row(agg[i], M.OFICIAL_2023.n[i], true)}${row(aggc[i], M.OFICIAL_2023.cuota[i], false)}</tr>`; });
+    const totE = r23.total / M.OFICIAL_2023.cuotaTotal - 1, cenE = r23.censo / M.OFICIAL_2023.nTotal - 1;
+    $("val2023").innerHTML = `<table><thead><tr><th>Ejercicio 2023</th><th>Censo <span class="tag off">oficial</span></th><th>Modelo</th><th>Error</th><th>Cuota <span class="tag off">oficial</span></th><th>Modelo</th><th>Error</th></tr></thead><tbody>${h23}</tbody>
+      <tfoot><tr><td>Total</td><td class="num">${fMp(M.OFICIAL_2023.nTotal)}</td><td class="num">${fMp(r23.censo)}</td><td class="num">${fPs(cenE)}</td><td class="num">${fM(M.OFICIAL_2023.cuotaTotal)}</td><td class="num">${fM(r23.total)}</td><td class="num">${fPs(totE)}</td></tr></tfoot></table>`;
+    let h24 = "";
+    M.TRAMOS.forEach((t, i) => { const e = r24.tramos[i].n / M.OFICIAL_2024.n[i] - 1; errs.push(Math.abs(e)); h24 += `<tr><td>${t.label}</td><td class="num">${fMp(M.OFICIAL_2024.n[i])}</td><td class="num">${fMp(r24.tramos[i].n)}</td><td class="num ${Math.abs(e) > 0.2 ? "neg" : ""}">${fPs(e)}</td></tr>`; });
+    $("val2024").innerHTML = `<table><thead><tr><th>Ejercicio 2024</th><th>Censo <span class="tag off">oficial</span></th><th>Modelo</th><th>Error</th></tr></thead><tbody>${h24}</tbody>
+      <tfoot><tr><td>Total</td><td class="num">${fMp(M.OFICIAL_2024.nTotal)}</td><td class="num">${fMp(r24.censo)}</td><td class="num">${fPs(r24.censo / M.OFICIAL_2024.nTotal - 1)}</td></tr></tfoot></table>`;
+    const mae = errs.reduce((a, b) => a + b, 0) / errs.length;
+    const cls = mae < 0.15 ? "fit-ok" : mae < 0.25 ? "fit-mid" : "fit-bad";
+    const verdict = mae < 0.15 ? "ajuste bueno" : mae < 0.25 ? "ajuste aceptable" : "ajuste pobre: revisa los supuestos demográficos";
+    $("anchors").innerHTML = `
+      <div><div class="l">Cuota total 2023: oficial vs. modelo</div><div class="v">${fM(M.OFICIAL_2023.cuotaTotal)} · ${fM(r23.total)}</div><div class="s">Error ${fPs(totE)} (sin ahorro y ganancias) <span class="tag off">AEAT</span></div></div>
+      <div><div class="l">Declaraciones 2024: oficial vs. modelo</div><div class="v">${fMp(M.OFICIAL_2024.nTotal)} · ${fMp(r24.censo)}</div><div class="s">Error ${fPs(r24.censo / M.OFICIAL_2024.nTotal - 1)} <span class="tag off">AEAT</span></div></div>
+      <div><div class="l">Error medio absoluto por grupo</div><div class="v"><span class="fitbadge ${cls}">${fP(mae)}</span></div><div class="s">${verdict} (14 comparaciones)</div></div>`;
+    renderCensoChart(r24);
+  }
+  const CENSO_SERIES = [
+    { key: "oB", label: "2018 oficial", color: "--s1" },
+    { key: "o24", label: "2024 oficial", color: "--s2" },
+    { key: "m24", label: "2024 modelo", color: "--s3" },
+    { key: "m26", label: "2026 escenario", color: "--s4" },
+  ];
+  function renderCensoChart(r24) {
+    $("censoLegend").innerHTML = CENSO_SERIES.map((s) => `<span><i class="sw" style="background:var(${s.color})"></i>${s.label}</span>`).join("") + `<span><i class="sw line" style="background:#0b0b0b"></i>Real 2026</span>`;
+    const vals = M.TRAMOS.map((t, i) => ({ oB: M.OFICIAL_BASE.n[i], o24: M.OFICIAL_2024.n[i], m24: r24.tramos[i].n, m26: SIM.tramos[i].n, r26: REF.tramos[i].n }));
+    const W = 900, H = 280, m = { t: 14, r: 10, b: 34, l: 50 };
+    const svg = svgRoot($("censoChart"), W, H, "Declarantes por tramo: oficial frente a modelo");
+    const ymax = Math.max(...vals.flatMap((v) => Object.values(v))) * 1.08;
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const y = (v) => m.t + ih - (v / ymax) * ih;
+    const st = niceStep(ymax, 4);
+    for (let v = 0; v <= ymax; v += st) {
+      el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: v === 0 ? css("--axis") : css("--grid") }, svg);
+      text(svg, m.l - 6, y(v) + 4, nf0.format(v / 1e6) + " M", { "text-anchor": "end", fill: "#77756f" });
+    }
+    const band = iw / vals.length, bw = 20, gp = 2;
+    vals.forEach((v, i) => {
+      const gx = m.l + band * i + band / 2 - (CENSO_SERIES.length * bw + (CENSO_SERIES.length - 1) * gp) / 2;
+      CENSO_SERIES.forEach((s, j) => {
+        const x0 = gx + j * (bw + gp);
+        el("path", { d: barPath(x0, y(0), y(v[s.key]), bw, true), fill: css(s.color) }, svg);
+        if (s.key === "m26") el("line", { x1: x0 - 3, x2: x0 + bw + 3, y1: y(v.r26), y2: y(v.r26), stroke: "#0b0b0b", "stroke-width": 2 }, svg);
+      });
+      text(svg, m.l + band * i + band / 2, H - m.b + 18, M.TRAMOS[i].label, { "text-anchor": "middle", fill: "#52514e" });
+      const hit = el("rect", { x: m.l + band * i, y: m.t, width: band, height: ih, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", (e) => showTip(e, `<b>${M.TRAMOS[i].label}</b>` + CENSO_SERIES.map((s) => `<div class="tk"><i class="sw" style="background:var(${s.color})"></i>${s.label}: <b>${fMp(v[s.key])}</b></div>`).join("") + `<div class="tk">Real 2026: <b>${fMp(v.r26)}</b></div>`));
+      hit.addEventListener("mouseleave", hideTip);
+    });
+  }
+
+  /* ---------------- Supuestos y glosario ---------------- */
+  function renderStatic() {
+    const H = [
+      ["IPC acumulado 2018→2026", "+27,0 %", "INE: +22,5 % hasta 2025; 2026 ≈ +3,7 % (ene-oct)", "est"],
+      ["Salarios por percentil", "P30 +34,5 % · med. +29,9 % · P90 +29,5 %", "EPA 2018-2024 + convenios y AEAT 2025-26", "est"],
+      ["SMI", "+65,9 % (10.303 → 17.094 €)", "RD 1077/2017 y RD 126/2026", "off"],
+      ["Revalorización de pensiones", "+26,1 %", "BOE, revalorizaciones 2019-2026", "off"],
+      ["Progresión individual", "+16 % (×1,0 bajos, ×0,4 altos; dispersión ±38 %)", "Calibrada con tramos AEAT 2023-24", "mod"],
+      ["Jubilaciones", "14,5 % de los asalariados", "Cohortes de 57-64 años en 2018", "est"],
+      ["Altas / bajas (2018-2026)", "7,7 M / 2,4 M", "Cuadran el censo oficial 2023 y 2024", "mod"],
+      ["Altas por inmigración", "1,6 M declarantes", "AEAT: declaraciones de extranjeros +0,87 M (2016-2023) + nacionalizados", "est"],
+      ["Altas por IMV", "1,3 M declarantes", "860.458 hogares (jun. 2026) × ~1,5 adultos", "est"],
+      ["Ahorro y ganancias no modelados", `${nf0.format(D.ajusteAhorro)} M€`, "Cuadre con la cuota real estimada de 2026", "mod"],
+      ["IPC fiscal / otros tributos", "+0,5 pp / 200 €/año", "Supuestos ajustables", "est"],
+      ["Impuestos indirectos por perfil", "14 % del gasto", "Tipo efectivo supuesto; gasto = 62-95 % del neto según renta", "est"],
+    ];
+    $("hypTable").innerHTML = `<table><thead><tr><th>Supuesto</th><th>Real 2026</th><th style="text-align:left">Base</th></tr></thead><tbody>${H.map((h) => `<tr><td>${h[0]} <span class="tag ${h[3]}">${h[3] === "off" ? "oficial" : h[3] === "mod" ? "calibrado" : "estimación"}</span></td><td class="num" style="white-space:normal">${h[1]}</td><td style="text-align:left;white-space:normal" class="muted">${h[2]}</td></tr>`).join("")}</tbody></table>`;
+    const GL = [
+      ["Real 2026", "Escenario de referencia calibrado con los datos observados de 2026 (recaudación de caja enero-agosto, salarios, IPC, SMI, pensiones). Todo lo demás se compara contra él."],
+      ["Cuota íntegra", "Resultado de aplicar la escala de gravamen a la base liquidable, descontado el gravamen sobre el mínimo personal y familiar."],
+      ["Cuota líquida / resultante", "Cuota íntegra menos deducciones (vivienda antigua, donativos, autonómicas…). La resultante descuenta además la doble imposición. Es lo que mide este modelo."],
+      ["Recaudación de caja", "Lo que entra en Hacienda en el año natural: retenciones, pagos fraccionados y saldo de la declaración del año anterior, menos devoluciones. No coincide con la cuota de un ejercicio."],
+      ["Progresividad en frío", "Subida del tipo medio efectivo causada solo por la inflación, porque los tramos, mínimos y deducciones están fijados en euros nominales y no se actualizan."],
+      ["Deflactar", "Actualizar con el IPC los importes fijos del impuesto (tramos de la escala, mínimo personal, gastos deducibles) para neutralizar la progresividad en frío."],
+      ["Percentil salarial (P30, mediana, P70, P90)", "Salario por debajo del cual está el 30 %, 50 %, 70 % o 90 % de los asalariados (EPA, salario mensual × 12). Seguir a alguien que se mantiene en su percentil aísla la subida salarial de los cambios de empleo."],
+      ["Ingreso Mínimo Vital (IMV)", "Prestación de la Seguridad Social para hogares vulnerables. Está exenta de IRPF, pero sus perceptores deben presentar la declaración desde 2021: engrosan el tramo más bajo (resultado cero) sin aportar cuota."],
+      ["Pensiones no contributivas", "Jubilación e invalidez no contributivas (unos 8.100-8.800 €/año en 2026). Unas 450.000, prácticamente las mismas que en 2018. Las de invalidez pueden estar exentas y las de jubilación, por su cuantía, no pagan IRPF; si no hay otras rentas, normalmente no se declaran."],
+      ["Tramo de la AEAT", "Agrupación de las declaraciones por la suma de los rendimientos netos que se integran en la base (ya aplicada la reducción por trabajo) y las imputaciones de renta. Por eso muchos salarios de hasta unos 18.000 € brutos aparecen en el tramo < 12.000 €."],
+      ["Reducción por rendimientos del trabajo", "Art. 20 LIRPF: rebaja la base de las rentas del trabajo bajas (también pensiones). Se mide sobre el rendimiento neto previo: bruto menos cotizaciones, sin restar los 2.000 € de otros gastos. En 2026 es de 7.302 € hasta 14.852 € y desaparece en 19.747,5 € (≈ 21.100 € brutos para un asalariado). Era de 3.700 € hasta julio de 2018 y de 5.565 € después. No es el mínimo personal, que sigue en 5.550 € desde 2015."],
+      ["Deducción SMI", "DA 61ª LIRPF: hasta 590,89 € en 2026 para rentas del trabajo de hasta 17.094 €, que se reduce hasta anularse en 20.048,45 €. Garantiza que el SMI no tribute."],
+      ["Mínimo personal", "Parte de la renta que no tributa: 5.550 € (6.700 € desde 65 años; 8.100 € desde 75). Sin cambios desde 2015."],
+      ["IPC a impuestos constantes", "Índice del INE que calcula la inflación como si IVA e impuestos especiales no hubieran cambiado. La diferencia con el IPC es la parte de la inflación que se debe a decisiones fiscales."],
+      ["Otros tributos fuera del IPC", "Cargas que el IPC no mide como precio de consumo: IBI, tasa de residuos (obligatoria desde 2025), plusvalía municipal… Aquí se tratan como euros al año por persona."],
+      ["Tipo medio / marginal", "Medio: cuota ÷ renta bruta. Marginal: tipo del último euro de base liquidable."],
+      ["Factor estructural k", "Cociente entre la cuota oficial de 2018 de un tramo y la que da el motor. Recoge declaraciones conjuntas, hijos, deducciones y otras rentas."],
+      ["Poder de compra del neto", "Variación de la renta neta (bruto − cotizaciones − IRPF − otros tributos) descontando el IPC acumulado. Negativo = se vive peor que en 2018."],
+      ["Nacionalidad en la estadística AEAT", "Se clasifica por la nacionalidad del primer declarante. Quien se ha nacionalizado cuenta como español, así que los «extranjeros» de la AEAT son menos que las personas nacidas fuera."],
+      ["Aportación fiscal", "Lo que un perfil paga al año: IRPF, impuestos indirectos estimados y cotizaciones del trabajador y de la empresa. Las cotizaciones financian pensiones y desempleo, que generan derechos; IRPF e indirectos financian el gasto general (sanidad, educación…)."],
+    ];
+    $("gloss").innerHTML = GL.map((g) => `<div><dt>${g[0]}</dt><dd>${g[1]}</dd></div>`).join("");
+  }
+
+  /* ---------------- Init ---------------- */
+  buildControls();
+  renderStatic();
+  renderRealBar();
+  applyPreset("central");
+  window.addEventListener("scroll", hideTip, { passive: true });
+})();
+
+</script>
+</body>
+</html>
