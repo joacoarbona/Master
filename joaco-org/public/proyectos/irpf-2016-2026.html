@@ -361,16 +361,16 @@ footer{margin-top:24px;font-size:12px;color:var(--muted);text-align:center}
     <h2>Metodología, supuestos y limitaciones</h2>
     <div class="two">
       <div class="small">
-        <p><b>1. Motor del impuesto.</b> Para cada año (2016, 2023, 2024, 2026) se codifica la ley: cotizaciones del trabajador (6,35 % en 2016; 6,50 % con MEI y cuota de solidaridad en 2026), gastos deducibles de 2.000 €, reducción por rendimientos del trabajo (art. 20 LIRPF en sus versiones de 2015, 2023 y 2024), mínimo personal (5.550 €, +1.150 € desde 65 años, +1.400 € desde 75), escala general estatal + autonómica de referencia (19-45 %, 47 % por encima de 300.000 € desde 2021) y deducción para perceptores del SMI (590,89 € en 2026).</p>
+        <p><b>1. Motor del impuesto.</b> Para cada año (2016, 2023, 2024, 2026) se codifica la ley: cotizaciones del trabajador (6,35 % en 2016; 6,50 % con MEI y cuota de solidaridad en 2026), gastos deducibles de 2.000 €, reducción por rendimientos del trabajo (art. 20 LIRPF en sus versiones de 2015, 2018, 2023 y 2024, medida sobre el rendimiento neto previo: bruto menos cotizaciones, sin restar los 2.000 € de otros gastos), mínimo personal (5.550 €, +1.150 € desde 65 años, +1.400 € desde 75), escala general estatal + autonómica de referencia (19-45 %, 47 % por encima de 300.000 € desde 2021) y deducción para perceptores del SMI (590,89 € en 2026).</p>
         <p><b>2. Población 2016.</b> 19,62 millones de declaraciones repartidas en los seis tramos oficiales de la AEAT, que clasifican por rendimientos netos <i>después</i> de la reducción por trabajo; dentro de cada tramo, 24 puntos de una lognormal (Pareto en la cola alta) separando asalariados y pensionistas, y la renta bruta se obtiene invirtiendo el motor.</p>
-        <p><b>3. Calibración.</b> Un factor estructural <i>k</i> por tramo (0,73-0,85) iguala la cuota del motor a la cuota oficial de 2016. Recoge lo que el motor no ve: declaraciones conjuntas, mínimos por descendientes, deducciones, escalas autonómicas reales y rentas del ahorro. Se mantiene constante en términos reales.</p>
+        <p><b>3. Calibración.</b> Un factor estructural <i>k</i> por tramo (0,20 en el tramo más bajo; 0,70-0,85 en el resto) iguala la cuota del motor a la cuota oficial de 2016. Recoge lo que el motor no ve: declaraciones conjuntas, mínimos por descendientes, deducciones, escalas autonómicas reales y rentas del ahorro. Se mantiene constante en términos reales.</p>
         <p><b>4. Evolución a 2026.</b> Cada asalariado de 2016 sube según su percentil salarial (SMI, P30, mediana-P70, P90+, datos EPA), más una progresión individual que es mayor al principio de la carrera. Bajas (70 % pensionistas), jubilaciones (pensión = 80 % del salario, con tope), revalorización de pensiones y cinco grupos de altas: jóvenes, inmigración, IMV y prestaciones (renta sujeta casi nula), y otras.</p>
         <p><b>5. Descomposición.</b> Secuencial: (a) altas y bajas a renta real de 2016; (b) jubilaciones; (c) crecimiento real; (d) inflación con la ley 2016 indexada al IPC; (e) progresividad en frío = ley 2016 sin indexar − indexada; (f) cambios normativos = ley 2026 − ley 2016; (g) ahorro y ganancias no modelados, fijado para cuadrar con la cuota real estimada de 2026 (caja enero-agosto +11,6 %).</p>
         <p><b>6. Poder adquisitivo.</b> Para cada percentil se calcula la renta disponible 2016 y 2026 con el motor y se descuenta el IPC. La parte de la inflación debida a impuestos indirectos (control "IPC fiscal") se separa sin cambiar el total, y los tributos fuera del IPC se restan en euros.</p>
       </div>
       <div>
         <div class="tbl" id="hypTable"></div>
-        <div class="callout" style="margin-top:12px"><b>Limitaciones.</b> No calcula la base del ahorro (dividendos, intereses, ganancias), las actividades económicas ni escalas autonómicas concretas: en 2016 quedan en el factor <i>k</i> y en 2026 en el ajuste de ahorro y ganancias. Es cuota devengada, no caja. La cuota 2016 por tramo es una estimación con la estructura AEAT de 2015 y el total oficial de 2016. La cuota real 2026 es una estimación: caja 2025 × (1 + 11,6 %) × 0,976 (relación cuota/caja de 2023). Los percentiles EPA miden salarios mensuales del empleo principal, no la renta declarada.</div>
+        <div class="callout" style="margin-top:12px"><b>Limitaciones.</b> No calcula la base del ahorro (dividendos, intereses, ganancias), las actividades económicas ni escalas autonómicas concretas: en 2016 quedan en el factor <i>k</i> y en 2026 en el ajuste de ahorro y ganancias. Es cuota devengada, no caja. La cuota 2016 por tramo es una estimación con la estructura AEAT de 2015 y el total oficial de 2016. La cuota real 2026 es una estimación: caja 2025 × (1 + 11,6 %) × 0,976 (relación cuota/caja de 2023). Los percentiles EPA miden salarios mensuales del empleo principal, no la renta declarada. Como <i>k</i> es muy bajo en los tramos inferiores, el motor calibrado mide a la baja las rebajas concentradas allí: la de 2018 sale ≈ 1.500 M€ (en línea con el Banco de España), pero la de 2023 sale en la mitad de lo que estimó Hacienda y la de 2024 muy por debajo de sus 1.385 M€ en retenciones. Tómalo como cota baja.</div>
       </div>
     </div>
   </section>
@@ -525,8 +525,13 @@ const IRPF = (() => {
     const idxR = opts.idxRed20 ? idx : 1;
     const gross = Math.max(0, person.gross);
     const ss = person.type === "worker" ? ssWorker(gross, opts.ssYear || opts.law) : 0;
-    const rnPrev = Math.max(0, gross - ss - Math.min(L.gastos * idx, Math.max(0, gross - ss)));
-    const red = Math.min(rnPrev, L.red20(rnPrev / idxR) * idxR);
+    // Art. 20 LIRPF: la reducción se calcula sobre el rendimiento neto previo, es decir,
+    // íntegro menos los gastos de las letras a) a e) del art. 19.2 (cotizaciones), SIN
+    // restar los 2.000 € de "otros gastos" (letra f). Luego se restan ambos (saldo ≥ 0).
+    const rnPre = Math.max(0, gross - ss);
+    const gastos = Math.min(L.gastos * idx, rnPre);
+    const rnPrev = rnPre - gastos;
+    const red = Math.min(rnPrev, L.red20(rnPre / idxR) * idxR);
     const base = Math.max(0, rnPrev - red);
     let minimo = L.minPers;
     if (person.age >= 65) minimo += L.min65;
@@ -548,8 +553,9 @@ const IRPF = (() => {
   function netIncome(person, ssYear, law) {
     const L = LAWS[law || ssYear];
     const ss = person.type === "worker" ? ssWorker(person.gross, ssYear) : 0;
-    const rn = Math.max(0, person.gross - ss - 2000);
-    return Math.max(0, rn - Math.min(rn, L.red20(rn)));
+    const rnPre = Math.max(0, person.gross - ss);
+    const rn = Math.max(0, rnPre - 2000);
+    return Math.max(0, rn - Math.min(rn, L.red20(rnPre)));
   }
   function grossFromNet(net, type, ssYear) {
     let lo = 0, hi = net * 1.3 + 12000;
@@ -744,7 +750,7 @@ const IRPF = (() => {
     return gA;
   }
   const CARW = { lo: 1.5, hi: 0.4 };
-  const DISP = [-0.3, -0.1, 0.1, 0.3]; // dispersión individual de la progresión en 10 años
+  const DISP = [-0.45, -0.15, 0.15, 0.45]; // dispersión individual de la progresión en 10 años (recalibrada tras corregir la base del art. 20)
   function carreraPeso(g16) {
     const x = Math.log(g16 / ANCLAS.p50);
     const xlo = Math.log(ANCLAS.p30 / ANCLAS.p50), xhi = Math.log(ANCLAS.p90 / ANCLAS.p50);
@@ -1320,7 +1326,7 @@ if (typeof module !== "undefined") module.exports = IRPF;
     const n = s.normParts, r = REF.normParts;
     const mod = [
       ["2021", "Tipo del 47 % para la base general por encima de 300.000 € (+2 puntos)", "Subida", n.top47, r.top47],
-      ["2018 · 2023 · 2024", "Reducción por rendimientos del trabajo: de 3.700 € a 7.302 € y hasta 19.747 € de rendimiento", "Rebaja", n.red20, r.red20],
+      ["2018 · 2023 · 2024", "Reducción por rendimientos del trabajo: de 3.700 € a 7.302 €; se anula en 19.747,5 € de rendimiento neto previo (≈ 21.100 € brutos; en 2016, ≈ 15.400 €). Al aprobarlas, Hacienda estimó ≈ 2.000 M€ (2018), 1.881 M€ (2023) y 1.385 M€ en retenciones (2024); el motor calibrado da menos (ver Metodología)", "Rebaja", n.red20, r.red20],
       ["2025 · 2026", "Deducción para perceptores del SMI (590,89 € en 2026)", "Rebaja", n.dedSMI, r.dedSMI],
     ];
     const tot = n.top47 + n.red20 + n.dedSMI, totR = r.top47 + r.red20 + r.dedSMI;
@@ -1762,8 +1768,8 @@ if (typeof module !== "undefined") module.exports = IRPF;
       ["Percentil salarial (P30, mediana, P70, P90)", "Salario por debajo del cual está el 30 %, 50 %, 70 % o 90 % de los asalariados (EPA, salario mensual × 12). Seguir a alguien que se mantiene en su percentil aísla la subida salarial de los cambios de empleo."],
       ["Ingreso Mínimo Vital (IMV)", "Prestación de la Seguridad Social para hogares vulnerables. Está exenta de IRPF, pero sus perceptores deben presentar la declaración desde 2021: engrosan el tramo más bajo (resultado cero) sin aportar cuota."],
       ["Pensiones no contributivas", "Jubilación e invalidez no contributivas (8.803 €/año en 2026). Las de invalidez pueden estar exentas y las de jubilación, por su cuantía, no pagan IRPF; si no hay otras rentas, normalmente no se declaran."],
-      ["Tramo de la AEAT", "Agrupación de las declaraciones por la suma de los rendimientos netos que se integran en la base (ya aplicada la reducción por trabajo) y las imputaciones de renta. Por eso muchos salarios de 16.000-23.000 € brutos aparecen en el tramo < 12.000 €."],
-      ["Reducción por rendimientos del trabajo", "Art. 20 LIRPF: rebaja la base de las rentas del trabajo bajas. En 2026 es de 7.302 € hasta 14.852 € de rendimiento neto y desaparece en 19.747,5 €."],
+      ["Tramo de la AEAT", "Agrupación de las declaraciones por la suma de los rendimientos netos que se integran en la base (ya aplicada la reducción por trabajo) y las imputaciones de renta. Por eso muchos salarios de hasta unos 18.000 € brutos aparecen en el tramo < 12.000 €."],
+      ["Reducción por rendimientos del trabajo", "Art. 20 LIRPF: rebaja la base de las rentas del trabajo bajas (también pensiones). Se mide sobre el rendimiento neto previo: bruto menos cotizaciones, sin restar los 2.000 € de otros gastos. En 2026 es de 7.302 € hasta 14.852 € y desaparece en 19.747,5 € (≈ 21.100 € brutos para un asalariado). Era de 3.700 € hasta 2018. No es el mínimo personal, que sigue en 5.550 € desde 2015."],
       ["Deducción SMI", "DA 61ª LIRPF: hasta 590,89 € en 2026 para rentas del trabajo de hasta 17.094 €, que se reduce hasta anularse en 20.048,45 €. Garantiza que el SMI no tribute."],
       ["Mínimo personal", "Parte de la renta que no tributa: 5.550 € (6.700 € desde 65 años; 8.100 € desde 75). Sin cambios desde 2015."],
       ["IPC a impuestos constantes", "Índice del INE que calcula la inflación como si IVA e impuestos especiales no hubieran cambiado. La diferencia con el IPC es la parte de la inflación que se debe a decisiones fiscales."],
