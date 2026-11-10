@@ -71,6 +71,16 @@ const LINK_STYLE: React.CSSProperties = {
   padding: "4px 10px", textDecoration: "none",
 };
 
+// Inside an app the link shrinks to a round button in the bottom-left corner, clear of the app's own header.
+const APP_NAV_STYLE: React.CSSProperties = {
+  position: "fixed", left: "max(10px, env(safe-area-inset-left, 0px))", bottom: "max(10px, env(safe-area-inset-bottom, 0px))", zIndex: 100,
+};
+const APP_LINK_STYLE: React.CSSProperties = {
+  display: "grid", placeItems: "center", width: 34, height: 34, borderRadius: 999,
+  color: "#eee7d6", background: "rgba(0,0,0,.5)", border: "1px solid rgba(255,255,255,.3)",
+  textDecoration: "none", fontFamily: "'IBM Plex Mono', monospace", fontSize: 16, lineHeight: 1,
+};
+
 export default function App() {
   const [route, setRoute] = useState<Route>(routeFromHash);
 
@@ -84,7 +94,7 @@ export default function App() {
     const LazyApp = APPS[route.id];
     return (
       <>
-        <nav style={NAV_STYLE}><a style={LINK_STYLE} href="#/">← Gabinete</a></nav>
+        <nav style={APP_NAV_STYLE}><a style={APP_LINK_STYLE} href="#/" title="Volver al Gabinete" aria-label="Volver al Gabinete">←</a></nav>
         <ErrorBoundary>
           <Suspense fallback={<div style={{ padding: 40, fontFamily: "monospace" }}>Cargando…</div>}>
             <LazyApp />
