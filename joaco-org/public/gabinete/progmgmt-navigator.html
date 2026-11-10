@@ -261,8 +261,8 @@
   </header>
 
   <div class="pdf-notice" id="pdf-notice">
-    <strong>About the PDF deep-links</strong>
-    Click any <span style="color: var(--burgundy);">📖 §2.1 · p. 41</span>-style reference to open the Standard PDF directly at that section. For this to work, keep <code>standardforprogrammanagementfifthed.pdf</code> in the same folder as this HTML file. Your browser's PDF viewer handles the navigation. <button id="pdf-notice-dismiss" style="margin-left: 8px; background: transparent; border: 1px solid var(--burgundy); color: var(--burgundy); padding: 3px 12px; border-radius: 3px; font-size: 11px; letter-spacing: 0.04em; cursor: pointer; font-family: inherit;">Got it — don't show again</button>
+    <strong>About the page references</strong>
+    Each <span style="color: var(--burgundy);">📖 §2.1 · p. 41</span>-style reference gives the section and page in the PMI Standard for Program Management (5th ed.). The PDF is not hosted here; look it up in your own licensed copy. <button id="pdf-notice-dismiss" style="margin-left: 8px; background: transparent; border: 1px solid var(--burgundy); color: var(--burgundy); padding: 3px 12px; border-radius: 3px; font-size: 11px; letter-spacing: 0.04em; cursor: pointer; font-family: inherit;">Got it — don't show again</button>
   </div>
 
   <section class="stats" aria-label="Progress summary">
@@ -1544,7 +1544,7 @@
           <h3 class="module-title">${m.title}</h3>
           <p class="module-sub">${escapeHtml(m.sub)}</p>
         </div>
-        <div class="module-ref"><a class="pdf-link" href="${PDF_FILENAME}#page=${m.pdfPage}" target="_blank" rel="noopener" title="Open PDF at page ${m.pdfPage}" data-action="pdf-link">${m.ref}<br><span style="opacity:0.7">${m.pages}</span></a></div>
+        <div class="module-ref"><a class="pdf-link" title="PMI Standard for Program Management, 5th ed. — page ${m.pdfPage} (use your own copy)" data-action="pdf-link">${m.ref}<br><span style="opacity:0.7">${m.pages}</span></a></div>
         <div class="module-progress">${pipsHtml}</div>
       </div>
       <div class="module-detail">
@@ -1583,7 +1583,7 @@
       body = `
         <div class="lvl-content-meta">
           <span>⏱ ${lvl.time}</span>
-          <a class="pdf-link" href="${PDF_FILENAME}#page=${m.pdfPage}" target="_blank" rel="noopener" title="Open PDF at page ${m.pdfPage}" data-action="pdf-link">📖 ${m.ref} · ${m.pages} <span class="pdf-arrow">↗</span></a>
+          <a class="pdf-link" title="PMI Standard for Program Management, 5th ed. — page ${m.pdfPage} (use your own copy)" data-action="pdf-link">📖 ${m.ref} · ${m.pages} <span class="pdf-arrow">↗</span></a>
         </div>
         <div class="lvl-content-body">
           ${c.intro || ''}
@@ -1602,7 +1602,7 @@
       body = `
         <div class="lvl-content-meta">
           <span>⏱ ${lvl.time}</span>
-          <a class="pdf-link" href="${PDF_FILENAME}#page=${m.pdfPage}" target="_blank" rel="noopener" title="Open PDF at page ${m.pdfPage}" data-action="pdf-link">📖 ${m.ref} · ${m.pages} <span class="pdf-arrow">↗</span></a>
+          <a class="pdf-link" title="PMI Standard for Program Management, 5th ed. — page ${m.pdfPage} (use your own copy)" data-action="pdf-link">📖 ${m.ref} · ${m.pages} <span class="pdf-arrow">↗</span></a>
         </div>
         <div class="lvl-content-body">
           <p style="color: var(--ink-faint); font-style: italic;">Content for this level is being prepared.</p>
