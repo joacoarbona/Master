@@ -127,7 +127,6 @@ const KIND_TINT: Record<WorkKind, string> = {
 };
 
 const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Sora:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 .gab-root{
   --ink:#11182e; --panel:#19223e; --panel-hi:#202b4d;

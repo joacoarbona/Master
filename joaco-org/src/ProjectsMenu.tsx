@@ -64,7 +64,6 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
 ];
 
 const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@700;800&display=swap');
 
 .pjm-root{
   font-family:'Fredoka',sans-serif;color:#fff;min-height:100vh;overflow:hidden;
