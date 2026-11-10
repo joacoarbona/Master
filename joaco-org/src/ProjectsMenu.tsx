@@ -61,6 +61,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "golf-madrid", emoji: "🏌️", title: "Golf en Madrid", description: "Puerta de Hierro y Club de Campo en 3D", color: "c2", href: "/golf-madrid/" },
   { id: "irpf", emoji: "🧾", title: "IRPF 2018 → 2026", description: "Progresividad en frío y quién la paga", color: "c3", href: "/proyectos/irpf-2018-2026.html" },
   { id: "puntocom-ia", emoji: "🫧", title: "Puntocom vs IA", description: "¿Burbuja? Laboratorio con escenarios", color: "c4", href: "/proyectos/puntocom-vs-ia.html" },
+  { id: "nubes", emoji: "☁️", title: "Nubes de palabras", description: "Pega un texto, etiqueta frases y explora", color: "c1", href: "#/app/nubes" },
 ];
 
 const STYLES = `
