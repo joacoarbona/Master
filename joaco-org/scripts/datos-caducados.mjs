@@ -20,3 +20,11 @@ for (const [k, d] of Object.entries(coy.vigilancia)) {
 console.log(`\nIndicadores de vigilancia aún con dato de abril 2026: ${coy.vigilanciaPendiente.join(", ")}`);
 console.log(`\n${pendientes} dato(s) por revisar.`);
 if (hoy > new Date(coy.meta.nextReview)) console.log("AVISO: ha pasado la fecha de revisión.");
+
+// ── Resto de simuladores ────────────────────────────────────────────────────
+const reg = JSON.parse(readFileSync(new URL("../src/data/registro-datos.json", import.meta.url), "utf8"));
+console.log("\n── Todos los simuladores ──");
+for (const s of reg.simuladores) {
+  const toca = hoy > new Date(s.nextReview);
+  console.log(`${toca ? "TOCA   " : "  ok   "}  ${s.nombre.padEnd(32)} datos ${s.asOf} · revisar ${s.nextReview} (${s.cadencia})\n           ${s.donde}\n           ${s.que}`);
+}

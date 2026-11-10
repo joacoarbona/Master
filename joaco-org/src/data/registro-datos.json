@@ -1,0 +1,53 @@
+{
+  "nota": "Una línea por simulador con datos que caducan. `npm run datos` avisa de los que tocan.",
+  "simuladores": [
+    {
+      "nombre": "Blondie Macro España",
+      "donde": "src/data/blondie-coyuntura.json",
+      "asOf": "2026-11-10",
+      "nextReview": "2027-02-05",
+      "cadencia": "trimestral",
+      "que": "Empleo (EPA), IPC, tipos, euríbor, deuda. Detalle por dato más arriba."
+    },
+    {
+      "nombre": "Simulador Hipotecario",
+      "donde": "src/works/MortgageSimulator.jsx (EUR_BASE)",
+      "asOf": "2026-10-31",
+      "nextReview": "2027-02-05",
+      "cadencia": "trimestral",
+      "que": "Añadir los meses nuevos de euríbor a la tabla local. En línea se actualiza solo desde el BCE."
+    },
+    {
+      "nombre": "Puntocom vs IA",
+      "donde": "public/proyectos/puntocom-vs-ia.html (DATA.nq, tabla IA, KPIs)",
+      "asOf": "2026-11-06",
+      "nextReview": "2027-02-05",
+      "cadencia": "trimestral",
+      "que": "Cierres diarios del Nasdaq, capitalización y ventas de los líderes IA, CAPE, PER, tipo de la Fed, capex trimestral."
+    },
+    {
+      "nombre": "Healthcare Thesis + IRA Squeeze",
+      "donde": "src/data/healthcare-caps.json",
+      "asOf": "2026-04-30",
+      "nextReview": "2027-04-30",
+      "cadencia": "anual (abril)",
+      "que": "Foto de capitalización de abril: mover la ventana un año. Revisar catalizadores con fecha en ASSUMPTIONS (HealthcareThesis.tsx)."
+    },
+    {
+      "nombre": "IRPF 2018→2026",
+      "donde": "public/proyectos/irpf-2018-2026.html (TRAMOS, LAWS, MACRO, SS_EMP, PENS_BASE)",
+      "asOf": "2026-11-07",
+      "nextReview": "2027-02-05",
+      "cadencia": "anual (febrero)",
+      "que": "Añadir el año 2027: tramos y mínimos, SMI, bases y tipos de cotización (MEI), IPC y salarios por percentil, pensiones."
+    },
+    {
+      "nombre": "Cybercab Madrid",
+      "donde": "public/proyectos/cybercab-madrid-simulador.html",
+      "asOf": "2026-08-03",
+      "nextReview": "2027-08-01",
+      "cadencia": "anual",
+      "que": "Supuestos de coste por km, flota y regulación."
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from "react";
+// Capitalizaciones: se editan en ../data/healthcare-caps.json — ver DATOS.md
+import HC_CAPS from "../data/healthcare-caps.json";
 
 const SUBS = {
   earlyDx: "Early Detection & Dx", genomics: "Genomics & Sequencing",
@@ -72,7 +74,7 @@ const ASSUMPTIONS = [
   { id: "glp1", label: "GLP-1 Expansion", group: "Chronic", color: "#f59e0b",
     desc: "GLP-1s expanding into CV, kidney, liver, AD.",
     thesis: "GLP-1s becoming the aspirin of the 21st century — one molecular class treating a constellation of diseases.",
-    catalysts: [{ date: "2025", event: "FLOW kidney outcomes" }, { date: "2026+", event: "EVOKE Alzheimer readout" }],
+    catalysts: [{ date: "2025", event: "FLOW kidney outcomes" }, { date: "Nov 2025", event: "EVOKE Alzheimer: missed primary endpoint" }],
     pro: ["Tirzepatide/sema expanding T2D to AD", "MASH approvals coming", "Oral GLP-1 launches"],
     con: ["IRA negotiation looming", "Adherence under 50% real-world", "Compounded pressure on pricing"],
     winners: ["LLY", "NVO"], losers: ["PFE"] },
@@ -213,6 +215,8 @@ const COMPANIES = [
   { tkr: "PRIV3", name: "GRAIL", region: "US", mix: { earlyDx: 100 }, caps: [3.5, 2.0, 2.5, 3.2] }
 ];
 
+COMPANIES.forEach(function(c: any) { const v = (HC_CAPS.caps as any)[c.tkr]; if (v) c.caps = v; });
+
 const COMPANY_INTEL = {
   "LLY:Eli Lilly": { oneLiner: "US pharma, $810B. Dominant metabolic platform.", remarkable: "From $365B to $810B in 3 years on GLP-1.", narrative: "Manufacturing scale-up, oral GLP-1, AD expansion.", macroKey: ["glp1", "chronicRx", "wearables"], macroRisk: ["rweAcceleration", "vbc"] },
   "NVO:Novo Nordisk": { oneLiner: "Danish, $165B (down 50%). Original GLP-1 innovator.", remarkable: "Concentration penalty: 85% GLP-1 revenue.", narrative: "Defensive, oral sema, diversification.", macroKey: ["glp1", "chronicRx"], macroRisk: ["rweAcceleration", "mced"] },
@@ -268,6 +272,8 @@ const BENCHMARKS = {
   IHF: { name: "Healthcare Providers", color: "#dc2626", caps: [100, 98, 105, 93] },
   XBI: { name: "Biotech EW", color: "#10b981", caps: [100, 95, 98, 110] }
 };
+
+Object.keys(BENCHMARKS).forEach(function(k) { const v = (HC_CAPS.benchmarks as any)[k]; if (v) (BENCHMARKS as any)[k].caps = v; });
 
 const GLOBAL_TOTAL = 6500;
 const GLOBAL_BY_REGION = { US: 5100, EU: 900, Asia: 400, Private: 100 };
@@ -1259,7 +1265,7 @@ export default function App() {
               );
             })()}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 20 }}>
-              {["APR 23", "APR 24", "APR 25", "APR 26", "36M DELTA"].map(function(lbl, i) {
+              {HC_CAPS.anchors.concat(["36M DELTA"]).map(function(lbl, i) {
                 const isT = i === 3;
                 const isC = i === 4;
                 const delta = (selCo.caps[3] >= selCo.caps[0] ? "+" : "") + ((selCo.caps[3] / selCo.caps[0] - 1) * 100).toFixed(0) + "%";
@@ -1331,7 +1337,7 @@ export default function App() {
       )}
 
       <div style={{ padding: "14px 40px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="m" style={{ fontSize: 9, color: "#57534e", letterSpacing: "0.08em" }}>Educational framework - not investment advice. Market cap anchors Apr 2026.</div>
+        <div className="m" style={{ fontSize: 9, color: "#57534e", letterSpacing: "0.08em" }}>Educational framework - not investment advice. Market cap anchors {HC_CAPS.meta.label}.</div>
       </div>
     </div>
   );

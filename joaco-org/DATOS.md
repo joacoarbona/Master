@@ -49,11 +49,30 @@ La app muestra la fecha de los datos y la próxima revisión en la pestaña Vigi
 Se actualiza solo: al abrirse pide el euríbor al BCE. La tabla local `EUR_BASE` de
 `MortgageSimulator.jsx` es el respaldo sin conexión; conviene añadirle los meses nuevos en cada revisión.
 
-## Otros simuladores con datos que caducan
+## Todos los simuladores: `src/data/registro-datos.json`
 
-| Simulador | Qué caduca | Frecuencia |
-|---|---|---|
-| IRPF 2018→2026 | tramos, mínimos, salarios por percentil | anual (enero) |
-| Healthcare Thesis / IRA Squeeze | cotizaciones, hitos regulatorios | semestral |
-| Puntocom vs IA | niveles del Nasdaq, capex | trimestral |
-| Cybercab Madrid | supuestos de coste y regulación | anual |
+Una línea por simulador: de cuándo son sus datos, cuándo toca revisarlo, en qué fichero están y qué hay que cambiar.
+`npm run datos` lo imprime y marca **TOCA** los vencidos. Al actualizar uno, cambia su `asOf` y `nextReview`.
+
+| Simulador | Datos a | Próxima revisión | Dónde |
+|---|---|---|---|
+| Blondie Macro | nov 2026 | feb 2027 (trimestral) | `src/data/blondie-coyuntura.json` |
+| Hipotecario | oct 2026 | feb 2027 (trimestral) | `EUR_BASE` en `MortgageSimulator.jsx` |
+| Puntocom vs IA | 6 nov 2026 | feb 2027 (trimestral) | `DATA` y tablas en el HTML |
+| Healthcare Thesis + IRA | abr 2026 | abr 2027 (anual) | `src/data/healthcare-caps.json` |
+| IRPF 2018→2026 | nov 2026 | feb 2027 (anual) | constantes en el HTML |
+| Cybercab Madrid | ago 2026 | ago 2027 (anual) | HTML |
+
+### Healthcare (Thesis e IRA comparten fichero)
+
+Las capitalizaciones son una foto de cada abril, con ventana móvil de 4 años. En abril:
+quita el primer valor de cada lista, añade el nuevo al final y actualiza `anchors` y `meta.label`.
+Los dos simuladores se actualizan a la vez. Revisa también los catalizadores con fecha
+(`ASSUMPTIONS` en `HealthcareThesis.tsx`): varios son de 2024-2025 y ya han ocurrido.
+
+### Calendario del año
+
+- **Febrero**: Blondie (trimestral + anual), Hipotecario, Puntocom vs IA, IRPF (año nuevo).
+- **Abril**: Healthcare (foto anual).
+- **Mayo, agosto, noviembre**: Blondie, Hipotecario, Puntocom vs IA.
+- **Agosto**: Cybercab.
