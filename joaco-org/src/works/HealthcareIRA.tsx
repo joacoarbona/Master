@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from "react";
+// Capitalizaciones: se editan en ../data/healthcare-caps.json — ver DATOS.md
+import HC_CAPS from "../data/healthcare-caps.json";
 
 const SUBS = {
   earlyDx: "Early Detection & Dx",
@@ -99,6 +101,8 @@ const COMPANIES = [
   { tkr: "CI", name: "Cigna", region: "US", mix: { integratedCare: 50, specialtyPharmacy: 50 }, cap: 85 },
   { tkr: "HCA", name: "HCA Healthcare", region: "US", mix: { acuteHospital: 90, integratedCare: 10 }, cap: 72 }
 ];
+
+COMPANIES.forEach(function(c: any) { const v = (HC_CAPS.caps as any)[c.tkr]; if (v) c.cap = v[v.length - 1]; });
 
 const PRESETS = {
   reset: { mced: 50, wearables: 50, glp1: 50, chronicRx: 50, adcBispecific: 50, cellTherapy: 50, robotics: 50, autonomousDx: 50, vbc: 50, aiDiscovery: 50, syntheticTrials: 50, rweAcceleration: 50 },
@@ -672,7 +676,7 @@ export default function App() {
 
       <div style={{ padding: "10px 28px", borderTop: "1px solid #eee" }}>
         <div className="mono" style={{ fontSize: 9, color: "#9ca3af", letterSpacing: "0.08em" }}>
-          Educational framework — not investment advice. Caps anchored Apr 2026.
+          Educational framework — not investment advice. Caps anchored {HC_CAPS.meta.label}.
         </div>
       </div>
     </div>

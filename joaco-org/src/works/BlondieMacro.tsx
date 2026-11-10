@@ -14,6 +14,8 @@ import {
   Save, FolderOpen, Download, Upload, Trash2, Copy, Check,
   GitCompare, Plus, X, Library,
 } from "lucide-react";
+// Datos de coyuntura (los que caducan): se editan en ../data/blondie-coyuntura.json — ver DATOS.md
+import COYUNTURA from "../data/blondie-coyuntura.json";
 
 /* Blondie Macro · España · v2.8 · simulador de transmisión multinivel */
 
@@ -31,7 +33,7 @@ import {
    · EUR/USD: promedio Q1 2026 ~1.13 (ECB)
    · Gini: Eurostat SILC 2024 (provisional), 31.5 tras serie reciente revisada
    --------------------------------------------------------------------------- */
-const BASELINE = {
+const BASELINE_DEFAULT = {
   pib_bn_eur: 1670,          // BdE: ~€1.59tn (2024) × 1.029 (2025) × 1.022 (2026 parcial)
   ipc_yoy_pct: 3.4,          // INE marzo 2026 (dato real, repunte por petróleo)
   ipc_subyacente_pct: 2.9,   // INE marzo 2026 — referencia para contexto
@@ -50,6 +52,11 @@ const BASELINE = {
   gini_baseline: 31.5,       // Eurostat SILC 2024 provisional
   natural_rate_pct: 2.00,    // proxy Wicksell — igual a política, wedge = 0 a abril 2026
   natalidad_hijos_mujer: 1.12, // INE 2024 (mínimo histórico)
+};
+// Los valores vigentes vienen del JSON de coyuntura; los de arriba son solo respaldo.
+const BASELINE = {
+  ...BASELINE_DEFAULT,
+  ...Object.fromEntries(Object.entries(COYUNTURA.baseline).map(([k, d]: [string, any]) => [k, d.value])),
 };
 
 
@@ -3317,6 +3324,15 @@ const VIGILANCIA_INDICATORS = [
     category: "monetario",
   },
 ];
+// Valores vigentes desde el JSON de coyuntura: actualiza dato actual, fuente y el punto del año en la serie.
+VIGILANCIA_INDICATORS.forEach((ind: any) => {
+  const o = (COYUNTURA.vigilancia as any)[ind.id];
+  if (!o) return;
+  ind.current = o.current;
+  ind.source = o.source;
+  if (o.lens) ind.lens = o.lens;
+  ind.series = [...ind.series.filter((p: any) => p.y !== o.year), { y: o.year, v: o.current }];
+});
 
 function statusFor(indicator) {
   const { current, thresholds, direction } = indicator;
@@ -3435,7 +3451,7 @@ function VigilanciaView() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-serif text-2xl tracking-tight">Vigilancia del ciclo · España abril 2026</h2>
+        <h2 className="font-serif text-2xl tracking-tight">Vigilancia del ciclo · España {COYUNTURA.meta.label}</h2>
         <p className="text-sm text-stone-500 mt-1 max-w-3xl">
           Panel de indicadores que BdE, AIReF y BCE usan para detectar desequilibrios macroeconómicos.
           Cada dato es real y está fechado con su fuente. El color indica distancia al umbral histórico de riesgo.
@@ -3567,7 +3583,7 @@ function VigilanciaView() {
 
         <div className="flex items-center gap-2 text-[10px] text-stone-400 pt-2 border-t border-stone-200">
           <Info className="w-3 h-3" />
-          <span>Datos: BdE, AIReF, Fundación BBVA+Ivie, Eurostat, INE, BCE. Actualización: abril 2026.</span>
+          <span>Datos: BdE, AIReF, Fundación BBVA+Ivie, Eurostat, INE, BCE. Actualización: {COYUNTURA.meta.label}. Próxima revisión: {COYUNTURA.meta.nextReviewLabel}.</span>
         </div>
       </div>
     </div>
@@ -4517,7 +4533,7 @@ sostenibilidad = capital_real / capital_aparente`}</pre>
       </section>
 
       <section className="space-y-3">
-        <h3 className="font-serif text-lg">8. Calibración con datos reales — v0.7 (abril 2026)</h3>
+        <h3 className="font-serif text-lg">8. Calibración con datos reales — v0.7 (abril 2026, histórico)</h3>
         <p className="text-sm text-stone-700 leading-relaxed">
           El <strong>baseline</strong> se ha actualizado con valores observados o proyectados oficialmente.
           Los <strong>coeficientes</strong> de elasticidad siguen siendo medianas de literatura —
