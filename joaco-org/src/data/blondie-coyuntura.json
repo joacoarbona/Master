@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "asOf": "2026-11-10",
+    "label": "noviembre 2026",
+    "cadenceMonths": 3,
+    "nextReview": "2027-02-05",
+    "nextReviewLabel": "febrero 2027",
+    "nota": "Datos de coyuntura de Blondie Macro. Se editan AQUÍ, no en BlondieMacro.tsx. Ver DATOS.md."
+  },
+  "baseline": {
+    "paro_pct": {
+      "value": 10.18,
+      "source": "INE EPA T3 2026",
+      "date": "2026-10-27",
+      "status": "ok"
+    },
+    "ocupados_mn": {
+      "value": 22.85,
+      "source": "INE EPA T3 2026",
+      "date": "2026-10-27",
+      "status": "ok"
+    },
+    "parados_mn": {
+      "value": 2.59,
+      "source": "INE EPA T3 2026",
+      "date": "2026-10-27",
+      "status": "ok"
+    },
+    "afiliados_mn": {
+      "value": 22.62,
+      "source": "Seguridad Social, afiliación octubre 2026",
+      "date": "2026-11-04",
+      "status": "ok"
+    },
+    "tipo_bce_pct": {
+      "value": 2.5,
+      "source": "BCE, facilidad de depósito (mantenido el 29-oct-2026)",
+      "date": "2026-10-29",
+      "status": "ok"
+    },
+    "euribor_12m_pct": {
+      "value": 3.24,
+      "source": "Euríbor 12m, media de octubre 2026 (3,239%)",
+      "date": "2026-10-31",
+      "status": "ok"
+    },
+    "ipc_subyacente_pct": {
+      "value": 3.1,
+      "source": "INE, indicador adelantado IPC octubre 2026",
+      "date": "2026-10-30",
+      "status": "ok"
+    },
+    "ipc_yoy_pct": {
+      "value": 4.9,
+      "source": "INE, indicador adelantado IPC septiembre 2026",
+      "date": "2026-09-29",
+      "status": "revisar",
+      "pendiente": "Confirmar el IPC general de octubre 2026 (dato definitivo INE, mediados de noviembre)."
+    },
+    "smi_mes_eur": {
+      "value": 1221,
+      "source": "SMI 2026 (vigente desde 1-ene-2026)",
+      "date": "2026-01-01",
+      "status": "anual"
+    },
+    "natural_rate_pct": {
+      "value": 2.0,
+      "source": "Supuesto del modelo (proxy Wicksell)",
+      "date": "2026-04-01",
+      "status": "supuesto"
+    },
+    "brent_usd": {
+      "value": 95,
+      "source": "EIA STEO abril 2026",
+      "date": "2026-04-01",
+      "status": "revisar",
+      "pendiente": "Actualizar con el Brent medio del último mes."
+    },
+    "eur_usd": {
+      "value": 1.13,
+      "source": "BCE, cierre T1 2026",
+      "date": "2026-03-31",
+      "status": "revisar",
+      "pendiente": "Actualizar con el tipo de cambio de referencia del BCE."
+    },
+    "pib_bn_eur": {
+      "value": 1670,
+      "source": "BdE, PIB nominal escalado",
+      "date": "2026-04-01",
+      "status": "revisar",
+      "pendiente": "Recalcular con la Contabilidad Nacional Trimestral del INE."
+    },
+    "recaudacion_bn_eur": {
+      "value": 295,
+      "source": "Escalado con PIB nominal",
+      "date": "2026-04-01",
+      "status": "revisar",
+      "pendiente": "Contrastar con el Informe Mensual de Recaudación de la AEAT."
+    },
+    "salario_medio_eur": {
+      "value": 28500,
+      "source": "INE, Encuesta trimestral de coste laboral",
+      "date": "2026-04-01",
+      "status": "revisar",
+      "pendiente": "Actualizar con la ETCL más reciente."
+    },
+    "gini_baseline": {
+      "value": 31.5,
+      "source": "Eurostat SILC 2024 (provisional)",
+      "date": "2024-12-01",
+      "status": "anual"
+    },
+    "natalidad_hijos_mujer": {
+      "value": 1.12,
+      "source": "INE 2024",
+      "date": "2025-06-01",
+      "status": "anual"
+    },
+    "margen_empresarial_pct": {
+      "value": 42,
+      "source": "Supuesto del modelo",
+      "date": "2026-04-01",
+      "status": "supuesto"
+    }
+  },
+  "vigilancia": {
+    "deuda_publica": {
+      "current": 101.4,
+      "year": 2026,
+      "source": "BdE · 2026 T2",
+      "date": "2026-09-30"
+    },
+    "paro": {
+      "current": 10.18,
+      "year": 2026,
+      "source": "INE EPA T3 2026",
+      "date": "2026-10-27"
+    },
+    "tipo_gap": {
+      "current": 0.5,
+      "year": 2026,
+      "source": "BCE depo 2.50% · natural estimada ~2.00%",
+      "date": "2026-10-29",
+      "lens": "El BCE subió tipos dos veces en 2026 (junio y septiembre) hasta el 2,50%: la política queda 0,5 pp por encima de la natural estimada. Histórico: tipos bajos prolongados 2003-2007 → boom."
+    }
+  },
+  "vigilanciaPendiente": [
+    "deficit_publico",
+    "deuda_hogares",
+    "deuda_empresas",
+    "productividad",
+    "pib_pc",
+    "vivienda_sobrevaloracion",
+    "alquiler",
+    "presion_fiscal",
+    "pensiones"
+  ]
+}
