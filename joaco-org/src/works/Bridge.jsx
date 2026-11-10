@@ -5,6 +5,7 @@ import {
   Award, Sparkles, Home as HomeIcon, Library, ArrowLeft, HelpCircle,
   X, GraduationCap, Target, Trophy, Shuffle, Plus, Settings, Lock, BarChart3
 } from "lucide-react";
+import { Room, newCode, normCode, prettyCode, randId, roomsSupported } from "../lib/room";
 
 /* ============================================================
    BRIDGE MAESTRO — Mayores Quintos / 5-Card Majors
@@ -1063,6 +1064,30 @@ function botTableResult(hands, seed, dealerSeat) {
 }
 function dayKey(ts) { const d = new Date(ts || Date.now()); const p = (n) => (n < 10 ? "0" : "") + n; return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()); }
 function dailySeed(key) { return parseInt(key.replace(/-/g, ""), 10); }   // same deal for everyone on a given date
+
+// ----- Device sync: merge two copies of the same profile. Progress only grows, so the merge is a union. -----
+const STATUS_RANK = { reviewed: 2, done: 1 };
+function mergeVal(a, b) {
+  if (a === undefined || a === null) return b;
+  if (b === undefined || b === null) return a;
+  if (typeof a === "number" && typeof b === "number") return Math.max(a, b);
+  if (typeof a === "boolean" || typeof b === "boolean") return !!(a || b);
+  if (typeof a === "string" && typeof b === "string") return (STATUS_RANK[b] || 0) > (STATUS_RANK[a] || 0) ? b : a;
+  if (Array.isArray(a) && Array.isArray(b)) { const seen = new Set(a.map(x => JSON.stringify(x))); return a.concat(b.filter(x => !seen.has(JSON.stringify(x)))); }
+  if (typeof a === "object" && typeof b === "object") { const o = { ...a }; for (const k of Object.keys(b)) o[k] = mergeVal(a[k], b[k]); return o; }
+  return a;
+}
+function mergeUser(local, remote) {
+  if (!remote || typeof remote !== "object") return local;
+  const st = {};
+  for (const e of (local.stats || []).concat(remote.stats || [])) { if (e && typeof e.ts === "number") { const k = e.ts + ":" + e.kind; if (!st[k]) st[k] = e; } }
+  const stats = Object.values(st).sort((x, y) => x.ts - y.ts);
+  const rv = {}, score = (x) => (x.reps || 0) + (x.lapses || 0);
+  for (const c of (local.reviews || []).concat(remote.reviews || [])) { if (!c || !c.id) continue; const p = rv[c.id]; if (!p || score(c) > score(p) || (score(c) === score(p) && (c.due || 0) > (p.due || 0))) rv[c.id] = c; }
+  const reviews = Object.values(rv).sort((x, y) => (x.created || 0) - (y.created || 0) || String(x.id).localeCompare(String(y.id)));
+  return { ...local, progress: mergeVal(local.progress || {}, remote.progress || {}), classics: mergeVal(local.classics || {}, remote.classics || {}), stats: stats.length > 800 ? stats.slice(stats.length - 800) : stats, reviews, seenTour: !!(local.seenTour || remote.seenTour) };
+}
+function syncSnapshot(u) { return { progress: u.progress || {}, classics: u.classics || {}, stats: u.stats || [], reviews: u.reviews || [], seenTour: !!u.seenTour }; }
 
 // ----- Duplicate scoring + vulnerability -----
 const VUL_SCHEDULE = ["O", "N", "E", "B", "N", "E", "B", "O", "E", "B", "O", "N", "B", "O", "N", "E"];
@@ -6149,7 +6174,36 @@ function GuideView({ lang, user, onOpenLevel }) {
   );
 }
 
-function SettingsView({ lang, theme, onTheme, user, onRestore }) {
+function SyncCard({ lang, sync, user }) {
+  const [code, setCode] = useState("");
+  const [bad, setBad] = useState(false);
+  if (!sync) return null;
+  const box = { background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 12 };
+  const when = sync.last ? new Date(sync.last).toLocaleTimeString(lang === "es" ? "es-ES" : "en-GB", { hour: "2-digit", minute: "2-digit" }) : null;
+  return (
+    <div style={box} className="p-3 flex flex-col gap-2 mt-2">
+      <div style={{ color: C.brass }} className="text-xs font-bold uppercase">{tx(lang, "Sincronizar dispositivos", "Sync devices")}</div>
+      {!sync.supported && <p style={{ color: C.soft }} className="text-xs">{tx(lang, "Este navegador no permite la sincronización.", "This browser does not support sync.")}</p>}
+      {sync.supported && !sync.code && (<>
+        <p style={{ color: C.soft }} className="text-xs">{tx(lang, `Lleva el progreso de «${user.name}» al móvil, la tablet y el ordenador sin crear cuenta. Crea un código aquí y escríbelo en el otro dispositivo (con el perfil que quieras unir abierto).`, `Carry “${user.name}”’s progress across phone, tablet and computer with no account. Create a code here and type it on the other device (with the profile you want to join open).`)}</p>
+        <button onClick={sync.create} style={{ background: C.brass, color: C.ink }} className="px-3 py-2 rounded text-sm font-bold">{tx(lang, "Crear código de sincronización", "Create sync code")}</button>
+        <div className="flex gap-2">
+          <input value={code} onChange={(e) => { setCode(e.target.value); setBad(false); }} placeholder={tx(lang, "Código del otro dispositivo", "Code from the other device")} aria-label={tx(lang, "Código de sincronización", "Sync code")} autoCapitalize="characters" autoCorrect="off" spellCheck={false}
+            style={{ background: C.feltLite, color: C.ivory, border: `1px solid ${bad ? C.red : C.line}`, borderRadius: 8, fontSize: 16 }} className="p-2 flex-1 min-w-0 font-mono" />
+          <button onClick={() => { if (!sync.join(code)) setBad(true); else setCode(""); }} disabled={!code.trim()} style={{ background: C.feltLite, color: C.ivory, border: `1px solid ${C.line}`, opacity: code.trim() ? 1 : .5 }} className="px-3 py-2 rounded text-sm font-semibold">{tx(lang, "Unir", "Join")}</button>
+        </div>
+        {bad && <p style={{ color: C.red }} className="text-xs font-semibold">{tx(lang, "El código tiene 10 letras o números.", "The code has 10 letters or digits.")}</p>}
+      </>)}
+      {sync.supported && sync.code && (<>
+        <div style={{ background: C.feltLite, borderRadius: 8, color: C.ivory, letterSpacing: 2 }} className="p-2 text-center font-mono text-lg font-bold select-all">{prettyCode(sync.code)}</div>
+        <p style={{ color: sync.up ? C.win : C.soft }} className="text-xs font-semibold">{sync.up ? tx(lang, "● Conectado", "● Connected") : tx(lang, "○ Sin conexión; reintentando", "○ Offline; retrying")}{when ? tx(lang, ` · última sincronización ${when}`, ` · last sync ${when}`) : ""}</p>
+        <p style={{ color: C.soft }} className="text-xs">{tx(lang, "Escribe este código en Ajustes del otro dispositivo. Los dos se quedan con la suma del progreso de ambos: no se pierde nada. Cómo funciona: los datos viajan cifrados con este código por un servicio público de mensajería, que guarda la última copia para cuando el otro dispositivo se conecte, sin garantía de por cuánto tiempo. Trata el código como una contraseña.", "Type this code in Settings on the other device. Both end up with the sum of both devices’ progress: nothing is lost. How it works: data travels encrypted with this code through a public messaging service, which keeps the latest copy for when the other device connects, with no guarantee of how long. Treat the code like a password.")}</p>
+        <button onClick={sync.stop} style={{ background: C.feltLite, color: C.ivory, border: `1px solid ${C.line}` }} className="px-3 py-1.5 rounded text-sm font-semibold self-start">{tx(lang, "Dejar de sincronizar en este dispositivo", "Stop syncing on this device")}</button>
+      </>)}
+    </div>
+  );
+}
+function SettingsView({ lang, theme, onTheme, user, onRestore, sync }) {
   const L = T[lang];
   const [bk, setBk] = useState("");
   const [im, setIm] = useState("");
@@ -6187,6 +6241,7 @@ function SettingsView({ lang, theme, onTheme, user, onRestore }) {
         })}
       </div>
       <p style={{ color: C.soft }} className="text-xs">{L.themeNote}</p>
+      <SyncCard lang={lang} sync={sync} user={user} />
       <div style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 12 }} className="p-3 flex flex-col gap-2 mt-2">
         <div style={{ color: C.brass }} className="text-xs font-bold uppercase">{L.bkTitle}</div>
         <p style={{ color: C.soft }} className="text-xs">{L.bkHint}</p>
@@ -6362,6 +6417,9 @@ export default function App() {
   const [view, setView] = useState({ name: "dashboard", params: {} });
   const [pbnImported, setPbnImported] = useState([]);
   const [tourOpen, setTourOpen] = useState(false);
+  const [syncMap, setSyncMap] = useState({});                              // profile id -> sync code
+  const [syncInfo, setSyncInfo] = useState({ up: false, last: 0 });
+  const roomRef = useRef(null), devRef = useRef(""), lastSentRef = useRef("");
   // apply theme palette synchronously so all child renders read the right colors
   C = (THEMES[theme] || THEMES.classic).C;
   UI = (THEMES[theme] || THEMES.classic).ui;
@@ -6379,6 +6437,8 @@ export default function App() {
       if (lg) setLang(lg);
       if (th && THEMES[th]) setTheme(th);
       if (Array.isArray(pb)) setPbnImported(pb);
+      const sm = await store.get("bm_sync"); if (sm && typeof sm === "object") setSyncMap(sm);
+      let dv = await store.get("bm_dev"); if (!dv) { try { dv = randId(); } catch (e) { dv = "d" + Date.now(); } store.set("bm_dev", dv); } devRef.current = dv;
       setLoaded(true);
     })();
   }, []);
@@ -6389,7 +6449,42 @@ export default function App() {
   useEffect(() => { if (loaded) store.set("bm_theme", theme); }, [theme, loaded]);
   useEffect(() => { if (loaded) store.set("bm_pbn", pbnImported); }, [pbnImported, loaded]);
 
+  useEffect(() => { if (loaded) store.set("bm_sync", syncMap); }, [syncMap, loaded]);
+
   const user = users.find(u => u.id === currentId) || null;
+
+  // ----- Device sync: an encrypted room per profile; each device keeps its latest snapshot retained on the broker -----
+  const syncCode = user ? (syncMap[user.id] || null) : null;
+  useEffect(() => {
+    if (!loaded || !user || !syncCode || !roomsSupported()) return;
+    const uidNow = user.id; lastSentRef.current = "";
+    const room = new Room({
+      code: syncCode, ns: "bridge-sync", deviceId: devRef.current,
+      onStatus: (up) => setSyncInfo(si => ({ ...si, up })),
+      onMessage: (m) => {
+        if (m.channel !== "state" || !m.data || !m.data.user) return;
+        setUsers(us => us.map(u => { if (u.id !== uidNow) return u; const merged = mergeUser(u, m.data.user); return JSON.stringify(syncSnapshot(merged)) === JSON.stringify(syncSnapshot(u)) ? u : merged; }));
+        setSyncInfo(si => ({ ...si, last: Date.now() }));
+      },
+    });
+    roomRef.current = room;
+    return () => { room.close(); roomRef.current = null; setSyncInfo({ up: false, last: 0 }); };
+  }, [loaded, user && user.id, syncCode]);
+  useEffect(() => {
+    if (!user || !syncCode || !syncInfo.up) return;
+    const t = setTimeout(() => {
+      const room = roomRef.current; if (!room) return;
+      const snap = JSON.stringify(syncSnapshot(user)); if (snap === lastSentRef.current) return;
+      room.send("state", { ts: Date.now(), user: JSON.parse(snap) }, true).then(ok => { if (ok) { lastSentRef.current = snap; setSyncInfo(si => ({ ...si, last: Date.now() })); } });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [user, syncCode, syncInfo.up]);
+  const syncApi = {
+    supported: roomsSupported(), code: syncCode, up: syncInfo.up, last: syncInfo.last,
+    create: () => { if (user) setSyncMap(m => ({ ...m, [user.id]: newCode(10) })); },
+    join: (c) => { const k = normCode(c); if (user && k.length >= 8) { setSyncMap(m => ({ ...m, [user.id]: k })); return true; } return false; },
+    stop: () => { if (user) setSyncMap(m => { const n = { ...m }; delete n[user.id]; return n; }); },
+  };
   useEffect(() => { if (loaded && user && !user.seenTour) setTourOpen(true); }, [loaded, currentId, user && user.seenTour]);
 
   function createUser(name, exp) {
@@ -6495,7 +6590,7 @@ export default function App() {
 
       <div className={`${UI.maxW} mx-auto px-3 py-4 pb-24`}>
         {UI.tips && view.name !== "play" && <TipBanner lang={lang} />}
-        {view.name === "settings" && <SettingsView lang={lang} theme={theme} onTheme={setTheme} user={user} onRestore={(p) => updateUser(u => ({ ...p, id: u.id }))} />}
+        {view.name === "settings" && <SettingsView lang={lang} theme={theme} onTheme={setTheme} user={user} sync={syncApi} onRestore={(p) => updateUser(u => ({ ...p, id: u.id }))} />}
         {view.name === "help" && <HelpView lang={lang} onTour={() => setTourOpen(true)} />}
         {view.name === "stats" && <StatsView lang={lang} user={user} />}
         {view.name === "techniques" && <TechniquesView lang={lang} onPlay={(deal, title) => setView({ name: "play", params: { deal, title, fromTech: true } })} />}
