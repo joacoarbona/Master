@@ -3364,6 +3364,71 @@ function PlayingCard({ card, onClick, dim, small, hidden }) {
     </button>
   );
 }
+// ---------- Card fan: one overlapped row, grouped by suit (trump first, colours alternating), sized to its container ----------
+function suitOrderFor(trump) {
+  if (trump === "♥") return ["♥", "♠", "♦", "♣"];
+  if (trump === "♦") return ["♦", "♠", "♥", "♣"];
+  if (trump === "♣") return ["♣", "♥", "♠", "♦"];
+  return ["♠", "♥", "♣", "♦"];
+}
+function useElementWidth(fallback) {
+  const ref = useRef(null);
+  const [w, setW] = useState(fallback);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const upd = () => setW(el.clientWidth || fallback);
+    upd();
+    if (typeof ResizeObserver !== "undefined") { const ro = new ResizeObserver(upd); ro.observe(el); return () => ro.disconnect(); }
+    window.addEventListener("resize", upd); return () => window.removeEventListener("resize", upd);
+  }, []);
+  return [ref, w];
+}
+function FanCard({ card, w, h, onClick, dim, lifted, glow }) {
+  const red = SUIT_RED.has(card.s);
+  return (
+    <button onClick={onClick} disabled={!onClick} aria-label={card.r + card.s}
+      style={{ width: w, height: h, background: "#fbf8ee", color: red ? "#b3261e" : "#1d231f", borderRadius: Math.round(w * 0.13), border: `1px solid ${glow || lifted ? C.brass : "#bdb38f"}`,
+        boxShadow: lifted ? `0 6px 14px rgba(0,0,0,.45), 0 0 0 2px ${C.brass}` : "-2px 1px 4px rgba(0,0,0,.28)", filter: dim ? "brightness(.6) saturate(.5)" : "none",
+        transform: lifted ? "translateY(-14px)" : (glow ? "translateY(-5px)" : "none"), transition: "transform .12s ease, box-shadow .12s ease", cursor: onClick ? "pointer" : "default",
+        padding: `${Math.round(w * 0.07)}px 0 0 ${Math.round(w * 0.09)}px`, textAlign: "left", flexShrink: 0, position: "relative", display: "block", overflow: "hidden", WebkitTapHighlightColor: "transparent" }}>
+      <span style={{ display: "block", fontSize: Math.round(w * (card.r === "T" ? 0.3 : 0.38)), fontWeight: 700, lineHeight: 1, height: Math.round(w * 0.38), letterSpacing: card.r === "T" ? -2 : 0, marginLeft: card.r === "T" ? -2 : 0 }}>{card.r === "T" ? "10" : card.r}</span>
+      <span style={{ display: "block", fontSize: Math.round(w * 0.32), lineHeight: 1.1, fontFamily: "'Segoe UI Symbol','Apple Symbols','Noto Sans Symbols2','DejaVu Sans',sans-serif" }}>{card.s + "\uFE0E"}</span>
+      <span style={{ position: "absolute", right: Math.round(w * 0.1), bottom: Math.round(w * 0.05), fontSize: Math.round(w * 0.5), lineHeight: 1, fontFamily: "'Segoe UI Symbol','Apple Symbols','Noto Sans Symbols2','DejaVu Sans',sans-serif" }}>{card.s + "\uFE0E"}</span>
+    </button>
+  );
+}
+function HandFan({ cards, trump, legal, active, onPlay, lang, scale }) {
+  const [ref, width] = useElementWidth(320);
+  const [sel, setSel] = useState(null);
+  const order = suitOrderFor(trump);
+  const sorted = [];
+  order.forEach(su => cards.filter(c => c.s === su).sort((a, b) => RVAL[b.r] - RVAL[a.r]).forEach(c => sorted.push(c)));
+  const n = sorted.length;
+  useEffect(() => { setSel(null); }, [n, active]);
+  const sc = scale || 1, cw = Math.round(56 * sc), ch = Math.round(80 * sc), gap = 6;
+  let groups = 0; for (let i = 1; i < n; i++) if (sorted[i].s !== sorted[i - 1].s) groups++;
+  const step = n > 1 ? Math.max(15, Math.min(cw + 3, (width - cw - groups * gap - 2) / (n - 1))) : cw;
+  const twoTap = step < 30;                       // narrow strips: first tap lifts the card, second tap plays it
+  const tap = (c) => { if (!twoTap || (sel && cardEq(sel, c))) { setSel(null); onPlay(c); } else setSel(c); };
+  return (
+    <div ref={ref} style={{ width: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "center", paddingTop: 15, minHeight: ch + 17 }}>
+        {!n && <span style={{ color: C.soft }} className="text-xs self-center">—</span>}
+        {sorted.map((c, i) => {
+          const newSuit = i > 0 && sorted[i].s !== sorted[i - 1].s;
+          const ok = !!(active && onPlay && legal.some(x => cardEq(x, c)));
+          const isSel = !!(sel && cardEq(sel, c));
+          return (
+            <div key={c.s + c.r} style={{ marginLeft: i === 0 ? 0 : Math.round(step - cw) + (newSuit ? gap : 0), zIndex: i, position: "relative" }}>
+              <FanCard card={c} w={cw} h={ch} onClick={ok ? () => tap(c) : undefined} dim={active && !ok} glow={ok && !isSel} lifted={isSel} />
+            </div>
+          );
+        })}
+      </div>
+      {active && twoTap && n > 0 && <p style={{ color: C.soft }} className="text-[11px] text-center mt-1">{sel ? tx(lang, "Toca otra vez la carta levantada para jugarla.", "Tap the raised card again to play it.") : tx(lang, "Toca una carta para levantarla y otra vez para jugarla.", "Tap a card to raise it, tap again to play it.")}</p>}
+    </div>
+  );
+}
 function HandSuitRows({ cards, small }) {
   const m = bySuit(cards);
   return (
@@ -3400,9 +3465,9 @@ function SectionTitle({ children, icon: Icon }) {
 const BID_STRAINS = ["♣", "♦", "♥", "♠", "NT"];
 function BiddingBox({ onBid, disabled, minRank = -1, noDouble }) {
   return (
-    <div className="flex flex-col gap-1.5 items-center">
+    <div className="flex flex-col gap-1.5 items-center" style={{ width: "100%", maxWidth: 360, margin: "0 auto" }}>
       {[1, 2, 3, 4, 5, 6, 7].map(lv => (
-        <div key={lv} className="flex gap-1.5">
+        <div key={lv} style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, width: "100%" }}>
           {BID_STRAINS.map((st, si) => {
             const bid = `${lv}${st}`;
             const red = SUIT_RED.has(st);
@@ -3410,19 +3475,19 @@ function BiddingBox({ onBid, disabled, minRank = -1, noDouble }) {
             const off = disabled || rank <= minRank;
             return (
               <button key={st} disabled={off} onClick={() => onBid(bid)}
-                style={{ width: 36, height: 28, background: C.ivory, color: st === "NT" ? C.ink : (red ? C.red : C.ink), border: `1px solid ${C.brass}`, borderRadius: 4, opacity: off ? .35 : 1, cursor: off ? "default" : "pointer" }}
-                className="text-sm font-semibold flex items-center justify-center hover:-translate-y-0.5 transition-transform">
-                {lv}{st === "NT" ? "ST" : st}
+                style={{ height: 40, background: "#fbf8ee", color: st === "NT" ? "#1d231f" : (red ? "#b3261e" : "#1d231f"), border: `1px solid ${C.brass}`, borderRadius: 7, opacity: off ? .28 : 1, cursor: off ? "default" : "pointer", WebkitTapHighlightColor: "transparent" }}
+                className="text-base font-bold flex items-center justify-center active:scale-95 transition-transform">
+                {lv}{st === "NT" ? "ST" : st + "\uFE0E"}
               </button>
             );
           })}
         </div>
       ))}
-      <div className="flex gap-1.5 mt-1">
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 6, width: "100%" }} className="mt-1">
         {[["Pass", "Pass"], ["X", "X"], ["XX", "XX"]].map(([v, lbl]) => (
           <button key={v} disabled={disabled || (noDouble && v !== "Pass")} onClick={() => onBid(v)}
             style={{ background: v === "Pass" ? C.feltLite : v === "X" ? C.red : C.brassDim, color: C.ivory, opacity: (disabled || (noDouble && v !== "Pass")) ? .35 : 1 }}
-            className="px-4 py-1.5 rounded text-sm font-semibold">{lbl}</button>
+            className="py-2.5 rounded-lg text-base font-bold">{lbl}</button>
         ))}
       </div>
     </div>
@@ -3813,9 +3878,10 @@ function initGame(deal) {
   return { hands, trick: [], turn: lead, tricksNS: 0, tricksEW: 0, played: [], trickCount: 0, trump, finished: false, resolving: false };
 }
 
-function SeatCard({ play }) {
+function SeatCard({ play, seat, win }) {
   if (!play) return <div style={{ width: 36, height: 50 }} />;
-  return <PlayingCard card={play.card} small />;
+  if (!seat) return <PlayingCard card={play.card} small />;
+  return <div className={"bm-in-" + seat} style={{ borderRadius: 7, boxShadow: win ? `0 0 0 3px ${C.brass}, 0 0 14px ${C.brass}` : "none", transition: "box-shadow .2s" }}><FanCard card={play.card} w={46} h={64} /></div>;
 }
 function HiddenFan({ count }) {
   return (
@@ -4310,18 +4376,12 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
   }
 
   function renderHand(seat, interactive = true) {
-    const cards = sortHand(g.hands[seat]);
     const legal = userLegal(seat);
     const myTurn = interactive && userSeats.includes(seat) && g.turn === seat && !g.resolving && !g.finished;
-    return (
-      <div className="flex flex-wrap gap-1 justify-center">
-        {cards.map((c, i) => {
-          const ok = myTurn && legal.some(x => cardEq(x, c));
-          return <PlayingCard key={i} card={c} small onClick={ok ? () => userPlay(seat, c) : undefined} dim={myTurn && !ok} />;
-        })}
-        {!cards.length && <span style={{ color: C.soft }} className="text-xs">—</span>}
-      </div>
-    );
+    if (seat === "E" || seat === "W") {
+      return <div style={{ background: "rgba(0,0,0,.22)", borderRadius: 8 }} className="px-2 py-1.5"><HandSuitRows cards={g.hands[seat]} small /></div>;
+    }
+    return <HandFan cards={g.hands[seat]} trump={g.trump} legal={legal} active={myTurn} onPlay={(c) => userPlay(seat, c)} lang={lang} scale={UI.cardScale} />;
   }
   const seatRole = (seat) => seat === declarer ? L.declarerTag : seat === dummy ? L.dummy : (userSeats.includes(seat) ? L.you : L.partnerTag);
 
@@ -4503,12 +4563,10 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
         <span style={{ color: C.brass }} className="text-sm font-serif">{title || L.practicePlay}</span>
       </div>
 
-      <div className="flex items-center justify-between flex-wrap gap-2" style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 10 }}>
-        <div className="flex items-center gap-2 p-2">
+      <div className="flex items-center flex-wrap gap-1.5 p-2" style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 10 }}>
           <Pill bg={C.brass} color={C.ink}>{L.contract}: {AD.contract.level}{bidLabel(g.trump, lang)}</Pill>
           <Pill bg={C.line2}>{userDeclares ? L.needed : L.toDefeat}: {needed}</Pill>
-        </div>
-        <div className="flex items-center gap-2 p-2">
+        <div className="flex items-center flex-wrap gap-1.5">
           <Pill bg={C.win} color={C.ink}>{L.you} {userTricks}</Pill>
           <Pill bg={C.red} color={C.ivory}>{userDeclares ? "E/W" : L.declarerTag} {g.tricksEW}</Pill>
           <Pill bg={C.line2}>{L.trickN} {Math.min(g.trickCount + 1, 13)}/13</Pill>
@@ -4517,24 +4575,25 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table (hidden once the hand is over, so the result is the first thing on screen) */}
+      {!g.finished && (
       <div style={{ background: `radial-gradient(circle at 50% 40%, ${C.feltLite}, ${C.felt} 70%)`, border: `2px solid ${C.brassDim}`, borderRadius: 18 }} className="p-3">
         {/* North */}
         <div className="text-center mb-1"><span style={{ color: C.brass }} className="text-xs uppercase tracking-widest">{L.N} · {seatRole("N")}{g.turn === "N" && !g.finished ? " ◄" : ""}</span></div>
         {faceUp("N") ? renderHand("N", userSeats.includes("N")) : <div className="flex justify-center"><HiddenFan count={g.hands.N.length} /></div>}
 
         {/* Middle: W | trick | E */}
-        <div className="grid grid-cols-3 items-center my-2" style={{ minHeight: 90 }}>
+        <div className="grid items-center my-1" style={{ gridTemplateColumns: "1fr auto 1fr", minHeight: 156 }}>
           <div className="flex flex-col items-center gap-1">
             <span style={{ color: g.turn === "W" ? C.brass : C.soft }} className="text-xs">{L.W}{g.turn === "W" && !g.finished ? " ◄" : ""}</span>
             {faceUp("W") ? <div className="max-w-[120px]">{renderHand("W", userSeats.includes("W"))}</div> : <HiddenFan count={g.hands.W.length} />}
           </div>
           <div className="flex items-center justify-center">
-            <div className="grid grid-cols-3 gap-1 items-center justify-items-center" style={{ width: 140 }}>
-              <div /><SeatCard play={find("N")} /><div />
-              <SeatCard play={find("W")} /><div style={{ width: 18, height: 18, borderRadius: 9, border: `1px solid ${C.brassDim}` }} /><SeatCard play={find("E")} />
-              <div /><SeatCard play={find("S")} /><div />
-            </div>
+            {(() => { const tw = (g.resolving && g.trick.length === 4) ? trickWinner(g.trick, g.trump) : null; const slot = (seat, left, top) => (find(seat) ? <div style={{ position: "absolute", left, top }}><SeatCard play={find(seat)} seat={seat} win={tw === seat} /></div> : null); return (
+              <div style={{ position: "relative", width: 150, height: 156 }}>
+                <div style={{ position: "absolute", left: 66, top: 69, width: 18, height: 18, borderRadius: 9, border: `1px solid ${C.brassDim}`, opacity: .6 }} />
+                {slot("N", 52, 0)}{slot("W", 2, 46)}{slot("E", 102, 46)}{slot("S", 52, 92)}
+              </div>); })()}
           </div>
           <div className="flex flex-col items-center gap-1">
             <span style={{ color: g.turn === "E" ? C.brass : C.soft }} className="text-xs">{L.E}{g.turn === "E" && !g.finished ? " ◄" : ""}</span>
@@ -4546,6 +4605,7 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
         {renderHand("S", userSeats.includes("S"))}
         <div className="text-center mt-1"><span style={{ color: C.brass }} className="text-xs uppercase tracking-widest">{L.S} · {seatRole("S")}{g.turn === "S" && !g.finished ? " ◄" : ""}</span></div>
       </div>
+      )}
 
       {/* Status / controls */}
       {!g.finished ? (
@@ -5465,7 +5525,7 @@ function ProfileScreen({ lang, users, onSelect, onCreate, onDelete, onToggleLang
 }
 
 // ---------- Header ----------
-function Header({ lang, user, view, onNav, onSwitch, onToggleLang }) {
+function Header({ lang, user, view, onNav, onSwitch, onToggleLang, compact }) {
   const L = T[lang];
   const items = [
     { k: "dashboard", label: L.dashboard, icon: HomeIcon },
@@ -5492,7 +5552,7 @@ function Header({ lang, user, view, onNav, onSwitch, onToggleLang }) {
             <button onClick={onSwitch} style={{ background: user.color, width: 28, height: 28, borderRadius: 999 }} className="flex items-center justify-center text-xs font-bold" title={L.switchUser}>{user.name.slice(0, 1).toUpperCase()}</button>
           </div>
         </div>
-        <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
+        <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: "touch", display: compact ? "none" : undefined }}>
           {items.map(it => {
             const active = view === it.k;
             return (
@@ -6426,11 +6486,12 @@ export default function App() {
 
   return (
     <div style={{ background: UI.page || `radial-gradient(circle at 50% 0%, ${C.felt}, ${C.feltDark} 80%)`, minHeight: "100vh", fontFamily: "ui-sans-serif, system-ui, sans-serif" }}>
-      <style>{`html{font-size:${UI.rootPx || 16}px;}.font-serif{font-family:Georgia,'Times New Roman',serif;}`}</style>
+      <style>{`html{font-size:${UI.rootPx || 16}px;}.font-serif{font-family:Georgia,'Times New Roman',serif;}@keyframes bmN{from{transform:translateY(-34px);opacity:0}}@keyframes bmS{from{transform:translateY(34px);opacity:0}}@keyframes bmW{from{transform:translateX(-34px);opacity:0}}@keyframes bmE{from{transform:translateX(34px);opacity:0}}.bm-in-N{animation:bmN .22s ease-out}.bm-in-S{animation:bmS .22s ease-out}.bm-in-W{animation:bmW .22s ease-out}.bm-in-E{animation:bmE .22s ease-out}@media (prefers-reduced-motion: reduce){.bm-in-N,.bm-in-S,.bm-in-W,.bm-in-E{animation:none}}`}</style>
       <Header lang={lang} user={user} view={navName}
         onNav={(k) => setView({ name: k, params: {} })}
         onSwitch={() => setCurrentId(null)}
-        onToggleLang={() => setLang(l => l === "es" ? "en" : "es")} />
+        onToggleLang={() => setLang(l => l === "es" ? "en" : "es")}
+        compact={view.name === "play" && !!view.params.deal} />
 
       <div className={`${UI.maxW} mx-auto px-3 py-4 pb-24`}>
         {UI.tips && view.name !== "play" && <TipBanner lang={lang} />}
