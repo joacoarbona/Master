@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "datos": "node scripts/datos-caducados.mjs"
+    "datos": "node scripts/datos-caducados.mjs",
+    "bridge:sim": "node scripts/bridge-sim.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",
