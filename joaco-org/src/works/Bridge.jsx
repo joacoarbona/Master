@@ -687,6 +687,47 @@ function cardWinsTrick(card, trick, trump) {
   if (!trick.length) return true;
   return trickWinner([...trick, { seat: "__t", card }], trump) === "__t";
 }
+// Declarer on lead: uses only legitimate information (own hand, dummy, and which cards are still out).
+function declarerLead(seat, g) {
+  const hand = g.hands[seat], pSeat = partnerOf(seat), ph = g.hands[pSeat], trump = g.trump;
+  const opps = ["N", "E", "S", "W"].filter(s => s !== seat && s !== pSeat);
+  const hiS = (cs) => cs.slice().sort((a, b) => RVAL[b.r] - RVAL[a.r]);
+  const out = (s) => opps.reduce((a, o) => a.concat(g.hands[o].filter(c => c.s === s)), []);
+  const topOf = (cs) => cs.length ? Math.max(...cs.map(c => RVAL[c.r])) : 0;
+  let oppTrumps = 0;
+  if (trump !== "ST") {
+    const mine = hand.filter(c => c.s === trump), pt = ph.filter(c => c.s === trump), theirs = out(trump);
+    oppTrumps = theirs.length;
+    if (theirs.length && mine.length && mine.length + pt.length > theirs.length) {
+      const topOpp = topOf(theirs), myTop = hiS(mine)[0];
+      if (RVAL[myTop.r] > topOpp) return myTop;                               // cash a master trump
+      if (topOf(pt) > topOpp) return lowestCard(mine);                         // low to partner's master trump
+      if (mine.length + pt.length >= 8) return RVAL[myTop.r] >= 11 ? myTop : lowestCard(mine); // knock out their high trump
+    }
+  }
+  let best = null;
+  for (const s of SUITS) {
+    if (s === trump) continue;
+    const mine = hand.filter(c => c.s === s); if (!mine.length) continue;
+    const pc = ph.filter(c => c.s === s), oc = out(s), topOpp = topOf(oc), comb = mine.length + pc.length;
+    const myTop = hiS(mine)[0], myWin = RVAL[myTop.r] > topOpp, pWin = topOf(pc) > topOpp;
+    const honors = mine.concat(pc).filter(c => RVAL[c.r] >= 10).length;
+    let score, card;
+    if (!oc.length) { score = oppTrumps ? 8 : 40 + comb; card = myTop; }       // they are void: winners (unless they can ruff)
+    else if (myWin || pWin) {
+      score = comb >= 7 ? 60 + comb : 20 + honors;                             // run a long suit first; short winners last
+      if (oppTrumps && oc.length <= 2) score -= 15;                            // someone may ruff soon
+      card = (myWin && (!pWin || mine.length <= pc.length)) ? myTop : (pWin ? lowestCard(mine) : myTop); // high card from the short hand
+    } else {
+      const seq = hiS(mine), touching = seq.length >= 2 && RVAL[seq[0].r] >= 10 && RVAL[seq[0].r] - RVAL[seq[1].r] === 1;
+      score = comb >= 7 ? 50 + comb + honors : 5 + honors;                     // establish by force
+      card = touching ? seq[0] : (topOf(pc) > RVAL[myTop.r] ? lowestCard(mine) : (RVAL[myTop.r] >= 11 && comb >= 7 ? myTop : lowestCard(mine)));
+    }
+    if (!best || score > best.score) best = { score, card };
+  }
+  if (best) return best.card;
+  return lowestCard(hand);
+}
 function declarerAuto(seat, g) {
   const hand = g.hands[seat], trick = g.trick, trump = g.trump;
   const led = trick.length ? trick[0].card.s : null;
@@ -695,7 +736,9 @@ function declarerAuto(seat, g) {
   const hi = arr => arr.slice().sort((a, b) => RVAL[b.r] - RVAL[a.r]);
   const lo = arr => arr.slice().sort((a, b) => RVAL[a.r] - RVAL[b.r]);
   if (!trick.length) {
-    // leading: draw trumps if defenders still hold some and we have trumps
+    const planned = declarerLead(seat, g);
+    if (planned) return planned;
+    // legacy fallback: draw trumps if defenders still hold some and we have trumps
     if (trump !== "ST") {
       const declSide = (seat === "N" || seat === "S") ? ["N", "S"] : ["E", "W"];
       const defs = ["N", "E", "S", "W"].filter(s => !declSide.includes(s));
@@ -1001,6 +1044,25 @@ function aiCard(seat, g, skill, declarer) {
   if (!g.trick.length) return base;                          // expert early: tuned lead
   return strongFollow(seat, g) || base;                      // expert early: perfect-info follow
 }
+
+// ----- The other table: the same deal bid and played by four bots, for an IMP comparison -----
+const IMP_STEPS = [20, 50, 90, 130, 170, 220, 270, 320, 370, 430, 500, 600, 750, 900, 1100, 1300, 1500, 1750, 2000, 2250, 2500, 3000, 3500, 4000];
+function impsFor(diff) { const a = Math.abs(diff); let i = 0; while (i < IMP_STEPS.length && a >= IMP_STEPS[i]) i++; return diff < 0 ? -i : i; }
+function botTableResult(hands, seed, dealerSeat) {
+  const ORD4 = ["N", "E", "S", "W"];
+  let seat = dealerSeat || ORD4[Math.abs(seed || 0) % 4];
+  const calls = [];
+  while (!auctionDone(calls) && calls.length < 60) { calls.push({ seat, call: botCall(hands, seat, calls, { expert: true }) }); seat = nextSeat(seat); }
+  const ct = auctionContract(calls);
+  if (!ct) return { passedOut: true, calls, nsScore: 0 };
+  let g = initGame({ hands, contract: ct }), guard = 0;
+  while (!g.finished && guard++ < 200) { if (g.resolving) { g = resolveTrick(g); continue; } g = applyCard(g, g.turn, aiCard(g.turn, g, "hard", ct.declarer)); }
+  const side = sideOfSeat(ct.declarer), tricks = side === "NS" ? g.tricksNS : g.tricksEW, vul = vulForSeed(seed || 0);
+  const sc = duplicateScore({ level: ct.level, strain: ct.strain, tricks, vul: side === "NS" ? vul.NS : vul.EW, dbl: ct.doubled || "" });
+  return { passedOut: false, calls, contract: ct, tricks, nsScore: side === "NS" ? sc : -sc };
+}
+function dayKey(ts) { const d = new Date(ts || Date.now()); const p = (n) => (n < 10 ? "0" : "") + n; return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()); }
+function dailySeed(key) { return parseInt(key.replace(/-/g, ""), 10); }   // same deal for everyone on a given date
 
 // ----- Duplicate scoring + vulnerability -----
 const VUL_SCHEDULE = ["O", "N", "E", "B", "N", "E", "B", "O", "E", "B", "O", "N", "B", "O", "N", "E"];
@@ -1322,7 +1384,7 @@ function botCall(hands, seat, calls, opts) {
     const order2 = ["S", "H", "D", "C"].filter(s => s !== opSuit);
     order2.sort((a, b) => (L[b] - L[a]) || (STRAIN_RANK[SUIT_SYM[b]] - STRAIN_RANK[SUIT_SYM[a]]));
     const best = order2[0];
-    if (H >= 11 && (best === "H" || best === "S") && L[best] >= 4) return pick("4" + best, "3" + best, "2" + best, "1" + best);
+    if (H >= 12 && (best === "H" || best === "S") && L[best] >= 4) return pick("4" + best, "3" + best, "2" + best, "1" + best);
     if (H >= 10) { for (let lv = 1; lv <= 3; lv++) { const t = lv + best; if (legalUpT(t, calls) && bidRankT(t) >= bidRankT(lnp ? lnp.call : "1C") + 5) return t; } }
     if (bal && H >= 7 && H <= 10 && legalUpT("1NT", calls)) return "1NT";
     for (let lv = 1; lv <= 4; lv++) { const t = lv + best; if (legalUpT(t, calls)) return t; }
@@ -1372,8 +1434,8 @@ function botCall(hands, seat, calls, opts) {
       const m = openStrain;
       if (H >= 6 && L.H >= 4 && L.H >= L.S) return pick("1H", "1NT");
       if (H >= 6 && L.S >= 4) return pick("1S", "1NT");
+      if (H >= 13 && (bal || L[m] >= 5)) return pick("3NT");
       if (L[m] >= 5) { if (H >= 11) return pick("3" + m, "2" + m); if (H >= 6) return pick("2" + m); }
-      if (H >= 13 && bal) return pick("3NT");
       if (H >= 11 && bal) return pick("2NT");
       if (H >= 6) return pick("1NT");
       return "Pass";
@@ -1408,7 +1470,7 @@ function botCall(hands, seat, calls, opts) {
       if (resp === "2NT") return H >= 17 ? pick("3NT") : "Pass";
       return "Pass";
     }
-    if (myOpen === "2C") { if (bal && H >= 22) return pick("2NT", "3NT"); const best = sortedLen[0][0]; return pick("3" + best, "2" + best); }
+    if (myOpen === "2C") { if (bal && H >= 22) return pick("2NT", "3NT"); const best = sortedLen[0][0]; return pick("2" + best, "3" + best); }
     if (myStrain === "H" || myStrain === "S") {
       const M = myStrain;
       if (resp === "2NT") { // Jacoby 2NT: show shortness, then strength
@@ -1419,20 +1481,43 @@ function botCall(hands, seat, calls, opts) {
       }
       if (resp === "2" + M) { if (H >= 18) return pick("4" + M); if (H >= 16) return pick("3" + M); return "Pass"; }
       if (resp === "3" + M) return H >= 14 ? pick("4" + M) : "Pass";
-      if (resp === "1NT") { if (L[M] >= 6) return pick("2" + M); for (const s of ["D", "C"]) if (L[s] >= 4) { const t = "2" + s; if (legalUpT(t, calls)) return t; } return "Pass"; }
+      if (resp === "1NT") {
+        if (H >= 19) return pick("3NT");
+        if (bal && H >= 18) return pick("2NT");
+        if (L[M] >= 6) return H >= 16 ? pick("3" + M, "2" + M) : pick("2" + M);
+        for (const s of ["D", "C"]) if (L[s] >= 4) { const t = "2" + s; if (legalUpT(t, calls)) return t; }
+        return "Pass";
+      }
       if (resp === "1S" && M === "H") { if (L.S >= 4) return H >= 16 ? pick("3S", "2S") : pick("2S"); if (L.H >= 6) return pick("2H"); if (bal) return pick("1NT", "2NT"); for (const s of ["D", "C"]) if (L[s] >= 4) { const t = "2" + s; if (legalUpT(t, calls)) return t; } return "Pass"; }
-      if (L[M] >= 6) return pick("3" + M, "2" + M);
+      if (L[M] >= 6) return H >= 16 ? pick("3" + M, "2" + M) : pick("2" + M, "3" + M);
       if (bal) return H >= 18 ? pick("3NT") : pick("2NT");
       for (const s of ["S", "H", "D", "C"]) if (s !== M && L[s] >= 4) { const t = "2" + s; if (legalUpT(t, calls)) return t; }
+      { const rs = /^([12])(C|D|H|S)$/.exec(resp);                 // a new suit is forcing: raise with 3, else rebid the major
+        if (rs && rs[2] !== M) { if (L[rs[2]] >= 3) return pick((+rs[1] + 1) + rs[2], "2" + M); return pick("2" + M, "2NT"); } }
       return "Pass";
     }
     if (myStrain === "D" || myStrain === "C") {
       const rm = /^(\d)(C|D|H|S|NT)$/.exec(resp);
+      if (resp === "3" + myStrain) return (H >= 15) ? pick("3NT") : "Pass";            // limit raise of my minor
+      if (resp === "2" + myStrain) return (bal && H >= 18) ? pick("3NT") : "Pass";
       if (rm && (rm[2] === "H" || rm[2] === "S") && L[rm[2]] >= 4) { const M = rm[2]; if (H >= 19) return pick("4" + M, "3" + M, "2" + M); if (H >= 16) return pick("3" + M, "2" + M); return pick("2" + M); }
+      if (resp === "2NT") return H >= 14 ? pick("3NT") : (L[myStrain] >= 6 ? pick("3" + myStrain) : "Pass");
+      if (resp === "1NT") {
+        if (H >= 19) return pick("3NT");
+        if (bal) return H >= 18 ? pick("2NT") : "Pass";
+        if (L[myStrain] >= 6) return H >= 16 ? pick("3" + myStrain, "2" + myStrain) : pick("2" + myStrain);
+        for (const s of ["D", "C"]) if (s !== myStrain && L[s] >= 4 && STRAIN_RANK[s] < STRAIN_RANK[myStrain]) { const t = "2" + s; if (legalUpT(t, calls)) return t; }
+        return "Pass";
+      }
       if (bal) { if (H >= 18) return pick("3NT"); if (H >= 15) return pick("2NT"); return pick("1NT"); }
-      if (L[myStrain] >= 6) return pick("2" + myStrain);
-      for (const s of ["S", "H", "D", "C"]) if (s !== myStrain && L[s] >= 4) { const t = "2" + s; if (legalUpT(t, calls)) return t; }
-      return pick("1NT");
+      if (H >= 19) return pick("3NT");
+      if (L[myStrain] >= 6) return H >= 16 ? pick("3" + myStrain, "2" + myStrain) : pick("2" + myStrain);
+      for (const s of ["S", "H", "D", "C"]) if (s !== myStrain && L[s] >= 4) {
+        const t1 = "1" + s; if (legalUpT(t1, calls)) return t1;
+        const t2 = "2" + s, reverse = STRAIN_RANK[s] > STRAIN_RANK[myStrain];
+        if (legalUpT(t2, calls) && (!reverse || H >= 16)) return t2;
+      }
+      return pick("1NT", "2" + myStrain);
     }
   }
 
@@ -1447,15 +1532,105 @@ function botCall(hands, seat, calls, opts) {
     }
     const reb = partnerBids[1].call;
     const rm = /^(\d)(C|D|H|S|NT)$/.exec(reb);
-    if (rm) {
-      const lvl = +rm[1], st = rm[2];
-      if (lvl === 3 && (st === "H" || st === "S") && H >= 8 && L[st] >= 3) return pick("4" + st);
-      if (reb === "2NT" && H >= 7) return pick("3NT");
+    const mf = /^(\d)(C|D|H|S|NT)$/.exec(myBids[0].call);
+    if (rm && mf) {
+      const lvl = +rm[1], st = rm[2], myFirst = myBids[0].call, mySt = mf[2], oSt = openStrain;
+      const isMaj = (x) => x === "H" || x === "S";
       if (reb === "3NT" || lvl >= 4) return "Pass";
-      // partner showed a 6-card major rebid; raise to game with a fit + extras
-      if (lvl === 2 && (st === "H" || st === "S") && L[st] >= 3 && H >= 11) return pick("4" + st, "3" + st);
+      // Strong 2♣: game-forcing, never stop below game (2♣–2♦–2NT may be passed with nothing)
+      if (openBid === "2C") {
+        if (reb === "2NT") return H >= 3 ? pick("3NT") : "Pass";
+        if (isMaj(st) && L[st] >= 3) return pick("4" + st);
+        for (const M of ["S", "H"]) if (M !== st && L[M] >= 5) { for (const lv of [2, 3]) { const t = lv + M; if (legalUpT(t, calls)) return t; } }
+        if (!isMaj(st) && L[st] >= 4 && !bal) return pick("4" + st, "5" + st);
+        return pick("3NT", isMaj(st) ? "4" + st : "5" + st);
+      }
+      // 1NT opening: finish Stayman / transfer sequences
+      if (openBid === "1NT") {
+        const xfer = (myFirst === "2D" && reb === "2H") ? "H" : (myFirst === "2H" && reb === "2S") ? "S" : null;
+        if (xfer) { if (H >= 10) return L[xfer] >= 6 ? pick("4" + xfer) : pick("3NT"); if (H >= 8) return L[xfer] >= 6 ? pick("3" + xfer) : pick("2NT"); return "Pass"; }
+        if (myFirst === "2C") { if (isMaj(st) && L[st] >= 4) return H >= 10 ? pick("4" + st) : pick("3" + st); return H >= 10 ? pick("3NT") : pick("2NT"); }
+        return "Pass";
+      }
+      if (lvl === 3 && isMaj(st) && H >= 8 && L[st] >= 3) return pick("4" + st);
+      if (reb === "2NT" && H >= 7) return pick("3NT");
+      // General case: add my points to opener's minimum for the rebid shown, then sign off, invite or bid game
+      const raised = st === mySt;
+      let oMin = 12;
+      if (reb === "2NT") oMin = (+mf[1] === 1) ? 18 : 12;
+      else if (raised) oMin = (+mf[1] === 1 && lvl === 3) ? 16 : 12;
+      else if (st === oSt) oMin = lvl === 3 ? 16 : 12;
+      const total = H + oMin;
+      const sixOwn = mySt !== "NT" && L[mySt] >= 6;
+      const fitFirst = isMaj(oSt) && L[oSt] >= 3;                       // 5-card major opposite 3
+      const fitRebid = st === oSt && isMaj(oSt) && L[oSt] >= 2;         // opener showed 6
+      const fitSecond = isMaj(st) && st !== oSt && !raised && L[st] >= 4;
+      if (total >= 25) {
+        if (raised && isMaj(mySt)) return pick("4" + mySt);
+        if (fitFirst || fitRebid) return pick("4" + oSt);
+        if (sixOwn && isMaj(mySt)) return pick("4" + mySt);
+        if (fitSecond) return pick("4" + st);
+        return pick("3NT");
+      }
+      if (total >= 23) {
+        let inv = "Pass";
+        if (raised && isMaj(mySt)) inv = pick("3" + mySt);
+        else if (fitFirst || fitRebid) inv = pick("3" + oSt);
+        else if (sixOwn) inv = pick("3" + mySt);
+        else inv = pick("2NT");
+        if (inv !== "Pass") return inv;
+      }
+      // Weak hand: give simple preference back to opener's first suit when it is the better fit
+      if (st !== "NT" && oSt !== "NT" && st !== oSt && !raised && lvl <= 2) {
+        const pref = lvl + oSt;
+        if (legalUpT(pref, calls) && (L[oSt] > L[st] || (L[st] <= 1 && L[oSt] >= 2))) return pref;
+      }
     }
     return "Pass";
+  }
+
+  // ---------- 3c) Opener's third call: answer an invitation, or finish a forcing auction ----------
+  if (iAmOpener && myBids.length === 2 && partnerBids.length >= 2) {
+    const myLastIdx = calls.map(c => c.seat).lastIndexOf(seat);
+    const pIdx = calls.map((c, i) => (c.seat === partner && isBidT(c.call)) ? i : -1).filter(i => i >= 0).pop();
+    if (pIdx > myLastIdx) {
+      const pl = calls[pIdx].call, pm2 = /^(\d)(C|D|H|S|NT)$/.exec(pl), lv2 = +pm2[1], s2 = pm2[2];
+      const isMaj = (x) => x === "H" || x === "S";
+      const isGame = lv2 >= 5 || (lv2 === 4 && isMaj(s2)) || (lv2 >= 3 && s2 === "NT");
+      const myOpen = myBids[0].call, mySecond = myBids[1].call;
+      if (myOpen === "1NT") {
+        const xferM = (mySecond === "2H" && partnerBids[0].call === "2D") ? "H" : (mySecond === "2S" && partnerBids[0].call === "2H") ? "S" : null;
+        if (pl === "3NT" && xferM && L[xferM] >= 3) return pick("4" + xferM);       // choice of games: 5-3 fit
+        if (pl === "2NT") return H >= 17 ? ((xferM && L[xferM] >= 3) ? pick("4" + xferM) : pick("3NT")) : ((xferM && L[xferM] >= 3) ? pick("3" + xferM) : "Pass");
+        if (lv2 === 3 && isMaj(s2)) return H >= 17 ? pick("4" + s2) : "Pass";
+      } else if (!isGame && myOpen === "2C") {
+        if (isMaj(s2) && L[s2] >= 3) return pick("4" + s2);
+        for (const M of ["S", "H"]) if (L[M] >= 6) return pick("4" + M);
+        if (!isMaj(s2) && s2 !== "NT" && L[s2] >= 4 && !bal) return pick("5" + s2);
+        return pick("3NT", "4NT");
+      } else if (!isGame) {
+        if (pl === "2NT") return H >= 14 ? pick("3NT") : "Pass";
+        if (lv2 === 3 && isMaj(s2) && L[s2] >= 2) return H >= 14 ? pick("4" + s2) : "Pass";
+      }
+    }
+  }
+
+  // ---------- 4·dbl) I made a takeout double and partner advanced: raise only with real extras ----------
+  if (oppOpened && myBids.length === 0 && partnerBids.length) {
+    const mine = calls.filter(c => c.seat === seat);
+    if (mine.length && mine[mine.length - 1].call === "X" && mine.filter(c => c.call !== "Pass").length === 1) {
+      const pIdx = calls.map((c, i) => (c.seat === partner && isBidT(c.call)) ? i : -1).filter(i => i >= 0).pop();
+      const adv = calls[pIdx].call, am = /^(\d)(C|D|H|S|NT)$/.exec(adv), lv = +am[1], st = am[2];
+      const isMaj = (x) => x === "H" || x === "S";
+      const jumped = lv > 1 && legalUpT((lv - 1) + st, calls.slice(0, pIdx));
+      if (st === "NT") { if (H >= 18) return pick("3NT"); if (H >= 16 && lv === 1) return pick("2NT"); return "Pass"; }
+      const sup = L[st], cap = 4;
+      if (jumped) { if (H >= 14 && sup >= 3) return isMaj(st) ? pick("4" + st) : (bal ? pick("3NT") : "Pass"); return "Pass"; }
+      if (sup >= 4 && H >= 19 && lv + 2 <= cap) return pick((lv + 2) + st, (lv + 1) + st);
+      if (sup >= 4 && H >= 16 && lv + 1 <= cap) return pick((lv + 1) + st);
+      return "Pass";
+    }
+    if (mine.some(c => c.call === "X")) return "Pass";   // already doubled and had my say
   }
 
   // ---------- 4) Opponents opened: overcall / takeout X / advance once, then pass ----------
@@ -1481,8 +1656,9 @@ function botCall(hands, seat, calls, opts) {
     const pm = /^(\d)(C|D|H|S|NT)$/.exec(povc);
     if (pm && pm[2] !== "NT" && L[pm[2]] >= 3 && H >= 6) {
       const lv = parseInt(pm[1], 10) + 1;
-      if (H >= 12) { const g = (pm[2] === "H" || pm[2] === "S") ? "4" + pm[2] : "3NT"; if (legalUpT(g, calls)) return g; }
-      if (H <= 11 && lv <= 4) { const t = lv + pm[2]; if (legalUpT(t, calls)) return t; }
+      const pmMaj = pm[2] === "H" || pm[2] === "S";
+      if (H >= 13 && (pmMaj || bal)) { const g = pmMaj ? "4" + pm[2] : "3NT"; if (legalUpT(g, calls)) return g; }
+      if (lv <= (H >= 10 ? 4 : 3)) { const t = lv + pm[2]; if (legalUpT(t, calls)) return t; }
     }
     if (pm && pm[2] === "NT" && H >= 8) return pick("3NT");
     return "Pass";
@@ -3917,6 +4093,7 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
   const [analysis, setAnalysis] = useState(null); // post-hand analysis result
   const [anaBusy, setAnaBusy] = useState(false);
   const [showReplay, setShowReplay] = useState(false);
+  const [refTable, setRefTable] = useState(null);   // the other table (four bots), computed when the hand ends
   const [icalls, setICalls] = useState([]);
   const [expert, setExpert] = useState(true);
   const [skill, setSkill] = useState("medium");
@@ -4056,7 +4233,10 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
       const declTricks = declSide === "NS" ? g.tricksNS : g.tricksEW;
       const made = declTricks >= needed;
       const userDeclares = declSide === "NS";
-      if (onLog) onLog({ kind: "hand", role: userDeclares ? "declare" : "defend", made, success: userDeclares ? made : !made, themed: !!AD.lt });
+      let ref = null, imps = null;
+      try { ref = botTableResult(AD.hands, AD.seed || 0, AD.dealer || dealerSeat); imps = impsFor(userScore - ref.nsScore); } catch (e) { ref = null; }
+      setRefTable(ref ? { ...ref, imps } : null);
+      if (onLog) onLog({ kind: "hand", role: userDeclares ? "declare" : "defend", made, success: userDeclares ? made : !made, themed: !!AD.lt, score: userScore, ...(imps != null ? { imps } : {}), ...(AD.daily ? { daily: AD.daily } : {}) });
       if (AD.lt && g.played && g.played.length > 0) {
         const le = leadEval(AD, g.played[0]);
         if (le && le.userIsLeader) {
@@ -4094,7 +4274,7 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
   }
   function startInteractive() { setICalls([]); setPhase("ibid"); }
   function beginPlay(playDeal) {
-    setActiveDeal(playDeal); setG(initGame(playDeal)); firedRef.current = false; undoRef.current = []; setShowAuction(false); setPhase("play");
+    setActiveDeal(playDeal); setG(initGame(playDeal)); firedRef.current = false; setRefTable(null); undoRef.current = []; setShowAuction(false); setPhase("play");
   }
   function finishInteractive() {
     const ct = auctionContract(icalls);
@@ -4435,8 +4615,22 @@ function PlayPractice({ deal, lang, onComplete, onExit, title, onCaptureLead, on
             <span className="text-lg font-bold">{userScore >= 0 ? "+" : ""}{userScore}</span>
             <span className="text-xs" style={{ opacity: .8 }}>({AD.contract.level}{bidLabel(AD.contract.strain === "ST" ? "NT" : AD.contract.strain, lang)}{AD.contract.doubled ? " " + AD.contract.doubled : ""} · {declVul ? L.vulYesShort : L.vulNoShort})</span>
           </div>
+          {refTable && (
+            <div className="mt-3 text-sm" style={{ background: "rgba(0,0,0,0.25)", borderRadius: 10, padding: "8px 12px" }}>
+              <div className="text-xs uppercase tracking-wide" style={{ opacity: .8 }}>{tx(lang, "La otra mesa · cuatro bots con las mismas cartas", "The other table · four bots, same cards")}</div>
+              <div className="mt-1">
+                {refTable.passedOut ? tx(lang, "Pasaron los cuatro", "Passed out") : (<>
+                  {refTable.contract.level}{bidLabel(refTable.contract.strain === "ST" ? "NT" : refTable.contract.strain, lang)}{refTable.contract.doubled ? " " + refTable.contract.doubled : ""} {tx(lang, "por", "by")} {L[refTable.contract.declarer]}
+                  {" · "}{(() => { const d = refTable.tricks - (6 + refTable.contract.level); return d === 0 ? "=" : (d > 0 ? "+" + d : "" + d); })()}
+                </>)}
+                {" · N/S "}<b>{refTable.nsScore >= 0 ? "+" : ""}{refTable.nsScore}</b>
+              </div>
+              <div className="text-lg font-bold mt-1">{refTable.imps > 0 ? "+" : ""}{refTable.imps} IMPs</div>
+              <div className="text-xs" style={{ opacity: .85 }}>{refTable.imps > 0 ? tx(lang, "Lo has hecho mejor que los bots.", "You beat the bots.") : refTable.imps < 0 ? tx(lang, "Los bots sacaron más con tus cartas.", "The bots scored more with your cards.") : tx(lang, "Empate con los bots.", "Level with the bots.")}{" "}{tx(lang, "Cómo leerlo: los IMPs convierten la diferencia de puntos entre las dos mesas a la escala de torneo (de −24 a +24).", "How to read it: IMPs convert the score difference between the two tables to the tournament scale (−24 to +24).")}</div>
+            </div>
+          )}
           <div className="flex gap-2 justify-center mt-3 flex-wrap">
-            <button onClick={() => { firedRef.current = false; setG(initGame(AD)); }} style={{ background: C.ivory, color: C.ink }} className="px-3 py-1.5 rounded text-sm font-bold flex items-center gap-1"><RotateCcw size={14} />{L.replay}</button>
+            <button onClick={() => { firedRef.current = false; setRefTable(null); setG(initGame(AD)); }} style={{ background: C.ivory, color: C.ink }} className="px-3 py-1.5 rounded text-sm font-bold flex items-center gap-1"><RotateCcw size={14} />{L.replay}</button>
             <button onClick={() => setShowReplay(true)} style={{ background: C.brass, color: C.ink }} className="px-3 py-1.5 rounded text-sm font-bold flex items-center gap-1"><Eye size={14} />{L.replayHand}</button>
             <button onClick={onExit} style={{ background: C.feltDark, color: C.ivory }} className="px-3 py-1.5 rounded text-sm font-semibold">{L.back}</button>
           </div>
@@ -4674,10 +4868,17 @@ function computeDaily(user) {
   let streak = 0; const d = new Date();
   if (!daySet.has(dk(d.getTime()))) d.setDate(d.getDate() - 1);
   while (daySet.has(dk(d.getTime()))) { streak++; d.setDate(d.getDate() - 1); }
-  return { hasLesson, hasHand, reviewDone: hasReview || due === 0, due, streak, allDone: hasLesson && hasHand && (hasReview || due === 0) };
+  // Daily deal: the first result of each date counts
+  const firstByDay = {};
+  for (const e of stats) { if (e.kind === "hand" && e.daily && typeof e.imps === "number" && !(e.daily in firstByDay)) firstByDay[e.daily] = e; }
+  const todayKey = dayKey();
+  const dailyDeal = firstByDay[todayKey] || null;
+  const dailyHistory = Object.keys(firstByDay).sort().slice(-7).map(k => ({ day: k, imps: firstByDay[k].imps }));
+  const dailyTotal = dailyHistory.reduce((n, d) => n + d.imps, 0);
+  return { hasLesson, hasHand, reviewDone: hasReview || due === 0, due, streak, allDone: hasLesson && hasHand && (hasReview || due === 0), todayKey, dailyDeal, dailyHistory, dailyTotal };
 }
 
-function Dashboard({ lang, user, onOpenLevel, onQuickPlay, onGoReview, onTechniques, onConventions, onGuide }) {
+function Dashboard({ lang, user, onOpenLevel, onQuickPlay, onDailyPlay, onGoReview, onTechniques, onConventions, onGuide }) {
   const L = T[lang];
   const e = user.exp;
   const maxId = levelMaxId(e);
@@ -4719,6 +4920,31 @@ function Dashboard({ lang, user, onOpenLevel, onQuickPlay, onGoReview, onTechniq
           </div>
         )}
       </div>
+      {onDailyPlay && (
+        <div style={{ background: C.feltDark, border: `1px solid ${C.brass}`, borderRadius: 16 }} className="p-4">
+          <div className="flex items-center justify-between gap-2">
+            <h2 style={{ color: C.ivory }} className="text-base font-serif flex items-center gap-2"><Trophy size={17} style={{ color: C.brass }} />{tx(lang, "Mano del día", "Deal of the day")}</h2>
+            {daily.dailyDeal
+              ? <Pill bg={daily.dailyDeal.imps >= 0 ? C.win : C.red} color={C.ivory}>{daily.dailyDeal.imps > 0 ? "+" : ""}{daily.dailyDeal.imps} IMPs</Pill>
+              : <Pill bg={C.brass} color={C.ink}>{tx(lang, "Sin jugar", "Not played")}</Pill>}
+          </div>
+          <p style={{ color: C.soft }} className="text-xs mt-1">{tx(lang, "La misma mano para todos cada día. Subastas y carteas tú; en la otra mesa cuatro bots juegan tus mismas cartas y se compara el resultado en IMPs. Solo cuenta el primer intento.", "The same deal for everyone each day. You bid and play; at the other table four bots play your cards and the result is compared in IMPs. Only your first attempt counts.")}</p>
+          {daily.dailyHistory.length > 0 && (
+            <div className="mt-2">
+              <div className="flex items-end gap-1" style={{ height: 44 }}>
+                {daily.dailyHistory.map(d => { const h = Math.max(3, Math.min(20, Math.abs(d.imps) * 2)); return (
+                  <div key={d.day} title={d.day + ": " + d.imps + " IMPs"} className="flex-1 flex flex-col items-center justify-center" style={{ height: 44 }}>
+                    <div style={{ height: 20, display: "flex", alignItems: "flex-end" }}>{d.imps > 0 && <div style={{ width: 14, height: h, background: C.win, borderRadius: 3 }} />}</div>
+                    <div style={{ width: "100%", height: 1, background: C.line }} />
+                    <div style={{ height: 20 }}>{d.imps < 0 && <div style={{ width: 14, height: h, background: C.red, borderRadius: 3 }} />}</div>
+                  </div>); })}
+              </div>
+              <p style={{ color: C.soft }} className="text-[11px] mt-1">{tx(lang, "Últimas manos del día (verde = ganaste IMPs a los bots, rojo = perdiste). Acumulado: ", "Recent daily deals (green = you won IMPs against the bots, red = you lost). Running total: ")}<b style={{ color: C.ivory }}>{daily.dailyTotal > 0 ? "+" : ""}{daily.dailyTotal} IMPs</b></p>
+            </div>
+          )}
+          <button onClick={onDailyPlay} style={{ background: C.brass, color: C.ink, borderRadius: 10 }} className="mt-3 w-full px-3 py-2 text-sm font-bold flex items-center justify-center gap-2"><Play size={15} />{daily.dailyDeal ? tx(lang, "Volver a jugarla (no puntúa)", "Play it again (not scored)") : tx(lang, "Jugar la mano de hoy", "Play today's deal")}</button>
+        </div>
+      )}
       <div style={{ background: `linear-gradient(135deg, ${C.feltLite}, ${C.feltDark})`, border: `1px solid ${C.brassDim}`, borderRadius: 16 }} className="p-5">
         <div className="flex items-center justify-between mb-2">
           <h2 style={{ color: C.ivory }} className="text-xl font-serif">{L.mastery}</h2>
@@ -6178,6 +6404,11 @@ export default function App() {
     const deal = d.deal ? d.deal : generateDeal(d.seed);
     setView({ name: "play", params: { deal, dealId: d.id, kind, levelId, title: d.label } });
   }
+  function dailyPlay() {
+    const key = dayKey();
+    const deal = { ...generateDeal(dailySeed(key)), daily: key };
+    setView({ name: "play", params: { deal, dealId: null, kind: "daily", levelId: null, title: tx(lang, "Mano del día", "Deal of the day") + " · " + key } });
+  }
   function quickPlay() {
     const seed = Math.floor(Math.random() * 1e9);
     setView({ name: "play", params: { deal: generateDeal(seed), dealId: null, kind: "quick", levelId: null, title: T[lang].playTrainer } });
@@ -6209,8 +6440,8 @@ export default function App() {
         {view.name === "techniques" && <TechniquesView lang={lang} onPlay={(deal, title) => setView({ name: "play", params: { deal, title, fromTech: true } })} />}
         {view.name === "conventions" && <ConventionsView lang={lang} onBid={() => setView({ name: "bid", params: {} })} />}
         {view.name === "guide" && <GuideView lang={lang} user={user} onOpenLevel={(id) => setView({ name: "level", params: { levelId: id } })} />}
-        {view.name === "dashboard" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onGoReview={() => setView({ name: "review", params: {} })} onTechniques={() => setView({ name: "techniques", params: {} })} onConventions={() => setView({ name: "conventions", params: {} })} onGuide={() => setView({ name: "guide", params: {} })} />}
-        {view.name === "levels" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onGoReview={() => setView({ name: "review", params: {} })} onTechniques={() => setView({ name: "techniques", params: {} })} onConventions={() => setView({ name: "conventions", params: {} })} onGuide={() => setView({ name: "guide", params: {} })} />}
+        {view.name === "dashboard" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onDailyPlay={dailyPlay} onGoReview={() => setView({ name: "review", params: {} })} onTechniques={() => setView({ name: "techniques", params: {} })} onConventions={() => setView({ name: "conventions", params: {} })} onGuide={() => setView({ name: "guide", params: {} })} />}
+        {view.name === "levels" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onDailyPlay={dailyPlay} onGoReview={() => setView({ name: "review", params: {} })} onTechniques={() => setView({ name: "techniques", params: {} })} onConventions={() => setView({ name: "conventions", params: {} })} onGuide={() => setView({ name: "guide", params: {} })} />}
         {view.name === "level" && <LevelDetail levelId={view.params.levelId} lang={lang} user={user} marks={marks} initialTab={view.params.tab} onBack={() => setView({ name: "dashboard", params: {} })} onOpenDeal={openDeal} />}
         {view.name === "library" && <LibraryView lang={lang} user={user} onOpenDeal={openDeal} pbnImported={pbnImported} onImport={(entries) => setPbnImported(prev => [...entries, ...prev])} onClearImported={() => setPbnImported([])} />}
         {view.name === "bid" && <BidTrainer lang={lang} user={user} marks={marks} />}
