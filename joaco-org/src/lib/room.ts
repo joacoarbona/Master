@@ -27,7 +27,7 @@ const toHex = (u: Uint8Array) => { let s = ""; for (const b of u) s += b.toStrin
 export function randId(bytes = 8) { const a = new Uint8Array(bytes); crypto.getRandomValues(a); return toHex(a); }
 export function newCode(len = 10) { const a = new Uint8Array(len); crypto.getRandomValues(a); let s = ""; for (const v of a) s += ALPHA[v % ALPHA.length]; return s; }
 export function normCode(s: string) { return String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 16); }
-export function prettyCode(c: string) { return c ? c.replace(/(.{5})(?=.)/g, "$1-") : ""; }
+export function prettyCode(c: string) { if (!c) return ""; const n = c.length <= 6 ? Math.ceil(c.length / 2) : 5; return c.replace(new RegExp(`(.{${n}})(?=.)`, "g"), "$1-"); }
 
 async function derive(code: string, ns: string) {
   const base = await crypto.subtle.importKey("raw", TE.encode(code), "PBKDF2", false, ["deriveBits"]);
