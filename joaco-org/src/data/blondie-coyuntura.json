@@ -1,6 +1,6 @@
 {
   "meta": {
-    "asOf": "2026-11-10",
+    "asOf": "2026-11-11",
     "label": "noviembre 2026",
     "cadenceMonths": 3,
     "nextReview": "2027-02-05",
@@ -52,10 +52,10 @@
     },
     "ipc_yoy_pct": {
       "value": 4.9,
-      "source": "INE, indicador adelantado IPC septiembre 2026",
-      "date": "2026-09-29",
-      "status": "revisar",
-      "pendiente": "Confirmar el IPC general de octubre 2026 (dato definitivo INE, mediados de noviembre)."
+      "source": "INE, indicador adelantado IPC octubre 2026",
+      "date": "2026-10-30",
+      "status": "ok",
+      "pendiente": "El dato definitivo sale el 13-nov-2026; cambiar solo si difiere."
     },
     "smi_mes_eur": {
       "value": 1221,
@@ -70,32 +70,30 @@
       "status": "supuesto"
     },
     "brent_usd": {
-      "value": 95,
-      "source": "EIA STEO abril 2026",
-      "date": "2026-04-01",
+      "value": 105,
+      "source": "Estimación propia: cierres de octubre 2026 entre ~101 y ~117 $",
+      "date": "2026-10-31",
       "status": "revisar",
-      "pendiente": "Actualizar con el Brent medio del último mes."
+      "pendiente": "Sustituir por la media mensual oficial (EIA) cuando se publique."
     },
     "eur_usd": {
       "value": 1.13,
-      "source": "BCE, cierre T1 2026",
-      "date": "2026-03-31",
-      "status": "revisar",
-      "pendiente": "Actualizar con el tipo de cambio de referencia del BCE."
+      "source": "BCE, tipo de referencia 4-nov-2026 (1,1267)",
+      "date": "2026-11-04",
+      "status": "ok"
     },
     "pib_bn_eur": {
-      "value": 1670,
-      "source": "BdE, PIB nominal escalado",
-      "date": "2026-04-01",
-      "status": "revisar",
-      "pendiente": "Recalcular con la Contabilidad Nacional Trimestral del INE."
+      "value": 1740,
+      "source": "Derivado de BdE (T2 2026): deuda de hogares 729 mm = 41,9 % del PIB de cuatro trimestres",
+      "date": "2026-10-08",
+      "status": "ok"
     },
     "recaudacion_bn_eur": {
       "value": 295,
       "source": "Escalado con PIB nominal",
       "date": "2026-04-01",
       "status": "revisar",
-      "pendiente": "Contrastar con el Informe Mensual de Recaudación de la AEAT."
+      "pendiente": "Sigue escalado con el PIB anterior (1.670). Contrastar con el Informe Mensual de Recaudación de la AEAT."
     },
     "salario_medio_eur": {
       "value": 28500,
@@ -142,12 +140,22 @@
       "source": "BCE depo 2.50% · natural estimada ~2.00%",
       "date": "2026-10-29",
       "lens": "El BCE subió tipos dos veces en 2026 (junio y septiembre) hasta el 2,50%: la política queda 0,5 pp por encima de la natural estimada. Histórico: tipos bajos prolongados 2003-2007 → boom."
+    },
+    "deuda_hogares": {
+      "current": 41.9,
+      "year": 2026,
+      "source": "BdE Cuentas Financieras 2T26",
+      "date": "2026-10-08"
+    },
+    "deuda_empresas": {
+      "current": 61.9,
+      "year": 2026,
+      "source": "BdE Cuentas Financieras 2T26",
+      "date": "2026-10-08"
     }
   },
   "vigilanciaPendiente": [
     "deficit_publico",
-    "deuda_hogares",
-    "deuda_empresas",
     "productividad",
     "pib_pc",
     "vivienda_sobrevaloracion",
