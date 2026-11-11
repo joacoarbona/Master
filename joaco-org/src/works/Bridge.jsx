@@ -1089,6 +1089,89 @@ function mergeUser(local, remote) {
 }
 function syncSnapshot(u) { return { progress: u.progress || {}, classics: u.classics || {}, stats: u.stats || [], reviews: u.reviews || [], seenTour: !!u.seenTour }; }
 
+// ===== Multiplayer table: host-authoritative state machine (pure, so it can be tested without a browser) =====
+const MT_SEATS = ["N", "E", "S", "W"];
+function mtNew(hostDev, hostName) {
+  return { rev: 1, host: hostDev, phase: "lobby", seats: { N: null, E: null, S: { dev: hostDev, name: hostName }, W: null }, board: 0, seed: 0, hands: null, dealer: "N", calls: [], contract: null, g: null, result: null, total: { NS: 0, EW: 0 } };
+}
+function mtSeatOf(st, dev) { return MT_SEATS.find(s => st.seats[s] && st.seats[s].dev === dev) || null; }
+function mtBidTurn(st) { return MT_SEATS[(MT_SEATS.indexOf(st.dealer) + st.calls.length) % 4]; }
+// Whose turn it is and which seat's owner must act (declarer plays dummy's cards).
+function mtActor(st) {
+  if (st.phase === "bid") { const seat = mtBidTurn(st); return { seat, controller: seat }; }
+  if (st.phase === "play" && st.g && !st.g.resolving && !st.g.finished) { const seat = st.g.turn, dummy = partnerOf(st.contract.declarer); return { seat, controller: seat === dummy ? st.contract.declarer : seat }; }
+  return null;
+}
+function mtApply(st, a, from) {
+  if (!a || typeof a !== "object") return st;
+  const bump = (n) => ({ ...n, rev: st.rev + 1 });
+  const isHost = from === st.host;
+  if (a.t === "sit") {
+    if (!MT_SEATS.includes(a.seat) || st.seats[a.seat]) return st;
+    const cur = mtSeatOf(st, from);
+    if (cur && st.phase !== "lobby" && st.phase !== "done") return st;          // no seat swaps mid-board
+    const seats = { ...st.seats }; if (cur) seats[cur] = null;
+    seats[a.seat] = { dev: from, name: String(a.name || "?").slice(0, 18) };
+    return bump({ ...st, seats });
+  }
+  if (a.t === "leave") { const cur = mtSeatOf(st, from); if (!cur || isHost) return st; return bump({ ...st, seats: { ...st.seats, [cur]: null } }); }
+  if (a.t === "start") {
+    if (!isHost || (st.phase !== "lobby" && st.phase !== "done")) return st;
+    const d = generateDeal(a.seed >>> 0), board = st.board + 1;
+    return bump({ ...st, phase: "bid", board, seed: a.seed >>> 0, hands: d.hands, dealer: MT_SEATS[(board - 1) % 4], calls: [], contract: null, g: null, result: null });
+  }
+  const actor = mtActor(st);
+  const mayAct = (seat) => { const owner = st.seats[seat]; return owner ? owner.dev === from : from === "__bot"; };
+  if (a.t === "bid") {
+    if (st.phase !== "bid" || !actor || !mayAct(actor.controller)) return st;
+    const seat = actor.seat, call = String(a.call);
+    const ok = call === "Pass" || (call === "X" && canDoubleT(st.calls, seat)) || (call === "XX" && canRedoubleT(st.calls, seat)) || (isBidT(call) && legalUpT(call, st.calls));
+    if (!ok) return st;
+    const calls = st.calls.concat([{ seat, call }]);
+    if (!auctionDone(calls)) return bump({ ...st, calls });
+    const ct = auctionContract(calls);
+    if (!ct) return bump({ ...st, calls, phase: "done", result: { passedOut: true, nsScore: 0 } });
+    return bump({ ...st, calls, contract: ct, g: initGame({ hands: st.hands, contract: ct }), phase: "play" });
+  }
+  if (a.t === "play") {
+    if (st.phase !== "play" || !actor || !mayAct(actor.controller) || !a.card) return st;
+    const g = st.g, led = g.trick.length ? g.trick[0].card.s : null;
+    const card = legalCards(g.hands[g.turn], led).find(c => c.s === a.card.s && c.r === a.card.r);
+    if (!card) return st;
+    return bump({ ...st, g: applyCard(g, g.turn, card) });
+  }
+  if (a.t === "resolve") {
+    if (from !== "__bot" || st.phase !== "play" || !st.g || !st.g.resolving) return st;
+    const last = st.g.trick, g = resolveTrick(st.g);
+    if (!g.finished) return bump({ ...st, g: { ...g, last } });
+    const ct = st.contract, side = sideOfSeat(ct.declarer), tricks = side === "NS" ? g.tricksNS : g.tricksEW, vul = vulForSeed(st.board - 1);
+    const sc = duplicateScore({ level: ct.level, strain: ct.strain, tricks, vul: side === "NS" ? vul.NS : vul.EW, dbl: ct.doubled || "" });
+    const nsScore = side === "NS" ? sc : -sc;
+    return bump({ ...st, g: { ...g, last }, phase: "done", result: { passedOut: false, tricks, nsScore }, total: { NS: st.total.NS + Math.max(0, nsScore), EW: st.total.EW + Math.max(0, -nsScore) } });
+  }
+  return st;
+}
+// The move a bot makes when it is a bot's turn (null when a human must act).
+function mtBotAction(st) {
+  if (st.phase === "play" && st.g && st.g.resolving) return { t: "resolve" };
+  const actor = mtActor(st); if (!actor || st.seats[actor.controller]) return null;
+  if (st.phase === "bid") return { t: "bid", call: botCall(st.hands, actor.seat, st.calls, { expert: true }) };
+  return { t: "play", card: aiCard(st.g.turn, st.g, "medium", st.contract.declarer) };
+}
+// What one device is allowed to see: its own hand, dummy once the opening lead is made, everything when the board ends.
+function mtView(st, dev) {
+  const you = mtSeatOf(st, dev), decl = st.contract ? st.contract.declarer : null, dummy = decl ? partnerOf(decl) : null;
+  const led = !!(st.g && st.g.played.length > 0);
+  const src = st.phase === "done" ? st.hands : (st.g ? st.g.hands : st.hands);
+  const hands = {}, counts = {};
+  for (const s of MT_SEATS) { const h = src ? src[s] : null; counts[s] = h ? h.length : 0; hands[s] = h && (st.phase === "done" || s === you || (st.phase === "play" && s === dummy && led)) ? h : null; }
+  const actor = mtActor(st), ctrl = actor ? st.seats[actor.controller] : null;
+  const seats = {}; for (const s of MT_SEATS) seats[s] = st.seats[s] ? { name: st.seats[s].name, bot: false } : { name: "Bot", bot: true };
+  return { rev: st.rev, host: st.host, phase: st.phase, seats, you, board: st.board, dealer: st.dealer, vul: vulForSeed(Math.max(0, st.board - 1)), calls: st.calls, contract: st.contract, dummy, hands, counts,
+    trick: st.g ? st.g.trick : [], last: st.g && st.g.last ? st.g.last : null, turn: actor ? actor.seat : null, controller: actor ? actor.controller : null, yourTurn: !!(ctrl && ctrl.dev === dev),
+    tricksNS: st.g ? st.g.tricksNS : 0, tricksEW: st.g ? st.g.tricksEW : 0, trump: st.g ? st.g.trump : null, result: st.result, total: st.total };
+}
+
 // ----- Duplicate scoring + vulnerability -----
 const VUL_SCHEDULE = ["O", "N", "E", "B", "N", "E", "B", "O", "E", "B", "O", "N", "B", "O", "N", "E"];
 function vulForSeed(seed) {
@@ -4963,7 +5046,7 @@ function computeDaily(user) {
   return { hasLesson, hasHand, reviewDone: hasReview || due === 0, due, streak, allDone: hasLesson && hasHand && (hasReview || due === 0), todayKey, dailyDeal, dailyHistory, dailyTotal };
 }
 
-function Dashboard({ lang, user, onOpenLevel, onQuickPlay, onDailyPlay, onGoReview, onTechniques, onConventions, onGuide }) {
+function Dashboard({ lang, user, onOpenLevel, onQuickPlay, onDailyPlay, onTable, onGoReview, onTechniques, onConventions, onGuide }) {
   const L = T[lang];
   const e = user.exp;
   const maxId = levelMaxId(e);
@@ -5005,6 +5088,13 @@ function Dashboard({ lang, user, onOpenLevel, onQuickPlay, onDailyPlay, onGoRevi
           </div>
         )}
       </div>
+      {onTable && (
+        <button onClick={onTable} style={{ background: C.feltDark, color: C.ivory, border: `1px solid ${C.brass}`, borderRadius: 16 }} className="p-4 flex items-center gap-3 text-left">
+          <Users size={22} style={{ color: C.brass }} className="flex-shrink-0" />
+          <span className="flex-1"><span className="block text-base font-serif">{tx(lang, "Mesa con amigos", "Table with friends")}</span><span style={{ color: C.soft }} className="block text-xs">{tx(lang, "Cada uno en su dispositivo; los asientos libres, bots", "Each on their own device; free seats are bots")}</span></span>
+          <ChevronRight size={18} style={{ color: C.brass }} />
+        </button>
+      )}
       {onDailyPlay && (
         <div style={{ background: C.feltDark, border: `1px solid ${C.brass}`, borderRadius: 16 }} className="p-4">
           <div className="flex items-center justify-between gap-2">
@@ -6174,6 +6264,205 @@ function GuideView({ lang, user, onOpenLevel }) {
   );
 }
 
+// ============================================================
+//  MESA CON AMIGOS — multiplayer table over an encrypted room.
+//  The device that creates the table is the host: it holds the deal, validates every action and plays the bots.
+// ============================================================
+function MtAuction({ calls, dealer, lang, seats }) {
+  const order = ["W", "N", "E", "S"], L = T[lang];
+  const cells = []; const pad = order.indexOf(dealer); for (let i = 0; i < pad; i++) cells.push(null);
+  calls.forEach(c => cells.push(c.call));
+  return (
+    <div style={{ background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 10 }} className="p-2">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4 }} className="text-center">
+        {order.map(s => <div key={s} style={{ color: C.brass }} className="text-[11px] font-bold uppercase truncate">{L[s]}<span style={{ color: C.soft, fontWeight: 400 }} className="block truncate normal-case">{seats[s].name}</span></div>)}
+        {cells.map((c, i) => <div key={i} style={{ color: c == null ? "transparent" : (callIsRed(c) ? C.red : C.ivory) }} className="text-sm font-semibold">{c == null ? "·" : fmtCall(c, lang)}</div>)}
+        {!calls.length && <div style={{ gridColumn: "1 / -1", color: C.soft }} className="text-xs">{tx(lang, "Empieza la subasta", "Auction starts")}</div>}
+      </div>
+    </div>
+  );
+}
+function BridgeTable({ lang, user, deviceId, onExit }) {
+  const L = T[lang];
+  const [mode, setMode] = useState("menu");          // menu | host | guest
+  const [code, setCode] = useState("");
+  const [joinCode, setJoinCode] = useState("");
+  const [view, setView] = useState(null);
+  const [up, setUp] = useState(false);
+  const roomRef = useRef(null), stRef = useRef(null), peersRef = useRef(new Set()), timerRef = useRef(null), revRef = useRef(0);
+  const myDev = deviceId || "local";
+
+  const hostPublish = () => {
+    const st = stRef.current; if (!st) return;
+    setView(mtView(st, myDev));
+    const room = roomRef.current; if (room) peersRef.current.forEach(dev => { room.send("v", { to: dev, view: mtView(st, dev) }); });
+    clearTimeout(timerRef.current);
+    const bot = mtBotAction(st);
+    if (bot) timerRef.current = setTimeout(() => hostDispatch(bot, "__bot"), bot.t === "resolve" ? 1300 : 850);
+  };
+  const hostDispatch = (action, from) => { const st = stRef.current; if (!st) return; const next = mtApply(st, action, from); if (next !== st) { stRef.current = next; hostPublish(); } };
+  const act = (action) => { if (mode === "host") hostDispatch(action, myDev); else if (roomRef.current) roomRef.current.send("a", action); };
+
+  const openRoom = (c, asHost) => {
+    const room = new Room({
+      code: c, ns: "bridge-table", deviceId: myDev, onStatus: setUp,
+      onMessage: (m) => {
+        if (asHost) {
+          if (m.channel !== "a" || !m.data) return;
+          if (m.data.t === "hello") { peersRef.current.add(m.from); const st = stRef.current; if (st) room.send("v", { to: m.from, view: mtView(st, m.from) }); return; }
+          peersRef.current.add(m.from); hostDispatch(m.data, m.from);
+        } else if (m.channel === "v" && m.data && m.data.to === myDev && m.data.view && m.data.view.rev >= revRef.current) { revRef.current = m.data.view.rev; setView(m.data.view); }
+      },
+    });
+    roomRef.current = room;
+  };
+  const create = () => { const c = newCode(6); stRef.current = mtNew(myDev, user.name); setCode(c); setMode("host"); setView(mtView(stRef.current, myDev)); openRoom(c, true); };
+  const join = () => { const c = normCode(joinCode); if (c.length < 6) return; revRef.current = 0; setCode(c); setMode("guest"); setView(null); openRoom(c, false); };
+  // guests announce themselves until the host answers, then keep a slow heartbeat so a lost message is repaired
+  useEffect(() => {
+    if (mode !== "guest" || !up) return;
+    const hello = () => roomRef.current && roomRef.current.send("a", { t: "hello", name: user.name });
+    hello(); const iv = setInterval(hello, view ? 9000 : 2500);
+    return () => clearInterval(iv);
+  }, [mode, up, !!view]);
+  useEffect(() => () => { clearTimeout(timerRef.current); if (roomRef.current) roomRef.current.close(); }, []);
+  const leave = () => { clearTimeout(timerRef.current); if (roomRef.current) { if (mode === "guest") roomRef.current.send("a", { t: "leave" }); const r = roomRef.current; setTimeout(() => r.close(), 300); roomRef.current = null; } stRef.current = null; peersRef.current = new Set(); setMode("menu"); setView(null); setCode(""); };
+
+  const box = { background: C.feltDark, border: `1px solid ${C.line}`, borderRadius: 12 };
+  const head = (
+    <div className="flex items-center justify-between">
+      <button onClick={mode === "menu" ? onExit : leave} style={{ color: C.soft }} className="flex items-center gap-1 text-sm"><ArrowLeft size={16} />{mode === "menu" ? L.back : tx(lang, "Salir de la mesa", "Leave table")}</button>
+      <span style={{ color: C.brass }} className="text-sm font-serif">{tx(lang, "Mesa con amigos", "Table with friends")}</span>
+    </div>
+  );
+
+  if (mode === "menu") return (
+    <div className="flex flex-col gap-3">
+      {head}
+      <div style={box} className="p-4 flex flex-col gap-3">
+        <p style={{ color: C.ivory }} className="text-sm">{tx(lang, "Juega una mesa de bridge con familia o amigos, cada uno en su dispositivo. Los asientos que queden libres los ocupan bots.", "Play a bridge table with family or friends, each on their own device. Empty seats are taken by bots.")}</p>
+        {!roomsSupported() && <p style={{ color: C.red }} className="text-xs font-semibold">{tx(lang, "Este navegador no permite mesas en línea.", "This browser does not support online tables.")}</p>}
+        <button onClick={create} disabled={!roomsSupported()} style={{ background: C.brass, color: C.ink, borderRadius: 10 }} className="px-3 py-2.5 text-sm font-bold flex items-center justify-center gap-2"><Plus size={16} />{tx(lang, "Crear una mesa", "Create a table")}</button>
+        <div className="flex gap-2">
+          <input value={joinCode} onChange={(e) => setJoinCode(e.target.value)} placeholder={tx(lang, "Código de la mesa", "Table code")} aria-label={tx(lang, "Código de la mesa", "Table code")} autoCapitalize="characters" autoCorrect="off" spellCheck={false}
+            style={{ background: C.feltLite, color: C.ivory, border: `1px solid ${C.line}`, borderRadius: 8, fontSize: 16 }} className="p-2 flex-1 min-w-0 font-mono uppercase" />
+          <button onClick={join} disabled={normCode(joinCode).length < 6 || !roomsSupported()} style={{ background: C.feltLite, color: C.ivory, border: `1px solid ${C.line}`, opacity: normCode(joinCode).length < 6 ? .5 : 1 }} className="px-4 py-2 rounded text-sm font-semibold">{tx(lang, "Unirme", "Join")}</button>
+        </div>
+        <p style={{ color: C.soft }} className="text-xs">{tx(lang, "Cómo funciona: quien crea la mesa es el anfitrión; su dispositivo reparte, hace de árbitro y mueve a los bots, así que debe tener la app abierta mientras se juega. Las jugadas viajan cifradas con el código de la mesa. Entre amigos es suficiente, pero no es un sistema a prueba de trampas.", "How it works: whoever creates the table is the host; their device deals, referees and moves the bots, so it must keep the app open during play. Moves travel encrypted with the table code. Fine among friends, but not a cheat-proof system.")}</p>
+      </div>
+    </div>
+  );
+
+  if (!view) return (
+    <div className="flex flex-col gap-3">{head}
+      <div style={box} className="p-4 text-center"><Sparkles size={22} style={{ color: C.brass }} className="mx-auto animate-pulse" />
+        <p style={{ color: C.ivory }} className="text-sm mt-2">{up ? tx(lang, "Buscando la mesa… El anfitrión debe tenerla abierta.", "Looking for the table… The host must have it open.") : tx(lang, "Conectando…", "Connecting…")}</p>
+        <p style={{ color: C.soft }} className="text-xs mt-1 font-mono">{prettyCode(code)}</p></div>
+    </div>
+  );
+
+  const v = view, isHost = mode === "host", me = v.you;
+  const base = me || "S", idx = MT_SEATS.indexOf(base);
+  const pos = { bottom: base, left: MT_SEATS[(idx + 1) % 4], top: MT_SEATS[(idx + 2) % 4], right: MT_SEATS[(idx + 3) % 4] };
+  const rel = { [pos.bottom]: "S", [pos.left]: "W", [pos.top]: "N", [pos.right]: "E" };
+  const nameOf = (s) => `${L[s]} · ${v.seats[s].name}`;
+  const turnName = v.turn ? (v.yourTurn ? tx(lang, "Te toca", "Your turn") : tx(lang, `Turno de ${v.seats[v.controller].name} (${L[v.turn]})`, `${v.seats[v.controller].name} to act (${L[v.turn]})`)) : "";
+  const contractTxt = v.contract ? `${v.contract.level}${bidLabel(v.contract.strain === "ST" ? "NT" : v.contract.strain, lang)}${v.contract.doubled ? " " + v.contract.doubled : ""} · ${L[v.contract.declarer]}` : "";
+  const vulTxt = v.vul.NS && v.vul.EW ? tx(lang, "Vul: todos", "Vul: all") : v.vul.NS ? "Vul: N/S" : v.vul.EW ? "Vul: E/O" : tx(lang, "Vul: nadie", "Vul: none");
+  const status = (
+    <div style={box} className="p-2 flex items-center flex-wrap gap-1.5">
+      <Pill bg={C.brass} color={C.ink}>{tx(lang, "Mesa", "Table")} {prettyCode(code)}</Pill>
+      <Pill bg={up ? C.win : C.red} color={C.ivory}>{up ? tx(lang, "Conectado", "Online") : tx(lang, "Sin conexión", "Offline")}</Pill>
+      {v.board > 0 && <Pill bg={C.line2}>{tx(lang, "Mano", "Board")} {v.board}</Pill>}
+      {v.board > 0 && <Pill bg={C.line2}>{vulTxt}</Pill>}
+      {contractTxt && <Pill bg={C.line2}>{contractTxt}</Pill>}
+      {v.phase === "play" && <Pill bg={C.line2}>N/S {v.tricksNS} · E/O {v.tricksEW}</Pill>}
+      {(v.total.NS > 0 || v.total.EW > 0) && <Pill bg={C.line2}>{tx(lang, "Total", "Total")} N/S {v.total.NS} · E/O {v.total.EW}</Pill>}
+    </div>
+  );
+
+  if (v.phase === "lobby") return (
+    <div className="flex flex-col gap-3">{head}{status}
+      <div style={box} className="p-4 flex flex-col gap-3">
+        <div className="text-center"><div style={{ color: C.soft }} className="text-xs uppercase">{tx(lang, "Comparte este código", "Share this code")}</div><div style={{ color: C.ivory, letterSpacing: 4 }} className="font-mono text-3xl font-bold select-all">{prettyCode(code)}</div></div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {MT_SEATS.map(s => { const st = v.seats[s], mine = me === s; return (
+            <div key={s} style={{ background: C.feltLite, border: `1px solid ${mine ? C.brass : C.line}`, borderRadius: 10 }} className="p-2 text-center">
+              <div style={{ color: C.brass }} className="text-xs font-bold uppercase">{L[s]}</div>
+              <div style={{ color: st.bot ? C.soft : C.ivory }} className="text-sm font-semibold truncate">{st.bot ? tx(lang, "Bot (libre)", "Bot (free)") : st.name}{mine ? tx(lang, " · tú", " · you") : ""}</div>
+              {st.bot && <button onClick={() => act({ t: "sit", seat: s, name: user.name })} style={{ background: C.brass, color: C.ink }} className="mt-1 px-3 py-1 rounded text-xs font-bold">{me ? tx(lang, "Cambiarme aquí", "Move here") : tx(lang, "Sentarme", "Sit here")}</button>}
+            </div>); })}
+        </div>
+        <p style={{ color: C.soft }} className="text-xs">{tx(lang, "Norte–Sur son compañeros, igual que Este–Oeste. Los asientos libres juegan como bots.", "North–South are partners, as are East–West. Free seats play as bots.")}</p>
+        {isHost ? <button onClick={() => act({ t: "start", seed: Math.floor(Math.random() * 1e9) })} style={{ background: C.brass, color: C.ink, borderRadius: 10 }} className="px-3 py-2.5 text-sm font-bold flex items-center justify-center gap-2"><Play size={16} />{tx(lang, "Repartir", "Deal")}</button>
+          : <p style={{ color: C.ivory }} className="text-sm text-center">{tx(lang, "Esperando a que el anfitrión reparta…", "Waiting for the host to deal…")}</p>}
+      </div>
+    </div>
+  );
+
+  if (v.phase === "done") return (
+    <div className="flex flex-col gap-3">{head}{status}
+      <div style={{ background: C.feltLite, border: `1px solid ${C.brassDim}`, borderRadius: 12 }} className="p-4 text-center">
+        <Trophy size={26} style={{ color: C.brass }} className="mx-auto mb-1" />
+        {v.result.passedOut ? <div style={{ color: C.ivory }} className="font-bold">{tx(lang, "Pasaron los cuatro", "Passed out")}</div> : (<>
+          <div style={{ color: C.ivory }} className="font-bold text-lg">{contractTxt} · {(() => { const d = v.result.tricks - (6 + v.contract.level); return d === 0 ? "=" : (d > 0 ? "+" + d : "" + d); })()}</div>
+          <div style={{ color: C.ivory }} className="text-sm mt-1">N/S <b>{v.result.nsScore >= 0 ? "+" : ""}{v.result.nsScore}</b> · E/O <b>{-v.result.nsScore >= 0 ? "+" : ""}{-v.result.nsScore}</b></div>
+        </>)}
+        <div style={{ color: C.soft }} className="text-xs mt-1">{tx(lang, `Total acumulado: N/S ${v.total.NS} · E/O ${v.total.EW} (suma de puntos de cada mano para el bando que los gana).`, `Running total: N/S ${v.total.NS} · E/W ${v.total.EW} (each board's points go to the side that wins them).`)}</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        {MT_SEATS.map(s => <div key={s} style={box} className="p-2"><div style={{ color: C.brass }} className="text-xs font-bold mb-1 truncate">{nameOf(s)}</div>{v.hands[s] && <HandSuitRows cards={v.hands[s]} small />}</div>)}
+      </div>
+      <MtAuction calls={v.calls} dealer={v.dealer} lang={lang} seats={v.seats} />
+      {isHost ? <button onClick={() => act({ t: "start", seed: Math.floor(Math.random() * 1e9) })} style={{ background: C.brass, color: C.ink, borderRadius: 10 }} className="px-3 py-2.5 text-sm font-bold flex items-center justify-center gap-2"><Play size={16} />{tx(lang, "Siguiente mano", "Next board")}</button>
+        : <p style={{ color: C.ivory }} className="text-sm text-center">{tx(lang, "Esperando a que el anfitrión reparta la siguiente…", "Waiting for the host to deal the next one…")}</p>}
+    </div>
+  );
+
+  const led = v.trick.length ? v.trick[0].card.s : null;
+  const sideHand = (s) => (
+    <div className="flex flex-col items-center gap-1">
+      <span style={{ color: v.turn === s ? C.brass : C.soft }} className="text-xs text-center truncate max-w-[110px]">{nameOf(s)}{v.turn === s ? " ◄" : ""}</span>
+      {v.hands[s] ? <div style={{ background: "rgba(0,0,0,.22)", borderRadius: 8 }} className="px-2 py-1.5"><HandSuitRows cards={v.hands[s]} small /></div> : <HiddenFan count={v.counts[s]} />}
+    </div>
+  );
+  const fan = (s) => {
+    const cards = v.hands[s]; if (!cards) return <div className="flex justify-center"><HiddenFan count={v.counts[s]} /></div>;
+    const canPlay = v.phase === "play" && v.yourTurn && v.turn === s;
+    return <HandFan cards={cards} trump={v.trump || "ST"} legal={canPlay ? legalCards(cards, led) : []} active={canPlay} onPlay={(c) => act({ t: "play", card: c })} lang={lang} scale={UI.cardScale} />;
+  };
+  const lastBid = lastBidOf(v.calls);
+  return (
+    <div className="flex flex-col gap-3">{head}{status}
+      <div style={{ background: `radial-gradient(circle at 50% 40%, ${C.feltLite}, ${C.felt} 70%)`, border: `2px solid ${C.brassDim}`, borderRadius: 18 }} className="p-3">
+        <div className="text-center mb-1"><span style={{ color: C.brass }} className="text-xs uppercase tracking-widest">{nameOf(pos.top)}{v.dummy === pos.top ? " · " + L.dummy : ""}{v.turn === pos.top ? " ◄" : ""}</span></div>
+        {fan(pos.top)}
+        <div className="grid items-center my-1" style={{ gridTemplateColumns: "1fr auto 1fr", minHeight: 156 }}>
+          {sideHand(pos.left)}
+          <div className="flex items-center justify-center">
+            {v.phase === "play" ? (() => { const tw = v.trick.length === 4 ? trickWinner(v.trick, v.trump) : null; const find = (s) => v.trick.find(p => p.seat === s); const slot = (s, left, top) => (find(s) ? <div style={{ position: "absolute", left, top }}><SeatCard play={find(s)} seat={rel[s]} win={tw === s} /></div> : null); return (
+              <div style={{ position: "relative", width: 150, height: 156 }}>
+                <div style={{ position: "absolute", left: 66, top: 69, width: 18, height: 18, borderRadius: 9, border: `1px solid ${C.brassDim}`, opacity: .6 }} />
+                {slot(pos.top, 52, 0)}{slot(pos.left, 2, 46)}{slot(pos.right, 102, 46)}{slot(pos.bottom, 52, 92)}
+              </div>); })() : <div style={{ width: 150 }} />}
+          </div>
+          {sideHand(pos.right)}
+        </div>
+        {fan(pos.bottom)}
+        <div className="text-center mt-1"><span style={{ color: C.brass }} className="text-xs uppercase tracking-widest">{me ? nameOf(pos.bottom) + tx(lang, " · tú", " · you") : tx(lang, "Estás de espectador", "You are watching")}{v.dummy === pos.bottom ? " · " + L.dummy : ""}{v.turn === pos.bottom ? " ◄" : ""}</span></div>
+      </div>
+      <div className="text-center"><span style={{ color: v.yourTurn ? C.brass : C.soft }} className="text-sm font-semibold">{turnName}</span>
+        {v.phase === "play" && v.yourTurn && v.turn !== me && <p style={{ color: C.soft }} className="text-xs mt-0.5">{tx(lang, "Eres el declarante: juega la carta del muerto.", "You are declarer: play dummy's card.")}</p>}
+        {v.phase === "play" && me && v.dummy === me && <p style={{ color: C.soft }} className="text-xs mt-0.5">{tx(lang, "Eres el muerto: tu compañero juega tus cartas.", "You are dummy: partner plays your cards.")}</p>}
+      </div>
+      {v.phase === "bid" && (<>
+        <MtAuction calls={v.calls} dealer={v.dealer} lang={lang} seats={v.seats} />
+        {v.yourTurn && <BiddingBox onBid={(b) => act({ t: "bid", call: canonCall(b) })} minRank={lastBid ? bidRankT(lastBid.call) : -1} noDouble={!(canDoubleT(v.calls, v.turn) || canRedoubleT(v.calls, v.turn))} />}
+      </>)}
+    </div>
+  );
+}
+
 function SyncCard({ lang, sync, user }) {
   const [code, setCode] = useState("");
   const [bad, setBad] = useState(false);
@@ -6586,18 +6875,19 @@ export default function App() {
         onNav={(k) => setView({ name: k, params: {} })}
         onSwitch={() => setCurrentId(null)}
         onToggleLang={() => setLang(l => l === "es" ? "en" : "es")}
-        compact={view.name === "play" && !!view.params.deal} />
+        compact={(view.name === "play" && !!view.params.deal) || view.name === "table"} />
 
       <div className={`${UI.maxW} mx-auto px-3 py-4 pb-24`}>
         {UI.tips && view.name !== "play" && <TipBanner lang={lang} />}
+        {view.name === "table" && <BridgeTable lang={lang} user={user} deviceId={devRef.current} onExit={() => setView({ name: "dashboard", params: {} })} />}
         {view.name === "settings" && <SettingsView lang={lang} theme={theme} onTheme={setTheme} user={user} sync={syncApi} onRestore={(p) => updateUser(u => ({ ...p, id: u.id }))} />}
         {view.name === "help" && <HelpView lang={lang} onTour={() => setTourOpen(true)} />}
         {view.name === "stats" && <StatsView lang={lang} user={user} />}
         {view.name === "techniques" && <TechniquesView lang={lang} onPlay={(deal, title) => setView({ name: "play", params: { deal, title, fromTech: true } })} />}
         {view.name === "conventions" && <ConventionsView lang={lang} onBid={() => setView({ name: "bid", params: {} })} />}
         {view.name === "guide" && <GuideView lang={lang} user={user} onOpenLevel={(id) => setView({ name: "level", params: { levelId: id } })} />}
-        {view.name === "dashboard" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onDailyPlay={dailyPlay} onGoReview={() => setView({ name: "review", params: {} })} onTechniques={() => setView({ name: "techniques", params: {} })} onConventions={() => setView({ name: "conventions", params: {} })} onGuide={() => setView({ name: "guide", params: {} })} />}
-        {view.name === "levels" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onDailyPlay={dailyPlay} onGoReview={() => setView({ name: "review", params: {} })} onTechniques={() => setView({ name: "techniques", params: {} })} onConventions={() => setView({ name: "conventions", params: {} })} onGuide={() => setView({ name: "guide", params: {} })} />}
+        {view.name === "dashboard" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onDailyPlay={dailyPlay} onTable={() => setView({ name: "table", params: {} })} onGoReview={() => setView({ name: "review", params: {} })} onTechniques={() => setView({ name: "techniques", params: {} })} onConventions={() => setView({ name: "conventions", params: {} })} onGuide={() => setView({ name: "guide", params: {} })} />}
+        {view.name === "levels" && <Dashboard lang={lang} user={user} onOpenLevel={(id, tab) => setView({ name: "level", params: { levelId: id, tab } })} onQuickPlay={quickPlay} onDailyPlay={dailyPlay} onTable={() => setView({ name: "table", params: {} })} onGoReview={() => setView({ name: "review", params: {} })} onTechniques={() => setView({ name: "techniques", params: {} })} onConventions={() => setView({ name: "conventions", params: {} })} onGuide={() => setView({ name: "guide", params: {} })} />}
         {view.name === "level" && <LevelDetail levelId={view.params.levelId} lang={lang} user={user} marks={marks} initialTab={view.params.tab} onBack={() => setView({ name: "dashboard", params: {} })} onOpenDeal={openDeal} />}
         {view.name === "library" && <LibraryView lang={lang} user={user} onOpenDeal={openDeal} pbnImported={pbnImported} onImport={(entries) => setPbnImported(prev => [...entries, ...prev])} onClearImported={() => setPbnImported([])} />}
         {view.name === "bid" && <BidTrainer lang={lang} user={user} marks={marks} />}
