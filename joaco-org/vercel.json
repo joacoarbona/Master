@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"main\" ]",
+  "rewrites": [
+    { "source": "/golf-madrid/v1/data/:path((?!course\\.json$).+)", "destination": "/golf-madrid/data/:path" },
+    { "source": "/valdecanas/v1/data/:path((?!course\\.json$).+)", "destination": "/valdecanas/data/:path" }
+  ]
+}
