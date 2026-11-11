@@ -2,7 +2,7 @@ import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from "
 import ElGabinete from "./ElGabinete";
 import PartyGamesMenu from "./PartyGamesMenu";
 import ProjectsMenu from "./ProjectsMenu";
-import PrivateArea from "./PrivateArea";
+import PrivateArea, { PrivateGate } from "./PrivateArea";
 
 /**
  * Rutas:
@@ -114,7 +114,11 @@ export default function App() {
         <a style={LINK_STYLE} href="#/privado">Privado</a>
       </nav>
       {route.kind === "gabinete" && <ElGabinete autoFocus={false} />}
-      {route.kind === "fiesta" && <PartyGamesMenu autoFocus={false} />}
+      {route.kind === "fiesta" && (
+        <PrivateGate heading={<>La <em>fiesta</em></>} hint="Escribe la contraseña para entrar en los juegos de la fiesta.">
+          {(api) => <PartyGamesMenu autoFocus={false} onSelect={(g) => api.open(g.href, g.title)} />}
+        </PrivateGate>
+      )}
       {route.kind === "proyectos" && <ProjectsMenu autoFocus={false} />}
       {route.kind === "privado" && <PrivateArea />}
     </>
