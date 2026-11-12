@@ -34,6 +34,7 @@ export interface Sub {
   reviewed?: string;       // última revisión
   cancelledOn?: string;
   history: PricePoint[];   // precio vigente desde cada fecha
+  updatedAt?: number;      // ms de la última edición (para fusionar entre dispositivos)
 }
 
 export interface Settings { fx: { USD: number; GBP: number }; reviewMonths: number }

@@ -63,6 +63,9 @@ Dependencias ya instaladas: recharts, lucide-react, @supabase/supabase-js, tailw
   navegadores (WebRTC). Enlace de invitación: joaco.org/valdecanas/?sala=CODIGO
 
 ## Pendiente de configurar
+- Suscripciones (#/app/suscripciones): para sincronizar entre dispositivos, seguir
+  supabase/SUSCRIPCIONES.md (SQL + variables VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
+  en Vercel). Sin eso funciona igual, guardando solo en el navegador.
 - MortgageSimulator: poner SUPABASE_URL y SUPABASE_ANON_KEY reales en
   src/works/MortgageSimulator.jsx (líneas ~25-26) para que guarde datos.
 

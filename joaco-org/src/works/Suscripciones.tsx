@@ -2,41 +2,39 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   CATALOG, CATEGORIES, DEFAULT_SETTINGS, USAGE_LABEL, addDays, addMonths, buildAlerts, buildCsv, buildIcs,
   chargesPerYear, daysBetween, eur, fmtDate, forecast, isIso, monthLabel, myCharge, nextRenewal, perMonth, perYear,
-  periodText, sampleData, sanitize, toEUR, todayIso,
+  periodText, sampleData, toEUR, todayIso,
   type Alert, type Currency, type Level, type Settings, type Status, type Sub, type Unit,
 } from "./suscripciones-core";
+import { emptyDoc, parseDoc, type Doc } from "./suscripciones-sync";
+import { AccountPanel, CloudPill, useCloudSync } from "./SuscripcionesCuenta";
 
 /* ============================================================
    SUSCRIPCIONES
    Registro de suscripciones con avisos de renovación, totales,
-   calendario de cargos y comparativas. Los datos se guardan solo
-   en este navegador (localStorage); no hay servidor ni cuentas.
+   calendario de cargos y comparativas. Los datos se guardan en
+   este navegador (localStorage) y, si hay cuenta, se sincronizan
+   con Supabase (ver SuscripcionesCuenta.tsx).
    ============================================================ */
 
 const KEY = "joaco-suscripciones-v1";
-type Store = { subs: Sub[]; settings: Settings };
+type Store = Doc;
 type Tab = "resumen" | "lista" | "avisos" | "comparar" | "guia";
 
 function load(): Store {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return parseStore(JSON.parse(raw));
+    if (raw) return parseDoc(JSON.parse(raw));
   } catch { /* sin almacenamiento o dato corrupto */ }
-  return { subs: [], settings: DEFAULT_SETTINGS };
+  return emptyDoc();
 }
-function parseStore(o: any): Store {
-  const today = todayIso();
-  const list = Array.isArray(o) ? o : Array.isArray(o?.subs) ? o.subs : [];
-  const subs = list.map((x: any) => sanitize(x, today)).filter(Boolean) as Sub[];
-  const fx = o?.settings?.fx || {};
-  return {
-    subs,
-    settings: {
-      fx: { USD: Number(fx.USD) > 0 ? Number(fx.USD) : DEFAULT_SETTINGS.fx.USD, GBP: Number(fx.GBP) > 0 ? Number(fx.GBP) : DEFAULT_SETTINGS.fx.GBP },
-      reviewMonths: Number(o?.settings?.reviewMonths) > 0 ? Number(o.settings.reviewMonths) : DEFAULT_SETTINGS.reviewMonths,
-    },
-  };
+const stamp = (subs: Sub[], t = Date.now()) => subs.map(s => ({ ...s, updatedAt: t }));
+/** Quita suscripciones dejando constancia del borrado, para que no reaparezcan desde otro dispositivo. */
+function dropSubs(st: Store, pred: (s: Sub) => boolean): Store {
+  const t = Date.now(), deleted = { ...st.deleted };
+  for (const s of st.subs) if (pred(s)) deleted[s.id] = t;
+  return { ...st, subs: st.subs.filter(s => !pred(s)), deleted };
 }
+const isSample = (s: Sub) => s.id.startsWith("ej-");
 function download(name: string, text: string, mime: string) {
   const url = URL.createObjectURL(new Blob([text], { type: mime }));
   const a = document.createElement("a");
@@ -64,8 +62,11 @@ export default function Suscripciones() {
   const [tab, setTab] = useState<Tab>("resumen");
   const [editing, setEditing] = useState<Sub | null>(null);
   const [saveError, setSaveError] = useState(false);
+  const [account, setAccount] = useState(false);
   const today = todayIso();
   const { subs, settings } = store;
+  const cloud = useCloudSync(store, setStore);
+  useEffect(() => { if (cloud.recovery || (cloud.returned && cloud.ready)) setAccount(true); }, [cloud.recovery, cloud.returned, cloud.ready]);
 
   useEffect(() => {
     try { localStorage.setItem(KEY, JSON.stringify(store)); setSaveError(false); } catch { setSaveError(true); }
@@ -78,15 +79,16 @@ export default function Suscripciones() {
 
   const upsert = (s: Sub) => setStore(st => {
     const prev = st.subs.find(x => x.id === s.id);
-    let next = { ...s };
+    let next = { ...s, updatedAt: Date.now() };
     if (!prev) { next.id = newId(); next.history = [{ date: isIso(next.start) ? next.start : today, amount: next.amount }]; }
     else if (prev.amount !== next.amount) next.history = [...(prev.history || []), { date: today, amount: next.amount }];
     if (next.status === "cancelada" && !next.cancelledOn) next.cancelledOn = today;
     if (next.status !== "cancelada") next.cancelledOn = undefined;
     return { ...st, subs: prev ? st.subs.map(x => (x.id === s.id ? next : x)) : [...st.subs, next] };
   });
-  const patch = (id: string, p: Partial<Sub>) => setStore(st => ({ ...st, subs: st.subs.map(x => (x.id === id ? { ...x, ...p } : x)) }));
-  const remove = (id: string) => setStore(st => ({ ...st, subs: st.subs.filter(x => x.id !== id) }));
+  const patch = (id: string, p: Partial<Sub>) => setStore(st => ({ ...st, subs: st.subs.map(x => (x.id === id ? { ...x, ...p, updatedAt: Date.now() } : x)) }));
+  const remove = (id: string) => setStore(st => dropSubs(st, x => x.id === id));
+  const loadSample = () => setStore(st => ({ ...st, subs: [...st.subs.filter(s => !isSample(s)), ...stamp(sampleData(today))] }));
   const openSub = (id: string) => { const s = subs.find(x => x.id === id); if (s) setEditing(s); };
 
   const TABS: [Tab, string][] = [["resumen", "Resumen"], ["lista", "Lista"], ["avisos", "Avisos"], ["comparar", "Comparar"], ["guia", "Guía"]];
@@ -98,6 +100,7 @@ export default function Suscripciones() {
         <div>
           <h1>Suscripciones</h1>
           <p className="sx-lede">Todo lo que pagas de forma recurrente, en un sitio: cuánto suma, cuándo se renueva y qué sobra.</p>
+          <CloudPill cloud={cloud} onOpen={() => setAccount(true)} />
         </div>
         <button className="btn primary" onClick={() => setEditing(blank(today))}>+ Añadir</button>
       </header>
@@ -112,21 +115,25 @@ export default function Suscripciones() {
 
       <main className="sx-main">
         {subs.length === 0 && tab !== "guia" ? (
-          <Empty onAdd={() => setEditing(blank(today))} onSample={() => setStore(st => ({ ...st, subs: sampleData(today) }))} onGuide={() => setTab("guia")} />
+          <Empty onAdd={() => setEditing(blank(today))} onSample={loadSample} onGuide={() => setTab("guia")} />
         ) : (
           <>
             {tab === "resumen" && <Resumen subs={subs} active={active} settings={settings} today={today} alerts={alerts} goAlerts={() => setTab("avisos")} open={openSub} />}
             {tab === "lista" && <Lista subs={subs} settings={settings} today={today} onEdit={setEditing} patch={patch} />}
             {tab === "avisos" && <Avisos subs={subs} settings={settings} today={today} alerts={alerts} open={openSub} patch={patch} />}
             {tab === "comparar" && <Comparar subs={subs} active={active} settings={settings} />}
-            {tab === "guia" && <Guia store={store} setStore={setStore} today={today} />}
+            {tab === "guia" && <Guia store={store} setStore={setStore} today={today} loadSample={loadSample} openAccount={() => setAccount(true)} signedIn={!!cloud.email} />}
           </>
         )}
       </main>
-      <footer className="sx-foot">Los datos se guardan solo en este navegador. Importes en euros; lo que pagas en otra moneda se convierte con el tipo de cambio de Guía → Ajustes.</footer>
+      <footer className="sx-foot">{cloud.email ? `Los datos se guardan en este navegador y en tu cuenta (${cloud.email}).` : "Los datos se guardan en este navegador; con una cuenta se sincronizan entre dispositivos."} Importes en euros; lo que pagas en otra moneda se convierte con el tipo de cambio de Guía → Ajustes.</footer>
 
       {editing && <Form initial={editing} today={today} onClose={() => setEditing(null)}
         onSave={s => { upsert(s); setEditing(null); }} onDelete={id => { remove(id); setEditing(null); }} />}
+      {account && <AccountPanel cloud={cloud} hasSample={subs.some(isSample)} count={subs.length}
+        removeSample={() => setStore(st => dropSubs(st, isSample))}
+        wipeLocal={() => { setStore(emptyDoc()); try { localStorage.removeItem(KEY); } catch { /* nada */ } }}
+        onClose={() => setAccount(false)} />}
     </div>
   );
 }
@@ -578,22 +585,24 @@ function Form({ initial, today, onClose, onSave, onDelete }: { initial: Sub; tod
 }
 
 // ---------- Guía, glosario y ajustes ----------
-function Guia({ store, setStore, today }: { store: Store; setStore: React.Dispatch<React.SetStateAction<Store>>; today: string }) {
+function Guia({ store, setStore, today, loadSample, openAccount, signedIn }: { store: Store; setStore: React.Dispatch<React.SetStateAction<Store>>; today: string; loadSample: () => void; openAccount: () => void; signedIn: boolean }) {
   const file = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState("");
   const [wipe, setWipe] = useState(false);
   const { subs, settings } = store;
-  const setFx = (k: "USD" | "GBP", v: string) => { const n = parseFloat(v.replace(",", ".")); if (n > 0) setStore(st => ({ ...st, settings: { ...st.settings, fx: { ...st.settings.fx, [k]: n } } })); };
+  const setFx = (k: "USD" | "GBP", v: string) => { const n = parseFloat(v.replace(",", ".")); if (n > 0 && n !== store.settings.fx[k]) setStore(st => ({ ...st, settingsAt: Date.now(), settings: { ...st.settings, fx: { ...st.settings.fx, [k]: n } } })); };
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]; e.target.value = "";
     if (!f) return;
     try {
-      const parsed = parseStore(JSON.parse(await f.text()));
+      const parsed = parseDoc(JSON.parse(await f.text()));
       if (!parsed.subs.length) return setMsg("Ese fichero no contiene suscripciones.");
-      setStore(parsed); setMsg(`Importadas ${parsed.subs.length} suscripciones. Han sustituido a las que había.`);
+      const t = Date.now(), keep = new Set(parsed.subs.map(s => s.id));
+      setStore(st => ({ ...dropSubs(st, s => !keep.has(s.id)), subs: stamp(parsed.subs, t), settings: parsed.settings, settingsAt: t }));
+      setMsg(`Importadas ${parsed.subs.length} suscripciones. Han sustituido a las que había${signedIn ? ", también en tu cuenta" : ""}.`);
     } catch { setMsg("No he podido leer el fichero: tiene que ser una copia exportada desde esta app (.json)."); }
   };
-  const hasSample = subs.some(s => s.id.startsWith("ej-"));
+  const hasSample = subs.some(isSample);
   return (
     <>
       <section className="card prose">
@@ -606,6 +615,7 @@ function Guia({ store, setStore, today }: { store: Store; setStore: React.Dispat
           <li><strong>Descarga el calendario</strong> desde Avisos para que el móvil te avise antes de cada renovación.</li>
           <li><strong>Revisa</strong> cada pocos meses: entra en Avisos, decide sobre cada una y pulsa «Marcar revisada». Si te suben el precio, edita el importe: el anterior queda en el historial.</li>
           <li><strong>Da de baja</strong> en vez de borrar: las canceladas dejan de contar pero conservan el dato de cuánto te ahorras.</li>
+          <li><strong>Para verla en varios dispositivos</strong>, pulsa el indicador de debajo del título («Sin cuenta · Sincronizar») y entra con tu cuenta en cada uno.</li>
         </ol>
         <h2>Qué hay en cada pestaña</h2>
         <ul>
@@ -640,7 +650,8 @@ function Guia({ store, setStore, today }: { store: Store; setStore: React.Dispat
           <dt>Permanencia</dt><dd>Fecha hasta la que cancelar tiene penalización.</dd>
           <dt>Plazo de aviso</dt><dd>Días de antelación con los que una renovación aparece en Avisos y suena en el calendario (7 por defecto).</dd>
           <dt>Solape</dt><dd>Varias suscripciones activas de la misma categoría a la vez (por ejemplo, tres plataformas de vídeo).</dd>
-          <dt>Revisada</dt><dd>Marca de que has comprobado precio, plan y uso. Pasado el plazo de revisión vuelve a aparecer en Avisos.</dd>
+          <dt>Sincronizar</dt><dd>Juntar lo de este dispositivo con lo de tu cuenta, en los dos sentidos. Se hace solo al abrir la app, tras cada cambio y al volver a ella.</dd>
+                    <dt>Revisada</dt><dd>Marca de que has comprobado precio, plan y uso. Pasado el plazo de revisión vuelve a aparecer en Avisos.</dd>
         </dl>
         <h2>Leyenda de avisos</h2>
         <ul className="plain">
@@ -653,25 +664,27 @@ function Guia({ store, setStore, today }: { store: Store; setStore: React.Dispat
         <div className="g3">
           <label>1 USD en euros<input inputMode="decimal" defaultValue={String(settings.fx.USD).replace(".", ",")} onBlur={e => setFx("USD", e.target.value)} /></label>
           <label>1 GBP en euros<input inputMode="decimal" defaultValue={String(settings.fx.GBP).replace(".", ",")} onBlur={e => setFx("GBP", e.target.value)} /></label>
-          <label>Revisar cada (meses)<input type="number" min={1} max={24} value={settings.reviewMonths} onChange={e => setStore(st => ({ ...st, settings: { ...st.settings, reviewMonths: Math.max(1, parseInt(e.target.value) || 6) } }))} /></label>
+          <label>Revisar cada (meses)<input type="number" min={1} max={24} value={settings.reviewMonths} onChange={e => setStore(st => ({ ...st, settingsAt: Date.now(), settings: { ...st.settings, reviewMonths: Math.max(1, parseInt(e.target.value) || 6) } }))} /></label>
         </div>
         <p className="muted small">Los tipos de cambio son orientativos y no se actualizan solos: pon el que veas en tu banco.</p>
       </section>
 
       <section className="card">
-        <h2>Tus datos</h2>
-        <p>Se guardan únicamente en este navegador y en este dispositivo. No se envían a ningún servidor, y por eso tampoco aparecen en otro móvil u ordenador: para pasarlos, exporta la copia aquí e impórtala allí. Si borras los datos de navegación de este sitio, se pierden; guarda una copia de vez en cuando.</p>
+        <h2>Tus datos y la sincronización</h2>
+        <p><strong>Sin cuenta</strong>, todo se guarda solo en este navegador: no sale de aquí ni aparece en otro dispositivo. Si borras los datos de navegación de este sitio, se pierden; guarda una copia de vez en cuando.</p>
+        <p><strong>Con cuenta</strong>, cada cambio se guarda aquí y se sube a tu cuenta, y los demás dispositivos donde hayas entrado lo reciben solos. Puedes seguir usando la app sin conexión: los cambios se suben al volver. Si en dos dispositivos se edita la misma suscripción, se queda la edición más reciente; las demás se suman. Los datos van a una base de datos (Supabase) en la que cada cuenta solo puede leer lo suyo.</p>
+        <div className="row"><button className="btn primary" onClick={openAccount}>{signedIn ? "Ver cuenta y sincronización" : "Entrar o crear cuenta"}</button></div>
         <div className="row">
-          <button className="btn" onClick={() => download(`suscripciones-${today}.json`, JSON.stringify({ app: "joaco.org/suscripciones", version: 1, exported: today, ...store }, null, 2), "application/json")} disabled={!subs.length}>Exportar copia (.json)</button>
+          <button className="btn" onClick={() => download(`suscripciones-${today}.json`, JSON.stringify({ app: "joaco.org/suscripciones", version: 2, exported: today, subs: store.subs, settings: store.settings, settingsAt: store.settingsAt }, null, 2), "application/json")} disabled={!subs.length}>Exportar copia (.json)</button>
           <button className="btn" onClick={() => file.current?.click()}>Importar copia</button>
           <button className="btn" onClick={() => download(`suscripciones-${today}.csv`, buildCsv(subs, settings, today), "text/csv;charset=utf-8")} disabled={!subs.length}>Exportar a Excel (.csv)</button>
           <input ref={file} type="file" accept="application/json,.json" hidden onChange={onFile} />
         </div>
         <div className="row">
-          {!subs.length && <button className="btn" onClick={() => setStore(st => ({ ...st, subs: sampleData(today) }))}>Cargar datos de ejemplo</button>}
-          {hasSample && <button className="btn" onClick={() => setStore(st => ({ ...st, subs: st.subs.filter(s => !s.id.startsWith("ej-")) }))}>Quitar los datos de ejemplo</button>}
+          {!subs.length && <button className="btn" onClick={loadSample}>Cargar datos de ejemplo</button>}
+          {hasSample && <button className="btn" onClick={() => setStore(st => dropSubs(st, isSample))}>Quitar los datos de ejemplo</button>}
           {subs.length > 0 && (wipe
-            ? <button className="btn danger" onClick={() => { setStore(st => ({ ...st, subs: [] })); setWipe(false); setMsg("Todo borrado."); }}>Sí, borrar las {subs.length}</button>
+            ? <button className="btn danger" onClick={() => { setStore(st => dropSubs(st, () => true)); setWipe(false); setMsg(signedIn ? "Todo borrado, también de tu cuenta y de tus otros dispositivos." : "Todo borrado."); }}>Sí, borrar las {subs.length}{signedIn ? " (también en tu cuenta)" : ""}</button>
             : <button className="btn ghost" onClick={() => setWipe(true)}>Borrar todo</button>)}
         </div>
         {msg && <p className="note" role="status">{msg}</p>}
@@ -694,6 +707,20 @@ const CSS = `
 .sx-head,.sx-tabs,.sx-main,.sx-foot,.sx>.note{max-width:920px;margin-left:auto;margin-right:auto}
 .sx-head{display:flex;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
 .sx-lede{color:var(--ink2);margin:6px 0 0;max-width:52ch}
+.sx .cloudpill{font:inherit;font-size:12.5px;font-weight:600;margin-top:10px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:99px;padding:5px 12px;cursor:pointer;min-height:32px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.sx .cloudpill span{font-size:12px;width:14px;text-align:center}
+.sx .cp-ok{color:var(--ok);background:var(--ok-bg);border-color:#bfe0c9}
+.sx .cp-sync{color:var(--rev);background:var(--rev-bg);border-color:#c9dcf3}
+.sx .cp-warn{color:var(--pro);background:var(--pro-bg);border-color:#f0dca6}
+.sx .cp-err{color:var(--urg);background:var(--urg-bg);border-color:#f2c4bf}
+.sx .stack{display:flex;flex-direction:column;gap:10px}
+.sx .seg{display:grid;grid-template-columns:1fr 1fr;background:#efeee9;border-radius:10px;padding:3px;gap:3px}
+.sx .seg button{font:inherit;font-weight:600;font-size:14px;border:0;background:none;border-radius:8px;padding:8px;cursor:pointer;color:var(--ink2)}
+.sx .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.sx .acct{background:var(--bg);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.sx .acct strong{display:block;font-size:16px;overflow-wrap:anywhere}
+.sx .stline{font-size:13px;font-weight:600;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.sx .stline em{font-style:normal;font-weight:400;color:var(--ink3)}
+.sx .st-ok{color:var(--ok)}.sx .st-error{color:var(--urg)}.sx .st-offline{color:var(--pro)}.sx .st-syncing{color:var(--rev)}.sx .st-off{color:var(--ink3)}
 .sx-tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:16px;scrollbar-width:none}
 .sx-tabs::-webkit-scrollbar{display:none}
 .sx-tabs button{font:inherit;font-weight:600;color:var(--ink3);background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;cursor:pointer;white-space:nowrap;display:flex;gap:6px;align-items:center}
