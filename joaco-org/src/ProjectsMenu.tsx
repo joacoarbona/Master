@@ -62,6 +62,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "irpf", emoji: "🧾", title: "IRPF 2018 → 2026", description: "Progresividad en frío y quién la paga", color: "c3", href: "/proyectos/irpf-2018-2026.html" },
   { id: "puntocom-ia", emoji: "🫧", title: "Puntocom vs IA", description: "¿Burbuja? Laboratorio con escenarios", color: "c4", href: "/proyectos/puntocom-vs-ia.html" },
   { id: "nubes", emoji: "☁️", title: "Nubes de palabras", description: "Pega un texto, etiqueta frases y explora", color: "c1", href: "#/app/nubes" },
+  { id: "suscripciones", emoji: "🔁", title: "Suscripciones", description: "Qué pagas, cuándo renueva y qué sobra", color: "c2", href: "#/app/suscripciones" },
 ];
 
 const STYLES = `
