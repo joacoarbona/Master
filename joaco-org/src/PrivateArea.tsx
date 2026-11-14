@@ -67,6 +67,7 @@ const STYLES = `
 .prv-card button:disabled{opacity:.6;cursor:default}
 .prv-err{color:#e58a8a !important}
 .prv-lock{position:fixed;left:14px;top:10px;z-index:101;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#eee7d6;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:4px 10px;cursor:pointer}
+.prv-docs{position:fixed;left:14px;top:42px;z-index:101;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#11182e;background:#c9a64e;border-radius:8px;padding:4px 10px;text-decoration:none}
 .prv-view{position:fixed;inset:0;z-index:200;background:#fff;display:flex;flex-direction:column}
 .prv-view iframe{flex:1;border:0;width:100%}
 .prv-bar{display:flex;align-items:center;gap:10px;background:#11182e;color:#eee7d6;padding:8px 12px;font:600 13px 'Sora',sans-serif}
@@ -204,6 +205,7 @@ export default function PrivateArea() {
       {(api) => (
         <>
           <button className="prv-lock" onClick={api.lock}>Cerrar el privado</button>
+          <a className="prv-docs" href="#/app/documentos">Documentos de la cuenta →</a>
           <ElGabinete works={api.items} autoFocus={false} onSelect={(w) => api.open(w.href, w.title)} title={<>Zona <em>privada</em></>} subtitle="Trabajos que no aparecen en el Gabinete ni en Proyectos." />
           <SealTool items={api.items} />
         </>

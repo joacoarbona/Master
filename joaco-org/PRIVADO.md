@@ -20,3 +20,7 @@ Para añadir un fichero privado nuevo: publicarlo, añadir su ruta a `SEAL_PATHS
 - **El historial de git** conserva las versiones en claro anteriores al sellado. Mientras el repositorio sea público, se pueden leer ahí.
   Solución: poner el repositorio en privado (Vercel sigue desplegando igual) o reescribir el historial.
 - La seguridad es la de la contraseña: una contraseña corta se puede adivinar por fuerza bruta contra los ficheros cifrados.
+
+## Documentos de la cuenta (otra vía)
+
+Para documentos que además guardan progreso: cifrados en `public/boveda/` con un código de activación y abiertos desde `#/app/documentos` con la cuenta de Supabase. Nunca pasan en claro por el repositorio. Ver `supabase/DOCUMENTOS.md`.
