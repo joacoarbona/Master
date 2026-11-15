@@ -63,6 +63,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "puntocom-ia", emoji: "🫧", title: "Puntocom vs IA", description: "¿Burbuja? Laboratorio con escenarios", color: "c4", href: "/proyectos/puntocom-vs-ia.html" },
   { id: "nubes", emoji: "☁️", title: "Nubes de palabras", description: "Pega un texto, etiqueta frases y explora", color: "c1", href: "#/app/nubes" },
   { id: "suscripciones", emoji: "🔁", title: "Suscripciones", description: "Qué pagas, cuándo renueva y qué sobra", color: "c2", href: "#/app/suscripciones" },
+  { id: "coches-7-plazas", emoji: "🚙", title: "Coches 7 plazas", description: "Eléctricos, promos y SUV que llegan en 2027", color: "c3", href: "/proyectos/coches-7-plazas.html" },
 ];
 
 const STYLES = `
