@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eléctricos de 7 plazas en España · Comparador 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F7FA; --card:#FFFFFF; --ink:#13213A; --muted:#56637B; --line:#D8DEE9; --soft:#EAEFF6;
+  --cero:#1F4E9E; --cero-soft:#E3ECFA; --save:#12806A; --save-soft:#E0F3EE; --warn:#A8690F; --warn-soft:#FBF0DC; --up:#B23A3A;
+  --hot:#C2410C; --hot-soft:#FDEDE3; --phev:#6B4FA0; --phev-soft:#EFEAF8; --erev:#0F766E; --erev-soft:#DDF2EE; --ice:#56637B; --ice-soft:#EAEFF6;
+  --radius-lg:14px; --radius-sm:6px;
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.55;font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+a{color:var(--cero)}
+a:focus-visible,button:focus-visible,summary:focus-visible,th:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--cero);outline-offset:2px;border-radius:4px}
+img,svg,canvas{max-width:100%}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.prose{max-width:70ch}
+
+/* Nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;gap:6px;align-items:center;overflow-x:auto;padding-top:10px;padding-bottom:10px;scrollbar-width:none}
+.nav .wrap::-webkit-scrollbar{display:none}
+.nav .brand{font-weight:800;font-stretch:115%;white-space:nowrap;margin-right:10px;color:var(--ink);text-decoration:none}
+.nav a.lk{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:14.5px;padding:6px 10px;border-radius:999px}
+.nav a.lk:hover{background:var(--soft);color:var(--ink)}
+.nav a.lk.new{color:var(--hot);font-weight:700}
+
+/* Hero */
+header.hero{padding:44px 0 18px}
+.hero h1{font-size:clamp(34px,6vw,64px);line-height:1.02;font-weight:800;font-stretch:122%;letter-spacing:-.01em;margin:0 0 14px;max-width:16ch}
+.hero .lead{font-size:clamp(17px,2.1vw,20px);color:var(--muted);max-width:62ch;margin:0 0 8px}
+.stamp{display:inline-flex;gap:8px;align-items:center;font-size:14px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.cero-badge{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--cero);color:#fff;font-weight:800;font-size:11px;letter-spacing:.02em}
+.whatsnew{margin:14px 0 0;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--hot);border-radius:0 var(--radius-sm) var(--radius-sm) 0;max-width:78ch;font-size:15.5px}
+.whatsnew b{color:var(--hot)}
+.whatsnew ul{margin:6px 0 0;padding-left:1.1em}
+.whatsnew li{margin:2px 0}
+
+/* Ladder (hero chart) */
+.ladder{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px 18px 10px;margin:22px 0 8px}
+.ladder h2{font-size:19px;margin:0 0 4px;font-stretch:108%}
+.ladder p.how{margin:0 0 10px;color:var(--muted);font-size:15px;max-width:72ch}
+.legend-row{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--muted);margin:6px 0 10px}
+.legend-row span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.tick{width:3px;height:14px;display:inline-block;background:var(--ink)}
+#ladderSvg text{font-family:var(--font)}
+
+/* Sections */
+section{padding:34px 0}
+section h2.sec{font-size:clamp(24px,3.4vw,34px);font-weight:800;font-stretch:115%;margin:0 0 10px;line-height:1.1}
+section .sub{color:var(--muted);margin:0 0 20px;max-width:70ch}
+h3{font-size:19px;margin:26px 0 8px;font-stretch:105%}
+section.band{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+/* Guide */
+.layers{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:var(--card);margin:14px 0}
+.layer{padding:16px;border-right:1px solid var(--line)}
+.layer:last-child{border-right:0}
+.layer .n{font-size:13px;color:var(--muted)}
+.layer b{display:block;font-size:17px;margin:2px 0 6px}
+.layer.in{background:var(--save-soft)}
+.layer.out{background:repeating-linear-gradient(135deg,transparent 0 8px,var(--soft) 8px 9px)}
+.layer .tag{display:inline-block;font-size:12.5px;padding:2px 8px;border-radius:999px;margin-top:6px}
+.layer.in .tag{background:var(--save);color:#fff}
+.layer.out .tag{background:var(--line);color:var(--ink)}
+@media (max-width:760px){.layers{grid-template-columns:1fr 1fr}.layer:nth-child(2){border-right:0}.layer:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+.steps{padding-left:1.2em;max-width:72ch}
+.steps li{margin:0 0 8px}
+.note{border-left:4px solid var(--warn);background:var(--warn-soft);padding:12px 14px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;max-width:78ch;font-size:15.5px}
+.note.hot{border-left-color:var(--hot);background:var(--hot-soft)}
+
+/* Badges (promos) */
+.deal{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;letter-spacing:.04em;padding:2px 8px;border-radius:999px;white-space:nowrap;vertical-align:middle;text-transform:uppercase;line-height:1.5}
+.deal.drop{background:var(--save);color:#fff}
+.deal.promo{background:var(--hot);color:#fff}
+.deal.end{background:var(--warn-soft);color:#8A5507;border:1px solid #E3B061}
+.deal.fixed{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.deal.disc{background:var(--cero-soft);color:var(--cero);border:1px solid #BCD0F2}
+.badge-legend{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;margin:10px 0 4px;max-width:80ch;font-size:15px}
+.badge-legend dd{margin:0;color:var(--muted)}
+.badge-legend dt{margin:0}
+
+/* Findings */
+.findings{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.finding{padding:18px 18px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg)}
+.finding .big{font-size:34px;font-weight:800;font-stretch:118%;line-height:1;margin-bottom:6px}
+.finding p{margin:0;color:var(--muted);font-size:15.5px}
+.finding .big.save{color:var(--save)}.finding .big.cero{color:var(--cero)}.finding .big.up{color:var(--up)}.finding .big.hot{color:var(--hot)}
+@media (max-width:760px){.findings{grid-template-columns:1fr}}
+
+/* Figures */
+.imgs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0 0}
+figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px}
+figcaption{font-size:14.5px;color:var(--muted);margin-top:8px}
+@media (max-width:760px){.imgs{grid-template-columns:1fr}}
+
+/* Table */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 12px;font-size:15px}
+.controls label{color:var(--muted)}
+.controls select{font:inherit;font-size:15px;padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.controls .chk{display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:15px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card)}
+thead th{font-size:13.5px;color:var(--muted);font-weight:600;cursor:pointer;user-select:none;vertical-align:bottom}
+thead th[aria-sort="ascending"]::after{content:" ▲";font-size:10px}
+thead th[aria-sort="descending"]::after{content:" ▼";font-size:10px}
+tbody tr:hover td{background:var(--soft)}
+td .mname{font-weight:700}
+td .mtype{display:block;font-size:12.5px;color:var(--muted)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12.5px}
+.pill.est{background:var(--warn-soft);color:var(--warn)}
+.pill.new{background:var(--cero-soft);color:var(--cero)}
+.good{color:var(--save);font-weight:700}
+.down{color:var(--save);font-weight:700}
+.upv{color:var(--up);font-weight:700}
+.tbl-legend{font-size:14px;color:var(--muted);margin-top:10px;max-width:90ch}
+
+/* Charts */
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;margin:0 0 22px}
+.chart-card h3{margin:0 0 4px}
+.chart-card .how{color:var(--muted);font-size:15px;margin:0 0 12px;max-width:80ch}
+.chart-box{position:relative;width:100%}
+.chart-fallback{display:none;padding:16px;background:var(--warn-soft);border-radius:var(--radius-sm);font-size:15px}
+
+/* Deals */
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin:8px 0 22px}
+.deal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px 16px 14px;display:flex;flex-direction:column;gap:8px}
+.deal-card.top{border-top:4px solid var(--hot)}
+.deal-card.top.drop{border-top-color:var(--save)}
+.deal-card header{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
+.deal-card header b{font-size:18.5px;font-stretch:108%;line-height:1.2}
+.deal-card .rank{font-size:12.5px;color:var(--muted);font-weight:700}
+.dc-prices{font-size:15px;color:var(--muted)}
+.dc-prices .was{text-decoration:line-through;text-decoration-thickness:1.5px}
+.dc-prices .now{font-size:24px;font-weight:800;color:var(--ink);font-stretch:112%}
+.dc-prices .lab{display:block;font-size:13px}
+.dc-save{font-size:15px;font-weight:700;color:var(--save)}
+.dc-save.est{color:var(--warn)}
+.dc-cond{margin:0;padding-left:1.1em;font-size:14.5px}
+.dc-cond li{margin:0 0 4px}
+.dc-meta{font-size:13px;color:var(--muted);margin:auto 0 0;border-top:1px solid var(--line);padding-top:8px}
+.dc-meta a{margin-right:6px}
+
+/* Radar 2027 */
+.tl{display:grid;grid-template-columns:repeat(6,minmax(150px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
+.tl-col{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px;min-height:120px}
+.tl-col h4{margin:0 0 8px;font-size:13.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.tl-item{display:block;font-size:14px;font-weight:700;padding:6px 8px;border-radius:6px;margin:0 0 6px;text-decoration:none;color:var(--ink);border-left:4px solid var(--ice);background:var(--ice-soft)}
+.tl-item small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.tl-item.BEV{border-left-color:var(--cero);background:var(--cero-soft)}
+.tl-item.PHEV{border-left-color:var(--phev);background:var(--phev-soft)}
+.tl-item.EREV{border-left-color:var(--erev);background:var(--erev-soft)}
+.tl-item.rumor{border-style:dashed;opacity:.85}
+@media (max-width:860px){.tl{grid-template-columns:repeat(6,170px)}}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12.5px;font-weight:700}
+.chip.BEV{background:var(--cero-soft);color:var(--cero)}
+.chip.PHEV{background:var(--phev-soft);color:var(--phev)}
+.chip.EREV{background:var(--erev-soft);color:var(--erev)}
+.chip.ICE{background:var(--ice-soft);color:var(--ice)}
+.conf{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:4px}
+.conf.confirmado{background:var(--save-soft);color:var(--save)}
+.conf.anunciado{background:var(--cero-soft);color:var(--cero)}
+.conf.rumor{background:var(--warn-soft);color:var(--warn)}
+#radar td{white-space:normal;vertical-align:top}
+#radar td:first-child{min-width:190px}
+#radar td.n{white-space:nowrap}
+#radar td.rnote{min-width:280px;text-align:left;font-size:14px;color:var(--muted)}
+#radar td.l{text-align:left}
+#radar .cn{font-size:12px;color:var(--hot);font-weight:700}
+.legend-chips{display:flex;flex-wrap:wrap;gap:10px 18px;font-size:14px;color:var(--muted);margin:10px 0}
+.legend-chips span{display:inline-flex;gap:6px;align-items:center}
+.radar-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0 22px}
+@media (max-width:760px){.radar-keys{grid-template-columns:1fr}}
+
+/* Model cards */
+.models{display:grid;gap:14px}
+details.model{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg)}
+details.model[open]{border-color:var(--cero)}
+details.model summary{list-style:none;cursor:pointer;padding:16px 18px;display:grid;grid-template-columns:14px 1fr auto;gap:14px;align-items:center}
+details.model summary::-webkit-details-marker{display:none}
+.swatch{width:14px;height:42px;border-radius:4px}
+.sum-name{font-size:20px;font-weight:800;font-stretch:110%;line-height:1.15}
+.sum-meta{font-size:14px;color:var(--muted)}
+.sum-price{text-align:right;font-size:14px;color:var(--muted);line-height:1.3}
+.sum-price b{display:block;font-size:19px;color:var(--ink)}
+.sum-price .p2{color:var(--save);font-weight:700}
+.model-body{padding:0 18px 20px;border-top:1px solid var(--line)}
+.deal-line{margin:14px 0 0;padding:10px 12px;border-radius:var(--radius-sm);background:var(--hot-soft);font-size:15px}
+.spec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:16px 0;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden}
+.spec{padding:10px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.spec:nth-child(4n){border-right:0}
+.spec .k{font-size:12.5px;color:var(--muted)}
+.spec .v{font-size:17px;font-weight:700}
+@media (max-width:760px){.spec-grid{grid-template-columns:1fr 1fr}.spec:nth-child(4n){border-right:1px solid var(--line)}.spec:nth-child(2n){border-right:0}
+  details.model summary{grid-template-columns:10px 1fr}.sum-price{grid-column:2;text-align:left}.swatch{width:10px}}
+.two-col{display:grid;grid-template-columns:1fr 1.25fr;gap:24px}
+@media (max-width:860px){.two-col{grid-template-columns:1fr}}
+.hist{width:100%;border-collapse:collapse;min-width:0;font-size:15px}
+.hist th,.hist td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line)}
+.hist th:first-child,.hist td:first-child{text-align:left;position:static}
+.news{padding-left:0;list-style:none;margin:6px 0 0}
+.news li{padding:8px 0;border-bottom:1px solid var(--line);font-size:15.5px;line-height:1.35}
+.news li:last-child{border-bottom:0}
+.news .src{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.news .old{color:var(--warn)}
+.news .fresh{color:var(--hot);font-weight:700}
+.more-news{display:inline-block;margin-top:10px;font-size:15px;font-weight:600}
+.model-notes{font-size:15.5px;max-width:78ch}
+.model-notes li{margin-bottom:6px}
+
+/* Glossary */
+dl.gloss{display:grid;grid-template-columns:minmax(160px,240px) 1fr;gap:0;border-top:1px solid var(--line);max-width:960px}
+dl.gloss dt,dl.gloss dd{padding:11px 0;border-bottom:1px solid var(--line);margin:0}
+dl.gloss dt{font-weight:700;padding-right:18px}
+dl.gloss dd{color:var(--muted)}
+@media (max-width:640px){dl.gloss{grid-template-columns:1fr}dl.gloss dt{border-bottom:0;padding-bottom:0}}
+
+.out-list li{margin-bottom:8px;max-width:78ch}
+.src-list{font-size:14.5px;columns:2;column-gap:28px;padding-left:1.1em}
+.src-list li{break-inside:avoid;margin:0 0 6px}
+@media (max-width:760px){.src-list{columns:1}}
+footer{padding:30px 0 60px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);margin-top:20px}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Secciones">
+  <div class="wrap">
+    <a class="brand" href="#top">7 plazas · CERO</a>
+    <a class="lk" href="#guia">Cómo leer</a>
+    <a class="lk" href="#claves">Claves</a>
+    <a class="lk new" href="#promos">Promos y bajadas</a>
+    <a class="lk" href="#tabla">Tabla</a>
+    <a class="lk" href="#graficos">Gráficos</a>
+    <a class="lk" href="#modelos">Modelos y noticias</a>
+    <a class="lk new" href="#radar2027">Llegan en 2027</a>
+    <a class="lk" href="#fuera">Fuera del análisis</a>
+    <a class="lk" href="#glosario">Glosario</a>
+    <a class="lk" href="#metodo">Método y fuentes</a>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+  <header class="hero">
+    <h1>Eléctricos de 7 plazas en España</h1>
+    <p class="lead">Diez modelos 100&nbsp;% eléctricos con tercera fila (7 plazas de serie o 5+2 opcional) a la venta en España: tarifa, precio real al contado sin ayudas y evolución desde 2023. Esta actualización añade las promociones y bajadas de precio de los últimos meses y el radar de SUV grandes que llegan en 2027, chinos incluidos.</p>
+    <div class="stamp"><span class="cero-badge" aria-hidden="true">CERO</span> Datos a 13 de noviembre de 2026 · Actualiza la versión del 21 de septiembre</div>
+
+    <div class="whatsnew" role="note">
+      <b>Qué cambia en esta versión</b>
+      <ul>
+        <li><b>Kia EV9:</b> la gama 2027 baja la tarifa de entrada de 85.185&nbsp;€ a 65.713&nbsp;€ con la nueva versión Air (menos batería y autonomía).</li>
+        <li><b>Skoda Peaq:</b> precio de campaña al contado (50.000&nbsp;€ sin ayudas), entregas desde noviembre y autonomía corregida a 638&nbsp;km.</li>
+        <li><b>BYD Tang:</b> fin de ciclo; el Atto 8 lo sustituye en 2027. Precio de referencia 57.050&nbsp;€.</li>
+        <li>Nuevas secciones: <a href="#promos">Promociones y bajadas</a> (con badge en tabla, fichas y escalera) y <a href="#radar2027">Llegan en 2027</a> (15 SUV grandes).</li>
+      </ul>
+    </div>
+
+    <div class="ladder" role="figure" aria-labelledby="ladTitle">
+      <h2 id="ladTitle">La escalera de precios: lo que dice la tarifa y lo que se paga</h2>
+      <p class="how">Cada fila es un modelo. La raya negra es el PVP de tarifa de la versión de entrada; el punto verde es el mejor precio con promoción pagando al contado, sin financiar y sin Plan Auto+. La línea que los une es el descuento: cuanto más larga, más margen de negociación hay hoy. Bajo el nombre aparece el badge si hay bajada o promoción reciente.</p>
+      <div class="legend-row" aria-hidden="true">
+        <span><i class="tick"></i> PVP tarifa (entrada)</span>
+        <span><i class="dot" style="background:var(--save)"></i> Promoción al contado</span>
+        <span><i class="dot" style="background:var(--warn)"></i> Promoción estimada</span>
+        <span><span class="deal drop">▼ Bajada</span> tarifa rebajada</span>
+        <span><span class="deal promo">Promo</span> campaña vigente o reciente</span>
+      </div>
+      <svg id="ladderSvg" width="100%" role="img" aria-label="Gráfico de escalera de precios por modelo"></svg>
+    </div>
+  </header>
+</div>
+
+<!-- GUÍA -->
+<section id="guia">
+  <div class="wrap">
+    <h2 class="sec">Cómo leer esta herramienta</h2>
+    <p class="sub">El mismo coche tiene cuatro precios distintos según cómo se compre. Aquí solo se comparan los dos primeros, que son los que puedes conseguir cualquier día sin condiciones.</p>
+
+    <div class="layers" role="list">
+      <div class="layer in" role="listitem"><span class="n">Capa 1</span><b>PVP de tarifa</b>Precio oficial de la marca para la versión más barata con 7 plazas (o la base si la 3ª fila es opcional). Incluye IVA, transporte e impuesto de matriculación.<br><span class="tag">Se compara</span></div>
+      <div class="layer in" role="listitem"><span class="n">Capa 2</span><b>Promoción al contado</b>Precio con los descuentos del concesionario o de la marca pagando de una vez. Sin préstamo y sin ayudas públicas.<br><span class="tag">Se compara</span></div>
+      <div class="layer out" role="listitem"><span class="n">Capa 3</span><b>Oferta financiando</b>Suele ser 2.000–8.000&nbsp;€ más baja, pero exige un préstamo con permanencia mínima, comisión de apertura e intereses.<br><span class="tag">Excluida</span></div>
+      <div class="layer out" role="listitem"><span class="n">Capa 4</span><b>Con Plan Auto+ / CAE</b>Solo para coches de hasta 45.000&nbsp;€ de base y con un presupuesto 2026 casi agotado (87&nbsp;% pedido el 4 de noviembre).<br><span class="tag">Excluida</span></div>
+    </div>
+
+    <h3>Cómo leer las hipótesis de precio</h3>
+    <ol class="steps">
+      <li><b>El PVP es un techo, no el precio.</b> Nadie paga tarifa salvo en Tesla, que vende a precio fijo. Úsalo para comparar posicionamiento entre marcas.</li>
+      <li><b>La promoción al contado es una foto de hoy.</b> Procede de ofertas de concesionarios oficiales en Carwow (noviembre 2026) o de la campaña oficial de la marca cuando es mejor y no obliga a financiar (Skoda Peaq, BYD Tang). Cambia cada mes y por provincia; tómalo como referencia de negociación.</li>
+      <li><b>Cuando la cifra está en ámbar es una estimación.</b> Ocurre si solo hay oferta para otra versión, si el anuncio no aclara si exige financiar, o si el último dato publicado tiene más de dos meses. Lo indico en cada ficha.</li>
+      <li><b>La evolución a 3 años compara la tarifa de entrada de cada año.</b> Si un año no hay punto, el modelo no estaba a la venta. Ojo: a veces la versión de entrada cambia (Volvo EX90 pasó a un solo motor; Kia EV9 estrena la versión Air con menos batería), así que una bajada puede ser en parte un coche menos equipado.</li>
+      <li><b>El euro por kilómetro</b> divide la promoción al contado entre la autonomía WLTP. Sirve para ver cuánto pagas por cada kilómetro de batería; no incluye consumo ni coste de uso.</li>
+      <li><b>Los badges marcan cambios recientes.</b> <span class="deal drop">▼ Bajada</span> = la marca ha rebajado la tarifa; <span class="deal promo">Promo</span> = campaña con fecha o precio especial; <span class="deal end">Fin de ciclo</span> = modelo a punto de ser sustituido (más margen); <span class="deal fixed">Precio fijo</span> = no se negocia. Detalle en <a href="#promos">Promos y bajadas</a>.</li>
+    </ol>
+    <p class="note"><b>Aviso.</b> Esto es información de mercado para ayudarte a decidir, no una oferta ni asesoramiento financiero. Antes de firmar, confirma el precio final por escrito en el concesionario y revisa qué equipamiento incluye la versión de 7 plazas.</p>
+
+    <div class="imgs">
+      <figure>
+        <svg viewBox="0 0 520 300" role="img" aria-labelledby="img1t">
+          <title id="img1t">Distribuciones de asientos: 2+3+2, 2+2+2 y 5+2</title>
+          <g font-family="Archivo, system-ui, sans-serif" font-size="13" fill="currentColor">
+            <g transform="translate(20,20)">
+              <rect x="0" y="0" width="140" height="240" rx="46" fill="none" stroke="#1F4E9E" stroke-width="3"/>
+              <rect x="22" y="24" width="96" height="36" rx="12" fill="#E3ECFA"/>
+              <g fill="#1F4E9E"><rect x="28" y="72" width="34" height="30" rx="8"/><rect x="78" y="72" width="34" height="30" rx="8"/>
+              <rect x="22" y="120" width="28" height="30" rx="8"/><rect x="56" y="120" width="28" height="30" rx="8"/><rect x="90" y="120" width="28" height="30" rx="8"/>
+              <rect x="28" y="170" width="34" height="28" rx="8" fill="#12806A"/><rect x="78" y="170" width="34" height="28" rx="8" fill="#12806A"/></g>
+              <text x="70" y="275" text-anchor="middle" font-weight="700">2 + 3 + 2</text>
+            </g>
+            <g transform="translate(190,20)">
+              <rect x="0" y="0" width="140" height="240" rx="46" fill="none" stroke="#1F4E9E" stroke-width="3"/>
+              <rect x="22" y="24" width="96" height="36" rx="12" fill="#E3ECFA"/>
+              <g fill="#1F4E9E"><rect x="28" y="72" width="34" height="30" rx="8"/><rect x="78" y="72" width="34" height="30" rx="8"/>
+              <rect x="28" y="120" width="34" height="32" rx="8"/><rect x="78" y="120" width="34" height="32" rx="8"/>
+              <rect x="28" y="170" width="34" height="28" rx="8" fill="#12806A"/><rect x="78" y="170" width="34" height="28" rx="8" fill="#12806A"/></g>
+              <text x="70" y="275" text-anchor="middle" font-weight="700">2 + 2 + 2 (6 plazas)</text>
+            </g>
+            <g transform="translate(360,20)">
+              <rect x="0" y="0" width="140" height="240" rx="46" fill="none" stroke="#1F4E9E" stroke-width="3"/>
+              <rect x="22" y="24" width="96" height="36" rx="12" fill="#E3ECFA"/>
+              <g fill="#1F4E9E"><rect x="28" y="72" width="34" height="30" rx="8"/><rect x="78" y="72" width="34" height="30" rx="8"/>
+              <rect x="22" y="120" width="28" height="30" rx="8"/><rect x="56" y="120" width="28" height="30" rx="8"/><rect x="90" y="120" width="28" height="30" rx="8"/></g>
+              <g fill="none" stroke="#A8690F" stroke-width="2.5" stroke-dasharray="5 4"><rect x="28" y="170" width="34" height="28" rx="8"/><rect x="78" y="170" width="34" height="28" rx="8"/></g>
+              <text x="70" y="275" text-anchor="middle" font-weight="700">5 + 2 (opcional)</text>
+            </g>
+          </g>
+        </svg>
+        <figcaption>Leyenda: azul = asientos de fila 1 y 2; verde = tercera fila de serie; ámbar discontinuo = tercera fila opcional con sobreprecio (Skoda Peaq, Mercedes GLB). Varios SUV que llegan en 2027 (Zeekr 9X, Leapmotor D19) solo ofrecen 6 plazas en 2+2+2. Ningún modelo del análisis ofrece anclajes ISOFIX en la tercera fila, según la guía de ahorrove.es de mayo de 2026.</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 520 300" role="img" aria-labelledby="img2t">
+          <title id="img2t">Siluetas: SUV de tres filas frente a monovolumen</title>
+          <g font-family="Archivo, system-ui, sans-serif" font-size="13" fill="currentColor">
+            <g transform="translate(20,30)">
+              <path d="M10 92 L30 60 Q44 36 80 32 L200 30 Q236 32 256 56 L280 72 Q300 76 302 92 L302 108 L10 108 Z" fill="#E3ECFA" stroke="#1F4E9E" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M52 62 L86 40 L150 38 L150 64 Z M158 38 L206 38 Q226 40 240 60 L158 64 Z" fill="#fff" stroke="#1F4E9E" stroke-width="2"/>
+              <circle cx="72" cy="110" r="20" fill="#13213A"/><circle cx="72" cy="110" r="8" fill="#D8DEE9"/>
+              <circle cx="246" cy="110" r="20" fill="#13213A"/><circle cx="246" cy="110" r="8" fill="#D8DEE9"/>
+              <g fill="#12806A"><circle cx="110" cy="76" r="5"/><circle cx="168" cy="76" r="5"/><circle cx="222" cy="76" r="5"/></g>
+              <text x="330" y="70" font-weight="700" font-size="15">SUV de 3 filas</text>
+              <text x="330" y="90" fill="#56637B">4,73–5,13 m. Techo que cae:</text>
+              <text x="330" y="106" fill="#56637B">3ª fila más baja, para niños</text>
+              <text x="330" y="122" fill="#56637B">o trayectos cortos.</text>
+            </g>
+            <g transform="translate(20,170)">
+              <path d="M12 96 L20 40 Q24 22 46 20 L250 18 Q290 20 300 52 L304 96 Z" fill="#E0F3EE" stroke="#12806A" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M36 50 L44 30 L110 28 L110 52 Z M118 28 L186 28 L186 52 L118 52 Z M194 28 L262 28 Q282 30 288 52 L194 52 Z" fill="#fff" stroke="#12806A" stroke-width="2"/>
+              <circle cx="70" cy="98" r="20" fill="#13213A"/><circle cx="70" cy="98" r="8" fill="#D8DEE9"/>
+              <circle cx="252" cy="98" r="20" fill="#13213A"/><circle cx="252" cy="98" r="8" fill="#D8DEE9"/>
+              <g fill="#1F4E9E"><circle cx="90" cy="66" r="5"/><circle cx="160" cy="66" r="5"/><circle cx="232" cy="66" r="5"/></g>
+              <text x="330" y="52" font-weight="700" font-size="15">Monovolumen</text>
+              <text x="330" y="72" fill="#56637B">Caso ID. Buzz LWB (4,96 m).</text>
+              <text x="330" y="88" fill="#56637B">Techo plano: 3ª fila de adulto</text>
+              <text x="330" y="104" fill="#56637B">y más maletero con 7 ocupados.</text>
+            </g>
+          </g>
+        </svg>
+        <figcaption>Leyenda: los puntos marcan la posición aproximada de cada fila. Ilustraciones propias y genéricas, no representan un modelo concreto. Las fotos reales de cada coche están enlazadas en su ficha.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- CLAVES -->
+<section id="claves">
+  <div class="wrap">
+    <h2 class="sec">Lo que dicen los números</h2>
+    <p class="sub">Cuatro conclusiones que salen de cruzar tarifa, promoción, autonomía y evolución con los datos de noviembre.</p>
+    <div class="findings" id="findings"></div>
+  </div>
+</section>
+
+<!-- PROMOS -->
+<section id="promos" class="band">
+  <div class="wrap">
+    <h2 class="sec">Promociones y bajadas de precio <span class="deal promo" style="font-size:14px">sep–nov 2026</span></h2>
+    <p class="sub">Las mejores oportunidades de los últimos tres meses en los diez eléctricos del comparador, más tres SUV grandes de 7 plazas no eléctricos con campañas fuertes. Ordenadas por ahorro frente a la tarifa.</p>
+
+    <h3>Cómo leer esta sección</h3>
+    <ol class="steps">
+      <li><b>Precio tachado → precio nuevo.</b> El tachado es la tarifa oficial (o la de septiembre si la marca la ha cambiado). El grande es lo que pagarías hoy en las condiciones que indica la tarjeta.</li>
+      <li><b>Mira siempre la condición.</b> «Contado» se puede conseguir sin préstamo. «Financiando» exige préstamo y permanencia. «Con ayudas» suma Plan Auto+ y CAE, que dependen de requisitos y de que quede presupuesto.</li>
+      <li><b>Una bajada de tarifa no siempre es el mismo coche.</b> Si la marca baja el precio estrenando una versión menos equipada, la tarjeta lo dice en «Qué cambia».</li>
+      <li><b>El ahorro en ámbar</b> se apoya en un dato que no he podido confirmar del todo (fecha antigua o anuncio que no aclara si exige financiar).</li>
+    </ol>
+    <dl class="badge-legend">
+      <dt><span class="deal drop">▼ Bajada</span></dt><dd>La marca ha rebajado la tarifa oficial o ha lanzado una versión de entrada más barata.</dd>
+      <dt><span class="deal promo">Promo</span></dt><dd>Campaña de marca o de lanzamiento, con fecha o precio especial publicado.</dd>
+      <dt><span class="deal end">Fin de ciclo</span></dt><dd>Modelo con sucesor anunciado: habitualmente hay stock y más margen para negociar.</dd>
+      <dt><span class="deal disc">Dto. habitual</span></dt><dd>Descuento estable de concesionario, sin campaña especial de la marca.</dd>
+      <dt><span class="deal fixed">Precio fijo</span></dt><dd>La marca no negocia (Tesla): el precio es el del configurador.</dd>
+    </dl>
+    <p class="note hot"><b>Plan Auto+ a punto de agotarse.</b> El 4 de noviembre ya se habían pedido 305,6 millones, el 87,3&nbsp;% de los 350 millones para particulares, y las previsiones apuntan a que se agote este mes. Muchos precios «desde» que ves en anuncios descuentan esa ayuda. Además, solo cubre coches de hasta 45.000&nbsp;€ de base imponible, así que la mayoría de los eléctricos de 7 plazas ya estaban fuera.</p>
+
+    <h3>Lo más destacado en eléctricos de 7 plazas</h3>
+    <div class="deals-grid" id="dealsTop"></div>
+
+    <div class="chart-card">
+      <h3>6 · De dónde sale el ahorro frente a la tarifa de septiembre</h3>
+      <p class="how"><b>Cómo leerlo:</b> una barra por modelo, partida en dos tramos. Verde = lo que ha bajado la tarifa de entrada desde septiembre de 2026 (rebaja oficial o versión nueva más barata). Naranja = descuento al contado que se consigue hoy sobre la tarifa actual. La barra completa es lo que te ahorras frente a la tarifa que veías en septiembre. Pasa el dedo o el ratón para ver la cifra exacta; los marcados «est.» son estimaciones.</p>
+      <div class="chart-box" style="height:480px"><canvas id="c6" aria-label="Barras apiladas de ahorro por modelo"></canvas></div>
+      <div class="chart-fallback">No se han podido cargar los gráficos. Revisa la conexión y recarga la página; las tarjetas contienen los mismos datos.</div>
+    </div>
+
+    <h3>Descuento habitual de concesionario (sin campaña especial)</h3>
+    <div class="table-scroll">
+      <table id="dealsRest" style="min-width:760px">
+        <thead><tr><th scope="col">Modelo</th><th scope="col">Tarifa</th><th scope="col">Al contado</th><th scope="col">Ahorro</th><th scope="col">Condición y comentario</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="tbl-legend">Leyenda: precios de concesionarios oficiales en Carwow, al contado y sin ayudas. <span class="pill est">est.</span> = estimación explicada en la ficha del modelo.</p>
+
+    <h3>Otros SUV grandes de 7 plazas: híbridos y enchufables</h3>
+    <p class="sub" style="margin-bottom:8px">No entran en el comparador (no son 100&nbsp;% eléctricos), pero tienen las campañas más agresivas del segmento. Ojo a las condiciones: casi todas exigen financiar o incluyen Plan Auto+.</p>
+    <div class="deals-grid" id="dealsOther"></div>
+  </div>
+</section>
+
+<!-- TABLA -->
+<section id="tabla">
+  <div class="wrap">
+    <h2 class="sec">Tabla comparativa</h2>
+    <p class="sub">Pulsa en cualquier cabecera para ordenar. En móvil, desliza la tabla en horizontal.</p>
+    <div class="controls">
+      <label for="fType">Carrocería</label>
+      <select id="fType"><option value="all">Todas</option><option value="SUV">SUV</option><option value="Monovolumen">Monovolumen</option></select>
+      <label for="fMax">Promoción hasta</label>
+      <select id="fMax"><option value="999999">Sin límite</option><option value="50000">50.000 €</option><option value="60000">60.000 €</option><option value="80000">80.000 €</option></select>
+      <label class="chk"><input type="checkbox" id="fDeal"> Solo con badge de promo o bajada</label>
+    </div>
+    <div class="table-scroll">
+      <table id="cmp">
+        <thead><tr>
+          <th scope="col" data-k="name" tabindex="0">Modelo</th>
+          <th scope="col" data-k="pvp" tabindex="0">PVP tarifa</th>
+          <th scope="col" data-k="promo" tabindex="0">Promoción contado</th>
+          <th scope="col" data-k="disc" tabindex="0">Descuento</th>
+          <th scope="col" data-k="dsep" tabindex="0">Δ vs sep-26</th>
+          <th scope="col" data-k="range" tabindex="0">Autonomía WLTP</th>
+          <th scope="col" data-k="eurkm" tabindex="0">€ por km</th>
+          <th scope="col" data-k="batt" tabindex="0">Batería</th>
+          <th scope="col" data-k="boot7" tabindex="0">Maletero con 7</th>
+          <th scope="col" data-k="len" tabindex="0">Largo</th>
+          <th scope="col" data-k="cv" tabindex="0">Potencia base</th>
+          <th scope="col" data-k="var3" tabindex="0">Var. PVP desde 1er año</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="tbl-legend">Leyenda: <span class="pill est">est.</span> precio estimado (ver ficha) · <span class="pill new">nuevo</span> primeras entregas en 2026 · badges como en <a href="#promos">Promos</a> · <span class="good">verde</span> mejor valor de la columna · «n/d» = dato no publicado · <b>Δ vs sep-26</b> = cambio del precio al contado frente a la versión del 21 de septiembre (en el Kia EV9 se debe sobre todo a la nueva versión Air; en Peaq y Tang, a que ahora se usa el precio de campaña de la marca en lugar de Carwow) · Var. PVP compara la tarifa de entrada de 2026 con la del primer año disponible desde 2023.</p>
+  </div>
+</section>
+
+<!-- GRAFICOS -->
+<section id="graficos">
+  <div class="wrap">
+    <h2 class="sec">Gráficos comparativos</h2>
+    <p class="sub">Cada gráfico lleva debajo del título cómo interpretarlo. Toca un elemento para ver el valor exacto; toca un nombre de la leyenda para ocultarlo o mostrarlo.</p>
+
+    <div class="chart-card">
+      <h3>1 · Tarifa frente a promoción al contado</h3>
+      <p class="how"><b>Cómo leerlo:</b> dos barras por modelo. Azul = PVP de tarifa de entrada; verde = mejor promoción pagando al contado sin ayudas. La diferencia entre ambas es el descuento real disponible hoy. Barras ámbar = promoción estimada.</p>
+      <div class="chart-box" style="height:520px"><canvas id="c1" aria-label="Barras de PVP y promoción por modelo"></canvas></div>
+      <div class="chart-fallback">No se han podido cargar los gráficos. Revisa la conexión y recarga la página; la tabla contiene los mismos datos.</div>
+    </div>
+
+    <div class="chart-card">
+      <h3>2 · Evolución del PVP de entrada, 2023–2026</h3>
+      <p class="how"><b>Cómo leerlo:</b> una línea por modelo con la tarifa de entrada vigente cada año (para 2026, la de noviembre). Si una línea empieza tarde es que el modelo llegó ese año; un punto suelto en 2026 es un lanzamiento. La línea plana del BYD Tang no significa precio estable en la calle: su descuento real es el mayor, mira el gráfico 1. La caída del Kia EV9 en 2026 se debe a la nueva versión Air (batería de 76,1&nbsp;kWh); la del Volvo EX90, en parte, a que la entrada pasó a un solo motor.</p>
+      <div class="chart-box" style="height:460px"><canvas id="c2" aria-label="Líneas de evolución de precio por año"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>3 · Mapa de valor: precio de promoción frente a autonomía</h3>
+      <p class="how"><b>Cómo leerlo:</b> cada punto es un modelo. Más a la derecha = más autonomía WLTP; más abajo = más barato con promoción. La zona buena es abajo a la derecha. La línea discontinua marca 100&nbsp;€ por km de autonomía: los puntos por debajo de ella pagan menos de 100&nbsp;€ por cada kilómetro. Borde ámbar = precio estimado.</p>
+      <div class="chart-box" style="height:460px"><canvas id="c3" aria-label="Dispersión precio frente a autonomía"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>4 · Euros por kilómetro de autonomía</h3>
+      <p class="how"><b>Cómo leerlo:</b> promoción al contado dividida entre autonomía WLTP. Barra más corta = cada kilómetro de batería te cuesta menos. Útil para comparar coches de tamaño parecido; un SUV de lujo nunca ganará aquí porque pagas también marca y equipamiento.</p>
+      <div class="chart-box" style="height:460px"><canvas id="c4" aria-label="Barras de euros por kilómetro"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>5 · Descuento sobre tarifa (%)</h3>
+      <p class="how"><b>Cómo leerlo:</b> porcentaje que se descuenta del PVP pagando al contado. Un descuento alto indica stock, competencia, fin de ciclo o una tarifa inflada; un 0&nbsp;% (Tesla) indica precio fijo. El Kia EV9 aparece bajo porque su rebaja ya está en la tarifa nueva, no en el descuento. Barras ámbar = estimado.</p>
+      <div class="chart-box" style="height:460px"><canvas id="c5" aria-label="Barras de porcentaje de descuento"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- MODELOS -->
+<section id="modelos">
+  <div class="wrap">
+    <h2 class="sec">Fichas por modelo y noticias del último año</h2>
+    <p class="sub">Abre cada modelo para ver datos técnicos, promoción vigente, historial de precio, notas de compra y noticias. Las fechas en naranja son noticias nuevas desde la versión anterior; en ámbar, las de más de 12 meses (se incluyen por contexto de precio).</p>
+    <div class="models" id="models"></div>
+  </div>
+</section>
+
+<!-- RADAR 2027 -->
+<section id="radar2027" class="band">
+  <div class="wrap">
+    <h2 class="sec">Llegan en 2027: SUV grandes, chinos incluidos</h2>
+    <p class="sub">Quince SUV y monovolúmenes grandes con llegada a España prevista o anunciada para finales de 2026 o 2027. No todos son eléctricos puros: muchos chinos llegan como enchufables (PHEV) o de autonomía extendida (EREV), que también llevan etiqueta CERO.</p>
+
+    <h3>Cómo leer el radar</h3>
+    <ol class="steps">
+      <li><b>Cada fila es un modelo que aún no puedes recibir en casa.</b> Algunos ya admiten pedidos (Zeekr 9X, Audi Q9, Range Rover Electric) pero entregan en 2027.</li>
+      <li><b>El precio es el de referencia más fiable que hay</b>, y la columna dice de dónde sale: «España» es tarifa oficial; «Alemania» o «Reino Unido» es la tarifa de ese país (en España suele quedar parecida o algo por debajo); «China» solo sirve como pista, porque en Europa el precio suele duplicarse.</li>
+      <li><b>La confianza</b> dice cuánto fiarte de la fecha: <span class="conf confirmado">Confirmado</span> con precio o fecha oficial para España/Europa · <span class="conf anunciado">Anunciado</span> la marca lo ha dicho pero sin fecha o precio · <span class="conf rumor">Rumor</span> prensa especializada, sin confirmación.</li>
+      <li><b>La columna «Ojo»</b> recoge lo que más pesa para una familia: plazas reales, maletero con la tercera fila y letra pequeña de la carga.</li>
+    </ol>
+    <div class="legend-chips" aria-label="Leyenda de motorizaciones">
+      <span><i class="chip BEV">BEV</i> 100&nbsp;% eléctrico</span>
+      <span><i class="chip PHEV">PHEV</i> híbrido enchufable</span>
+      <span><i class="chip EREV">EREV</i> eléctrico con motor de gasolina que solo genera electricidad</span>
+      <span><i class="chip ICE">MHEV / HEV</i> combustión electrificada (ECO)</span>
+      <span>Borde discontinuo en la línea temporal = rumor</span>
+    </div>
+
+    <div class="radar-keys" id="radarKeys"></div>
+
+    <h3>Línea temporal de llegada a España</h3>
+    <div class="tl" id="timeline" role="list"></div>
+
+    <h3>Ficha comparativa del radar</h3>
+    <div class="controls">
+      <label for="rOrigin">Origen</label>
+      <select id="rOrigin"><option value="all">Todos</option><option value="cn">Marcas chinas</option><option value="other">Resto</option></select>
+      <label for="rPt">Motor</label>
+      <select id="rPt"><option value="all">Todos</option><option value="BEV">Solo eléctrico puro</option><option value="PLUG">Enchufable o EREV</option><option value="ICE">Combustión electrificada</option></select>
+      <label class="chk"><input type="checkbox" id="r7"> Solo con 7 plazas posibles</label>
+    </div>
+    <div class="table-scroll">
+      <table id="radar" style="min-width:1080px">
+        <thead><tr>
+          <th scope="col">Modelo</th><th scope="col">Motor</th><th scope="col">Plazas</th><th scope="col">Largo</th><th scope="col">Autonomía</th><th scope="col">Precio de referencia</th><th scope="col">Llegada</th><th scope="col">Ojo</th><th scope="col">Fuentes</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="tbl-legend">Leyenda: «≈» = dato aproximado o de otro mercado · «n/d» = no publicado para Europa · las autonomías de PHEV/EREV son la eléctrica y, si se indica, la total · precios de otros países convertidos solo cuando la fuente lo hace.</p>
+  </div>
+</section>
+
+<!-- FUERA -->
+<section id="fuera">
+  <div class="wrap">
+    <h2 class="sec">Qué queda fuera y por qué</h2>
+    <ul class="out-list">
+      <li><b>Tesla Model X.</b> Tesla lo retira del catálogo; el Model Y de 7 plazas llega justo antes de su desaparición, según Forococheselectricos (febrero 2026).</li>
+      <li><b>Xpeng X9.</b> Monovolumen eléctrico de 7 plazas a la venta en varios países europeos, pero España se queda fuera por ahora (Híbridos y Eléctricos).</li>
+      <li><b>Zeekr 9X y Audi Q9.</b> Ya tienen precio en España, pero no son eléctricos puros (PHEV de 6 plazas y diésel microhíbrido). Pasan al <a href="#radar2027">radar 2027</a>.</li>
+      <li><b>Denza D9 (desde 78.500&nbsp;€), Mercedes VLE (desde 83.768&nbsp;€) y otros monovolúmenes.</b> El D9 es enchufable; el VLE, eléctrico, es un monovolumen de corte furgoneta. El VLE de acceso previsto para 2027 está en el radar.</li>
+      <li><b>Nio ES8 / ES9.</b> Grandes SUV eléctricos de 6–7 plazas con éxito en China, pero Nio no tiene planes de venta en España por ahora.</li>
+      <li><b>Citroën ë-SpaceTourer, Peugeot E-Traveller, Opel Zafira Electric, Toyota Proace Verso Electric, Peugeot E-Rifter 7 plazas.</b> Derivados de furgoneta con 7–9 plazas; su lógica de compra es distinta.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- GLOSARIO -->
+<section id="glosario">
+  <div class="wrap">
+    <h2 class="sec">Glosario</h2>
+    <dl class="gloss">
+      <dt>PVP</dt><dd>Precio de venta al público recomendado por la marca. Incluye IVA, transporte e impuesto de matriculación, sin descuentos.</dd>
+      <dt>Promoción al contado</dt><dd>Precio final con descuentos de marca y concesionario pagando de una vez, sin préstamo y sin ayudas públicas.</dd>
+      <dt>Oferta financiando</dt><dd>Precio menor condicionado a firmar la financiación de la marca, normalmente con importe mínimo, plazo mínimo y permanencia.</dd>
+      <dt>Plan Auto+</dt><dd>Programa estatal de ayudas a la compra de eléctricos y enchufables que sustituyó al MOVES III en 2026. Excluye coches de más de 45.000&nbsp;€ de base y su presupuesto de 2026 está casi agotado.</dd>
+      <dt>CAE</dt><dd>Certificado de Ahorro Energético: incentivo adicional (unos 1.000&nbsp;€ en las campañas citadas) que algunas marcas descuentan del precio.</dd>
+      <dt>Badge</dt><dd>Etiqueta de color que marca bajadas de tarifa, campañas, fin de ciclo o precio fijo. Ver leyenda en Promos.</dd>
+      <dt>Fin de ciclo</dt><dd>Modelo con sucesor anunciado. Suele haber stock y descuentos mayores; a cambio, la tecnología queda antes desfasada.</dd>
+      <dt>Δ vs sep-26</dt><dd>Diferencia entre el precio al contado de hoy y el de la versión anterior de esta herramienta (21 de septiembre de 2026).</dd>
+      <dt>5+2</dt><dd>Coche de 5 plazas con dos asientos extra en una tercera fila, a menudo opcionales y pensados para niños o trayectos cortos.</dd>
+      <dt>2+2+2</dt><dd>Configuración de 6 plazas con dos butacas individuales en la segunda fila.</dd>
+      <dt>WLTP</dt><dd>Ciclo oficial de homologación europeo. La autonomía real en autopista suele ser un 20–30&nbsp;% menor.</dd>
+      <dt>CLTC</dt><dd>Ciclo de homologación chino, más optimista que el WLTP. Las autonomías chinas no son comparables con las europeas.</dd>
+      <dt>BEV</dt><dd>Eléctrico de batería puro.</dd>
+      <dt>PHEV</dt><dd>Híbrido enchufable: motor de gasolina que mueve las ruedas más batería recargable para 50–180&nbsp;km eléctricos. Etiqueta CERO si supera 40&nbsp;km eléctricos.</dd>
+      <dt>EREV</dt><dd>Eléctrico de autonomía extendida: las ruedas siempre las mueve el motor eléctrico; un motor de gasolina actúa solo como generador.</dd>
+      <dt>MHEV / HEV</dt><dd>Microhíbrido o híbrido no enchufable. Etiqueta ECO, no CERO.</dd>
+      <dt>DM-i / DM-p</dt><dd>Sistemas híbridos enchufables de BYD; DM-p es la variante orientada a prestaciones con tracción total.</dd>
+      <dt>Carga Flash</dt><dd>Sistema de carga ultrarrápida de BYD (hasta 10–97&nbsp;% en 9 minutos) que exige sus propios cargadores; BYD prevé 300 en España a finales de 2027.</dd>
+      <dt>kWh (bruto / neto)</dt><dd>Capacidad de la batería. La neta es la utilizable; la bruta incluye el margen de seguridad.</dd>
+      <dt>LFP / NMC</dt><dd>Químicas de batería. LFP es más barata y duradera; NMC tiene más densidad y autonomía por kilo.</dd>
+      <dt>€ por km</dt><dd>Promoción al contado dividida entre la autonomía WLTP. Indicador de cuánto pagas por kilómetro de batería.</dd>
+      <dt>800 V</dt><dd>Arquitectura eléctrica que permite cargar más rápido en cargadores ultrarrápidos (Kia EV9, Hyundai IONIQ 9, Mercedes GLB, Volvo EX90 2026).</dd>
+      <dt>LWB</dt><dd>Long wheelbase, batalla larga. En el ID. Buzz es la carrocería de 4,96 m que permite 7 plazas.</dd>
+      <dt>V2L / V2G</dt><dd>Usar la batería del coche para alimentar aparatos (V2L) o devolver energía a la red (V2G).</dd>
+      <dt>Frunk</dt><dd>Maletero delantero bajo el capó.</dd>
+      <dt>Etiqueta CERO / ECO</dt><dd>Distintivos ambientales de la DGT. CERO: eléctricos, EREV y PHEV con más de 40&nbsp;km eléctricos. ECO: híbridos no enchufables y microhíbridos.</dd>
+      <dt>Km 0</dt><dd>Coche matriculado por el concesionario y vendido casi nuevo con descuento. No se incluye en los precios de esta herramienta.</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- METODO -->
+<section id="metodo">
+  <div class="wrap">
+    <div class="prose">
+      <h2 class="sec">Método y fuentes</h2>
+      <p><b>Selección.</b> Turismos 100&nbsp;% eléctricos con tercera fila (7 plazas de serie o 5+2 opcional) a la venta o con pedidos abiertos en España a noviembre de 2026. El radar 2027 amplía a SUV grandes de cualquier motorización con llegada prevista.</p>
+      <p><b>PVP.</b> Tarifa de la versión de entrada que admite 7 plazas, tomada de Carwow, Motor.es, notas de prensa y medios especializados. Cuando la tercera fila es opcional se indica.</p>
+      <p><b>Promoción al contado.</b> Mejor oferta al contado de concesionarios oficiales en Carwow (noviembre 2026) o campaña oficial de la marca si es mejor y no exige financiar. Se descuentan siempre Plan Auto+ y CAE.</p>
+      <p><b>Promociones y bajadas.</b> Campañas publicadas entre septiembre y noviembre de 2026 por marcas y medios del motor. Se indica la condición (contado, financiando, con ayudas) y la fecha de la fuente.</p>
+      <p><b>Radar 2027.</b> Anuncios oficiales y prensa especializada hasta el 13 de noviembre de 2026. Se separa lo confirmado de lo anunciado y de los rumores.</p>
+      <p><b>Limitaciones.</b> Los precios de promoción cambian cada mes y varían por provincia. El precio del BYD Tang procede de la web de BYD en julio y la oferta del Kia EV9 Air de anuncios de concesionario que no aclaran si exigen financiar: ambos van en ámbar. Algunos datos técnicos (batería del Model Y de 7 plazas, maletero de GLB, Tang y EX90 con 7 plazas) no aparecen en las fuentes consultadas y figuran como «n/d».</p>
+      <p><b>Corrección.</b> La autonomía del Skoda Peaq 90 pasa de 553 a 638&nbsp;km WLTP, el dato que publican Autonoción y Motork para la versión de 286 CV.</p>
+    </div>
+    <h3>Fuentes de esta actualización</h3>
+    <ul class="src-list" id="srcList"></ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Elaborado el 21/09/2026 y actualizado el 13/11/2026 con datos públicos. Información orientativa: confirma siempre el precio final en el concesionario.</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const NOW = new Date(2026,10,13);
+const PREV = new Date(2026,8,21);
+const M = [
+ {id:"e5008", name:"Peugeot E-5008", type:"SUV", seats:"7 de serie", color:"#1F4E9E",
+  pvp:49280, promo:43286, est:false, hist:{2024:48716,2025:48716,2026:49280},
+  pvpSep:49400, promoSep:43398, deals:[{t:"disc",l:"Dto. habitual"}],
+  range:502, batt:"73 kWh", battN:73, boot7:348, len:4.79, cv:214, isNew:false,
+  promoSrc:"Carwow, oferta al contado de concesionario oficial (nov-26)",
+  notes:["Versión Long Range de 98 kWh con hasta 668 km y Dual Motor de 325 CV por encima de la entrada.","Sigue siendo el 7 plazas eléctrico más barato a tarifa y con promoción.","Tercera fila compacta: 348 L de maletero con 7 plazas, 916 L con 5."],
+  photos:"https://www.carwow.es/peugeot/e-5008",
+  news:[
+   ["Peugeot eléctrico 2026: la gama completa, modelo a modelo","Forococheselectricos","18/06/2026","https://forococheselectricos.com/noticias/peugeot-electrico-2026-gama-completa-modelos-20260618-41209.html"],
+   ["El E-5008 como SUV eléctrico de 7 plazas para la vuelta al cole","EVMinds","sep 2026","https://evminds.es/noticia/este-suv-electrico-con-hasta-7-plazas-es-la-opcion-ideal-para-afrontar-la-vuelta-a-la-rutina-de-septiembre-ofreciendo-espacio-confort-y-versatilidad"],
+   ["Ofertas del Peugeot E-5008 en concesionarios oficiales","Carwow","consulta nov 2026","https://www.carwow.es/peugeot/e-5008/ofertas"],
+   ["Peugeot amplía la gama 5008 con un PHEV de 7 plazas","Motor.es","10/02/2026","https://www.motor.es/noticias/precio-peugeot-5008-phev-225-2026112506.html"],
+   ["Coche eléctrico 7 plazas con ISOFIX 2026: 6 modelos comparados","ahorrove.es","26/05/2026","https://www.ahorrove.es/articulo/coche-electrico-7-plazas-isofix-2026/"],
+   ["Coches de 7 plazas eléctricos en 2026","¿Qué coche me compro?","23/12/2025","https://www.quecochemecompro.com/guias-de-compra/coches-7-plazas-electricos/"],
+   ["Los mejores SUV eléctricos de 7 plazas en 2026","¿Qué coche me compro?","22/12/2025","https://www.quecochemecompro.com/guias-de-compra/suv-electricos-7-plazas/"],
+   ["Oferta para particulares del E-5008","Peugeot España","jul 2026","https://www.peugeot.es/comprar/ofertas-del-momento/e-5008.html"],
+   ["E-5008: preacondicionamiento de batería y promoción wallbox","Peugeot España","2026","https://www.peugeot.es/gama/peugeot-5008/electrico.html"],
+   ["Mejores coches eléctricos por presupuesto","ahorrove.es","sep 2026","https://www.ahorrove.es/articulo/mejores-coches-electricos-2027-por-presupuesto"]
+  ]},
+ {id:"peaq", name:"Skoda Peaq", type:"SUV", seats:"5+2 opcional", color:"#12806A",
+  pvp:54549, promo:50000, est:false, hist:{2026:54549},
+  pvpSep:54549, promoSep:52097, deals:[{t:"promo",l:"Promo"}],
+  dealNote:"Campaña de lanzamiento de Skoda: 50.000 € al contado sin ayudas (−4.549 €). Con Plan Auto+ (4.050 €) y CAE (1.000 €) baja a 44.950 €; financiando, a 41.900 €.",
+  range:638, batt:"91 kWh", battN:91, boot7:299, len:4.87, cv:286, isNew:true,
+  promoSrc:"Campaña de lanzamiento de Skoda al contado, sin Plan Auto+ ni CAE (km77; Autonoción). En Carwow, el mejor concesionario lo deja en 52.097 €. Precios de la versión de 5 plazas",
+  notes:["Pedidos abiertos desde junio de 2026; primeras entregas en España en noviembre de 2026.","El PVP es de la versión de 5 plazas: suma el opcional de tercera fila cuando Skoda lo publique. La versión Peaq 60 (LFP) no se venderá en España.","Autonomía corregida: 638 km WLTP para el 90 de 286 CV (la versión anterior de esta herramienta mostraba 553 km). El 90x de dos motores ronda los 610 km."],
+  photos:"https://www.electrive.com/es/2026/06/23/el-skoda-peaq-se-presenta-en-primicia-mundial-y-ofrece-un-espacio-practico-para-siete-personas/",
+  news:[
+   ["Skoda Peaq: precio, medidas, motor, interior y maletero","Híbridos y Eléctricos","02/10/2026","https://www.hibridosyelectricos.com/coches/skoda-peaq-precio-medidas-motor-interior-maletero_89335_102.html"],
+   ["Skoda Peaq: precios en España y primeras entregas en noviembre","Motorpasión","2026","https://www.motorpasion.com/compra-coches/skoda-peaq-2027-precios-espana"],
+   ["Skoda Peaq 2026: precios de campaña y al contado","Autonoción","23/06/2026","https://www.autonocion.com/skoda-peaq-2026-suv-electrico-7-plazas/"],
+   ["El Skoda Peaq ya tiene precios en España","Motor.es","25/06/2026","https://www.motor.es/noticias/skoda-peaq-precios-2026114948.html"],
+   ["El nuevo Skoda Peaq llega con 646 km y 7 plazas","Forococheselectricos","24/06/2026","https://forococheselectricos.com/noticias/skoda-peaq-646-km-autonomia-desde-50635-euros-20260624-41358.html"],
+   ["El Škoda Peaq se presenta en primicia mundial","electrive (ES)","23/06/2026","https://www.electrive.com/es/2026/06/23/el-skoda-peaq-se-presenta-en-primicia-mundial-y-ofrece-un-espacio-practico-para-siete-personas/"],
+   ["Skoda Peaq 2026: primeras fotos y precio con descuentos","Diariomotor","02/07/2026","https://www.diariomotor.com/noticia/skoda-peaq-2026-fotos/"],
+   ["Skoda Peaq: precio, ficha y fecha de entrega en España","Flexicar Motor","19/08/2026","https://motor.flexicar.es/actualidad/skoda-peaq"],
+   ["Precios y ofertas del Skoda Peaq","Carwow","consulta nov 2026","https://www.carwow.es/skoda/peaq"],
+   ["Škoda Peaq (2027): información general y precios","km77","2026","https://www.km77.com/coches/skoda/peaq/2027/estandar/informacion?amp=1"]
+  ]},
+ {id:"modely7", name:"Tesla Model Y 7 plazas", type:"SUV", seats:"7 (opción +2.500 €)", color:"#B23A3A",
+  pvp:55490, promo:55490, est:false, hist:{2026:55490},
+  pvpSep:55490, promoSep:55490, deals:[{t:"fixed",l:"Precio fijo"}],
+  dealNote:"Sin promoción: el «Tesla Bonus» de pedidos desde el 1 de octubre (entrega antes del 31 de marzo de 2027) solo aplica al Model 3 de tracción trasera. Tampoco entra en Plan Auto+ (supera 45.000 €).",
+  range:600, batt:"n/d", battN:null, boot7:381, len:4.75, cv:null, isNew:true,
+  promoSrc:"Tesla vende a precio fijo: el precio de promoción coincide con el PVP (más 980 € de gastos de tramitación)",
+  notes:["Solo disponible sobre el Premium Long Range AWD: 600 km WLTP y 0-100 km/h en 4,8 s.","Maletero de 381 L con 7 plazas, más 116 L de frunk. Fabricado en Berlín.","El Model Y L (batalla larga, tercera fila para adultos) ya está homologado en la UE y apareció en configuradores europeos en agosto de 2026, sin fecha ni precio: ver radar 2027."],
+  photos:"https://forococheselectricos.com/noticias/tesla-model-y-siete-plazas-precio-espana-20260227-40033.html",
+  news:[
+   ["El Tesla Model Y L reaparece en los configuradores europeos","Autonoción","21/08/2026","https://www.autonocion.com/motornocion/tesla-model-y-l-configuradores-europeos/"],
+   ["Llega el Model Y con 7 plazas a España, pero no es el Model Y L","testcoches.es","feb 2026","https://testcoches.es/noticias/llega-el-model-y-con-7-plazas-a-espana-pero-no-es-el-tesla-model-y-l/"],
+   ["El Tesla Model Y de 7 plazas ya tiene precio en España","Forococheselectricos","27/02/2026","https://forococheselectricos.com/noticias/tesla-model-y-siete-plazas-precio-espana-20260227-40033.html"],
+   ["El Model Y de siete plazas sorprende por lo poco que pierde de maletero","Forococheselectricos","29/06/2026","https://forococheselectricos.com/noticias/tesla-model-y-siete-plazas-precio-capacidad-maletero-20260629-41398.html"],
+   ["Tesla recorta la gama del Model Y y sube precios","Forococheselectricos","29/04/2026","https://forococheselectricos.com/noticias/tesla-model-y-2026-precios-versiones-europa-cambios-20260429-40758.html"],
+   ["Antes de llegar a Europa, el Model Y L sufre un grave fallo","Forococheselectricos","03/09/2026","https://forococheselectricos.com/noticias/tesla-model-y-l-sufre-grave-fallo-20260903-41986.html"],
+   ["Tesla activa el V2L en el Model Y","Forococheselectricos","18/08/2026","https://forococheselectricos.com/noticias/tesla-model-y-v2l-bateria-alimentar-dispositivos-20260818-20260818-41843.html"],
+   ["Model Y usado: qué problemas vigilar","Forococheselectricos","19/08/2026","https://forococheselectricos.com/noticias/tesla-model-y-segunda-mano-problemas-fiabilidad-bateria-20260819-41854.html"],
+   ["El Model Y vuelve al trono de los SUV en Europa","Forococheselectricos","16/07/2026","https://forococheselectricos.com/noticias/tesla-model-y-lider-europa-suv-medianos-grandes-marcas-chinas-20260716-41564.html"],
+   ["Tesla en España, octubre 2026: el Model 3 lidera el mes","Autonomía Coches Eléctricos","nov 2026","https://autonomiacocheselectricos.es/articulos/tesla-espana-matriculaciones-octubre-2026/"]
+  ]},
+ {id:"glb", name:"Mercedes GLB eléctrico", type:"SUV", seats:"5+2 opcional (+1.464 €)", color:"#6B4FA0",
+  pvp:57389, promo:55114, est:true, hist:{2026:57389},
+  pvpSep:57389, promoSep:55114, deals:[],
+  range:629, batt:"n/d", battN:null, boot7:null, len:4.73, cv:272, isNew:true,
+  promoSrc:"Estimación: oferta Carwow al contado del GLB 250+ de 5 plazas (53.650 €, sin cambios en noviembre) + 1.464 € de la tercera fila",
+  notes:["Sustituye al EQB. Entregas desde la primavera de 2026; hay unidades km 0 desde unos 53.000 € (fuera del cálculo de esta herramienta).","GLB 250+ con 7 plazas: 57.389 € de tarifa (55.925 € con 5). El 350 4MATIC de 7 plazas sube a 65.264 €.","Arquitectura de 800 V: hasta 260 km recuperados en 10 minutos."],
+  photos:"https://www.mercedes-benz.es/passengercars/models/suv/glb-electric/overview.html",
+  news:[
+   ["Mercedes GLB eléctrico: precio con 7 plazas y ficha","Híbridos y Eléctricos","03/08/2026","https://www.hibridosyelectricos.com/coches/mercedes-glb-electrico-version-2026-precio-medidas-motor-interior-maletero_88290_102.html"],
+   ["Ofertas del Mercedes GLB eléctrico","Carwow","consulta nov 2026","https://www.carwow.es/mercedes/glb-ev/ofertas"],
+   ["El nuevo Mercedes GLB 2026 ya tiene precios","Motor.es","11/12/2025","https://www.motor.es/noticias/precio-mercedes-glb-2026-2025111552.html"],
+   ["Mercedes-Benz GLB (2026): información general","km77","09/12/2025","https://www.km77.com/coches/mercedes/glb/2026/estandar/informacion"],
+   ["El SUV eléctrico premium de 7 plazas que recarga 260 km en 10 minutos","SoyMotor","12/12/2025","https://soymotor.com/coches/noticias/mercedes-presenta-versiones-electricas-nuevo-glb"],
+   ["Mercedes GLB, un eléctrico moderno y muy familiar: precios","Diariomotor","29/12/2025","https://www.diariomotor.com/noticia/mercedes-glb-ev-precios/"],
+   ["Así es el nuevo GLB eléctrico y polivalente","Somos Eléctricos","21/12/2025","https://somoselectricos.com/mercedes-benz-glb-nuevo-suv-electrico-7-plazas/"],
+   ["Precios y ofertas del Mercedes GLB","¿Qué coche me compro?","13/06/2026","https://www.quecochemecompro.com/precios/mercedes-glb/"]
+  ]},
+ {id:"buzz", name:"Volkswagen ID. Buzz LWB", type:"Monovolumen", seats:"7 (batalla larga)", color:"#A8690F",
+  pvp:62940, promo:58884, est:true, hist:{2026:62940},
+  pvpSep:62940, promoSep:58884, deals:[],
+  range:487, batt:"86 kWh neto", battN:86, boot7:306, len:4.96, cv:286, isNew:false,
+  promoSrc:"Carwow, versión Pro de 62.940 € que identifico como la de batalla larga. Un concesionario oficial anunciaba en julio-agosto 2026 el Pro LWB 7 plazas a 54.756 € al contado",
+  notes:["El único monovolumen del análisis: tercera fila apta para adultos y 306 L de maletero con 7 plazas.","VW añadió en agosto de 2026 una versión Pure más barata y de menos autonomía, también con batalla larga; sin precio de 7 plazas publicado en España.","Referencia histórica: en 2023 el ID. Buzz de batalla corta y 5 plazas salió a 63.560 €."],
+  photos:"https://www.vwcomerciales.com/es/modelos/id-buzz.html",
+  news:[
+   ["El ID. BUZZ responde con una versión que hasta ahora no tenía (Pure)","Motor.es","12/08/2026","https://www.motor.es/noticias/volkswagen-id-buzz-pure-2027-2026115769.html"],
+   ["ID. Buzz: gama actual, batalla larga y precios","Carwow","act. 01/09/2026","https://www.carwow.es/noticias/2828/volkswagen-id-buzz-id-buzz-cargo-lanzamiento-precio-medidas"],
+   ["Oferta de concesionario: ID. Buzz Pro LWB 7 plazas","Comatrasa (VW oficial)","09/07/2026","https://comatrasa.es/venta-vehiculos/volkswagen-id-buzz-pro-286-cv-batalla-larga-7-plazas/"],
+   ["ID. Buzz Pro 7 plazas: batería de 85 kWh netos","VW Comerciales","2026","https://www.vwcomerciales.com/es/modelos/id-buzz.html"],
+   ["Volkswagen agrava su crisis con un golpe de 10.000 millones","Forococheselectricos","19/09/2026","https://forococheselectricos.com/noticias/volkswagen-crisis-porsche-10000-millones-beneficio-2026-20260919-42151.html"],
+   ["ID. Buzz de batalla larga: más autonomía y 7 plazas en España","Híbridos y Eléctricos","09/07/2024","https://www.hibridosyelectricos.com/coches/volkswagen-id-buzz-batalla-larga-datos-fotos_74991_102.html"],
+   ["La furgoneta eléctrica de más personalidad sale a la venta en España","Movilidad Eléctrica","26/03/2023","https://movilidadelectrica.com/volkswagen-id-buzz-precio-espana-venta/"]
+  ]},
+ {id:"ioniq9", name:"Hyundai IONIQ 9", type:"SUV", seats:"7 (o 6)", color:"#2E8BC0",
+  pvp:69900, promo:64103, est:false, hist:{2025:69900,2026:69900},
+  pvpSep:69900, promoSep:64103, deals:[{t:"disc",l:"Dto. habitual"}],
+  range:620, batt:"110,3 kWh", battN:110.3, boot7:338, len:5.06, cv:218, isNew:false,
+  promoSrc:"Carwow, oferta al contado de concesionario oficial (nov-26, sin cambios desde septiembre)",
+  notes:["La batería más grande del análisis y 800 V: 10-80 % en unos 24 minutos.","La versión de entrada es de tracción trasera y 218 CV; las AWD suben a 313 y 435 CV.","Actualización 2027 con acabado Black Ink y más equipamiento de serie."],
+  photos:"https://www.carwow.es/hyundai/ioniq-9",
+  news:[
+   ["Así se renueva el IONIQ 9 para 2027","Motor1 España","13/07/2026","https://es.motor1.com/news/801266/hyundai-ioniq-9-2027-actualizacion/"],
+   ["El IONIQ 9 como mini central eléctrica, pero en España la red no lo permite","Motor16","22/06/2026","https://www.motor16.com/las-ultimas-noticias/el-hyundai-ioniq-9-electrica/"],
+   ["Probamos el Hyundai IONIQ 9","Motorpasión","12/04/2026","https://www.motorpasion.com/pruebas-de-coches/prueba-hyundai-ioniq-9-2026/amp"],
+   ["IONIQ 9, el familiar eléctrico con mayor batería, desde 69.900 €","Europa Press / Bolsamanía","18/04/2026","https://www.bolsamania.com/noticias_amp/ultimas/economiamotor--ioniq-9-el-modelo-familiar-electrico-con-la-mayor-bateria-del-mercado-desde-69900-euros-en-espana--22311831.html"],
+   ["El IONIQ 9 aparece con descuento de 6.310 €","Autonoción","10/02/2026","https://www.autonocion.com/motornocion/hyundai-2026-ioniq-9-descuento/"],
+   ["Los 6 SUV premium eléctricos de 7 plazas en España en 2026","Ranking de coches","03/06/2026","https://www.rankingdecoches.com/los-6-suv-premium-electricos-de-7-plazas-que-podras-comprar-en-espana-en-2026/"],
+   ["Prueba y precio del Hyundai IONIQ 9","Carwow","consulta nov 2026","https://www.carwow.es/hyundai/ioniq-9"],
+   ["Precios gama Hyundai IONIQ 9 (nota de prensa)","Hyundai España","18/06/2025","https://www.hyundai.news/es/articles/press-releases/hyundai-ioniq-9-precios-0625.html"],
+   ["El nuevo IONIQ 9 ya tiene precios en España","Motor.es","13/06/2025","https://www.motor.es/noticias/precio-hyundai-ioniq-9-2025108656.html"]
+  ]},
+ {id:"tang", name:"BYD Tang", type:"SUV", seats:"7 de serie", color:"#C0507D",
+  pvp:72000, promo:57050, est:true, hist:{2023:72000,2024:72000,2025:72000,2026:72000},
+  pvpSep:72000, promoSep:59209, deals:[{t:"promo",l:"Promo"},{t:"end",l:"Fin de ciclo"}],
+  dealNote:"Precio en la web comercial de BYD: 57.050 € (−14.950 €). En septiembre, 49.625 € financiando. No figura en los Black Days de BYD España (hasta el 30-nov); en Alemania baja a 53.900 € en las Black Weeks (hasta el 28-nov). Su sucesor, el Atto 8, llega en 2027.",
+  range:530, batt:"108,8 kWh", battN:108.8, boot7:null, len:4.97, cv:517, isNew:false,
+  promoSrc:"Estimación: último precio publicado en la web comercial de BYD (julio de 2026, según Motor1). En abril, BYD fijó un precio recomendado al contado de 58.000 €; en Carwow (sep-26) 59.209 €",
+  notes:["Tarifa congelada en 72.000 € desde su llegada, pero es el modelo con mayor descuento real del análisis.","Fin de ciclo: BYD confirma el Atto 8 como sucesor en 2027 (ver radar). Buen momento para negociar stock; a cambio, se queda sin la carga Flash del Atto 8.","Cuidado con los precios «desde 49.625 €» o «50.125 €»: exigen financiar con permanencia."],
+  photos:"https://www.byd.com/es-es/news-list/nuevo-byd-tang--el-suv-familiar-de-7-plazas-100--electrico-mas-p",
+  news:[
+   ["BYD presenta el Atto 8, su SUV insignia con recarga de nueve minutos","electrive (ES)","13/10/2026","https://www.electrive.com/es/2026/10/13/byd-unveils-atto-8-flagship-suv-with-nine-minute-charging/"],
+   ["Black Days de BYD: hasta 14.260 € de descuento (sin el Tang)","BYD España","nov 2026","https://www.byd.com/es-es/news-list/byd-black-friday-2026"],
+   ["Descuentos «vuelta al cole»: Tang desde 49.625 €","BYD España","sep 2026","https://www.byd.com/es-es/news-list/descuentos-vuelta-al-cole-byd-2026"],
+   ["517 CV, 7 plazas y casi 15.000 € de descuento","Motor1 España","06/07/2026","https://es.motor1.com/news/800397/comprar-suv-byd-descuento-15000euros-tang/"],
+   ["El nuevo BYD Atto 8 sustituirá al Tang en 2027","Motor.es","22/05/2026","https://www.motor.es/noticias/byd-atto-8-2027-informacion-2026114327.html"],
+   ["BYD Tang 2026: qué ofrece el BYD más caro en España","Somos Eléctricos","01/07/2026","https://www.somoselectricos.com/coches-electricos/byd-tang-2026-que-ofrece-byd-mas-caro-venta-espana/20260701113033057716.html"],
+   ["BYD Tang: 517 CV, 7 plazas y precio que cambia el segmento","El Confidencial Digital","14/04/2026","https://www.elconfidencialdigital.com/articulo/motor/byd-tang-517-cv-7-plazas-precio-que-cambia-segmento/202604141640271015203.html"],
+   ["Condiciones de la promoción del Tang (abril)","BYD España","abr 2026","https://www.byd.com/es-es/promociones/tang-promocion"],
+   ["Precios y descuentos de BYD: Alemania frente a España","Motor.es","sep 2026","https://www.motor.es/noticias/byd-precios-descuentos-alemania-espana-2026116507.html"],
+   ["BYD Black Weeks en Alemania: el Tang, 21.100 € más barato","InsideEVs (DE)","nov 2026","https://insideevs.de/news/814978/byd-atto3-evo-black-weeks-2026-rabatte/"]
+  ]},
+ {id:"ex90", name:"Volvo EX90", type:"SUV", seats:"7 de serie (o 6)", color:"#3D5A80",
+  pvp:83990, promo:77477, est:false, hist:{2023:104531,2024:102269,2025:83926,2026:83990},
+  pvpSep:83990, promoSep:77477, deals:[{t:"disc",l:"Dto. habitual"}],
+  range:618, batt:"104 kWh", battN:104, boot7:null, len:5.04, cv:333, isNew:false,
+  promoSrc:"Carwow, oferta al contado (nov-26, sin cambios desde septiembre). La oferta financiada Premium Edition de Volvo terminó el 30/09/2026",
+  notes:["Mayor bajada de tarifa acumulada: de 104.531 € en el lanzamiento (2023) a 83.990 €. Parte se debe a la versión de entrada de un motor.","Gama 2026: 800 V, desaparece la opción de 5 plazas, nuevo ordenador NVIDIA DRIVE AGX Orin.","Hay unidades km 0 desde unos 74.900 € (Motor.es), fuera del cálculo de esta herramienta."],
+  photos:"https://www.carwow.es/volvo/ex90",
+  news:[
+   ["Descubre el Volvo EX90 2026: precio y autonomía real","Autopista","12/04/2026","https://www.autopista.es/novedades-coches/descubre-volvo-ex90-2026-precio-autonomia-real-te-hara-olvidar-gasolina-el-mejor-suv_324919_102.html"],
+   ["Nuevo Volvo EX90 2026: fuera 5 plazas, más potente, cambia baterías","Motor1 España","23/10/2025","https://es.motor1.com/news/775851/volvo-ex90-2026-precios-autonomia/"],
+   ["El Volvo EX90 estrena la gama 2026: precios","Motor.es","03/10/2025","https://www.motor.es/noticias/precio-volvo-ex90-2026-2025110363.html"],
+   ["Prueba y precio del Volvo EX90 2026","Carwow","consulta nov 2026","https://www.carwow.es/volvo/ex90"],
+   ["Oferta Premium Edition del EX90 (hasta 30/09/2026)","Volvo Cars España","sep 2026","https://www.volvocars.com/es/l/coches/ofertas-promociones/ex90/"],
+   ["Precios y ofertas del Volvo EX90","¿Qué coche me compro?","10/06/2026","https://www.quecochemecompro.com/precios/volvo-ex90/"],
+   ["Los 6 SUV premium eléctricos de 7 plazas en España en 2026","Ranking de coches","03/06/2026","https://www.rankingdecoches.com/los-6-suv-premium-electricos-de-7-plazas-que-podras-comprar-en-espana-en-2026/"],
+   ["Coche eléctrico 7 plazas con ISOFIX 2026","ahorrove.es","26/05/2026","https://www.ahorrove.es/articulo/coche-electrico-7-plazas-isofix-2026/"],
+   ["El Volvo EX90 llega a España desde 104.531 euros","Híbridos y Eléctricos","23/02/2023","https://www.hibridosyelectricos.com/coches/volvo-ex90-electrico-precios-mercado-espanol_68489_102.html"]
+  ]},
+ {id:"ev9", name:"Kia EV9", type:"SUV", seats:"7 (Air y Earth solo 7)", color:"#E07A1F",
+  pvp:65713, promo:63340, est:true, hist:{2023:85100,2024:85165,2025:85165,2026:65713},
+  pvpSep:85185, promoSep:73290, deals:[{t:"drop",l:"▼ Bajada"}],
+  dealNote:"Gama 2027 desde octubre: la tarifa de entrada baja de 85.185 € a 65.713 € con la versión Air (−19.472 €). El Earth de 204 CV y 563 km cuesta 73.713 €: 11.472 € menos que el antiguo GT-line y con más autonomía. Del 5 al 16 de noviembre hay «10 Días Kia»: pregunta si cubren el EV9.",
+  range:443, batt:"76,1 kWh", battN:76.1, boot7:333, len:5.01, cv:218, isNew:false,
+  promoSrc:"Estimación: concesionarios anuncian el Air desde unos 63.340 € (Autonoción; ¿Qué coche me compro?), sin aclarar si exige financiar. El GT-line de 385 CV sigue a 73.288 € al contado en Carwow",
+  notes:["Gama 2027 (oct-26): Air 218 CV y 76,1 kWh desde 65.713 € (443 km); Earth 204 CV y 99,8 kWh desde 73.713 € (563 km); Earth 385 CV desde 76.713 €; GT-line 385 CV desde 85.783 €; GT 509 CV desde 93.743 €.","Air y Earth solo con 7 plazas; GT-line y GT también con 6.","El Air es el más barato del EV9, pero también el de menor autonomía de todo el análisis: si viajas mucho, valora el Earth de 563 km (8.000 € más)."],
+  photos:"https://www.carwow.es/kia/ev9",
+  news:[
+   ["El KIA EV9 amplía su gama: versiones más baratas y un GT de 509 CV","Motor.es","05/10/2026","https://www.motor.es/noticias/kia-ev9-gama-2027-lanzamiento-espana-2026116800.html"],
+   ["Kia EV9 2027: siete combinaciones y el Air por debajo de 66.000 €","Autonoción","oct 2026","https://www.autonocion.com/motornocion/kia-ev9-2027-restructura-gama/"],
+   ["10 Días Kia: descuentos del 5 al 16 de noviembre","Carwow","04/11/2026","https://www.carwow.es/kia/noticias/5016/ofertas-10-dias-kia-julio-2025"],
+   ["KIA EV9 2027: motores, equipamiento y precios","Carnovo","oct 2026","https://carnovo.com/es/guias/?p=45869"],
+   ["Kia EV9 2027 en España: precio y novedades","ahorrove.es","24/04/2026","https://www.ahorrove.es/articulo/kia-ev9-2027-espana-precio-fecha-lanzamiento"],
+   ["Kia ofrece grandes descuentos en el EV9","EVMinds","sep 2026","https://evminds.es/noticia/kia-ofrece-grandes-descuentos-en-el-ev9-con-mas-de-15000-dolares-de-rebaja-en-algunos-concesionarios"],
+   ["Los 6 SUV premium eléctricos de 7 plazas en España en 2026","Ranking de coches","03/06/2026","https://www.rankingdecoches.com/los-6-suv-premium-electricos-de-7-plazas-que-podras-comprar-en-espana-en-2026/"],
+   ["Kia frena el EV9 GT: se retrasa hasta nuevo aviso","Motor.es","nov 2025","https://www.motor.es/noticias/kia-ev9-gt-retraso-lanzamiento-2025111111.html"],
+   ["Kia anuncia precios del EV9 en España: desde 85.100 €","Híbridos y Eléctricos","04/07/2023","https://www.hibridosyelectricos.com/coches/precios-kia-ev9-mas-barato-suv-electricos-7-plazas_69953_102.html"]
+  ]},
+ {id:"eqs", name:"Mercedes EQS SUV", type:"SUV", seats:"5+2 opcional", color:"#5B6780",
+  pvp:139938, promo:127494, est:false, hist:{2026:139938},
+  pvpSep:139938, promoSep:127494, deals:[{t:"disc",l:"Dto. habitual"}],
+  range:660, batt:"118 kWh", battN:118, boot7:195, len:5.13, cv:360, isNew:false,
+  promoSrc:"Carwow, oferta al contado de concesionario oficial (sep-26; sin cambios verificados en noviembre)",
+  notes:["El más caro y el de mayor descuento absoluto entre los de dto. habitual (unos 12.400 €).","Tercera fila opcional con solo 195 L de maletero con 7 plazas.","La berlina EQS ya estrena el restyling de 800 V; el EQS SUV lo espera. Comprar ahora es comprar el final de esta versión."],
+  photos:"https://www.carwow.es/mercedes/eqs-suv",
+  news:[
+   ["El nuevo Mercedes EQS (berlina) ya tiene precios: 800 V","Motor.es","17/04/2026","https://www.motor.es/noticias/precio-mercedes-eqs-2027-2026113699.html"],
+   ["Mercedes prepara un aluvión de novedades para 2026 (incluye EQS SUV)","Motor.es","01/01/2026","https://www.motor.es/noticias/mercedes-nuevos-modelos-2026-2025111818.html"],
+   ["Mercedes se niega a dar por perdido el EQS y prepara su regreso","Motor.es","13/01/2026","https://www.motor.es/noticias/mercedes-eqs-2026-2026112009.html"],
+   ["Mercedes-Benz EQS 2026: primer ¿y último? restyling","coches.net","18/04/2026","https://www.coches.net/noticias/nuevo-mercedes-benz-eqs-2026"],
+   ["Los 6 SUV premium eléctricos de 7 plazas en España en 2026","Ranking de coches","03/06/2026","https://www.rankingdecoches.com/los-6-suv-premium-electricos-de-7-plazas-que-podras-comprar-en-espana-en-2026/"],
+   ["Mercedes actualiza el EQS SUV: fotos espía del facelift","Motor.es","26/07/2025","https://www.motor.es/noticias/mercedes-eqs-suv-facelift-fotos-espia-2026-2025109340.html"],
+   ["Prueba y precio del Mercedes EQS SUV","Carwow","2026","https://www.carwow.es/mercedes/eqs-suv"],
+   ["Mercedes desvela el precio del EQS SUV en España","Híbridos y Eléctricos","2022","https://www.hibridosyelectricos.com/coches/precio-mercedes-eqs-suv-espa-c3-b1a_61747_102.html"]
+  ]}
+];
+
+// Promociones: tarjetas destacadas (eléctricos) y otros SUV grandes
+const TOP = [
+ {id:"ev9", title:"Kia EV9 · gama 2027", badges:[["drop","▼ Bajada"]], was:85185, now:65713, nowLab:"Nueva tarifa de entrada (Air 218 CV)", est:false,
+  what:"No es el mismo coche: el Air lleva batería de 76,1 kWh, 218 CV y 443 km WLTP (el antiguo GT-line, 99,8 kWh, 385 CV y 505 km).",
+  cond:["Tarifa oficial desde octubre de 2026, sin promociones.","Concesionarios anuncian el Air desde unos 63.340 € (sin aclarar si exige financiar).","Earth 204 CV y 563 km: 73.713 €, 11.472 € menos que el GT-line de antes.","GT-line 385 CV: 73.288 € al contado en Carwow.","«10 Días Kia» del 5 al 16 de noviembre: pregunta si incluyen el EV9."],
+  when:"Desde octubre 2026", src:[["Motor.es","https://www.motor.es/noticias/kia-ev9-gama-2027-lanzamiento-espana-2026116800.html"],["Autonoción","https://www.autonocion.com/motornocion/kia-ev9-2027-restructura-gama/"],["Carwow","https://www.carwow.es/kia/ev9/ofertas"]]},
+ {id:"tang", title:"BYD Tang", badges:[["promo","Promo"],["end","Fin de ciclo"]], was:72000, now:57050, nowLab:"Precio en la web de BYD (julio)", est:true,
+  what:"Descuento sobre una tarifa congelada desde 2023. El Atto 8 lo sustituye en el primer trimestre de 2027.",
+  cond:["Al contado; último precio publicado en julio, confírmalo en el concesionario.","Septiembre: 49.625 € financiando (campaña «vuelta al cole», −500 € extra).","No está en los Black Days de BYD España (hasta el 30-nov).","Referencia: en Alemania, 53.900 € en las Black Weeks hasta el 28-nov.","Fin de ciclo: hay margen para pedir más."],
+  when:"Julio–noviembre 2026", src:[["Motor1","https://es.motor1.com/news/800397/comprar-suv-byd-descuento-15000euros-tang/"],["BYD (sep)","https://www.byd.com/es-es/news-list/descuentos-vuelta-al-cole-byd-2026"],["InsideEVs DE","https://insideevs.de/news/814978/byd-atto3-evo-black-weeks-2026-rabatte/"],["Motor.es (Atto 8)","https://www.motor.es/noticias/byd-atto-8-2027-informacion-2026114327.html"]]},
+ {id:"peaq", title:"Skoda Peaq", badges:[["promo","Promo"]], was:54550, now:50000, nowLab:"Campaña de lanzamiento, al contado sin ayudas", est:false,
+  what:"Precio de la versión 90 de 286 CV y 5 plazas; la tercera fila se paga aparte (precio aún no publicado).",
+  cond:["Al contado sin Plan Auto+ ni CAE: 50.000 €.","Con Plan Auto+ (4.050 €) y CAE (1.000 €): 44.950 €.","Financiando con todo: 41.900 €.","Primeras entregas en España: noviembre de 2026."],
+  when:"Lanzamiento (desde junio 2026)", src:[["Autonoción","https://www.autonocion.com/skoda-peaq-2026-suv-electrico-7-plazas/"],["km77","https://www.km77.com/coches/skoda/peaq/2027/estandar/informacion?amp=1"],["Motorpasión","https://www.motorpasion.com/compra-coches/skoda-peaq-2027-precios-espana"]]},
+ {id:"modely7", title:"Tesla Model Y 7 plazas", badges:[["fixed","Precio fijo"]], was:null, now:55490, nowLab:"Precio único (+980 € de tramitación)", est:false,
+  what:"Sin rebajas en el Model Y de 7 plazas. El ahorro de Tesla en otoño va a otro modelo.",
+  cond:["«Tesla Bonus» (pedidos desde el 1-oct, entrega antes del 31-mar-27): solo Model 3 de tracción trasera.","No entra en Plan Auto+: supera 45.000 €.","Si buscas tercera fila de adulto, espera noticias del Model Y L (radar 2027)."],
+  when:"Noviembre 2026", src:[["Tesla España","https://www.tesla.com/es_ES/"],["testcoches.es","https://testcoches.es/noticias/llega-el-model-y-con-7-plazas-a-espana-pero-no-es-el-tesla-model-y-l/"]]}
+];
+const REST = ["eqs","ex90","e5008","ioniq9","buzz","glb"];
+const OTHER = [
+ {title:"Jaecoo 8 SHS (PHEV)", badges:[["promo","Promo"]], was:54900, now:44190, nowLab:"Financiando, con Plan Auto+ (1.800 €)", est:false,
+  what:"Precio de la versión de 5 plazas; la de 7 plazas tiene una tarifa de 55.750 €. 428 CV, 134 km eléctricos, etiqueta CERO.",
+  cond:["Exige financiar y depende de que quede Plan Auto+.","Sin la ayuda, 45.990 € financiando.","Al contado, el mejor concesionario en Carwow lo deja en 53.925 €."],
+  when:"1 de noviembre de 2026", src:[["Motor1","https://es.motor1.com/news/813537/jaecoo8-phev-oferta-descuento/"],["Carwow","https://www.carwow.es/jaecoo/8"]]},
+ {title:"Kia Sorento HEV Drive 7 plazas", badges:[["promo","Promo"]], was:53593, now:45445, nowLab:"Precio con oferta", est:false,
+  what:"Híbrido no enchufable de 239 CV (etiqueta ECO), 4x2.",
+  cond:["Oferta sujeta a disponibilidad y financiación.","No depende del Plan Auto+.","Vigencia no publicada: confírmala en el concesionario."],
+  when:"30 de octubre de 2026", src:[["Motor.es","https://www.motor.es/noticias/oferta-kia-sorento-hibrido-drive-2026117341.html"]]},
+ {title:"MG S9 (PHEV, 7 plazas)", badges:[["promo","Promo"]], was:null, now:35990, nowLab:"«Al contado» con Auto+ y campañas MG", est:true,
+  what:"El precio ya descuenta el Plan Auto+ que adelanta la marca y las campañas MG Muévete y Made for Europe.",
+  cond:["Campaña de octubre: confirma que siga vigente en noviembre.","Si el Plan Auto+ se agota, el precio sube.","4,98 m y 7 plazas."],
+  when:"Octubre 2026", src:[["Motor16","https://www.motor16.com/las-ultimas-noticias/mg-s9-precio-suv-phev/"]]}
+];
+
+// Radar 2027
+const R = [
+ {name:"BYD Atto 8", brand:"BYD", cn:true, pt:"BEV", ptL:"BEV", seats:"7", has7:true, len:"5,04 m", range:"602–653 km WLTP", price:"Sin anunciar. Prensa: difícil por debajo de 75.000 € en Alemania", when:"T1 2027", q:"Q1", conf:"confirmado",
+  note:"Sucesor del Tang. 115 kWh, 462 o 775 CV. Carga Flash 10–97 % en 9 min, pero solo en cargadores BYD Flash (300 previstos en España a finales de 2027).",
+  src:[["Somos Eléctricos","https://www.somoselectricos.com/coches-electricos/byd-atto-8-suv-electrico-7-plazas-que-carga-9-minutos-llega-espana-2027/20261013082045064299.html"],["electrive","https://www.electrive.com/es/2026/10/13/byd-unveils-atto-8-flagship-suv-with-nine-minute-charging/"]]},
+ {name:"Zeekr 9X", brand:"Zeekr (Geely)", cn:true, pt:"PHEV", ptL:"PHEV", seats:"6", has7:false, len:"5,24 m", range:"179 km eléctricos · 737 km total", price:"España: desde 121.500 €", when:"Entregas en enero 2027 (pedidos abiertos)", q:"Q1", conf:"confirmado",
+  note:"897 CV y carga 10–80 % en 9,5 min. En Europa solo con 6 plazas (2+2+2). 10 años de garantía.",
+  src:[["Motor.es","https://www.motor.es/noticias/zeekr-9x-precio-espana-suv-2026116932.html"],["Diariomotor","https://www.diariomotor.com/noticia/zeekr-9x-europa/"]]},
+ {name:"XPeng G9L", brand:"XPeng", cn:true, pt:"BEV", ptL:"BEV", seats:"7 (en España)", has7:true, len:"5,12 m", range:"553–591 km WLTP", price:"Alemania: desde 74.600 € (7 plazas, RWD)", when:"T2 2027", q:"Q2", conf:"confirmado",
+  note:"Batería de 110 kWh; RWD 367 CV o AWD 585 CV. Se fabrica en Graz (Austria), en la planta de Magna.",
+  src:[["electrive","https://www.electrive.com/es/2026/10/13/se-ha-revelado-el-precio-del-xpeng-g9l-este-suv-electrico-de-lujo-tiene-un-precio-inicial-de-74-600-euros/"],["Diariomotor","https://www.diariomotor.com/noticia/xpeng-g9l/"]]},
+ {name:"BYD Ti7", brand:"BYD", cn:true, pt:"PHEV", ptL:"PHEV", seats:"7", has7:true, len:"4,99 m", range:"119 km eléctricos", price:"Reino Unido: 47.995 £ (≈56.000 €)", when:"2027 (Reino Unido: entregas en enero)", q:"Y", conf:"anunciado",
+  note:"408 CV, 0-100 en 4,8 s y estética de todoterreno. Ojo: solo 126 L de maletero con las 7 plazas.",
+  src:[["Motor.es","https://www.motor.es/noticias/byd-ti-7-suv-plazas-2027-2026115740.html"],["Motor1","https://es.motor1.com/news/804352/byd-ti7-phev-parecido-defender/"],["Híbridos y Eléctricos","https://www.hibridosyelectricos.com/coches/1470-km-1830-maletero-se-actualiza-suv-hibrido-mas-vendido-byd-viene-espana_88754_102.html"]]},
+ {name:"BYD Sealion 8", brand:"BYD", cn:true, pt:"PHEV", ptL:"PHEV", seats:"7", has7:true, len:"≈5,04 m", range:"n/d Europa", price:"Sin precio europeo", when:"Sin fecha", q:"TBD", conf:"rumor",
+  note:"Versión enchufable de la misma carrocería que el Atto 8 (en China, Tang L). Ya se vende en Australia; para Europa no hay confirmación.",
+  src:[["CarExpert","https://www.carexpert.com.au/car-news/byd-sealion-8-goes-ev-in-paris-with-660km-of-range"]]},
+ {name:"Leapmotor D19", brand:"Leapmotor (Stellantis)", cn:true, pt:"EREV", ptL:"EREV", seats:"6 (2+2+2)", has7:false, len:"5,25 m", range:"n/d Europa", price:"Sin precio europeo (China: desde ≈27.400 €)", when:"Sin fecha", q:"TBD", conf:"anunciado",
+  note:"Presentado para Europa en el Salón de París (oct-26). En China también hay versión eléctrica pura y de 7 plazas.",
+  src:[["Motor.es","https://www.motor.es/noticias/leapmotor-d19-llega-europa-suv-erev-2027-2026116816.html"],["Carwow","https://www.carwow.es/noticias/8333/leapmotor-d19-precio-medidas-lanzamiento-espana"]]},
+ {name:"XPeng L05", brand:"XPeng", cn:true, pt:"BEV", ptL:"BEV / EREV", seats:"5 (por confirmar)", has7:false, len:"4,87 m", range:"n/d Europa (batería hasta 71 kWh)", price:"China: desde ≈19.580 €", when:"2027", q:"Y", conf:"anunciado",
+  note:"SUV grande de 5 plazas, más barato que el G9L. Llegará eléctrico y de autonomía extendida.",
+  src:[["coches.net","https://www.coches.net/noticias/nuevo-xpeng-l05"]]},
+ {name:"Xiaomi YU9", brand:"Xiaomi", cn:true, pt:"EREV", ptL:"EREV", seats:"6–7", has7:true, len:"≈5,2 m", range:"n/d", price:"—", when:"Xiaomi llega a Europa en el 2S de 2027", q:"H2", conf:"rumor",
+  note:"Xiaomi empieza en Europa por Alemania con el SU7 y el YU7; el YU9 no está confirmado para Europa.",
+  src:[["electrive","https://www.electrive.com/es/2025/12/11/xiaomi-amplia-su-gama-de-vehiculos-electricos/"],["Mundo Xiaomi","https://www.mundoxiaomi.com/coches/oficial-esta-hoja-ruta-coches-xiaomi-europa-cuando-llegan-que-modelos-que-paises-tendran-prioridad-cuales-deberan-esperar/amp"]]},
+ {name:"Denza N8L", brand:"Denza (BYD)", cn:true, pt:"PHEV", ptL:"PHEV / BEV", seats:"6 (2+2+2)", has7:false, len:"≈5,2 m", range:"n/d Europa", price:"China: desde ≈38.974 € (BEV)", when:"No antes de mediados de 2027", q:"H2", conf:"rumor",
+  note:"Marca de lujo de BYD, ya presente en España con el Z9 GT y el D9.",
+  src:[["Híbridos y Eléctricos","https://www.hibridosyelectricos.com/coches/38974-euros-es-nuevo-suv-electrico-byd-con-bateria-130-kwh-se-carga-100-en-9-minutos_89266_102.html"]]},
+ {name:"GWM PHEV de 7 plazas", brand:"GWM", cn:true, pt:"PHEV", ptL:"PHEV", seats:"7", has7:true, len:"≈4,9 m", range:"n/d", price:"—", when:"Plan GWM España 2027", q:"Y", conf:"rumor",
+  note:"GWM incluye un enchufable de 7 plazas en su plan para España (6 modelos en 2027). En China existe el Haval Menglong Plus (4,91 m).",
+  src:[["Motor.es","https://www.motor.es/noticias/gwm-nuevos-modelos-espana-2026115051.html"],["Diariomotor","https://www.diariomotor.com/noticia/precio-haval-menglong-plus/"]]},
+ {name:"Tesla Model Y L", brand:"Tesla", cn:false, origin:"EE. UU. / Berlín", pt:"BEV", ptL:"BEV", seats:"6 o 7 (según fuente)", has7:true, len:"≈4,98 m", range:"≈525 km (EE. UU.)", price:"EE. UU.: 61.900 $. En España, «varios miles» más que 52.990 €", when:"Sin fecha (homologado en la UE)", q:"TBD", conf:"anunciado",
+  note:"Batalla 179 mm más larga que el Model Y: tercera fila utilizable por adultos. Apareció en configuradores europeos en agosto de 2026.",
+  src:[["Autonoción","https://www.autonocion.com/motornocion/tesla-model-y-l-configuradores-europeos/"],["Autofácil","https://www.autofacil.es/nuevo-tesla-model-y-l-europa-fechas-pedidos-precio/"],["Híbridos y Eléctricos","https://www.hibridosyelectricos.com/coches/179-mm-mas-largo-hasta-6-ocupantes-segundo-coche-electrico-mas-vendido-en-espana-prepara-su-version-mas-familiar_87838_102.html"]]},
+ {name:"Audi Q9", brand:"Audi", cn:false, origin:"Alemania", pt:"ICE", ptL:"MHEV diésel", seats:"6 o 7", has7:true, len:"5,31 m", range:"—", price:"España: desde 126.090 €", when:"Lanzamiento nov-26, entregas a caballo con 2027", q:"Q4", conf:"confirmado",
+  note:"V6 TDI de 299 CV con etiqueta ECO; 700 L de maletero con dos filas. El SUV más grande de Audi.",
+  src:[["km77","https://www.km77.com/coches/audi/q9/2027/datos"],["Motor1","https://es.motor1.com/news/802782/audi-q9-2027-contacto-estatico/"]]},
+ {name:"Range Rover Electric", brand:"Land Rover", cn:false, origin:"Reino Unido", pt:"BEV", ptL:"BEV", seats:"5 (también batalla larga)", has7:false, len:"5,05–5,25 m", range:"≈600 km WLTP", price:"España: desde 163.250 €", when:"Entregas a principios de 2027", q:"Q1", conf:"confirmado",
+  note:"550 CV y 118,5 kWh; carga 10–80 % en 22 min. Precio de entrada con batalla corta y acabado SE.",
+  src:[["Diariomotor","https://www.diariomotor.com/noticia/precio-range-rover-electrico/"],["meinauto.de","https://www.meinauto.de/news/2026/09/neuer-range-rover-electric-einstiegspreis-liegt-bei-163-500-euro"]]},
+ {name:"Mercedes VLE (acceso)", brand:"Mercedes-Benz", cn:false, origin:"España (Vitoria)", pt:"BEV", ptL:"BEV · monovolumen", seats:"hasta 7–8", has7:true, len:"—", range:"VLE 300: >700 km WLTP", price:"VLE 300 desde 83.768 €; VLE 250 previsto ≈65.000 €", when:"2027 (batería LFP de 80 kWh)", q:"Y", conf:"anunciado",
+  note:"No es SUV, pero sí la alternativa eléctrica con más espacio real para 7. Las versiones de acceso llegarán con baterías más pequeñas.",
+  src:[["Motor.es","https://www.motor.es/noticias/precio-mercedes-vle-electrico-2026113881.html"],["Híbridos y Eléctricos","https://www.hibridosyelectricos.com/coches/mercedes-pone-precio-su-ultimo-coche-electrico-con-7-asientos-700-km-autonomia-82260_86350_102.html"]]},
+ {name:"Hyundai Santa Fe (restyling)", brand:"Hyundai", cn:false, origin:"Corea", pt:"PHEV", ptL:"HEV / PHEV", seats:"7", has7:true, len:"≈4,83 m", range:"PHEV ≈55 km eléctricos", price:"Sin precio (MY27 en Alemania: +300 a +2.800 €)", when:"2027", q:"Y", conf:"rumor",
+  note:"Rediseño de mitad de ciclo visto en fotos espía; la versión EREV se fabricará en EE. UU. y no está confirmada para Europa.",
+  src:[["Motor1","https://es.motor1.com/news/814930/hyundai-novedades-2027-kona-santafe/"],["Motor.es","https://www.motor.es/noticias/hyundai-santa-fe-2027-2026115503.html"]]}
+];
+const BUCKETS = [["Q4","T4 2026"],["Q1","T1 2027"],["Q2","T2 2027"],["H2","2S 2027"],["Y","2027, sin mes"],["TBD","Sin fecha"]];
+
+// Fuentes generales
+const SOURCES = [
+ ["Motor.es · Kia EV9 gama 2027 (05/10/2026)","https://www.motor.es/noticias/kia-ev9-gama-2027-lanzamiento-espana-2026116800.html"],
+ ["Autonoción · Kia EV9 2027","https://www.autonocion.com/motornocion/kia-ev9-2027-restructura-gama/"],
+ ["Carwow · Ofertas Kia EV9","https://www.carwow.es/kia/ev9/ofertas"],
+ ["Carwow · 10 Días Kia (5–16 nov 2026)","https://www.carwow.es/kia/noticias/5016/ofertas-10-dias-kia-julio-2025"],
+ ["Autonoción · Precios Skoda Peaq (campaña y contado)","https://www.autonocion.com/skoda-peaq-2026-suv-electrico-7-plazas/"],
+ ["km77 · Škoda Peaq 2027","https://www.km77.com/coches/skoda/peaq/2027/estandar/informacion?amp=1"],
+ ["Carwow · Skoda Peaq","https://www.carwow.es/skoda/peaq"],
+ ["Motor1 · Oferta BYD Tang","https://es.motor1.com/news/800397/comprar-suv-byd-descuento-15000euros-tang/"],
+ ["BYD España · Vuelta al cole 2026","https://www.byd.com/es-es/news-list/descuentos-vuelta-al-cole-byd-2026"],
+ ["BYD España · Black Days 2026","https://www.byd.com/es-es/news-list/byd-black-friday-2026"],
+ ["InsideEVs DE · BYD Black Weeks 2026","https://insideevs.de/news/814978/byd-atto3-evo-black-weeks-2026-rabatte/"],
+ ["Tesla España · condiciones Tesla Bonus","https://www.tesla.com/es_ES/"],
+ ["Carwow · Ofertas Peugeot E-5008","https://www.carwow.es/peugeot/e-5008/ofertas"],
+ ["Carwow · Volvo EX90","https://www.carwow.es/volvo/ex90"],
+ ["Carwow · Hyundai IONIQ 9","https://www.carwow.es/hyundai/ioniq-9"],
+ ["Carwow · Ofertas Mercedes GLB eléctrico","https://www.carwow.es/mercedes/glb-ev/ofertas"],
+ ["Híbridos y Eléctricos · Plan Auto+ al 87,3 % (10/11/2026)","https://www.hibridosyelectricos.com/coches/plan-auto-se-acerca-agotamiento-96558-solicitudes-solo-186-ayudas-concedidas-hasta-ahora_90454_102.html"],
+ ["Movilidad Eléctrica · Plan Auto+ se agota en noviembre","https://movilidadelectrica.com/ayudas-coche-electrico-plan-auto-agotadas-noviembre/"],
+ ["Motor.es · Oferta Kia Sorento HEV (30/10/2026)","https://www.motor.es/noticias/oferta-kia-sorento-hibrido-drive-2026117341.html"],
+ ["Motor1 · Oferta Jaecoo 8","https://es.motor1.com/news/813537/jaecoo8-phev-oferta-descuento/"],
+ ["Motor16 · MG S9 precio de octubre","https://www.motor16.com/las-ultimas-noticias/mg-s9-precio-suv-phev/"]
+];
+
+// ---------- Derived ----------
+M.forEach(m=>{
+  m.disc = m.pvp ? (m.pvp-m.promo)/m.pvp*100 : 0;
+  m.eurkm = m.promo/m.range;
+  m.dsep = m.promo - m.promoSep;
+  m.tariffDrop = Math.max(0, m.pvpSep - m.pvp);
+  m.totalSave = m.pvpSep - m.promo;
+  const yrs = Object.keys(m.hist).map(Number).sort();
+  const first = m.hist[yrs[0]], last = m.hist[yrs[yrs.length-1]];
+  m.var3 = yrs.length>1 ? (last-first)/first*100 : null;
+  m.firstYear = yrs[0];
+  m.hasDeal = m.deals.some(d=>d.t==="drop"||d.t==="promo"||d.t==="end");
+});
+const byId = id => M.find(m=>m.id===id);
+
+const fmt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const eur = n => n==null ? "n/d" : fmt(n)+" €";
+const pct = n => n==null ? "—" : (n>0?"+":"")+n.toLocaleString("es-ES",{maximumFractionDigits:1})+" %";
+const signEur = n => n===0 ? "=" : (n>0?"+":"−")+fmt(Math.abs(n))+" €";
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const badge = d => `<span class="deal ${d.t}">${d.l}</span>`;
+const parseD = s => { const dm = s.match(/(\d{2})\/(\d{2})\/(\d{4})/); if(dm) return new Date(+dm[3], +dm[2]-1, +dm[1]);
+  const m = s.match(/(\d{4})/); if(!m) return null; const y=+m[1];
+  const mon = {ene:0,feb:1,mar:2,abr:3,may:4,jun:5,jul:6,ago:7,sep:8,oct:9,nov:10,dic:11};
+  const k = Object.keys(mon).find(x=>s.toLowerCase().includes(x)); return new Date(y, k!==undefined?mon[k]:6, 1); };
+const OLD = s => { const d = parseD(s); return d ? (NOW-d) > 365*24*3600*1000 : false; };
+const FRESH = s => { if(/consulta/.test(s)) return false; const d = parseD(s); return d ? d >= PREV : false; };
+
+// ---------- Ladder ----------
+function drawLadder(){
+  const svg = document.getElementById("ladderSvg");
+  const W = svg.clientWidth || 800;
+  const narrow = W < 560;
+  const labelW = narrow ? 132 : 220, padR = 18, rowH = narrow ? 44 : 42, top = 26;
+  const data = [...M].sort((a,b)=>a.promo-b.promo);
+  const H = top + data.length*rowH + 8;
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.setAttribute("height",H);
+  const min = 40000, max = 145000;
+  const x = v => labelW + (v-min)/(max-min)*(W-labelW-padR);
+  const ink = css("--ink"), muted = css("--muted"), line = css("--line"), save = css("--save"), warn = css("--warn"), hot = css("--hot");
+  const dcol = {drop:save, promo:hot, end:"#8A5507", fixed:muted, disc:css("--cero")};
+  let s = "";
+  const ticks = narrow ? [50000,80000,110000,140000] : [40000,60000,80000,100000,120000,140000];
+  ticks.forEach(t=>{ s+=`<line x1="${x(t)}" y1="${top-8}" x2="${x(t)}" y2="${H-4}" stroke="${line}" />
+    <text x="${x(t)}" y="${top-12}" font-size="12" fill="${muted}" text-anchor="middle">${t/1000}k €</text>`; });
+  data.forEach((m,i)=>{
+    const y = top + i*rowH + rowH/2;
+    const c = m.est ? warn : save;
+    const dl = m.deals.filter(d=>d.t!=="disc").map(d=>`<tspan fill="${dcol[d.t]}" font-weight="800"> · ${d.l.toUpperCase()}</tspan>`).join("");
+    s += `<text x="0" y="${y-3}" font-size="${narrow?13:14.5}" font-weight="700" fill="${ink}">${m.name.replace("Volkswagen","VW")}</text>
+      <text x="0" y="${y+12}" font-size="11.5" fill="${muted}">${narrow?"":m.seats}${dl}</text>
+      <line x1="${x(m.promo)}" y1="${y}" x2="${x(m.pvp)}" y2="${y}" stroke="${c}" stroke-width="4" stroke-linecap="round" opacity=".45"/>
+      <rect x="${x(m.pvp)-1.5}" y="${y-9}" width="3" height="18" fill="${ink}"/>
+      <circle cx="${x(m.promo)}" cy="${y}" r="7" fill="${c}"><title>${m.name}: PVP ${eur(m.pvp)} · promoción ${eur(m.promo)}${m.est?" (estimada)":""}</title></circle>`;
+    if(!narrow){ const lab = m.disc>0.5 ? "−"+m.disc.toFixed(0)+" %" : "precio fijo";
+      s += `<text x="${x(m.pvp)+8}" y="${y+4}" font-size="12.5" fill="${muted}">${lab}</text>`; }
+  });
+  svg.innerHTML = s;
+}
+
+// ---------- Findings ----------
+function findings(){
+  const cheapest = [...M].sort((a,b)=>a.promo-b.promo)[0];
+  const byKm = [...M].sort((a,b)=>a.eurkm-b.eurkm);
+  const under95 = byKm.filter(m=>m.eurkm<95);
+  const byDisc = [...M].sort((a,b)=>b.disc-a.disc);
+  const ev9 = byId("ev9");
+  const restKm = under95.slice(1).map(m=>m.name);
+  const kmTxt = restKm.length ? `Le ${restKm.length>1?"siguen":"sigue"} ${restKm.slice(0,-1).join(", ")}${restKm.length>1?" y ":""}${restKm[restKm.length-1]}, ${restKm.length>1?"todos":""} por debajo de 95 €/km.` : "";
+  const f = [
+    ["save", eur(cheapest.promo), `Es la puerta de entrada al 7 plazas eléctrico: ${cheapest.name} con promoción al contado. En 2023 el más barato de este grupo partía de 72.000 € (BYD Tang).`],
+    ["cero", Math.round(byKm[0].eurkm)+" €/km", `${byKm[0].name} ofrece ahora la autonomía más barata por euro, gracias al precio de campaña y a su autonomía de ${byKm[0].range} km. ${kmTxt}`],
+    ["hot", "−"+byDisc[0].disc.toFixed(0)+" %", `${byDisc[0].name} es donde más se negocia: tarifa congelada en ${eur(byDisc[0].pvp)} desde 2023 y precio de referencia en torno a ${eur(byDisc[0].promo)}${byDisc[0].est?" (estimado)":""}. Le sigue el ${byDisc[1].name} con un ${byDisc[1].disc.toFixed(0)} %.`],
+    ["save", "−"+((ev9.pvpSep-ev9.pvp)/ev9.pvpSep*100).toFixed(0)+" %", `Lo que baja la tarifa de entrada del Kia EV9 con la gama 2027 (${eur(ev9.pvpSep)} → ${eur(ev9.pvp)}), gracias a la nueva versión Air de 76,1 kWh. Es la mayor bajada de los últimos meses; desde 2023, el Volvo EX90 también ha bajado un 20 %.`]
+  ];
+  document.getElementById("findings").innerHTML = f.map(([c,b,p])=>`<div class="finding"><div class="big ${c}">${b}</div><p>${p}</p></div>`).join("");
+}
+
+// ---------- Promos ----------
+function dealCard(d, rank, isTop){
+  const save = d.was!=null ? d.was - d.now : null;
+  const p = save!=null ? save/d.was*100 : null;
+  const cls = isTop ? ("top" + (d.badges.some(b=>b[0]==="drop")?" drop":"")) : "";
+  return `<article class="deal-card ${cls}">
+    <header><div>${rank?`<span class="rank">#${rank}</span> `:""}<b>${d.title}</b></div><div>${d.badges.map(b=>`<span class="deal ${b[0]}">${b[1]}</span>`).join(" ")}</div></header>
+    <div class="dc-prices">${d.was!=null?`<span class="was">${eur(d.was)}</span> → `:""}<span class="now">${eur(d.now)}</span><span class="lab">${d.nowLab}</span></div>
+    <div class="dc-save ${d.est?"est":""}">${save!=null && save>0 ? `Ahorro: −${fmt(save)} € (−${p.toFixed(1).replace(".",",")} %)${d.est?" · estimado":""}` : (d.was==null && d.badges[0][0]==="fixed" ? "Sin descuento" : (d.est?"Precio sin tarifa de referencia · estimado":"Precio sin tarifa de referencia publicada"))}</div>
+    <p style="margin:0;font-size:14.5px"><b>Qué cambia:</b> ${d.what}</p>
+    <ul class="dc-cond">${d.cond.map(c=>`<li>${c}</li>`).join("")}</ul>
+    <p class="dc-meta">Fecha: ${d.when} · Fuentes: ${d.src.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join("")}</p>
+  </article>`;
+}
+function renderPromos(){
+  const top = [...TOP].sort((a,b)=>((b.was??b.now)-b.now)-((a.was??a.now)-a.now));
+  document.getElementById("dealsTop").innerHTML = top.map((d,i)=>dealCard(d,i+1,true)).join("");
+  const other = [...OTHER].sort((a,b)=>((b.was??b.now)-b.now)-((a.was??a.now)-a.now));
+  document.getElementById("dealsOther").innerHTML = other.map(d=>dealCard(d,null,false)).join("");
+  const rest = REST.map(byId).sort((a,b)=>(b.pvp-b.promo)-(a.pvp-a.promo));
+  const comments = {eqs:"Mayor descuento absoluto; restyling pendiente.", ex90:"La oferta financiada Premium Edition terminó el 30/09.", e5008:"El 7 plazas eléctrico más barato; descuento estable.", ioniq9:"Sin cambios desde septiembre.", buzz:"Estimación sobre la versión Pro; un concesionario llegó a anunciar 54.756 € en verano.", glb:"Estimación: oferta de 5 plazas + tercera fila."};
+  document.querySelector("#dealsRest tbody").innerHTML = rest.map(m=>`<tr>
+    <td><span class="mname">${m.name}</span> <span class="deal disc">Dto. habitual</span></td>
+    <td>${eur(m.pvp)}</td><td>${eur(m.promo)} ${m.est?'<span class="pill est">est.</span>':''}</td>
+    <td class="good">−${fmt((m.pvp-m.promo))} € (−${m.disc.toFixed(1).replace(".",",")} %)</td>
+    <td style="text-align:left;white-space:normal;min-width:260px;color:var(--muted)">Al contado, Carwow. ${comments[m.id]||""}</td></tr>`).join("");
+}
+
+// ---------- Table ----------
+let sortK="promo", sortDir=1;
+function renderTable(){
+  const type = document.getElementById("fType").value, mx = +document.getElementById("fMax").value, onlyDeal = document.getElementById("fDeal").checked;
+  let rows = M.filter(m=>(type==="all"||m.type===type) && m.promo<=mx && (!onlyDeal || m.hasDeal));
+  rows.sort((a,b)=>{ let va=a[sortK], vb=b[sortK]; if(sortK==="name"||sortK==="batt"){return String(va).localeCompare(String(vb))*sortDir;}
+    if(va==null) return 1; if(vb==null) return -1; return (va-vb)*sortDir; });
+  const best = {promo:Math.min(...M.map(m=>m.promo)), disc:Math.max(...M.map(m=>m.disc)), range:Math.max(...M.map(m=>m.range)),
+    eurkm:Math.min(...M.map(m=>m.eurkm)), boot7:Math.max(...M.filter(m=>m.boot7).map(m=>m.boot7))};
+  const g = (k,v,txt)=> best[k]!==undefined && v===best[k] ? `<span class="good">${txt}</span>` : txt;
+  document.querySelector("#cmp tbody").innerHTML = rows.length ? rows.map(m=>`<tr>
+    <td><span class="mname">${m.name}</span> ${m.isNew?'<span class="pill new">nuevo</span>':''} ${m.deals.filter(d=>d.t!=="disc").map(badge).join(" ")}<span class="mtype">${m.type} · ${m.seats}</span></td>
+    <td>${eur(m.pvp)}</td>
+    <td>${g("promo",m.promo,eur(m.promo))} ${m.est?'<span class="pill est">est.</span>':''}</td>
+    <td>${g("disc",m.disc,m.disc<0.5?"0 %":"−"+m.disc.toFixed(1).replace(".",",")+" %")}</td>
+    <td><span class="${m.dsep<0?"down":(m.dsep>0?"upv":"")}">${signEur(m.dsep)}</span></td>
+    <td>${g("range",m.range,m.range+" km")}</td>
+    <td>${g("eurkm",m.eurkm,Math.round(m.eurkm)+" €")}</td>
+    <td>${m.batt}</td>
+    <td>${m.boot7?g("boot7",m.boot7,m.boot7+" L"):"n/d"}</td>
+    <td>${m.len.toLocaleString("es-ES")} m</td>
+    <td>${m.cv?m.cv+" CV":"n/d"}</td>
+    <td>${m.var3==null?"<span style='color:var(--muted)'>nuevo en "+m.firstYear+"</span>":pct(m.var3)+" <span style='color:var(--muted);font-size:12.5px'>desde "+m.firstYear+"</span>"}</td>
+  </tr>`).join("") : `<tr><td colspan="12">Ningún modelo cumple el filtro. Sube el límite de precio, elige «Todas» o quita el filtro de badge.</td></tr>`;
+  document.querySelectorAll("#cmp th").forEach(th=>th.setAttribute("aria-sort", th.dataset.k===sortK ? (sortDir===1?"ascending":"descending") : "none"));
+}
+document.querySelectorAll("#cmp th").forEach(th=>{
+  const act=()=>{ const k=th.dataset.k; if(sortK===k) sortDir*=-1; else {sortK=k; sortDir=1;} renderTable(); };
+  th.addEventListener("click",act); th.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();act();}});
+});
+["fType","fMax","fDeal"].forEach(id=>document.getElementById(id).addEventListener("change",renderTable));
+
+// ---------- Model cards ----------
+function renderModels(){
+  const gq = n => "https://news.google.com/search?q="+encodeURIComponent('"'+n.replace(" 7 plazas","").replace(" LWB","")+'"')+"&hl=es&gl=ES&ceid=ES:es";
+  document.getElementById("models").innerHTML = [...M].sort((a,b)=>a.pvp-b.pvp).map(m=>{
+    const yrs=[2023,2024,2025,2026];
+    const histRows = yrs.map(y=>`<tr><td>${y}</td><td>${m.hist[y]?eur(m.hist[y]):'<span style="color:var(--muted)">no a la venta / sin dato</span>'}</td></tr>`).join("");
+    const recent = m.news.filter(n=>!OLD(n[2])).length;
+    return `<details class="model" id="m-${m.id}">
+      <summary>
+        <span class="swatch" style="background:${m.color}"></span>
+        <span><span class="sum-name">${m.name}</span> ${m.deals.filter(d=>d.t!=="disc").map(badge).join(" ")}<br><span class="sum-meta">${m.type} · ${m.seats} · ${m.range} km WLTP</span></span>
+        <span class="sum-price">Tarifa ${eur(m.pvp)}<b class="p2" style="color:${m.est?'var(--warn)':'var(--save)'}">${eur(m.promo)}</b>al contado${m.est?' (est.)':''}</span>
+      </summary>
+      <div class="model-body">
+        ${m.dealNote?`<p class="deal-line">${m.deals.map(badge).join(" ")} ${m.dealNote}</p>`:""}
+        <div class="spec-grid">
+          <div class="spec"><div class="k">Autonomía WLTP</div><div class="v">${m.range} km</div></div>
+          <div class="spec"><div class="k">Batería</div><div class="v">${m.batt}</div></div>
+          <div class="spec"><div class="k">Potencia base</div><div class="v">${m.cv?m.cv+" CV":"n/d"}</div></div>
+          <div class="spec"><div class="k">Largo</div><div class="v">${m.len.toLocaleString("es-ES")} m</div></div>
+          <div class="spec"><div class="k">Maletero con 7</div><div class="v">${m.boot7?m.boot7+" L":"n/d"}</div></div>
+          <div class="spec"><div class="k">Descuento</div><div class="v">${m.disc<0.5?"0 %":"−"+m.disc.toFixed(1).replace(".",",")+" %"}</div></div>
+          <div class="spec"><div class="k">€ por km</div><div class="v">${Math.round(m.eurkm)} €</div></div>
+          <div class="spec"><div class="k">Δ contado vs sep-26</div><div class="v">${signEur(m.dsep)}</div></div>
+        </div>
+        <div class="two-col">
+          <div>
+            <h3>Tarifa de entrada por año</h3>
+            <table class="hist"><thead><tr><th>Año</th><th>PVP entrada</th></tr></thead><tbody>${histRows}</tbody></table>
+            <p style="font-size:14px;color:var(--muted);margin-top:8px"><b>Fuente de la promoción:</b> ${m.promoSrc}.</p>
+            <h3>Claves de compra</h3>
+            <ul class="model-notes">${m.notes.map(n=>`<li>${n}</li>`).join("")}</ul>
+            <a class="more-news" href="${m.photos}" target="_blank" rel="noopener">Ver fotos del ${m.name}</a>
+          </div>
+          <div>
+            <h3>Noticias relevantes (${m.news.length}${recent<m.news.length?`, ${recent} del último año`:''})</h3>
+            <ul class="news">${m.news.map(n=>`<li><a href="${n[3]}" target="_blank" rel="noopener">${n[0]}</a><span class="src">${n[1]} · <span class="${OLD(n[2])?'old':(FRESH(n[2])?'fresh':'')}">${n[2]}${FRESH(n[2])?' · nuevo':''}</span></span></li>`).join("")}</ul>
+            <a class="more-news" href="${gq(m.name)}" target="_blank" rel="noopener">Buscar las últimas noticias en Google Noticias</a>
+          </div>
+        </div>
+      </div>
+    </details>`;}).join("");
+}
+
+// ---------- Radar ----------
+function renderRadar(){
+  const n = R.length, cn = R.filter(r=>r.cn).length, bev7 = R.filter(r=>r.pt==="BEV"&&r.has7).length, conf = R.filter(r=>r.conf==="confirmado").length;
+  document.getElementById("radarKeys").innerHTML = [
+    ["hot", `${cn} de ${n}`, "son de marcas chinas. BYD es la que más mueve ficha: Atto 8 eléctrico (sucesor del Tang) y Ti7 enchufable, ambos de 7 plazas."],
+    ["cero", `${bev7}`, "eléctricos puros con 7 plazas posibles en el radar: Atto 8 y XPeng G9L como SUV, más Tesla Model Y L y el VLE de acceso, ambos sin fecha cerrada."],
+    ["save", `${conf}`, "llegadas confirmadas con precio o fecha para España o Europa. Si puedes esperar al T1–T2 de 2027, sabrás el precio del Atto 8 y del G9L."]
+  ].map(([c,b,p])=>`<div class="finding"><div class="big ${c}">${b}</div><p>${p}</p></div>`).join("");
+
+  const ptClass = r => r.pt;
+  document.getElementById("timeline").innerHTML = BUCKETS.map(([k,lab])=>{
+    const items = R.filter(r=>r.q===k);
+    return `<div class="tl-col" role="listitem"><h4>${lab}</h4>${items.length?items.map(r=>`<a class="tl-item ${ptClass(r)} ${r.conf==="rumor"?"rumor":""}" href="#rd-${r.name.replace(/[^a-z0-9]/gi,"")}">${r.name}<small>${r.ptL} · ${r.seats} plazas${r.cn?" · China":""}</small></a>`).join(""):'<span style="font-size:13px;color:var(--muted)">—</span>'}</div>`;
+  }).join("");
+  renderRadarTable();
+}
+function renderRadarTable(){
+  const o = document.getElementById("rOrigin").value, p = document.getElementById("rPt").value, s7 = document.getElementById("r7").checked;
+  const ord = {Q4:0,Q1:1,Q2:2,H2:3,Y:4,TBD:5};
+  const rows = R.filter(r=>(o==="all"||(o==="cn"?r.cn:!r.cn)) && (p==="all"||(p==="BEV"?r.pt==="BEV":(p==="PLUG"?(r.pt==="PHEV"||r.pt==="EREV"):r.pt==="ICE"))) && (!s7||r.has7))
+    .sort((a,b)=>ord[a.q]-ord[b.q] || (a.conf>b.conf?1:-1));
+  const confLab = {confirmado:"Confirmado",anunciado:"Anunciado",rumor:"Rumor"};
+  document.querySelector("#radar tbody").innerHTML = rows.length ? rows.map(r=>`<tr id="rd-${r.name.replace(/[^a-z0-9]/gi,"")}">
+    <td><span class="mname">${r.name}</span><span class="conf ${r.conf}">${confLab[r.conf]}</span><span class="mtype">${r.brand} · <span class="${r.cn?"cn":""}">${r.cn?"China":r.origin}</span></span></td>
+    <td class="l"><span class="chip ${r.pt}">${r.ptL}</span></td>
+    <td class="l">${r.seats}</td>
+    <td class="n">${r.len}</td>
+    <td class="l">${r.range}</td>
+    <td class="l"><b>${r.price}</b></td>
+    <td class="l">${r.when}</td>
+    <td class="rnote">${r.note}</td>
+    <td class="l" style="font-size:13.5px">${r.src.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join("<br>")}</td>
+  </tr>`).join("") : `<tr><td colspan="9">Ningún modelo cumple el filtro.</td></tr>`;
+}
+["rOrigin","rPt","r7"].forEach(id=>document.getElementById(id).addEventListener("change",renderRadarTable));
+
+function renderSources(){
+  const all = [...SOURCES];
+  R.forEach(r=>r.src.forEach(s=>all.push([`${s[0]} · ${r.name}`, s[1]])));
+  document.getElementById("srcList").innerHTML = all.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a></li>`).join("");
+}
+
+// ---------- Charts ----------
+function charts(){
+  if(typeof Chart==="undefined"){ document.querySelectorAll(".chart-box").forEach(b=>b.style.display="none"); document.querySelectorAll(".chart-fallback").forEach(f=>f.style.display="block"); return; }
+  const ink=css("--ink"), muted=css("--muted"), line=css("--line"), cero=css("--cero"), save=css("--save"), warn=css("--warn"), hot=css("--hot");
+  Chart.defaults.font.family = css("--font"); Chart.defaults.color = muted; Chart.defaults.borderColor = line;
+  const k = v => (v/1000).toLocaleString("es-ES")+"k €";
+  const byPvp=[...M].sort((a,b)=>a.pvp-b.pvp);
+  const legendOpts = {position:"bottom",labels:{usePointStyle:true,boxWidth:10,padding:14,color:ink}};
+
+  new Chart(document.getElementById("c1"),{type:"bar",data:{labels:byPvp.map(m=>m.name),datasets:[
+    {label:"PVP tarifa (entrada)",data:byPvp.map(m=>m.pvp),backgroundColor:cero,borderRadius:3},
+    {label:"Promoción al contado (ámbar = estimada)",data:byPvp.map(m=>m.promo),backgroundColor:byPvp.map(m=>m.est?warn:save),borderRadius:3}
+  ]},options:{indexAxis:"y",maintainAspectRatio:false,plugins:{legend:legendOpts,tooltip:{callbacks:{label:c=>`${c.dataset.label.split(" (")[0]}: ${eur(c.raw)}`,afterBody:it=>{const m=byPvp[it[0].dataIndex];return `Descuento: ${m.disc.toFixed(1).replace(".",",")} %${m.est?" (estimado)":""}`;}}}},
+    scales:{x:{title:{display:true,text:"Euros, IVA incluido"},ticks:{callback:k},min:0},y:{ticks:{color:ink}}}}});
+
+  const years=["2023","2024","2025","2026"];
+  new Chart(document.getElementById("c2"),{type:"line",data:{labels:years,datasets:M.map(m=>({label:m.name,data:years.map(y=>m.hist[y]??null),borderColor:m.color,backgroundColor:m.color,pointRadius:5,pointHoverRadius:7,borderWidth:2.5,spanGaps:false,tension:0}))},
+    options:{maintainAspectRatio:false,plugins:{legend:legendOpts,tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${eur(c.raw)}`}}},
+    scales:{y:{title:{display:true,text:"PVP de entrada (€)"},ticks:{callback:k}},x:{title:{display:true,text:"Año (tarifa vigente; 2026 = noviembre)"}}}}});
+
+  const kmLine = {id:"kmLine",afterDatasetsDraw(ch){const {ctx,scales:{x,y}}=ch; ctx.save(); ctx.setLineDash([6,5]); ctx.strokeStyle=muted; ctx.lineWidth=1.5; ctx.beginPath();
+    const x0=x.min, x1=x.max; ctx.moveTo(x.getPixelForValue(x0),y.getPixelForValue(x0*100)); ctx.lineTo(x.getPixelForValue(x1),y.getPixelForValue(x1*100)); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle=muted; ctx.font="12px "+css("--font"); ctx.fillText("100 €/km",x.getPixelForValue(x1)-62,y.getPixelForValue(x1*100)-6); ctx.restore();}};
+  new Chart(document.getElementById("c3"),{type:"scatter",data:{datasets:M.map(m=>({label:m.name,data:[{x:m.range,y:m.promo}],backgroundColor:m.color,borderColor:m.est?warn:m.color,borderWidth:m.est?3:1,pointRadius:9,pointHoverRadius:12}))},
+    options:{maintainAspectRatio:false,plugins:{legend:legendOpts,tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.x} km · ${eur(c.raw.y)} · ${Math.round(c.raw.y/c.raw.x)} €/km`}}},
+    scales:{x:{title:{display:true,text:"Autonomía WLTP (km) → más es mejor"},min:420,max:680},y:{title:{display:true,text:"Promoción al contado (€) ↓ más barato"},ticks:{callback:k},min:40000,max:135000}}},plugins:[kmLine]});
+
+  const byKm=[...M].sort((a,b)=>a.eurkm-b.eurkm);
+  new Chart(document.getElementById("c4"),{type:"bar",data:{labels:byKm.map(m=>m.name),datasets:[{label:"Euros por km de autonomía WLTP (cada color = un modelo)",data:byKm.map(m=>Math.round(m.eurkm)),backgroundColor:byKm.map(m=>m.color),borderRadius:3}]},
+    options:{indexAxis:"y",maintainAspectRatio:false,plugins:{legend:legendOpts,tooltip:{callbacks:{label:c=>`${c.raw} € por km`}}},scales:{x:{title:{display:true,text:"€ por km (menos es mejor)"}},y:{ticks:{color:ink}}}}});
+
+  const byD=[...M].sort((a,b)=>b.disc-a.disc);
+  new Chart(document.getElementById("c5"),{type:"bar",data:{labels:byD.map(m=>m.name),datasets:[{label:"Descuento al contado sobre PVP (%) · ámbar = estimado",data:byD.map(m=>+m.disc.toFixed(1)),backgroundColor:byD.map(m=>m.est?warn:save),borderRadius:3}]},
+    options:{indexAxis:"y",maintainAspectRatio:false,plugins:{legend:legendOpts,tooltip:{callbacks:{label:c=>`${c.raw.toLocaleString("es-ES")} % · ahorro ${eur(byD[c.dataIndex].pvp-byD[c.dataIndex].promo)}`}}},scales:{x:{title:{display:true,text:"% de descuento"},min:0},y:{ticks:{color:ink}}}}});
+
+  const byS=[...M].sort((a,b)=>b.totalSave-a.totalSave);
+  new Chart(document.getElementById("c6"),{type:"bar",data:{labels:byS.map(m=>m.name+(m.est?" (est.)":"")),datasets:[
+    {label:"Bajada de tarifa desde sep-26",data:byS.map(m=>m.tariffDrop),backgroundColor:save,borderRadius:3,stack:"s"},
+    {label:"Descuento al contado sobre la tarifa actual",data:byS.map(m=>m.pvp-m.promo),backgroundColor:hot,borderRadius:3,stack:"s"}
+  ]},options:{indexAxis:"y",maintainAspectRatio:false,plugins:{legend:legendOpts,tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${eur(c.raw)}`,footer:it=>{const m=byS[it[0].dataIndex];return `Total frente a tarifa de septiembre: ${eur(m.totalSave)}`;}}}},
+    scales:{x:{stacked:true,title:{display:true,text:"Euros ahorrados frente a la tarifa de septiembre de 2026"},ticks:{callback:k},min:0},y:{stacked:true,ticks:{color:ink}}}}});
+}
+
+findings(); renderPromos(); renderTable(); renderModels(); renderRadar(); renderSources(); drawLadder(); charts();
+let rt; window.addEventListener("resize",()=>{clearTimeout(rt); rt=setTimeout(drawLadder,150);});
+</script>
+</body>
+</html>
