@@ -64,6 +64,7 @@ export const DEFAULT_PROJECTS: ProjectTile[] = [
   { id: "nubes", emoji: "☁️", title: "Nubes de palabras", description: "Pega un texto, etiqueta frases y explora", color: "c1", href: "#/app/nubes" },
   { id: "suscripciones", emoji: "🔁", title: "Suscripciones", description: "Qué pagas, cuándo renueva y qué sobra", color: "c2", href: "#/app/suscripciones" },
   { id: "coches-7-plazas", emoji: "🚙", title: "Coches 7 plazas", description: "Eléctricos, promos y SUV que llegan en 2027", color: "c3", href: "/proyectos/coches-7-plazas.html" },
+  { id: "tarareo", emoji: "🎵", title: "Tarareo", description: "Tararea y te da la partitura, piano y guitarra", color: "c4", href: "#/app/tarareo" },
 ];
 
 const STYLES = `
