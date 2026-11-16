@@ -423,7 +423,7 @@ export async function analyzeBoth(pcm: Float32Array, sr: number, o: { source?: S
   if (o.source === "voz" || o.source === "instrumento") { chosen = o.source; why = "elegido a mano"; }
   else if (inst.polyIndex >= 0.6 && cl < 0.92) { chosen = "instrumento"; why = "suenan varias notas a la vez (melodía con acompañamiento)"; }
   else if (inst.decay < 0.45) { chosen = "instrumento"; why = "cada nota tiene un ataque seco y se apaga enseguida, como en una guitarra o un piano"; }
-  else if (wb >= 0.03 && cl >= 0.93) { chosen = "voz"; why = "el tono ondula dentro de cada nota, como en una voz o un silbido"; }
+  else if (wb >= 0.045 && cl >= 0.93) { chosen = "voz"; why = "el tono ondula dentro de cada nota, como en una voz o un silbido"; }
   else if (inst.decay < 0.75) { chosen = "instrumento"; why = "las notas tienen ataque, se apagan solas y su tono no ondula, como en un piano o una guitarra"; }
   else { chosen = "voz"; why = "suena una sola línea sostenida, como una voz o un silbido"; }
   voz.why = chosen === "voz" ? why : ""; ins.why = chosen === "instrumento" ? why : "";
