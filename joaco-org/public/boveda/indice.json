@@ -6,6 +6,12 @@
    "path": "/boveda/647b425538dd2cde.bin",
    "salt": "5XaqGtQ4aSGfDGz9SMSpJA==",
    "iter": 210000
+  },
+  {
+   "id": "bb70e794ed467b19",
+   "path": "/boveda/bb70e794ed467b19.bin",
+   "salt": "bCsfoOnTu41n8CD6RLW6PA==",
+   "iter": 210000
   }
  ]
 }
