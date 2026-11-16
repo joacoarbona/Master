@@ -127,9 +127,12 @@ export function friendlyError(e: unknown): string {
   if (/Email not confirmed/i.test(m)) return "Falta confirmar el correo: abre el enlace que te ha llegado y vuelve a entrar.";
   if (/User already registered/i.test(m)) return "Ya existe una cuenta con ese correo. Usa «Entrar».";
   if (/Password should be at least/i.test(m)) return "La contraseña es demasiado corta (mínimo 6 caracteres).";
+  if (/Email address .* (is invalid|not authorized)|email_address_not_authorized/i.test(m)) return "El servidor no puede enviar el correo de confirmación a esa dirección. Prueba con el correo de tu cuenta de Supabase.";
+  if (/Email rate limit|over_email_send_rate_limit/i.test(m)) return "Se han enviado demasiados correos seguidos. Espera una hora o usa el enlace del último correo.";
+  if (/Signups not allowed|signup_disabled/i.test(m)) return "La creación de cuentas está desactivada en el servidor.";
   if (/rate limit|too many/i.test(m)) return "Demasiados intentos seguidos. Espera un minuto y vuelve a probar.";
   if (/relation .*sx_store.* does not exist|Could not find the table/i.test(m)) return "Falta crear la tabla en Supabase: ejecuta supabase/suscripciones.sql (ver Guía).";
-  if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return "Sin conexión con el servidor. Los cambios quedan guardados aquí y se subirán al volver la conexión.";
+  if (/Failed to fetch|NetworkError|Load failed|network connection was lost/i.test(m)) return "No se ha podido conectar con el servidor. Comprueba la conexión y vuelve a intentarlo; lo apuntado sigue guardado en este dispositivo.";
   if (/JWT|token/i.test(m)) return "La sesión ha caducado. Vuelve a entrar.";
   return m || "Error desconocido.";
 }

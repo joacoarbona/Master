@@ -7,7 +7,7 @@ cada persona puede crear una cuenta y ver sus suscripciones igual en todos sus d
 
 - Proyecto Supabase **joaco-org** (`zdlmpppkwfvtwkohwzct`, Frankfurt, plan gratuito).
 - Tabla `sx_store` creada con este SQL, RLS comprobado (otra cuenta ve 0 filas) y Realtime activo.
-- URL y clave *publishable* puestas en `src/lib/supabase.ts`: no hace falta tocar Vercel.
+- URL y clave *publishable* puestas en `src/lib/supabase.ts`: no hace falta tocar Vercel (en producción se ignoran las variables VITE_SUPABASE_*).
 - **Pendiente (solo desde el panel de Supabase):** el paso 2, URL Configuration.
 - Ojo, plan gratuito: un proyecto sin peticiones durante 7 días se pausa. La app sigue funcionando
   en el navegador y avisa de «No se ha podido sincronizar»; se reactiva desde el panel

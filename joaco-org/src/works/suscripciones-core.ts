@@ -149,7 +149,21 @@ export function forecast(subs: Sub[], st: Settings, today: string, n = 12, inclu
 export type Level = "urgente" | "pronto" | "revisar" | "info";
 export interface Alert { level: Level; subId: string; kind: string; title: string; detail: string; date?: string }
 const LEVEL_ORDER: Record<Level, number> = { urgente: 0, pronto: 1, revisar: 2, info: 3 };
-export const eur = (n: number) => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: Math.abs(n) >= 1000 ? 0 : 2 }).format(n || 0);
+// minimumFractionDigits va siempre junto a maximumFractionDigits: pedir solo un máximo menor que el mínimo
+// por defecto de la moneda (2) lanza RangeError en Safari y otros motores no recientes, y tumbaba la app.
+const EUR_FMT: Record<number, Intl.NumberFormat | null> = {};
+function eurFmt(digits: 0 | 2): Intl.NumberFormat | null {
+  if (!(digits in EUR_FMT)) {
+    try { EUR_FMT[digits] = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", minimumFractionDigits: digits, maximumFractionDigits: digits }); }
+    catch { EUR_FMT[digits] = null; }
+  }
+  return EUR_FMT[digits];
+}
+export const eur = (n: number) => {
+  const v = Number.isFinite(n) ? n : 0, digits = Math.abs(v) >= 1000 ? 0 : 2;
+  const f = eurFmt(digits);
+  return f ? f.format(v) : `${v.toFixed(digits).replace(".", ",")} €`;
+};
 const inDays = (n: number) => n === 0 ? "hoy" : n === 1 ? "mañana" : `en ${n} días`;
 
 export function buildAlerts(subs: Sub[], st: Settings, today: string): Alert[] {

@@ -18,22 +18,45 @@ import PrivateArea, { PrivateGate } from "./PrivateArea";
  *   3. añade su tile en ElGabinete.tsx o ProjectsMenu.tsx con href "#/app/<id>"
  */
 
+/**
+ * Tras un despliegue nuevo, una pestaña (o la app de la pantalla de inicio) que seguía abierta pide trozos
+ * de código con el nombre antiguo, que ya no existen. En vez de mostrar el error, se recarga la página una
+ * vez para coger la versión nueva. La marca en sessionStorage evita recargar en bucle si el fallo es otro.
+ */
+const RELOAD_KEY = "joaco-chunk-reload";
+const isChunkError = (e: unknown) => /dynamically imported module|Importing a module script failed|error loading dynamically imported|Unable to preload CSS|Loading chunk/i.test(String((e as any)?.message || e));
+function fresh<T>(load: () => Promise<T>): () => Promise<T> {
+  return () => load().then(
+    (m) => { try { sessionStorage.removeItem(RELOAD_KEY); } catch { /* sin almacenamiento */ } return m; },
+    (e) => {
+      let last = 0;
+      try { last = Number(sessionStorage.getItem(RELOAD_KEY)) || 0; } catch { /* sin almacenamiento */ }
+      if (isChunkError(e) && navigator.onLine !== false && Date.now() - last > 30000) {
+        try { sessionStorage.setItem(RELOAD_KEY, String(Date.now())); } catch { /* sin almacenamiento */ }
+        window.location.reload();
+        return new Promise<T>(() => { /* la página se está recargando */ });
+      }
+      throw e;
+    },
+  );
+}
+
 const APPS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  "dcos-navigator": lazy(() => import("./works/DCOSNavigator.jsx")),
-  "atlas": lazy(() => import("./works/AtlasEnterprise.jsx")),
-  "tycoon": lazy(() => import("./works/AIProductTycoon.jsx")),
-  "hipoteca": lazy(() => import("./works/MortgageSimulator.jsx")),
-  "healthcare-thesis": lazy(() => import("./works/HealthcareThesis")),
-  "healthcare-ira": lazy(() => import("./works/HealthcareIRA")),
-  "blondie-macro": lazy(() => import("./works/BlondieMacro")),
-  "iq-markets": lazy(() => import("./works/IQMarkets.jsx")),
-  "bridge": lazy(() => import("./works/Bridge.jsx")),
-  "slidebuilder": lazy(() => import("./works/SlideBuilder.jsx")),
-  "postlabor": lazy(() => import("./works/PostLabor.jsx")),
-  "nubes": lazy(() => import("./works/WordClouds")),
-  "suscripciones": lazy(() => import("./works/Suscripciones")),
-  "documentos": lazy(() => import("./works/Documentos")),
-  "tarareo": lazy(() => import("./works/Tarareo")),
+  "dcos-navigator": lazy(fresh(() => import("./works/DCOSNavigator.jsx"))),
+  "atlas": lazy(fresh(() => import("./works/AtlasEnterprise.jsx"))),
+  "tycoon": lazy(fresh(() => import("./works/AIProductTycoon.jsx"))),
+  "hipoteca": lazy(fresh(() => import("./works/MortgageSimulator.jsx"))),
+  "healthcare-thesis": lazy(fresh(() => import("./works/HealthcareThesis"))),
+  "healthcare-ira": lazy(fresh(() => import("./works/HealthcareIRA"))),
+  "blondie-macro": lazy(fresh(() => import("./works/BlondieMacro"))),
+  "iq-markets": lazy(fresh(() => import("./works/IQMarkets.jsx"))),
+  "bridge": lazy(fresh(() => import("./works/Bridge.jsx"))),
+  "slidebuilder": lazy(fresh(() => import("./works/SlideBuilder.jsx"))),
+  "postlabor": lazy(fresh(() => import("./works/PostLabor.jsx"))),
+  "nubes": lazy(fresh(() => import("./works/WordClouds"))),
+  "suscripciones": lazy(fresh(() => import("./works/Suscripciones"))),
+  "documentos": lazy(fresh(() => import("./works/Documentos"))),
+  "tarareo": lazy(fresh(() => import("./works/Tarareo"))),
 };
 
 type Route = { kind: "gabinete" | "fiesta" | "proyectos" | "privado" } | { kind: "app"; id: string };
@@ -57,6 +80,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
         <div style={{ padding: 40, fontFamily: "monospace", color: "#c33" }}>
           <h2>Esta app ha fallado al cargar</h2>
           <pre style={{ whiteSpace: "pre-wrap" }}>{String(this.state.error)}</pre>
+          <p style={{ color: "#333" }}>{isChunkError(this.state.error) ? "Hay una versión nueva del sitio o no hay conexión. Recarga la página." : "Tus datos guardados no se han tocado. Prueba a recargar."}</p>
+          <button onClick={() => window.location.reload()} style={{ font: "inherit", padding: "8px 14px", marginRight: 12, cursor: "pointer" }}>Recargar</button>
           <a href="#/">← Volver al Gabinete</a>
         </div>
       );
