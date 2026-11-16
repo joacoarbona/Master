@@ -8,7 +8,7 @@
 import { midiToHz } from "./pitch";
 import type { Part, Song } from "./songs";
 
-export type RenderMode = "hum" | "whistle" | "piano" | "guitar";
+export type RenderMode = "hum" | "whistle" | "piano" | "guitar" | "sing";
 export type RenderOpts = {
   sr?: number; seed?: number; tempoMul?: number; detuneCents?: number; withAcc?: boolean;
   pedal?: boolean; noise?: number; reverb?: number; jitterMs?: number; octave?: number;
@@ -25,7 +25,7 @@ export function renderSong(song: Song, mode: RenderMode, o: RenderOpts = {}): Re
   const rnd = rng(o.seed ?? 3);
   const bpm = song.bpm * (o.tempoMul ?? 1);
   const beat = 60 / bpm;
-  const jit = (o.jitterMs ?? (mode === "hum" || mode === "whistle" ? 22 : 12)) / 1000;
+  const jit = (o.jitterMs ?? (mode === "sing" ? 45 : mode === "hum" || mode === "whistle" ? 22 : 12)) / 1000;
   const lead = 0.4;
   const oct = (o.octave ?? 0) * 12 + (mode === "whistle" ? 12 : 0);
   const melody = song.melody;
@@ -45,6 +45,7 @@ export function renderSong(song: Song, mode: RenderMode, o: RenderOpts = {}): Re
   });
 
   if (mode === "hum" || mode === "whistle") voice(out, sr, melTimes.map(({ n, t }) => ({ midi: n.midi + oct, t, dur: n.dur * beat })), mode, det, rnd);
+  else if (mode === "sing") human(out, sr, melTimes.map(({ n, t }) => ({ midi: n.midi + oct, t, dur: n.dur * beat })), rnd);
   else if (mode === "piano") {
     const all = [...melTimes.map(({ n, t }) => ({ midi: n.midi + oct, t, dur: n.dur * beat, vel: 0.75 + rnd() * 0.15 })),
       ...acc.map((n) => ({ midi: n.midi + oct, t: time(n.start), dur: n.dur * beat, vel: 0.45 + rnd() * 0.12 }))];
@@ -60,6 +61,7 @@ export function renderSong(song: Song, mode: RenderMode, o: RenderOpts = {}): Re
     });
   }
   if (o.reverb ?? 0.12) reverb(out, sr, o.reverb ?? 0.12);
+  if (mode === "sing") telephone(out, sr);
   const nz = o.noise ?? 0.003;
   for (let i = 0; i < out.length; i++) out[i] += (rnd() - 0.5) * 2 * nz;
   let pk = 1e-9; for (let i = 0; i < out.length; i++) pk = Math.max(pk, Math.abs(out[i]));
@@ -94,6 +96,67 @@ function voice(out: Float32Array, sr: number, notes: { midi: number; t: number; 
       out[i2] += (s + breath) * env * amp;
     }
   });
+}
+
+// ---------- Persona cantando de verdad (con sus imprecisiones) ----------
+// Deriva lenta de la afinación, intervalos grandes algo «encogidos», error por nota,
+// sílabas (consonante + pequeño hueco), vibrato irregular y voz grave o aguda al azar.
+function human(out: Float32Array, sr: number, notes: { midi: number; t: number; dur: number }[], rnd: () => number) {
+  const gauss = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const low = rnd() < 0.5;                  // voz de hombre (una octava abajo) o de mujer/niño
+  const key = (low ? -12 : 0) + (rnd() - 0.5) * 6; // en otro tono, como canta cada uno
+  let drift = (rnd() - 0.5) * 0.6, prevSung = notes[0]?.midi ?? 60, prevTarget = prevSung;
+  const vibRate = 4.8 + rnd() * 1.6, vibDepth = 0.08 + rnd() * 0.22;
+  const formants = [[500, 80], [1000, 110], [2500, 160]];
+  let phase = 0;
+  notes.forEach((n, i) => {
+    drift += gauss() * 0.06;                // se va desafinando poco a poco
+    drift = Math.max(-0.6, Math.min(0.6, drift));
+    const interval = n.midi - prevTarget;
+    const sungInterval = interval * (Math.abs(interval) >= 5 ? 0.9 : 1); // salta un poco menos
+    let target = (i ? prevSung + sungInterval : n.midi) + gauss() * 0.18;
+    // no deja que el error acumulado se aleje: se recentra hacia la nota escrita
+    target = target * 0.7 + (n.midi + drift) * 0.3;
+    prevSung = target; prevTarget = n.midi;
+    const len = n.dur * (0.82 + rnd() * 0.12);
+    const a = Math.max(0, Math.floor(n.t * sr)), b = Math.min(out.length, Math.floor((n.t + len) * sr));
+    const amp = 0.18 + rnd() * 0.12;
+    const consonant = rnd() < 0.75;          // «la», «ta», «na»… o vocal sola
+    for (let i2 = a; i2 < b; i2++) {
+      const lt = (i2 - a) / sr;
+      let pitch = target + key;
+      if (lt < 0.07) pitch -= (0.3 + rnd() * 0.02) * (1 - lt / 0.07); // entrada desde abajo
+      if (lt > 0.15) pitch += vibDepth * Math.sin(2 * Math.PI * vibRate * lt) * Math.min(1, (lt - 0.15) / 0.2);
+      pitch += gauss() * 0.01;
+      const f = midiToHz(pitch);
+      phase += (2 * Math.PI * f) / sr;
+      let env = Math.min(1, lt / 0.04) * Math.min(1, (len - lt) / 0.06);
+      if (consonant && lt < 0.035) env *= 0.25;
+      env = Math.max(0, env) * (1 + 0.15 * Math.sin(2 * Math.PI * 3.1 * lt + i));
+      // voz con formantes aproximados (suma de armónicos pesados por resonancias)
+      let s = 0;
+      for (let h = 1; h * f < sr * 0.45 && h <= 24; h++) {
+        const fh = h * f;
+        let g = 0;
+        for (const [fc, bw] of formants) g += 1 / (1 + ((fh - fc) / bw) ** 2);
+        s += (Math.sin(phase * h) * (0.25 + g)) / Math.pow(h, 0.9);
+      }
+      const noise = (rnd() - 0.5) * (consonant && lt < 0.035 ? 0.6 : 0.02);
+      out[i2] += (s * 0.35 + noise) * env * amp;
+    }
+  });
+}
+/** Banda de teléfono (300–3400 Hz) y algo de saturación, como una grabación de móvil antiguo. */
+function telephone(x: Float32Array, sr: number) {
+  const hp = Math.exp((-2 * Math.PI * 300) / sr), lp = Math.exp((-2 * Math.PI * 3400) / sr);
+  let h1 = 0, hx = 0, l1 = 0, l2 = 0;
+  for (let i = 0; i < x.length; i++) {
+    const v = x[i];
+    h1 = hp * (h1 + v - hx); hx = v;          // paso-alto
+    l1 = (1 - lp) * h1 + lp * l1;             // paso-bajo de 2.º orden
+    l2 = (1 - lp) * l1 + lp * l2;
+    x[i] = Math.tanh(l2 * 3) / 3;
+  }
 }
 
 // ---------- Piano (aditivo, inarmónico, dos caídas, martillo) ----------

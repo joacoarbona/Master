@@ -34,7 +34,7 @@ export type SegmentOptions = {
   minConf: number;       // claridad mínima para aceptar un fotograma
 };
 
-export const DEFAULT_SEG: SegmentOptions = { minNoteMs: 70, splitSemitones: 0.6, dipRatio: 0.55, minConf: 0.55 };
+export const DEFAULT_SEG: SegmentOptions = { minNoteMs: 100, splitSemitones: 0.6, dipRatio: 0.7, minConf: 0.55 };
 
 export const midiToHz = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 export const hzToMidi = (f: number) => 69 + 12 * Math.log2(f / 440);
@@ -294,6 +294,9 @@ export function segmentNotes(tr: Track, opt: SegmentOptions = DEFAULT_SEG): { no
     while (j < n && Number.isFinite(midi[j])) j++;
     // Región con tono [i, j): partir por caídas de volumen
     const cuts: { at: number; kind: RawNote["split"] }[] = [{ at: i, kind: "start" }];
+    const rc: number[] = [];
+    for (let q = i; q < j; q++) rc.push(tr.conf[q]);
+    const regionConf = median(rc);
     for (let k = i + 2; k < j - 2; k++) {
       if (!(sm[k] <= sm[k - 1] && sm[k] <= sm[k + 1])) continue;
       let lmax = 0, rmax = 0;
@@ -301,7 +304,11 @@ export function segmentNotes(tr: Track, opt: SegmentOptions = DEFAULT_SEG): { no
       for (let q = k + 1; q <= Math.min(j - 1, k + look); q++) rmax = Math.max(rmax, sm[q]);
       const ref = Math.min(lmax, rmax);
       if (ref > peakAll * 0.12 && sm[k] < ref * opt.dipRatio && k - cuts[cuts.length - 1].at >= minFrames && j - k >= minFrames) {
-        cuts.push({ at: k, kind: "dip" });
+        // Una sílaba nueva trae consonante: el tono se vuelve menos claro un instante.
+        // Sin eso, la bajada de volumen es solo el vaivén natural de una nota larga.
+        let cmin = 1;
+        for (let q = Math.max(i, k - 3); q <= Math.min(j - 1, k + 3); q++) cmin = Math.min(cmin, tr.conf[q]);
+        if (sm[k] < ref * 0.4 || cmin < regionConf * 0.9) cuts.push({ at: k, kind: "dip" });
       }
     }
     // Partir por cambios de tono (histéresis sobre la nota redondeada)
@@ -368,11 +375,22 @@ export function segmentNotes(tr: Track, opt: SegmentOptions = DEFAULT_SEG): { no
     return { s, m, conf: c / Math.max(1, cn), pk };
   }).filter((p) => Number.isFinite(p.m));
 
-  // Afinación fina a partir de las notas
+  // Afinación: la global (para mostrarla) y una local por nota, porque al cantar se va
+  // derivando poco a poco; cada nota se corrige con la media de sus vecinas (±4 notas).
   const offset = circularOffset(pre.map((p) => p.m), pre.map((p) => (p.s.b - p.s.a)));
+  const localOff = pre.map((_, i) => {
+    const vs: number[] = [], ws: number[] = [];
+    for (let j = Math.max(0, i - 4); j <= Math.min(pre.length - 1, i + 4); j++) {
+      vs.push(pre[j].m); ws.push((pre[j].s.b - pre[j].s.a) * Math.exp(-(((i - j) / 2.5) ** 2)));
+    }
+    const lo = circularOffset(vs, ws);
+    // sin alejarse más de 0,35 semitonos de la global (evita saltar a la nota vecina)
+    let d = lo - offset; d -= Math.round(d);
+    return offset + Math.max(-0.35, Math.min(0.35, d));
+  });
   const notes: RawNote[] = [];
-  for (const p of pre) {
-    const corr = p.m - offset;
+  for (const [pi, p] of pre.entries()) {
+    const corr = p.m - localOff[pi];
     const mi = Math.round(corr);
     const note: RawNote = {
       start: p.s.a * hop, end: p.s.b * hop, midiF: p.m, midi: mi, cents: Math.round((corr - mi) * 100),

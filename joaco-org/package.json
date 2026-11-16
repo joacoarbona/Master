@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "datos": "node scripts/datos-caducados.mjs",
-    "bridge:sim": "node scripts/bridge-sim.mjs"
+    "bridge:sim": "node scripts/bridge-sim.mjs",
+    "tarareo:bench": "esbuild scripts/tarareo-bench.ts --bundle --platform=node --log-level=error --outfile=node_modules/.cache/tarareo-bench.js && node node_modules/.cache/tarareo-bench.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",

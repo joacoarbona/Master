@@ -11,6 +11,40 @@
    ============================================================ */
 import { analyzeTrack, circularOffset, decimate, DEFAULT_SEG, midiToHz, normalize, segmentNotes, type RawNote, type SegmentOptions, type Track } from "./pitch";
 import { magSpectrum } from "./fft";
+import { detectKeys } from "./music";
+
+/**
+ * Redondeo con la tonalidad en cuenta: una nota cantada a medio camino entre dos teclas
+ * se lleva a la que pertenece a la escala (una nota claramente cromática se respeta).
+ */
+export function snapToKey(notes: RawNote[], lambda = 0.25): RawNote[] {
+  if (notes.length < 4) return notes;
+  const k = detectKeys(notes.map((n) => ({ midi: n.midi, dur: n.end - n.start })))[0];
+  const scale = k.mode === "major" ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10, 11];
+  return notes.map((n) => {
+    const v = n.midi + n.cents / 100;
+    const lo = Math.floor(v), hi = lo + 1;
+    const cost = (c: number) => Math.abs(v - c) + (scale.includes((((c - k.tonic) % 12) + 12) % 12) ? 0 : lambda);
+    const c = cost(lo) <= cost(hi) ? lo : hi;
+    return c === n.midi ? n : { ...n, midi: c, cents: Math.round((v - c) * 100) };
+  });
+}
+
+/** Cuánto «tiembla» el tono dentro de las notas (semitonos): la voz tiembla, el piano no. */
+export function wobble(midi: ArrayLike<number>, notes: RawNote[], hop: number): number {
+  const sds: number[] = [];
+  for (const n of notes) {
+    if (n.end - n.start < 0.15) continue;
+    const a = Math.round(n.start / hop), b = Math.round(n.end / hop), len = b - a;
+    const v: number[] = [];
+    for (let i = a + Math.floor(len * 0.2); i < b - Math.floor(len * 0.2); i++) if (Number.isFinite(midi[i])) v.push(midi[i]);
+    if (v.length < 5) continue;
+    const m = v.reduce((x, y) => x + y, 0) / v.length;
+    sds.push(Math.sqrt(v.reduce((x, y) => x + (y - m) ** 2, 0) / v.length));
+  }
+  sds.sort((x, y) => x - y);
+  return sds.length ? sds[sds.length >> 1] : 0;
+}
 
 export type Source = "auto" | "voz" | "instrumento";
 export type InstOptions = { sensitivity: number; separate: "auto" | "si" | "no"; clarity?: number };
@@ -102,7 +136,7 @@ export async function analyzeInstrument(x0: Float32Array, sr0: number, opt: Inst
     return arr[kb] > 0 && arr[kb] >= arr[kb - 1] && arr[kb] >= arr[kb + 1] && arr[kb] > arr[kb - 2] && arr[kb] > arr[kb + 2];
   };
   const P_LO = 36, P_HI = 100;
-  type Est = AttackNote & { newness: number; amp: number };
+  type Est = AttackNote & { newness: number; rawNew: number; amp: number };
   const perOnset: Est[][] = [];     // notas nuevas (atacadas) en cada ataque
   const sounding: Est[][] = [];     // todo lo que suena justo después
   const firstSal: number[] = [];
@@ -151,7 +185,8 @@ export async function analyzeInstrument(x0: Float32Array, sr0: number, opt: Inst
       // y además su fundamental tiene que crecer (si no, lo «nuevo» son armónicos compartidos con otra nota)
       const fa = peakVal(A, f0), fb = peakVal(Bf, f0);
       const fundGrow = fa ? (fa - fb) / fa : 0;
-      const newness = (dn ? num / dn : 0) * (fundGrow < 0.2 ? 0.4 : 1);
+      const rawNew = dn ? num / dn : 0;
+      const newness = rawNew * (fundGrow < 0.2 ? 0.4 : 1);
       // Altura fina: pico interpolado
       let kb = Math.round(f0 / binB);
       for (let k = Math.max(1, Math.floor(f0 / QT / binB)); k <= Math.ceil((f0 * QT) / binB) && k < A.length - 1; k++) if (A[k] > A[kb]) kb = k;
@@ -159,7 +194,7 @@ export async function analyzeInstrument(x0: Float32Array, sr0: number, opt: Inst
       const y1 = A[kb - 1], y2 = A[kb], y3 = A[kb + 1], den = y1 - 2 * y2 + y3;
       if (den < 0) fr = kb + (0.5 * (y1 - y3)) / den;
       const midiF = 69 + 12 * Math.log2((fr * binB) / 440);
-      found.push({ t: onsets[i], midi: best, midiF: Math.abs(midiF - best) < 0.6 ? midiF : best, sal: bestS, end: onsets[i] + 0.3, harmonic, newness, amp: obs[1] });
+      found.push({ t: onsets[i], midi: best, midiF: Math.abs(midiF - best) < 0.6 ? midiF : best, sal: bestS, end: onsets[i] + 0.3, harmonic, newness, rawNew, amp: obs[1] });
       // Se quita la nota del residuo con «suavidad espectral»: en un armónico compartido
       // solo se resta lo que corresponde a la envolvente, el resto queda para la otra nota.
       for (let h = 1; h <= H; h++) {
@@ -184,9 +219,11 @@ export async function analyzeInstrument(x0: Float32Array, sr0: number, opt: Inst
     }
     const real = found.filter((n) => !n.harmonic);
     let attacked = real.filter((n) => n.newness >= 0.35);
+    // Hubo ataque pero ninguna nota «nueva» clara: es la misma nota vuelta a tocar mientras
+    // aún sonaba (cuerda repetida, tecla repetida): se toma la que más ha crecido.
     if (!attacked.length && real.length) {
-      const b = real.reduce((a, q) => (q.newness > a.newness ? q : a));
-      if (b.newness >= 0.15) attacked = [b];
+      const b = real.reduce((a, q) => (q.rawNew > a.rawNew ? q : a));
+      if (b.rawNew >= 0.1) attacked = [b];
     }
     if (attacked.length) firstSal.push(Math.max(...attacked.map((n) => n.sal)));
     perOnset.push(attacked);
@@ -368,7 +405,7 @@ export function clarity(tr: Track): number {
   return cs.length ? cs[cs.length >> 1] : 0;
 }
 
-export type Both = { voz: Analysis; instrumento: Analysis; chosen: "voz" | "instrumento"; why: string; features: { decay: number; poly: number; clarity: number } };
+export type Both = { voz: Analysis; instrumento: Analysis; chosen: "voz" | "instrumento"; why: string; features: { decay: number; poly: number; clarity: number; wobble: number } };
 
 /** Analiza como voz y como instrumento y elige (o respeta lo que diga el usuario). */
 export async function analyzeBoth(pcm: Float32Array, sr: number, o: { source?: Source; seg?: SegmentOptions; inst?: InstOptions; onProgress?: (p: number) => void } = {}): Promise<Both> {
@@ -376,18 +413,21 @@ export async function analyzeBoth(pcm: Float32Array, sr: number, o: { source?: S
   const tr = await analyzeTrack(pcm, sr, prog ? (p) => prog(p * 0.35) : undefined);
   const sg = segmentNotes(tr, o.seg ?? DEFAULT_SEG);
   const cl = clarity(tr);
+  const wb = wobble(sg.midi, sg.notes, tr.hop);
   const inst = await analyzeInstrument(pcm, sr, { ...(o.inst ?? DEFAULT_INST), clarity: cl }, prog ? (p) => prog(0.35 + p * 0.65) : undefined);
-  const voz: Analysis = { mode: "voz", notes: sg.notes, offset: sg.offset, contour: { hop: tr.hop, midi: sg.midi }, track: tr, inst, why: "" };
-  const ins: Analysis = { mode: "instrumento", notes: inst.notes, offset: inst.offset, contour: { hop: inst.hop, midi: inst.contour }, track: tr, inst, why: "" };
+  const voz: Analysis = { mode: "voz", notes: snapToKey(sg.notes), offset: sg.offset, contour: { hop: tr.hop, midi: sg.midi }, track: tr, inst, why: "" };
+  const ins: Analysis = { mode: "instrumento", notes: snapToKey(inst.notes, 0.15), offset: inst.offset, contour: { hop: inst.hop, midi: inst.contour }, track: tr, inst, why: "" };
   // Voz: notas sostenidas y un solo tono claro. Piano y guitarra: cada nota se apaga sola tras el
   // ataque; con pedal o acompañamiento, varias notas a la vez y un tono menos «limpio».
   let chosen: "voz" | "instrumento", why: string;
   if (o.source === "voz" || o.source === "instrumento") { chosen = o.source; why = "elegido a mano"; }
-  else if (inst.decay < 0.75) { chosen = "instrumento"; why = "las notas tienen ataque y se apagan solas, como en un piano o una guitarra"; }
-  else if (inst.polyIndex >= 0.6 && cl < 0.85) { chosen = "instrumento"; why = "suenan varias notas a la vez (melodía con acompañamiento)"; }
+  else if (inst.polyIndex >= 0.6 && cl < 0.92) { chosen = "instrumento"; why = "suenan varias notas a la vez (melodía con acompañamiento)"; }
+  else if (inst.decay < 0.45) { chosen = "instrumento"; why = "cada nota tiene un ataque seco y se apaga enseguida, como en una guitarra o un piano"; }
+  else if (wb >= 0.03 && cl >= 0.93) { chosen = "voz"; why = "el tono ondula dentro de cada nota, como en una voz o un silbido"; }
+  else if (inst.decay < 0.75) { chosen = "instrumento"; why = "las notas tienen ataque, se apagan solas y su tono no ondula, como en un piano o una guitarra"; }
   else { chosen = "voz"; why = "suena una sola línea sostenida, como una voz o un silbido"; }
   voz.why = chosen === "voz" ? why : ""; ins.why = chosen === "instrumento" ? why : "";
-  return { voz, instrumento: ins, chosen, why, features: { decay: inst.decay, poly: inst.polyIndex, clarity: cl } };
+  return { voz, instrumento: ins, chosen, why, features: { decay: inst.decay, poly: inst.polyIndex, clarity: cl, wobble: wb } };
 }
 
 /** Atajo: devuelve solo el análisis elegido. */

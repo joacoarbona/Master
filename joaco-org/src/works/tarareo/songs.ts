@@ -113,6 +113,37 @@ export const SONGS: Song[] = [
   },
 ];
 
+// Más canciones conocidas (tradicionales o de dominio público) para el banco de pruebas
+const ts44 = { num: 4, den: 4 }, ts34 = { num: 3, den: 4 };
+const EXTRA: Song[] = [
+  { id: "jingle", title: "Jingle Bells", who: "Pierpont, 1857", bpm: 120, ts: ts44, key: { tonic: 0, mode: "major" }, instrument: "piano", acc: [],
+    melody: seq([[64, 1], [64, 1], [64, 2], [64, 1], [64, 1], [64, 2], [64, 1], [67, 1], [60, 1.5], [62, 0.5], [64, 4], [65, 1], [65, 1], [65, 1.5], [65, 0.5], [65, 1], [64, 1], [64, 1], [64, 0.5], [64, 0.5],
+      [64, 1], [62, 1], [62, 1], [64, 1], [62, 2], [67, 2], [64, 1], [64, 1], [64, 2], [64, 1], [64, 1], [64, 2], [64, 1], [67, 1], [60, 1.5], [62, 0.5], [64, 4], [65, 1], [65, 1], [65, 1.5], [65, 0.5], [65, 1], [64, 1], [64, 1], [64, 0.5], [64, 0.5], [67, 1], [67, 1], [65, 1], [62, 1], [60, 4]]) },
+  { id: "mary", title: "Mary had a little lamb", who: "Tradicional", bpm: 110, ts: ts44, key: { tonic: 0, mode: "major" }, instrument: "piano", acc: [],
+    melody: seq([[64, 1], [62, 1], [60, 1], [62, 1], [64, 1], [64, 1], [64, 2], [62, 1], [62, 1], [62, 2], [64, 1], [67, 1], [67, 2], [64, 1], [62, 1], [60, 1], [62, 1], [64, 1], [64, 1], [64, 1], [64, 1], [62, 1], [62, 1], [64, 1], [62, 1], [60, 4]]) },
+  { id: "london", title: "London Bridge", who: "Tradicional", bpm: 108, ts: ts44, key: { tonic: 0, mode: "major" }, instrument: "guitarra", acc: [],
+    melody: seq([[67, 1.5], [69, 0.5], [67, 1], [65, 1], [64, 1], [65, 1], [67, 2], [62, 1], [64, 1], [65, 2], [64, 1], [65, 1], [67, 2], [67, 1.5], [69, 0.5], [67, 1], [65, 1], [64, 1], [65, 1], [67, 2], [62, 2], [67, 2], [64, 1], [60, 3]]) },
+  { id: "macdonald", title: "Old MacDonald", who: "Tradicional", bpm: 116, ts: ts44, key: { tonic: 7, mode: "major" }, instrument: "piano", acc: [],
+    melody: seq([[67, 1], [67, 1], [67, 1], [62, 1], [64, 1], [64, 1], [62, 2], [71, 1], [71, 1], [69, 1], [69, 1], [67, 3], [62, 1], [67, 1], [67, 1], [67, 1], [62, 1], [64, 1], [64, 1], [62, 2], [71, 1], [71, 1], [69, 1], [69, 1], [67, 4]]) },
+  { id: "amazing", title: "Amazing Grace", who: "Newton, 1779", bpm: 80, ts: ts34, key: { tonic: 7, mode: "major" }, instrument: "guitarra", acc: [],
+    melody: seq([[62, 1], [67, 2], [71, 0.5], [67, 0.5], [71, 2], [69, 1], [67, 2], [64, 1], [62, 2], [62, 1], [67, 2], [71, 0.5], [67, 0.5], [71, 2], [69, 1], [74, 3], [74, 2]], 2) },
+  { id: "saints", title: "When the Saints", who: "Tradicional", bpm: 120, ts: ts44, key: { tonic: 0, mode: "major" }, instrument: "piano", acc: [],
+    melody: seq([[60, 1], [64, 1], [65, 1], [67, 4], [0, 1], [60, 1], [64, 1], [65, 1], [67, 4], [0, 1], [60, 1], [64, 1], [65, 1], [67, 2], [64, 2], [60, 2], [64, 2], [62, 4]], 1) },
+  { id: "yankee", title: "Yankee Doodle", who: "Tradicional", bpm: 112, ts: ts44, key: { tonic: 0, mode: "major" }, instrument: "piano", acc: [],
+    melody: seq([[60, 0.5], [60, 0.5], [62, 0.5], [64, 0.5], [60, 0.5], [64, 0.5], [62, 1], [60, 0.5], [60, 0.5], [62, 0.5], [64, 0.5], [60, 1], [59, 1], [60, 0.5], [60, 0.5], [62, 0.5], [64, 0.5], [65, 0.5], [64, 0.5], [62, 0.5], [60, 0.5], [59, 0.5], [55, 0.5], [57, 0.5], [59, 0.5], [60, 1], [60, 1]]) },
+  { id: "canon", title: "Canon en re", who: "Pachelbel", bpm: 72, ts: ts44, key: { tonic: 2, mode: "major" }, instrument: "piano", acc: [],
+    melody: seq([[78, 2], [76, 2], [74, 2], [73, 2], [71, 2], [69, 2], [71, 2], [73, 2], [74, 1], [73, 1], [71, 1], [69, 1], [67, 1], [66, 1], [67, 1], [64, 1], [62, 0.5], [66, 0.5], [69, 0.5], [67, 0.5], [66, 0.5], [62, 0.5], [66, 0.5], [64, 0.5], [62, 2]]) },
+  { id: "nachtmusik", title: "Pequeña serenata nocturna", who: "Mozart", bpm: 120, ts: ts44, key: { tonic: 7, mode: "major" }, instrument: "piano", acc: [],
+    melody: seq([[67, 1], [0, 0.5], [62, 0.5], [67, 1], [0, 0.5], [62, 0.5], [67, 0.5], [62, 0.5], [67, 0.5], [71, 0.5], [74, 2], [72, 1], [0, 0.5], [69, 0.5], [72, 1], [0, 0.5], [69, 0.5], [72, 0.5], [69, 0.5], [66, 0.5], [69, 0.5], [62, 2]]) },
+  { id: "habanera", title: "Habanera (Carmen)", who: "Bizet", bpm: 72, ts: { num: 2, den: 4 }, key: { tonic: 2, mode: "minor" }, instrument: "piano", acc: [],
+    melody: seq([[74, 0.75], [73, 0.25], [72, 0.5], [72, 0.5], [71, 0.75], [70, 0.25], [69, 0.5], [68, 0.5], [67, 0.5], [67, 0.25], [66, 0.25], [65, 0.5], [64, 0.5], [65, 0.75], [64, 0.25], [62, 1]]) },
+  { id: "cucaracha", title: "La cucaracha", who: "Tradicional mexicana", bpm: 120, ts: ts44, key: { tonic: 5, mode: "major" }, instrument: "guitarra", acc: [],
+    melody: seq([[60, 0.5], [60, 0.5], [60, 0.5], [65, 1.5], [69, 1], [0, 0.5], [60, 0.5], [60, 0.5], [60, 0.5], [65, 1.5], [69, 1], [0, 1], [65, 1], [65, 0.5], [64, 0.5], [64, 0.5], [62, 0.5], [62, 0.5], [60, 2.5]], 1.5) },
+  { id: "nana", title: "Canción de cuna", who: "Brahms", bpm: 84, ts: ts34, key: { tonic: 0, mode: "major" }, instrument: "piano", acc: [],
+    melody: seq([[64, 0.5], [64, 0.5], [67, 2], [64, 0.5], [64, 0.5], [67, 2], [64, 0.5], [67, 0.5], [72, 1], [71, 1.5], [69, 0.5], [69, 1], [67, 1], [62, 0.5], [64, 0.5], [65, 1], [62, 1], [62, 0.5], [64, 0.5], [65, 2], [62, 0.5], [65, 0.5], [71, 0.5], [69, 0.5], [67, 1], [71, 1], [72, 3]], 2) },
+];
+SONGS.push(...EXTRA);
+
 /** Notas de la melodía en segundos (verdad de referencia). */
 export function melodyTimes(song: Song, bpm = song.bpm): { start: number; end: number; midi: number }[] {
   const b = 60 / bpm;

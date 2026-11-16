@@ -38,6 +38,7 @@ const EXAMPLE_LIST: { id: string; song: string; mode: RenderMode; label: string;
   { id: "oda", song: "oda", mode: "hum", label: "Oda a la alegría", kind: "tarareo" },
   { id: "cumple", song: "cumple", mode: "hum", label: "Cumpleaños feliz", kind: "tarareo" },
   { id: "noche", song: "nochedepaz", mode: "whistle", label: "Noche de paz", kind: "silbido" },
+  { id: "jingle", song: "jingle", mode: "sing", label: "Jingle Bells", kind: "cantado, con desafines" },
   { id: "elisa", song: "elisa", mode: "piano", label: "Para Elisa", kind: "piano, dos manos" },
   { id: "romance", song: "romance", mode: "guitar", label: "Romance anónimo", kind: "guitarra con arpegio" },
 ];
@@ -1308,7 +1309,8 @@ const HELP: Record<"intro" | "guia" | "leer" | "como" | "glosario", ReactNode> =
         <li><b>Guitarra.</b> Cada nota puede tocarse en varias cuerdas: se elige la combinación que minimiza los saltos de mano. La cejilla se recomienda si cambia acordes con barra por posturas abiertas.</li>
       </ol>
       <h3>Cómo se ha comprobado</h3>
-      <p>Con un banco de canciones conocidas de dominio público (Para Elisa con las dos manos y pedal, Romance anónimo con su arpegio, Oda a la alegría, Martinillo, Cumpleaños feliz, Estrellita, Noche de paz y Greensleeves) interpretadas como tarareo, silbido, piano y guitarra, con eco, ruido, desafinación y tempos distintos. Se acierta de media el 99 % de las notas de la melodía; con acompañamiento, entre el 90 y el 99 %.</p>
+      <p>Con 20 canciones conocidas de dominio público o tradicionales (Para Elisa, Romance anónimo, Oda a la alegría, Martinillo, Cumpleaños feliz, Estrellita, Noche de paz, Greensleeves, Jingle Bells, Mary had a little lamb, London Bridge, Old MacDonald, Amazing Grace, When the Saints, Yankee Doodle, el Canon de Pachelbel, la Pequeña serenata nocturna, la Habanera de Carmen, La cucaracha y la Canción de cuna de Brahms) interpretadas de cinco maneras (tarareo, silbido, una persona cantando con sus desafines y calidad de teléfono, piano y guitarra), además de con eco, ruido y otros tempos: se acierta de media el 98 % de las notas de la melodía (con acompañamiento, del 95 al 99 %).</p>
+      <p>Y con grabaciones reales de licencia abierta: tarareos de personas de canciones conocidas (corpus MIR-QBSH), voces cantadas, una trompeta, un ragtime al piano, una guitarra y dos piezas de orquesta. En los tarareos reales, que van desafinados y a calidad de teléfono, se reconocen 7 de cada 10 notas; con una orquesta completa no funciona.</p>
       <h3>Límites</h3>
       <p>Una canción completa con banda, voces y batería sale mal: separar eso necesita modelos entrenados. Con mucho eco o pedal, alguna nota del acompañamiento puede colarse en la melodía. En melodías de notas todas iguales el compás (3/4 o 4/4) puede salir cambiado, y entre 3/8 y 6/8, o entre corcheas y semicorcheas, la elección es de escritura: cámbialo con un toque.</p>
       <h3>Privacidad</h3>
