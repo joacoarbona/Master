@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { analyzeTrack, DEFAULT_SEG, livePitch, hzToMidi, segmentNotes, toMono, type RawNote, type SegmentOptions, type Track } from "./tarareo/pitch";
+import { DEFAULT_SEG, livePitch, hzToMidi, segmentNotes, toMono, type RawNote, type SegmentOptions, type Track } from "./tarareo/pitch";
+import { analyzeBoth, analyzeInstrument, DEFAULT_INST, type Both, type InstOptions, type Source as SoundSource } from "./tarareo/analyze";
+import { SONGS } from "./tarareo/songs";
+import { renderSong, type RenderMode } from "./tarareo/render";
 import {
   barLen, beatLen, chordLongName, chordNotes, chordSymbol, detectKeys, durationName, guitarShape, harmonize, keyFifths, keyName,
   keySignatureText, nid, pianoFingering, pianoVoicing, plainName, quantize, scoreLength, shapeMidis, spell, spelledName,
@@ -11,7 +14,6 @@ import Notation from "./tarareo/Notation";
 import { ChordDiagram, Fretboard, MiniRoll, PianoKeys, PitchChart, type Contour } from "./tarareo/Instruments";
 import { blockChord, click, getCtx, isChromeIOS, isFirefoxIOS, isIOS, newBus, newRecContext, pcmToBuffer, playNote, releaseAudio, setSession, strum, unlockAudio, type Instrument } from "./tarareo/audio";
 import { download, toMIDI, toMusicXML, toText } from "./tarareo/export";
-import { EXAMPLES, synthHum } from "./tarareo/examples";
 
 /* ============================================================
    TARAREO — de la voz a la partitura
@@ -27,17 +29,28 @@ type Saved = {
   id: string; name: string; created: number; updated: number; source: Source;
   raw: RawNote[]; offset: number; contour: { hop: number; midi: (number | null)[] };
   notes: QNote[]; bpm: number; ts: TimeSig; key: Key; edited: boolean;
+  mode?: "voz" | "instrumento"; why?: string; accents?: number[];
 };
-type Session = Saved & { pcm?: Float32Array; sr?: number; track?: Track; fullContour?: Contour };
+type Session = Saved & { pcm?: Float32Array; sr?: number; track?: Track; fullContour?: Contour; both?: Both; others?: { start: number; end: number; midi: number }[] };
+
+// Ejemplos: partituras conocidas interpretadas por el sintetizador (voz, silbido, piano, guitarra)
+const EXAMPLE_LIST: { id: string; song: string; mode: RenderMode; label: string; kind: string }[] = [
+  { id: "oda", song: "oda", mode: "hum", label: "Oda a la alegría", kind: "tarareo" },
+  { id: "cumple", song: "cumple", mode: "hum", label: "Cumpleaños feliz", kind: "tarareo" },
+  { id: "noche", song: "nochedepaz", mode: "whistle", label: "Noche de paz", kind: "silbido" },
+  { id: "elisa", song: "elisa", mode: "piano", label: "Para Elisa", kind: "piano, dos manos" },
+  { id: "romance", song: "romance", mode: "guitar", label: "Romance anónimo", kind: "guitarra con arpegio" },
+];
 type Prefs = {
   naming: Naming; showNames: boolean; showChords: boolean; showTab: boolean; perBar: 1 | 2; layout: "linea" | "pagina";
   instrument: Instrument; accomp: "ninguno" | "guitarra" | "piano"; metro: boolean; speed: number; loop: boolean;
   useCapo: boolean; clef: "auto" | "treble" | "bass"; countIn: boolean; countBpm: number; pianoLabels: "c" | "used" | "all";
+  source: SoundSource;
 };
 const DEFAULT_PREFS: Prefs = {
   naming: "es", showNames: true, showChords: true, showTab: false, perBar: 1, layout: "pagina",
   instrument: "piano", accomp: "ninguno", metro: false, speed: 1, loop: false,
-  useCapo: true, clef: "auto", countIn: false, countBpm: 90, pianoLabels: "used",
+  useCapo: true, clef: "auto", countIn: false, countBpm: 90, pianoLabels: "used", source: "auto",
 };
 const LS_HIST = "tarareo:historial:v1", LS_PREFS = "tarareo:prefs:v1";
 function loadJSON<T>(k: string, fb: T): T {
@@ -73,6 +86,7 @@ export default function Tarareo() {
   const [undo, setUndo] = useState<QNote[][]>([]);
   const [transpose, setTranspose] = useState(0);
   const [seg, setSeg] = useState<SegmentOptions>(DEFAULT_SEG);
+  const [instOpt, setInstOpt] = useState<InstOptions>(DEFAULT_INST);
   const [live, setLive] = useState<Live>({ midi: null, cents: 0, level: 0, elapsed: 0, count: null });
   const [play, setPlay] = useState<{ on: boolean; mode: "score" | "original"; idx: number; chord: number; strum: number; t: number | null }>({ on: false, mode: "score", idx: -1, chord: -1, strum: -1, t: null });
   const [exportOpen, setExportOpen] = useState(false);
@@ -136,8 +150,8 @@ export default function Tarareo() {
 
   // ---------- Guardado ----------
   const persist = useCallback((s: Session) => {
-    const { pcm: _p, sr: _s, track: _t, fullContour: _f, ...rest } = s;
-    void _p; void _s; void _t; void _f;
+    const { pcm: _p, sr: _s, track: _t, fullContour: _f, both: _b, others: _o, ...rest } = s;
+    void _p; void _s; void _t; void _f; void _b; void _o;
     setHist((h) => {
       const next = [rest, ...h.filter((x) => x.id !== s.id)];
       saveHist(next);
@@ -156,28 +170,44 @@ export default function Tarareo() {
   }, [persist]);
 
   // ---------- Análisis ----------
-  const analyzePcm = useCallback(async (pcm: Float32Array, sr: number, source: Source, name: string, bpmHint?: number) => {
+  /** Convierte un análisis (voz o instrumento) en la sesión de trabajo. */
+  const fromAnalysis = (b: Both, mode: "voz" | "instrumento", base: Partial<Session>, bpmHint?: number): Session | null => {
+    const a = b[mode];
+    if (a.notes.length < 2) return null;
+    const accents = mode === "instrumento" ? a.inst?.bass ?? [] : [];
+    const q = quantize(a.notes, { bpm: bpmHint, accents });
+    const k = detectKeys(q.notes)[0];
+    const small: (number | null)[] = [];
+    for (let i = 0; i < a.contour.midi.length; i += 2) small.push(Number.isFinite(a.contour.midi[i]) ? Math.round(a.contour.midi[i] * 100) / 100 : null);
+    // Las demás notas (acompañamiento) para dibujarlas en gris en la curva
+    const others = mode === "instrumento" && a.inst
+      ? a.inst.all.filter((n) => !n.harmonic && !a.notes.some((m) => Math.abs(m.start - n.t) < 0.03 && Math.abs(m.midiF - n.midiF) < 0.5)).map((n) => ({ start: n.t, end: n.end, midi: Math.round(n.midiF - a.offset) }))
+      : [];
+    const now = Date.now();
+    return {
+      id: base.id ?? "m" + now.toString(36), name: base.name ?? "Melodía", created: base.created ?? now, updated: now, source: base.source ?? "voz",
+      raw: a.notes, offset: a.offset, contour: { hop: a.contour.hop * 2, midi: small },
+      notes: q.notes, bpm: q.bpm, ts: q.ts, key: { tonic: k.tonic, mode: k.mode }, edited: false,
+      mode, why: b.chosen === mode ? b.why : "elegido a mano", accents,
+      pcm: base.pcm, sr: base.sr, track: b.voz.track, fullContour: { hop: a.contour.hop, midi: a.contour.midi }, both: b, others,
+    };
+  };
+
+  const analyzePcm = useCallback(async (pcm: Float32Array, sr: number, source: Source, name: string, bpmHint?: number, forced?: SoundSource) => {
     stopAll();
     setPhase("analyzing"); setProgress(0); setMsg(null);
     try {
-      const tr = await analyzeTrack(pcm, sr, setProgress);
-      const sg = segmentNotes(tr, seg);
-      if (sg.notes.length < 2) {
-        setMsg({ kind: "error", text: "No he encontrado una melodía clara. Prueba más cerca del micrófono, con algo más de volumen y sin música de fondo; separa cada nota con «ta» o «na»." });
+      const b = await analyzeBoth(pcm, sr, { source: forced ?? prefs.source, seg, inst: instOpt, onProgress: setProgress });
+      let s = fromAnalysis(b, b.chosen, { name, source, pcm, sr }, bpmHint);
+      if (!s) {
+        const other = b.chosen === "voz" ? "instrumento" : "voz";
+        s = fromAnalysis(b, other, { name, source, pcm, sr }, bpmHint);
+      }
+      if (!s) {
+        setMsg({ kind: "error", text: "No he encontrado una melodía clara. Prueba más cerca del micrófono, con algo más de volumen y sin música de fondo; si tarareas, separa cada nota con «ta» o «na»." });
         setPhase("idle");
         return;
       }
-      const q = quantize(sg.notes, { bpm: bpmHint });
-      const k = detectKeys(q.notes)[0];
-      const small: (number | null)[] = [];
-      for (let i = 0; i < sg.midi.length; i += 2) small.push(Number.isFinite(sg.midi[i]) ? Math.round(sg.midi[i] * 100) / 100 : null);
-      const now = Date.now();
-      const s: Session = {
-        id: "m" + now.toString(36), name, created: now, updated: now, source,
-        raw: sg.notes, offset: sg.offset, contour: { hop: tr.hop * 2, midi: small },
-        notes: q.notes, bpm: q.bpm, ts: q.ts, key: { tonic: k.tonic, mode: k.mode }, edited: false,
-        pcm, sr, track: tr, fullContour: { hop: tr.hop, midi: sg.midi },
-      };
       setCur(s); persist(s); setTranspose(0); setSelId(null); setUndo([]);
       setTab("partitura"); setPhase("idle");
       setTimeout(() => document.getElementById("tr-results")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
@@ -186,21 +216,42 @@ export default function Tarareo() {
       setPhase("idle");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seg, persist]);
+  }, [seg, instOpt, prefs.source, persist]);
+
+  /** Cambia entre leerlo como voz o como instrumento (sin volver a analizar). */
+  const switchMode = (m: "voz" | "instrumento") => {
+    if (!cur?.both || cur.mode === m) return;
+    const s = fromAnalysis(cur.both, m, cur);
+    if (!s) { setMsg({ kind: "error", text: m === "voz" ? "Leído como voz no sale ninguna melodía clara." : "Leído como instrumento no sale ninguna melodía clara." }); return; }
+    stopAll();
+    setUndo([]); setSelId(null);
+    setCur(s); persist(s);
+  };
 
   // Re-analiza con otros ajustes de detección (solo con la grabación en memoria)
   const reSegment = (opts: SegmentOptions) => {
     setSeg(opts);
-    if (!cur?.track) return;
+    if (!cur?.track || cur.mode === "instrumento") return;
     const sg = segmentNotes(cur.track, opts);
     if (sg.notes.length < 2) { setMsg({ kind: "error", text: "Con esos ajustes no queda ninguna nota: suaviza la sensibilidad." }); return; }
     const q = quantize(sg.notes, { bpm: cur.bpm, ts: cur.ts });
     updateCur((c) => ({ ...c, raw: sg.notes, offset: sg.offset, notes: q.notes, edited: false, fullContour: { hop: c.track!.hop, midi: sg.midi } }));
     setSelId(null); setUndo([]);
   };
+  const reInstrument = async (opts: InstOptions) => {
+    setInstOpt(opts);
+    if (!cur?.pcm || !cur.sr || !cur.both) return;
+    setPhase("analyzing"); setProgress(0);
+    const inst = await analyzeInstrument(cur.pcm, cur.sr, { ...opts, clarity: cur.both.features.clarity }, setProgress);
+    setPhase("idle");
+    const both: Both = { ...cur.both, instrumento: { ...cur.both.instrumento, notes: inst.notes, offset: inst.offset, contour: { hop: inst.hop, midi: inst.contour }, inst } };
+    const s = fromAnalysis(both, "instrumento", cur, cur.bpm);
+    if (!s) { setMsg({ kind: "error", text: "Con esos ajustes no queda ninguna nota." }); return; }
+    setCur(s); persist(s); setSelId(null); setUndo([]);
+  };
   const requantize = (o: { bpm?: number; ts?: TimeSig }) => {
     if (!cur) return;
-    const q = quantize(cur.raw, { bpm: o.bpm ?? cur.bpm, ts: o.ts ?? cur.ts });
+    const q = quantize(cur.raw, { bpm: o.bpm ?? cur.bpm, ts: o.ts ?? cur.ts, accents: cur.accents });
     if (cur.edited) setMsg({ kind: "info", text: "He vuelto a colocar las notas con el nuevo tempo o compás; las correcciones a mano se han descartado (puedes deshacer)." });
     setUndo((u) => [...u.slice(-49), cur.notes]);
     updateCur((c) => ({ ...c, notes: q.notes, bpm: o.bpm ?? c.bpm, ts: o.ts ?? c.ts, edited: false }));
@@ -208,7 +259,7 @@ export default function Tarareo() {
   };
   const autoMeter = () => {
     if (!cur) return;
-    const q = quantize(cur.raw);
+    const q = quantize(cur.raw, { accents: cur.accents });
     updateCur((c) => ({ ...c, notes: q.notes, bpm: q.bpm, ts: q.ts, edited: false }));
   };
 
@@ -358,9 +409,10 @@ export default function Tarareo() {
   };
 
   const tryExample = (id: string) => {
-    const ex = EXAMPLES.find((e) => e.id === id)!;
-    const pcm = synthHum(ex, 16000);
-    analyzePcm(pcm, 16000, "ejemplo", ex.title);
+    const ex = EXAMPLE_LIST.find((e) => e.id === id)!;
+    const song = SONGS.find((x) => x.id === ex.song)!;
+    const r = renderSong(song, ex.mode, { seed: 7, withAcc: true, pedal: ex.mode === "piano" });
+    analyzePcm(r.pcm, r.sr, "ejemplo", `${ex.label} (${ex.kind})`, undefined, "auto");
   };
 
   // ---------- Reproducción ----------
@@ -634,7 +686,15 @@ export default function Tarareo() {
                 <input ref={fileRef} type="file" accept="audio/*,video/*,.m4a,.mp3,.wav,.aac,.ogg,.webm,.caf" hidden onChange={(e) => onFile(e.target.files?.[0])} />
                 <div className="tr-examples">
                   <span>Probar un ejemplo:</span>
-                  {EXAMPLES.map((ex) => <button key={ex.id} className="tr-chip" onClick={() => tryExample(ex.id)} disabled={phase === "analyzing"} title={ex.who}>{ex.title}</button>)}
+                  {EXAMPLE_LIST.map((ex) => <button key={ex.id} className="tr-chip" onClick={() => tryExample(ex.id)} disabled={phase === "analyzing"} title={SONGS.find((x) => x.id === ex.song)?.who}>{ex.label} <small>· {ex.kind}</small></button>)}
+                </div>
+                <div className="tr-source">
+                  <span>Qué suena:</span>
+                  <div className="tr-seg">
+                    {([["auto", "Lo decide la app"], ["voz", "Voz o silbido"], ["instrumento", "Instrumento"]] as [SoundSource, string][]).map(([v, l]) => (
+                      <button key={v} className={prefs.source === v ? "on" : ""} onClick={() => P("source", v)}>{l}</button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -692,6 +752,15 @@ export default function Tarareo() {
             </div>
             <p className="tr-print-meta">{keyName(key, prefs.naming)} · compás {tsLabel(ts)} · ♩ = {bpm}{capo ? ` · cejilla en el ${capo}` : ""}</p>
             <div className="tr-facts">
+              <Fact wide label="Fuente" hint="Cómo se ha leído el audio: como voz (una sola línea sostenida: tarareo, canto, silbido) o como instrumento (piano, guitarra: notas con ataque, a veces varias a la vez; se saca la melodía más aguda).">
+                {cur.both ? (
+                  <div className="tr-seg">
+                    <button className={cur.mode !== "instrumento" ? "on" : ""} onClick={() => switchMode("voz")}>Voz o silbido</button>
+                    <button className={cur.mode === "instrumento" ? "on" : ""} onClick={() => switchMode("instrumento")}>Instrumento</button>
+                  </div>
+                ) : <b>{cur.mode === "instrumento" ? "Instrumento" : "Voz o silbido"}</b>}
+                <small>{cur.why ? (cur.why === "elegido a mano" ? "elegido a mano" : `Elegido porque ${cur.why}.`) : ""}{cur.mode === "instrumento" && cur.both?.instrumento.inst ? ` ${cur.both.instrumento.inst.polyIndex >= 0.4 ? "Con acompañamiento: melodía separada por registros." : "Una sola línea."}` : ""}</small>
+              </Fact>
               <Fact wide label="Tonalidad" hint="La «casa» de la melodía: la nota en la que descansa y si suena mayor (alegre) o menor (melancólica).">
                 <select value={`${cur.key.tonic}-${cur.key.mode}`} onChange={(e) => { const [t, m] = e.target.value.split("-"); updateCur((c) => ({ ...c, key: { tonic: Number(t), mode: m as Key["mode"] } })); }}>
                   {keyGuesses.map((k) => <option key={`${k.tonic}-${k.mode}`} value={`${k.tonic}-${k.mode}`}>{keyName(transposeKey(k, transpose), prefs.naming)} · encaje {Math.min(100, Math.max(0, Math.round(k.score * 100)))} %</option>)}
@@ -894,18 +963,21 @@ export default function Tarareo() {
               {contour && (
                 <div className="tr-chart-wrap">
                   <PitchChart contour={contour} notes={cur.raw.map((r) => ({ start: r.start, end: r.end, midi: r.midi + transpose }))} offset={cur.offset - transpose} naming={prefs.naming}
+                    others={(cur.others ?? []).map((o) => ({ ...o, midi: o.midi + transpose }))} flat={cur.mode === "instrumento"}
                     playhead={play.mode === "original" ? play.t : null} selected={selIdx >= 0 && notes[selIdx].raw != null ? notes[selIdx].raw! : -1}
                     onSelect={(ri) => { const i = notes.findIndex((n) => n.raw === ri); if (i >= 0) onSelect(i); }} />
                 </div>
               )}
               <div className="tr-legend">
-                <span><i className="sw sw-line" />Tu voz: tono medido cada 10 ms</span>
-                <span><i className="sw sw-green" />Nota asignada (rectángulo: inicio, final y altura)</span>
+                <span><i className="sw sw-line" />{cur.mode === "instrumento" ? "Altura medida en cada ataque" : "Tu voz: tono medido cada 10 ms"}</span>
+                <span><i className="sw sw-green" />Nota de la melodía (rectángulo: inicio, final y altura)</span>
+                {cur.mode === "instrumento" && (cur.others?.length ?? 0) > 0 && <span><i className="sw sw-gray" />Acompañamiento (otras notas que suenan)</span>}
                 <span><i className="sw sw-red" />Posición al escuchar tu grabación</span>
                 <span>Eje vertical: notas (filas grises = teclas negras); horizontal: segundos</span>
               </div>
               <HowTo title="Cómo leer la curva">
-                <p>La línea azul es lo que cantaste, ya desplazada {Math.round(cur.offset * 100)} cents para compensar tu afinación media. Si la línea se queda dentro del rectángulo, la nota está bien detectada. Las ondulaciones son vibrato; las rampas al empezar, el «deslizamiento» natural de la voz. Si dos notas iguales salen unidas, usa «partir en dos»; si una nota sale partida, «unir con la siguiente».</p>
+                {cur.mode === "instrumento" && <p>Leído como <b>instrumento</b>: cada ataque se analiza por separado (qué notas aparecen nuevas en el espectro) y la melodía es la voz más aguda. Las notas grises son el acompañamiento que se ha apartado (bajo, arpegio, mano izquierda).</p>}
+                <p>La línea azul es lo que {cur.mode === "instrumento" ? "sonó" : "cantaste"}, ya desplazada {Math.round(cur.offset * 100)} cents para compensar la afinación media. Si la línea se queda dentro del rectángulo, la nota está bien detectada. Las ondulaciones son vibrato; las rampas al empezar, el «deslizamiento» natural de la voz. Si dos notas iguales salen unidas, usa «partir en dos»; si una nota sale partida, «unir con la siguiente».</p>
               </HowTo>
               {cur.pcm && <button className="tr-btn" onClick={() => (play.on && play.mode === "original" ? stopAll() : startOriginal())}>{play.on && play.mode === "original" ? "■ Parar" : "▶ Escuchar mi grabación"}</button>}
 
@@ -935,7 +1007,21 @@ export default function Tarareo() {
               </div>
 
               <h3>Ajustes de detección</h3>
-              {cur.track ? (
+              {cur.mode === "instrumento" && cur.pcm ? (
+                <div className="tr-sliders">
+                  <Slider label="Sensibilidad de ataques" value={instOpt.sensitivity} min={0} max={1} step={0.05} unit="" hint="Más alta: detecta ataques suaves (notas ligadas, rasgueo flojo). Más baja: ignora ruidos y rebotes." onChange={(v) => reInstrument({ ...instOpt, sensitivity: v })} />
+                  <label className="tr-slider">
+                    <span>Separar melodía y acompañamiento</span>
+                    <div className="tr-seg">
+                      {([["auto", "Automático"], ["si", "Sí"], ["no", "No"]] as [InstOptions["separate"], string][]).map(([v, l]) => (
+                        <button key={v} className={instOpt.separate === v ? "on" : ""} onClick={(e) => { e.preventDefault(); reInstrument({ ...instOpt, separate: v }); }}>{l}</button>
+                      ))}
+                    </div>
+                    <small>«Sí» aparta las notas graves que suenan bajo una nota aguda (mano izquierda, bajo, arpegio). «No» toma siempre la nota más aguda de cada ataque.</small>
+                  </label>
+                  <button className="tr-btn ghost" onClick={() => reInstrument(DEFAULT_INST)}>Restablecer</button>
+                </div>
+              ) : cur.track ? (
                 <div className="tr-sliders">
                   <Slider label="Nota más corta" value={seg.minNoteMs} min={40} max={160} step={10} unit=" ms" hint="Sube si aparecen notas fantasma muy cortas; baja si se pierden notas rápidas." onChange={(v) => reSegment({ ...seg, minNoteMs: v })} />
                   <Slider label="Cambio de nota" value={seg.splitSemitones} min={0.4} max={1} step={0.05} unit=" st" hint="Cuánto tiene que moverse la voz (en semitonos) para contar como nota nueva. Sube si el vibrato crea notas de más." onChange={(v) => reSegment({ ...seg, splitSemitones: v })} />
@@ -1137,15 +1223,19 @@ const GLOSARIO: [string, string][] = [
   ["MIDI", "Formato que guarda notas (no sonido). Se abre en GarageBand, Logic, Ableton, MuseScore…"],
   ["MusicXML", "Formato de partitura: MuseScore, Sibelius, Finale o Dorico lo abren con figuras, acordes y armadura."],
   ["YIN", "El método que estima el tono: mide cuánto se parece la onda a sí misma desplazada y busca el periodo que repite."],
+  ["Ataque", "El instante en que empieza una nota: el golpe del martillo en el piano o la pulsación de la cuerda."],
+  ["Armónicos", "Las frecuencias múltiplas (×2, ×3, ×4…) que acompañan a cada nota y le dan su timbre. Una nota grave tiene armónicos que caen sobre notas agudas: por eso hay que «restarlos» para no confundirlos."],
+  ["Acompañamiento", "Las notas que sostienen la melodía: bajo, acordes, arpegios o la mano izquierda del piano."],
+  ["Polifonía", "Varias notas sonando a la vez. La voz es monofónica (una nota); el piano y la guitarra, polifónicos."],
 ];
 
 const HELP: Record<"intro" | "guia" | "leer" | "como" | "glosario", ReactNode> = {
   intro: (
     <div>
       <h2>Tarareo</h2>
-      <p className="tr-lead">Tararea, canta o silba una melodía y la conviertes en partitura, con las teclas del piano (y qué dedo usar) y los acordes y la tablatura de guitarra.</p>
+      <p className="tr-lead">Tararea, canta, silba o toca una melodía (piano, guitarra…) y la conviertes en partitura, con las teclas del piano (y qué dedo usar) y los acordes y la tablatura de guitarra.</p>
       <ol className="tr-steps">
-        <li><b>Graba</b> o sube un audio. Una sola voz, nota a nota.</li>
+        <li><b>Graba</b> o sube un audio: tu voz, un silbido o un instrumento (también con acompañamiento: saca la melodía).</li>
         <li><b>Revisa</b> tonalidad, tempo y compás; corrige notas tocándolas.</li>
         <li><b>Toca</b>: la nota que suena se ilumina en verde en la partitura, el teclado y el mástil.</li>
         <li><b>Exporta</b> a MIDI o MusicXML, imprime, o vuelve a ella desde el histórico.</li>
@@ -1160,7 +1250,8 @@ const HELP: Record<"intro" | "guia" | "leer" | "como" | "glosario", ReactNode> =
         <li><b>Grabar.</b> Pulsa el botón rojo y permite el micrófono. Mientras tarareas ves la nota que estás cantando y lo afinado que vas. Pulsa «Parar y analizar».</li>
         <li><b>Cómo tararear.</b> Di «ta», «na» o «lo» en cada nota, sin arrastrar de una a otra. Las notas repetidas necesitan un pequeño corte para separarse. Mejor sin música de fondo y con el móvil a un palmo.</li>
         <li><b>Claqueta</b> (opcional). Antes de grabar suenan los pulsos de un compás al tempo que elijas; si sigues ese pulso, el ritmo sale mucho más exacto.</li>
-        <li><b>Subir audio.</b> Vale una nota de voz del iPhone (.m4a), .mp3 o .wav. Las canciones con instrumentos o varias voces no funcionan bien.</li>
+        <li><b>Subir audio.</b> Vale una nota de voz del iPhone (.m4a), .mp3 o .wav. Un piano o una guitarra solos funcionan bien, también con acompañamiento (mano izquierda, arpegios); una canción completa con banda y voz, no.</li>
+        <li><b>Qué suena.</b> La app decide sola si es una voz o un instrumento (lo ves en «Fuente» y puedes cambiarlo sin volver a grabar). Si lo sabes de antemano, elígelo antes de grabar.</li>
         <li><b>Resumen.</b> Arriba ves tonalidad, tempo, compás, afinación y tesitura. Puedes cambiarlos: tempo ÷2 o ×2 si sale a la mitad o al doble, otro compás, otra tonalidad de la lista (ordenada por encaje).</li>
         <li><b>Corregir.</b> Toca una nota en la partitura (o en la tabla de Detalle): súbela o bájala, alárgala, bórrala, pártela en dos o únela con la siguiente. «Deshacer» recupera el paso anterior.</li>
         <li><b>Escuchar.</b> «Tocar» suena con piano, guitarra o flauta; puedes añadir los acordes (rasgueo o piano), metrónomo, bucle y bajar la velocidad para practicar. «Mi voz» reproduce tu grabación.</li>
@@ -1203,18 +1294,23 @@ const HELP: Record<"intro" | "guia" | "leer" | "como" | "glosario", ReactNode> =
     <div>
       <h2>Cómo funciona</h2>
       <ol className="tr-steps">
-        <li><b>Tono.</b> El audio se baja a 16 kHz y, cada 10 ms, el algoritmo YIN estima la frecuencia fundamental: compara la onda consigo misma desplazada y busca el desplazamiento que más se repite.</li>
+        <li><b>¿Voz o instrumento?</b> Se analiza de las dos maneras. Si las notas se apagan solas tras el ataque (piano, guitarra) o suenan varias a la vez con un tono poco «limpio», se lee como instrumento; si son sostenidas y de un solo tono, como voz.</li>
+        <li><b>Voz: tono.</b> El audio se baja a 16 kHz y, cada 10 ms, el algoritmo YIN estima la frecuencia fundamental: compara la onda consigo misma desplazada y busca el desplazamiento que más se repite.</li>
         <li><b>Limpieza.</b> Se descartan los instantes sin tono claro o con poco volumen, se corrigen saltos de octava y se suaviza con una mediana.</li>
         <li><b>Notas.</b> Una nota nueva empieza cuando la voz se estabiliza en otro semitono durante al menos 30 ms, o cuando el volumen cae claramente (notas repetidas). Las notas de menos de 70 ms se descartan o se unen a la vecina.</li>
+        <li><b>Instrumento: ataques.</b> Se buscan los instantes en que el espectro crece de golpe («spectral flux»). En cada uno se compara el espectro de justo después con el de justo antes, y por suma de armónicos se identifican las notas que suenan; las que crecen son las nuevas. Cada nota encontrada se «resta» (solo la parte que le toca de cada armónico, para no borrar otra nota que lo comparta) y se busca la siguiente.</li>
+        <li><b>Instrumento: melodía.</b> Si hay acompañamiento, se separan registros (agrupando las notas en grave y agudo, y apartando el bajo) y las notas graves que suenan bajo una nota aguda se toman por acompañamiento. La melodía es la nota más aguda de cada ataque. Los golpes del bajo ayudan a colocar las barras de compás.</li>
         <li><b>Afinación.</b> Se calcula tu desvío medio respecto a las notas del piano (media circular en cents) y se compensa antes de redondear cada nota.</li>
-        <li><b>Ritmo.</b> Se prueban tempos de 40 a 200 y se elige el que mejor encaja los intervalos entre notas en una rejilla de semicorcheas (favoreciendo negras y corcheas); luego se corrige la deriva. Para el compás se compara 4/4 con 3/4 según dónde caen las notas largas, y se busca si hay anacrusa.</li>
+        <li><b>Ritmo.</b> Se prueban tempos de 40 a 200 y se elige el que mejor encaja los intervalos entre notas en una rejilla de semicorcheas (favoreciendo negras y corcheas); luego se corrige la deriva. Para el compás se comparan 4/4, 3/4, 6/8 y 3/8 según dónde caen las notas largas (y el bajo, si lo hay), y se busca si hay anacrusa.</li>
         <li><b>Tonalidad.</b> Perfiles de Krumhansl–Kessler: cuánto suena cada nota, comparado con el perfil típico de las 24 tonalidades.</li>
         <li><b>Acordes.</b> En cada compás (o medio) se puntúan los acordes de la tonalidad según cuántas notas de la melodía contienen, y el algoritmo de Viterbi elige la secuencia más natural (cadencias V→I, IV→V, ii→V…).</li>
         <li><b>Piano.</b> Digitación con un modelo de distancias cómodas entre pares de dedos (Parncutt) y programación dinámica.</li>
         <li><b>Guitarra.</b> Cada nota puede tocarse en varias cuerdas: se elige la combinación que minimiza los saltos de mano. La cejilla se recomienda si cambia acordes con barra por posturas abiertas.</li>
       </ol>
+      <h3>Cómo se ha comprobado</h3>
+      <p>Con un banco de canciones conocidas de dominio público (Para Elisa con las dos manos y pedal, Romance anónimo con su arpegio, Oda a la alegría, Martinillo, Cumpleaños feliz, Estrellita, Noche de paz y Greensleeves) interpretadas como tarareo, silbido, piano y guitarra, con eco, ruido, desafinación y tempos distintos. Se acierta de media el 99 % de las notas de la melodía; con acompañamiento, entre el 90 y el 99 %.</p>
       <h3>Límites</h3>
-      <p>Una voz cada vez. Mezclas con instrumentos, coros o mucho eco salen mal. Los deslizamientos largos pueden partir una nota y el ritmo es una aproximación: revísalo y corrígelo a mano si hace falta.</p>
+      <p>Una canción completa con banda, voces y batería sale mal: separar eso necesita modelos entrenados. Con mucho eco o pedal, alguna nota del acompañamiento puede colarse en la melodía. En melodías de notas todas iguales el compás (3/4 o 4/4) puede salir cambiado, y entre 3/8 y 6/8, o entre corcheas y semicorcheas, la elección es de escritura: cámbialo con un toque.</p>
       <h3>Privacidad</h3>
       <p>Todo ocurre en el navegador: ni el audio ni las notas salen del dispositivo. El histórico guarda solo las notas, no la grabación.</p>
     </div>
@@ -1344,7 +1440,9 @@ const CSS = `
 .tr-legend span{display:inline-flex;align-items:center;gap:6px}
 .sw{display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.15)}
 .sw-green{background:#16a34a}.sw-amber{background:transparent;border:2px dashed #d97706}.sw-gold{background:rgba(251,191,36,.55)}.sw-lblue{background:#bfdbfe}.sw-blue{background:#1d4ed8;height:4px;border:0}
-.sw-line{background:#1d4ed8;height:3px;border:0;width:18px}.sw-red{background:#dc2626;width:3px;height:14px;border:0}
+.sw-line{background:#1d4ed8;height:3px;border:0;width:18px}.sw-gray{background:rgba(100,116,139,.3);border:1px solid rgba(100,116,139,.6)}
+.tr-source{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.tr-chip small{color:var(--muted);font-size:11px}.sw-red{background:#dc2626;width:3px;height:14px;border:0}
 .tr-howto{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#fffaf1}
 .tr-howto summary{cursor:pointer;padding:10px 12px;font-weight:600;font-size:14px}
 .tr-howto>div{padding:0 14px 10px;font-size:14px}

@@ -14,7 +14,7 @@ export type Quality = "maj" | "min" | "dim" | "7";
 export type Chord = { root: number; q: Quality; roman: string };
 export type ChordEvent = { start: number; dur: number; chord: Chord };
 
-export const TIME_SIGS: TimeSig[] = [{ num: 4, den: 4 }, { num: 3, den: 4 }, { num: 2, den: 4 }, { num: 6, den: 8 }];
+export const TIME_SIGS: TimeSig[] = [{ num: 4, den: 4 }, { num: 3, den: 4 }, { num: 2, den: 4 }, { num: 6, den: 8 }, { num: 3, den: 8 }];
 export const barLen = (ts: TimeSig) => ts.num * (16 / ts.den);           // en semicorcheas
 export const beatLen = (ts: TimeSig) => (ts.den === 8 && ts.num % 3 === 0 ? 6 : 16 / ts.den);
 export const tsLabel = (ts: TimeSig) => `${ts.num}/${ts.den}`;
@@ -121,7 +121,9 @@ export function detectKeys(notes: { midi: number; dur: number }[]): KeyGuess[] {
 }
 
 // ---------- Ritmo ----------
-const IOI_GOOD: Record<number, number> = { 1: 0.35, 2: 0.9, 3: 0.55, 4: 1, 6: 0.75, 8: 0.85, 12: 0.6, 16: 0.5 };
+// Lo bien que «suena» cada distancia entre notas, en semicorcheas: negras y corcheas muy probables,
+// semicorcheas bastante, valores con puntillo menos (si todo sale con puntillo, el tempo está mal).
+const IOI_GOOD: Record<number, number> = { 1: 0.7, 2: 0.9, 3: 0.35, 4: 1, 6: 0.45, 8: 0.85, 12: 0.4, 16: 0.5 };
 export function estimateTempo(onsets: number[]): { bpm: number; fit: number } {
   const iois: number[] = [];
   for (let i = 1; i < onsets.length; i++) { const d = onsets[i] - onsets[i - 1]; if (d > 0.06 && d < 2.5) iois.push(d); }
@@ -135,7 +137,7 @@ export function estimateTempo(onsets: number[]): { bpm: number; fit: number } {
       // tolerancia absoluta (~45 ms): no premia rejillas gruesas por ser más permisivas
       s += (IOI_GOOD[n] ?? 0.3) * Math.exp(-(((d - n * u) / 0.045) ** 2));
     }
-    s = (s / iois.length) * Math.exp(-0.5 * (Math.log2(bpm / 100) / 0.75) ** 2);
+    s = (s / iois.length) * Math.exp(-0.5 * (Math.log2(bpm / 100) / 1.0) ** 2);
     if (s > bestS) { bestS = s; best = bpm; }
   }
   return { bpm: best, fit: bestS };
@@ -161,6 +163,12 @@ function gridPositions(onsets: number[], bpm: number): { q: number[]; bpm: numbe
 function metricWeight(pos: number, ts: TimeSig): number {
   const L = barLen(ts), p = ((pos % L) + L) % L;
   if (p === 0) return 1;
+  if (ts.den === 8) {
+    // compases de corcheas: 6/8 = dos pulsos de negra con puntillo; 3/8 = un pulso
+    if (ts.num === 6 && p === 6) return 0.6;
+    if (p % 2 === 0) return 0.3;
+    return 0.05;
+  }
   const beat = beatLen(ts);
   if (ts.num === 4 && ts.den === 4 && p === 8) return 0.6;
   if (p % beat === 0) return 0.45;
@@ -170,7 +178,8 @@ function metricWeight(pos: number, ts: TimeSig): number {
 
 export type Quantized = { notes: QNote[]; bpm: number; ts: TimeSig; pickup: number; tempoFit: number };
 
-export function quantize(raw: RawNote[], opts: { bpm?: number; ts?: TimeSig | null } = {}): Quantized {
+/** accents: instantes (s) con peso extra para el compás, p. ej. los golpes del bajo. */
+export function quantize(raw: RawNote[], opts: { bpm?: number; ts?: TimeSig | null; accents?: number[] } = {}): Quantized {
   if (!raw.length) return { notes: [], bpm: opts.bpm ?? 100, ts: opts.ts ?? TIME_SIGS[0], pickup: 0, tempoFit: 0 };
   const onsets = raw.map((r) => r.start);
   const est = opts.bpm ? { bpm: opts.bpm, fit: 1 } : estimateTempo(onsets);
@@ -191,7 +200,9 @@ export function quantize(raw: RawNote[], opts: { bpm?: number; ts?: TimeSig | nu
   });
   // Compás: el que hace destacar más una fase concreta (puntuación z). Anacrusa: fase con más peso en los tiempos fuertes.
   const evenOnly = q.every((x) => x % 2 === 0);
-  const total = durs.reduce((s, d) => s + d, 0) || 1;
+  // Golpes del bajo en la misma rejilla (pesan como una nota larga)
+  const acc = (opts.accents ?? []).map((t) => Math.round((t - t0) / u)).filter((x) => x >= -2);
+  const total = (durs.reduce((s, d) => s + d, 0) || 1) + acc.length * 4;
   const phaseScores = (ts: TimeSig) => {
     const L = barLen(ts), out: { s: number; v: number }[] = [];
     for (let s = 0; s < L; s++) {
@@ -203,19 +214,25 @@ export function quantize(raw: RawNote[], opts: { bpm?: number; ts?: TimeSig | nu
         const inBar = ((pos % L) + L) % L;
         if (inBar + durs[i] > L && durs[i] >= 4) sc -= 0.15 * durs[i]; // nota larga que cruza la barra
       });
+      for (const a of acc) sc += 4 * metricWeight(a + s, ts);
       out.push({ s, v: sc / total });
     }
     return out;
   };
-  const cands = opts.ts ? [opts.ts] : [TIME_SIGS[0], TIME_SIGS[1]];
+  const cands = opts.ts ? [opts.ts] : [TIME_SIGS[0], TIME_SIGS[1], TIME_SIGS[3], TIME_SIGS[4]];
+  const TS_PRIOR: Record<string, number> = { "4/4": 1, "3/4": 0.98, "6/8": 0.97, "3/8": 0.88, "2/4": 0.95 };
   let bestTs = cands[0], bestZ = -Infinity;
   const byTs = new Map<TimeSig, { s: number; v: number }[]>();
   for (const ts of cands) {
     const ps = phaseScores(ts);
     byTs.set(ts, ps);
     const mean = ps.reduce((a, p) => a + p.v, 0) / ps.length;
-    const sd = Math.sqrt(ps.reduce((a, p) => a + (p.v - mean) ** 2, 0) / ps.length) || 1;
-    const z = (Math.max(...ps.map((p) => p.v)) - mean) / sd * (ts.num === 3 ? 0.98 : 1);
+    // Contraste: cuánto destaca la mejor colocación de las barras frente a una cualquiera
+    // Un compás de menos de medio segundo es raro: se penaliza (Noche de paz → 6/8, no 3/8)
+    const barSec = (barLen(ts) * 60) / g.bpm / 4;
+    // Sin bajo que marque cada compás, 3/8 y 6/8 se confunden: se prefiere 6/8, que es lo habitual
+    const shortBar = tsLabel(ts) === "3/8" && !acc.length ? 0.7 : 1;
+    const z = (Math.max(...ps.map((p) => p.v)) - mean) * (TS_PRIOR[tsLabel(ts)] ?? 1) * Math.min(1, barSec / 0.5) * shortBar;
     if (z > bestZ) { bestZ = z; bestTs = ts; }
   }
   // Fase: sin anacrusa salvo que la haya clara (corta: como mucho un pulso)

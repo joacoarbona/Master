@@ -92,7 +92,7 @@ export function normalize(x: Float32Array): Float32Array {
 }
 
 // ---------- YIN ----------
-const F_MIN = 60, F_MAX = 1100;
+const F_MIN = 60, F_MAX = 2200; // hasta el silbido agudo
 const YIN_THRESHOLD = 0.12;
 
 /** Estima el tono de un fragmento (empezando en `off`). Devuelve f0 = 0 si no hay tono claro. */

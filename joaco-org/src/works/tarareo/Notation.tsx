@@ -119,10 +119,11 @@ export default function Notation(p: NotationProps) {
 
   // ---------- Medidas verticales ----------
   const yRel = (di: number) => 40 - (di - ref) * (S / 2);
-  const vert = useMemo(() => {
+  // Medidas verticales por línea: una nota muy grave en una línea no separa las demás
+  const verts = useMemo(() => layout.systems.map((_, si) => {
     let minRel = -4, maxRel = 44;
     layout.placed.forEach((e) => {
-      if (e.kind !== "note") return;
+      if (e.kind !== "note" || e.sys !== si) return;
       const y = yRel(e.di);
       minRel = Math.min(minRel, y - 6 - (e.up && e.val < 16 ? 34 : 0));
       maxRel = Math.max(maxRel, y + 6 + (!e.up && e.val < 16 ? 34 : 0));
@@ -133,7 +134,7 @@ export default function Notation(p: NotationProps) {
     const tabTop = namesY + (p.showNames ? 14 : -4);
     const height = p.tab ? tabTop + 5 * 9 + 18 : namesY + (p.showNames ? 8 : 0);
     return { staffTop, namesY, tabTop, height };
-  }, [layout, p.fingering, p.showChords, p.showNames, p.tab, ref]);
+  }), [layout, p.fingering, p.showChords, p.showNames, p.tab, ref]);
 
   // Auto-desplazamiento hacia la nota activa
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -150,11 +151,10 @@ export default function Notation(p: NotationProps) {
     }
   }, [p.active, p.wrap, p.scrollRef]);
 
-  const { staffTop, namesY, tabTop, height } = vert;
-
   return (
     <div className="tr-systems">
       {layout.systems.map((sys, si) => {
+        const { staffTop, namesY, tabTop, height } = verts[si];
         const evs = layout.placed.filter((e) => e.sys === si);
         const yOf = (di: number) => staffTop + yRel(di);
         const items: ReactNode[] = [];

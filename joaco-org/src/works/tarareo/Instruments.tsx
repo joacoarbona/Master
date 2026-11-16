@@ -136,11 +136,15 @@ export type Contour = { hop: number; midi: ArrayLike<number> };
 export function PitchChart(p: {
   contour: Contour; notes: { start: number; end: number; midi: number }[]; offset: number; naming: Naming;
   playhead: number | null; selected: number; onSelect?: (i: number) => void; pxPerSec?: number;
+  others?: { start: number; end: number; midi: number }[]; flat?: boolean;
 }) {
   const pps = p.pxPerSec ?? 90;
   const vals: number[] = [];
   for (let i = 0; i < p.contour.midi.length; i++) { const v = p.contour.midi[i]; if (Number.isFinite(v)) vals.push(v - p.offset); }
   p.notes.forEach((n) => vals.push(n.midi));
+  // el acompañamiento solo amplía el rango si no se va muy lejos
+  const mel = p.notes.map((n) => n.midi);
+  (p.others ?? []).forEach((n) => { if (mel.length && n.midi >= Math.min(...mel) - 14) vals.push(n.midi); });
   const lo = Math.floor(Math.min(...vals, 60)) - 2, hi = Math.ceil(Math.max(...vals, 62)) + 2;
   const rows = hi - lo, rh = Math.max(9, Math.min(16, 260 / rows));
   const dur = p.contour.midi.length * p.contour.hop;
@@ -158,6 +162,10 @@ export function PitchChart(p: {
     el.push(<line key={`t${s}`} x1={left + s * pps} x2={left + s * pps} y1={top} y2={top + rows * rh} stroke="#e7dccb" />);
     el.push(<text key={`tl${s}`} x={left + s * pps} y={height - 6} fontSize={9} textAnchor="middle" fill="#64748b">{s}s</text>);
   }
+  (p.others ?? []).forEach((n, i) => {
+    if (n.midi < lo || n.midi > hi) return;
+    el.push(<rect key={`o${i}`} x={left + n.start * pps} y={yOf(n.midi) - rh / 2 + 2} width={Math.max(3, (n.end - n.start) * pps)} height={rh - 4} rx={2} fill="rgba(100,116,139,.22)" stroke="rgba(100,116,139,.5)" strokeWidth={0.8} />);
+  });
   p.notes.forEach((n, i) => {
     el.push(
       <rect key={`n${i}`} x={left + n.start * pps} y={yOf(n.midi) - rh / 2 + 1} width={Math.max(3, (n.end - n.start) * pps)} height={rh - 2} rx={3}
