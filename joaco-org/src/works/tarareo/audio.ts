@@ -5,14 +5,66 @@
    ============================================================ */
 import { midiToHz } from "./pitch";
 
+const AC = (): typeof AudioContext => window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
 let ctx: AudioContext | null = null;
+/** Contexto de reproducción (distinto del de grabación). */
 export function getCtx(): AudioContext {
-  if (!ctx) {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    ctx = new AC();
-  }
+  if (!ctx || ctx.state === "closed") ctx = new (AC())();
   return ctx;
 }
+/** Contexto propio para grabar: se cierra al terminar para que el iPhone no deje el sonido en el auricular. */
+export function newRecContext(): AudioContext { return new (AC())(); }
+
+// ---------- iPhone / iPad ----------
+export const isIOS = typeof navigator !== "undefined" &&
+  (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+export const isChromeIOS = typeof navigator !== "undefined" && /CriOS/.test(navigator.userAgent);
+export const isFirefoxIOS = typeof navigator !== "undefined" && /FxiOS/.test(navigator.userAgent);
+
+/** Tipo de sesión de audio (iOS 17+): «playback» hace que suene aunque el móvil esté en silencio. */
+export function setSession(type: "playback" | "play-and-record" | "auto") {
+  try {
+    const n = navigator as Navigator & { audioSession?: { type: string } };
+    if (n.audioSession && n.audioSession.type !== type) n.audioSession.type = type;
+  } catch { /* sin soporte */ }
+}
+
+let keep: HTMLAudioElement | null = null;
+let keepUntil = 0, keepTimer = 0;
+function silentWavUrl(): string {
+  const sr = 22050, n = Math.round(sr * 0.3), buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+  const w = (o: number, str: string) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+  w(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); w(8, "WAVE"); w(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+  v.setUint16(22, 1, true); v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  w(36, "data"); v.setUint32(40, n * 2, true);
+  return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+}
+/**
+ * Llamar al principio de cada gesto que suena (tocar, pulsar una tecla…).
+ * En iPhone el audio web va por el canal del timbre y el modo silencio lo apaga;
+ * un <audio> silencioso en bucle lo pasa al canal multimedia mientras dure el sonido.
+ */
+export function unlockAudio(holdSec = 1.5) {
+  setSession("playback");
+  const c = getCtx();
+  if (c.state !== "running") c.resume().catch(() => { /* se reintenta en el siguiente gesto */ });
+  if (!isIOS) return;
+  try {
+    if (!keep) {
+      keep = new Audio(silentWavUrl());
+      keep.loop = true;
+      keep.setAttribute("playsinline", "");
+      keep.preload = "auto";
+    }
+    if (keep.paused) keep.play().catch(() => { /* el siguiente gesto lo vuelve a intentar */ });
+    keepUntil = Math.max(keepUntil, performance.now() + (holdSec + 1.5) * 1000);
+    clearTimeout(keepTimer);
+    const tick = () => { if (performance.now() >= keepUntil) keep?.pause(); else keepTimer = window.setTimeout(tick, 500); };
+    keepTimer = window.setTimeout(tick, 500);
+  } catch { /* */ }
+}
+/** Suelta el canal multimedia (al parar). */
+export function releaseAudio() { keepUntil = performance.now() + 800; }
 
 export type Instrument = "piano" | "guitarra" | "flauta";
 
@@ -92,6 +144,7 @@ function guitarNote(c: AudioContext, out: AudioNode, midi: number, t: number, du
 }
 
 export function playNote(inst: Instrument, midi: number, dur = 0.6, when?: number, out?: AudioNode) {
+  if (when == null) unlockAudio(dur + 0.5); // nota suelta: viene de un toque
   const c = getCtx();
   const t = when ?? c.currentTime + 0.02;
   const dest = out ?? c.destination;
@@ -110,8 +163,8 @@ export function blockChord(midis: number[], when: number, dur: number, out: Audi
   midis.forEach((m) => pianoNote(c, out, m, when, dur, 0.35 * vol));
 }
 
-export function click(when: number, out: AudioNode, accent: boolean) {
-  const c = getCtx();
+export function click(when: number, out: AudioNode, accent: boolean, on?: AudioContext) {
+  const c = on ?? getCtx();
   const o = c.createOscillator(), g = c.createGain();
   o.type = "square"; o.frequency.value = accent ? 1800 : 1200;
   g.gain.setValueAtTime(accent ? 0.12 : 0.07, when);

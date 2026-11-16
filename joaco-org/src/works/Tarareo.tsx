@@ -9,7 +9,7 @@ import {
 import { cleanNotes } from "./tarareo/layout";
 import Notation from "./tarareo/Notation";
 import { ChordDiagram, Fretboard, MiniRoll, PianoKeys, PitchChart, type Contour } from "./tarareo/Instruments";
-import { blockChord, click, getCtx, newBus, pcmToBuffer, playNote, strum, type Instrument } from "./tarareo/audio";
+import { blockChord, click, getCtx, isChromeIOS, isFirefoxIOS, isIOS, newBus, newRecContext, pcmToBuffer, playNote, releaseAudio, setSession, strum, unlockAudio, type Instrument } from "./tarareo/audio";
 import { download, toMIDI, toMusicXML, toText } from "./tarareo/export";
 import { EXAMPLES, synthHum } from "./tarareo/examples";
 
@@ -66,7 +66,7 @@ export default function Tarareo() {
   const [cur, setCur] = useState<Session | null>(null);
   const [phase, setPhase] = useState<"idle" | "recording" | "analyzing">("idle");
   const [progress, setProgress] = useState(0);
-  const [msg, setMsg] = useState<{ kind: "error" | "info"; text: string } | null>(null);
+  const [msg, setMsg] = useState<{ kind: "error" | "info"; text: ReactNode } | null>(null);
   const [tab, setTab] = useState<Tab>("partitura");
   const [help, setHelp] = useState<null | "intro" | "guia" | "leer" | "como" | "glosario">(null);
   const [selId, setSelId] = useState<string | null>(null);
@@ -213,7 +213,7 @@ export default function Tarareo() {
   };
 
   // ---------- Grabación ----------
-  const recRef = useRef<{ stream: MediaStream; nodes: AudioNode[]; chunks: Float32Array[]; sr: number; raf: number; t0: number; trail: { t: number; m: number }[]; timer?: number; stopped?: boolean; bpm?: number } | null>(null);
+  const recRef = useRef<{ ctx: AudioContext; stream: MediaStream; nodes: AudioNode[]; chunks: Float32Array[]; sr: number; raf: number; t0: number; trail: { t: number; m: number }[]; timer?: number; stopped?: boolean; bpm?: number } | null>(null);
 
   const drawTrail = () => {
     const r = recRef.current, cv = canvasRef.current;
@@ -256,16 +256,20 @@ export default function Tarareo() {
       return;
     }
     stopAll();
-    const c = getCtx();
-    await c.resume();
+    // Todo dentro del mismo toque: sesión de grabación, contexto propio y petición del micrófono
+    setSession("play-and-record");
+    const c = newRecContext();
+    const ask = navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 } });
+    c.resume().catch(() => { /* */ });
     let stream: MediaStream;
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 } });
+      stream = await ask;
+      if (c.state !== "running") await c.resume();
     } catch (e) {
       const name = (e as DOMException)?.name;
-      setMsg({ kind: "error", text: name === "NotAllowedError"
-        ? "No tengo permiso para usar el micrófono. En iPhone: Ajustes › Safari › Micrófono › Permitir (o toca «aA» en la barra de direcciones › Ajustes del sitio web). En Chrome: el candado junto a la dirección › Micrófono."
-        : "No he podido abrir el micrófono (" + (name || String(e)) + "). ¿Lo está usando otra app?" });
+      c.close().catch(() => { /* */ });
+      setSession("playback");
+      setMsg({ kind: "error", text: name === "NotAllowedError" || name === "SecurityError" || (isIOS && name !== "NotReadableError") ? <MicHelp /> : <>No he podido abrir el micrófono ({name || String(e)}). ¿Lo está usando otra app, como una llamada o una nota de voz? Ciérrala y vuelve a probar.</> });
       return;
     }
     const src = c.createMediaStreamSource(stream);
@@ -273,7 +277,7 @@ export default function Tarareo() {
     const proc = c.createScriptProcessor(4096, 1, 1);
     const mute = c.createGain(); mute.gain.value = 0;
     src.connect(an); src.connect(proc); proc.connect(mute); mute.connect(c.destination);
-    const r: NonNullable<typeof recRef.current> = { stream, nodes: [src, an, proc, mute], chunks: [], sr: c.sampleRate, raf: 0, t0: performance.now(), trail: [], bpm: undefined };
+    const r: NonNullable<typeof recRef.current> = { ctx: c, stream, nodes: [src, an, proc, mute], chunks: [], sr: c.sampleRate, raf: 0, t0: performance.now(), trail: [], bpm: undefined };
     recRef.current = r;
     let capturing = !prefs.countIn;
     proc.onaudioprocess = (e) => { if (capturing) r.chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); };
@@ -283,7 +287,7 @@ export default function Tarareo() {
       const beats = ts.num === 6 ? 6 : ts.num;
       const spb = 60 / prefs.countBpm * (ts.den === 8 ? 0.5 : 1);
       const t0 = c.currentTime + 0.15;
-      for (let i = 0; i < beats; i++) click(t0 + i * spb, c.destination, i === 0);
+      for (let i = 0; i < beats; i++) click(t0 + i * spb, c.destination, i === 0, c);
       r.bpm = prefs.countBpm;
       const startAt = performance.now() + (0.15 + beats * spb - 0.08) * 1000;
       const tick = () => {
@@ -323,6 +327,8 @@ export default function Tarareo() {
     r.nodes.forEach((n) => { try { n.disconnect(); } catch { /* */ } });
     (r.nodes[2] as ScriptProcessorNode).onaudioprocess = null;
     r.stream.getTracks().forEach((t) => t.stop());
+    r.ctx.close().catch(() => { /* */ });
+    setSession("playback");
     recRef.current = null;
     const len = r.chunks.reduce((s, c) => s + c.length, 0);
     setLive({ midi: null, cents: 0, level: 0, elapsed: 0, count: null });
@@ -333,7 +339,7 @@ export default function Tarareo() {
     const name = "Tarareo · " + fmtDate(Date.now());
     analyzePcm(pcm, r.sr, "voz", name, r.bpm);
   };
-  useEffect(() => () => { const r = recRef.current; if (r) { r.stopped = true; r.stream.getTracks().forEach((t) => t.stop()); } }, []);
+  useEffect(() => () => { const r = recRef.current; if (r) { r.stopped = true; r.stream.getTracks().forEach((t) => t.stop()); r.ctx.close().catch(() => { /* */ }); } }, []);
 
   const onFile = async (f: File | undefined) => {
     if (!f) return;
@@ -361,7 +367,7 @@ export default function Tarareo() {
   const pb = useRef<{ stop: () => void; raf: number; t0: number; sec16: number; endQ: number; strums: number[]; mode: "score" | "original"; src?: AudioBufferSourceNode } | null>(null);
   const stopAll = () => {
     const p = pb.current;
-    if (p) { p.stop(); cancelAnimationFrame(p.raf); try { p.src?.stop(); } catch { /* */ } pb.current = null; }
+    if (p) { p.stop(); cancelAnimationFrame(p.raf); try { p.src?.stop(); } catch { /* */ } pb.current = null; releaseAudio(); }
     setPlay({ on: false, mode: "score", idx: -1, chord: -1, strum: -1, t: null });
   };
   useEffect(() => () => stopAll(), []);
@@ -369,10 +375,12 @@ export default function Tarareo() {
   const startScore = async (fromQ = 0) => {
     if (!notes.length) return;
     stopAll();
-    const c = getCtx();
-    await c.resume();
-    const { bus, stop } = newBus();
     const sec16 = 60 / (bpm * prefs.speed) / 4;
+    unlockAudio((total - fromQ) * sec16 + 1);
+    const c = getCtx();
+    try { await c.resume(); } catch { /* */ }
+    if (c.state !== "running") { setMsg({ kind: "error", text: <SoundHelp /> }); return; }
+    const { bus, stop } = newBus();
     const t0 = c.currentTime + 0.15 - fromQ * sec16;
     notes.forEach((n) => {
       if (n.start + n.dur <= fromQ) return;
@@ -425,8 +433,9 @@ export default function Tarareo() {
   const startOriginal = async () => {
     if (!cur?.pcm || !cur.sr) return;
     stopAll();
+    unlockAudio(cur.pcm.length / cur.sr + 1);
     const c = getCtx();
-    await c.resume();
+    try { await c.resume(); } catch { /* */ }
     const { bus, stop } = newBus();
     const src = c.createBufferSource();
     src.buffer = pcmToBuffer(cur.pcm, cur.sr);
@@ -636,6 +645,7 @@ export default function Tarareo() {
                   <small> (fija el tempo: el ritmo sale más exacto)</small></label>
               )}
             </div>
+            {isIOS && isChromeIOS && <p className="tr-tip"><b>Chrome en iPhone:</b> el permiso del micrófono se da en Ajustes del iPhone › Chrome › Micrófono (no hay candado en la barra). <button className="tr-link" onClick={() => setMsg({ kind: "info", text: <MicHelp /> })}>Ver pasos</button></p>}
             <p className="tr-tip">Consejo: una sola voz, sin música de fondo, el móvil a un palmo de la boca. Di «ta» o «na» en cada nota: así se separan bien las notas repetidas. Máximo {MAX_REC} s.</p>
             {phase === "analyzing" && (
               <div className="tr-progress"><div style={{ width: `${Math.round(progress * 100)}%` }} /><span>Escuchando las notas… {Math.round(progress * 100)} %</span></div>
@@ -841,7 +851,7 @@ export default function Tarareo() {
                   const on = !!activeChordEv && activeChordEv.chord.root === c.root && activeChordEv.chord.q === c.q;
                   const shapeName = chordSymbol({ root: c.root - capo, q: c.q }, transposeKey(key, -capo), "en");
                   return (
-                    <button key={`${c.root}${c.q}`} className={"tr-chord-card" + (on ? " is-on" : "")} onClick={() => { const c2 = getCtx(); c2.resume(); const { bus } = newBus(); strum(shapeMidis(sh, capo), c2.currentTime + 0.03, 1.6, bus); }}>
+                    <button key={`${c.root}${c.q}`} className={"tr-chord-card" + (on ? " is-on" : "")} onClick={() => { unlockAudio(2); const c2 = getCtx(); const { bus } = newBus(); strum(shapeMidis(sh, capo), c2.currentTime + 0.05, 1.6, bus); }}>
                       <ChordDiagram shape={sh} title={shapeName} sub={capo ? `suena ${chordSymbol(c, key, "en")}` : chordLongName(c, key)} active={on} strum={on ? play.strum : -1} naming={prefs.naming} capo={capo} />
                       <small>{sh.kind === "open" ? "Postura abierta" : sh.kind === "barre" ? "Con barra (cejilla con el índice)" : "Postura móvil"}</small>
                     </button>
@@ -1024,6 +1034,47 @@ export default function Tarareo() {
   );
 }
 
+/** Pasos para dar permiso al micrófono según el navegador. */
+function MicHelp() {
+  if (isIOS && isChromeIOS) return (
+    <div className="tr-steps-box">
+      <b>Chrome no tiene permiso para usar el micrófono.</b> En iPhone, Chrome no muestra candado: el permiso está en dos sitios.
+      <ol>
+        <li><b>Ajustes del iPhone</b> (la app con la rueda) › baja hasta <b>Chrome</b> › activa <b>Micrófono</b>.</li>
+        <li>Si alguna vez dijiste «No permitir» a joaco.org: en Chrome, <b>⋯</b> (abajo a la derecha) › <b>Configuración</b> › <b>Configuración de sitios</b> (o «Configuración de contenido») › <b>Micrófono</b>, y quita joaco.org de los bloqueados.</li>
+        <li>Cierra Chrome del todo (desliza hacia arriba en el selector de apps), vuelve a abrir joaco.org y pulsa <b>Grabar</b>. Cuando pregunte, elige <b>Permitir</b>.</li>
+      </ol>
+      Si sigue sin dejarte: ábrelo en <b>Safari</b>, o graba con <b>Notas de voz</b> y usa «Subir audio».
+    </div>
+  );
+  if (isIOS && isFirefoxIOS) return (
+    <div className="tr-steps-box"><b>Firefox no tiene permiso para el micrófono.</b> Ajustes del iPhone › Firefox › activa Micrófono; luego recarga y elige «Permitir». También puedes usar Safari o «Subir audio».</div>
+  );
+  if (isIOS) return (
+    <div className="tr-steps-box">
+      <b>Safari no tiene permiso para usar el micrófono.</b>
+      <ol>
+        <li>Toca <b>«aA»</b> (o el icono de la izquierda) en la barra de direcciones › <b>Ajustes del sitio web</b> › <b>Micrófono</b> › <b>Permitir</b> (o «Preguntar»).</li>
+        <li>Si no aparece: Ajustes del iPhone › <b>Apps</b> › <b>Safari</b> › <b>Micrófono</b> › Preguntar o Permitir.</li>
+        <li>Recarga la página y pulsa <b>Grabar</b>.</li>
+      </ol>
+    </div>
+  );
+  return (
+    <div className="tr-steps-box">
+      <b>El navegador no tiene permiso para usar el micrófono.</b> Pulsa el icono a la izquierda de la dirección (candado o ajustes) › Micrófono › Permitir, y recarga.
+      En Android, además: Ajustes › Apps › Chrome › Permisos › Micrófono.
+    </div>
+  );
+}
+function SoundHelp() {
+  return (
+    <div className="tr-steps-box">
+      <b>El navegador no ha dejado sonar el audio.</b> Toca otra vez «Tocar». Si sigue sin oírse: sube el volumen con los botones laterales (no el del timbre) y comprueba que no hay unos auriculares Bluetooth conectados.
+    </div>
+  );
+}
+
 function HowTo({ title, children }: { title: string; children: ReactNode }) {
   return <details className="tr-howto"><summary>{title}</summary><div>{children}</div></details>;
 }
@@ -1118,6 +1169,12 @@ const HELP: Record<"intro" | "guia" | "leer" | "como" | "glosario", ReactNode> =
         <li><b>Detalle.</b> Curva de tu voz frente a las notas asignadas, tabla nota a nota y ajustes de detección para afinar el resultado.</li>
         <li><b>Exportar.</b> MIDI, MusicXML, texto o imprimir (en «Imprimir», elige «Guardar como PDF» para tener el PDF).</li>
       </ol>
+      <h3>En iPhone</h3>
+      <ul>
+        <li><b>Micrófono en Chrome:</b> Ajustes del iPhone › Chrome › Micrófono activado; luego, en joaco.org, «Permitir» cuando pregunte. Chrome en iPhone no tiene candado en la barra de direcciones.</li>
+        <li><b>Micrófono en Safari:</b> «aA» en la barra › Ajustes del sitio web › Micrófono › Permitir.</li>
+        <li><b>Sonido:</b> la app suena aunque el móvil esté en modo silencio; el volumen es el de multimedia (botones laterales). Si no oyes nada, vuelve a tocar «Tocar» y revisa que no haya auriculares Bluetooth conectados.</li>
+      </ul>
     </div>
   ),
   leer: (
@@ -1176,6 +1233,8 @@ const CSS = `
   min-height:100vh;background:var(--bg);color:var(--ink);font-family:'Sora',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.45;
   padding:14px 14px 120px;max-width:1140px;margin:0 auto;box-sizing:border-box}
 .tr-root *{box-sizing:border-box}
+.tr-root ol{list-style:decimal}
+.tr-root ul{list-style:disc}
 .tr-root h1,.tr-root h2,.tr-root h3{font-family:'Fraunces',Georgia,serif;font-weight:650;letter-spacing:-.01em;margin:0}
 .tr-root h2{font-size:21px}
 .tr-root h3{font-size:17px;margin:18px 0 8px}
@@ -1235,6 +1294,8 @@ const CSS = `
 .tr-msg.error{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d}
 .tr-msg.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a}
 .tr-msg .tr-x{position:absolute;right:6px;top:6px}
+.tr-steps-box ol{margin:6px 0;padding-left:20px}
+.tr-steps-box li{margin:4px 0}
 /* resumen */
 .tr-title-row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
 .tr-title{flex:1;min-width:0;font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:650;border:1px solid transparent;border-radius:8px;background:transparent;padding:3px 6px;color:var(--ink)}
