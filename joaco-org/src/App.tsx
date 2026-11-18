@@ -1,4 +1,5 @@
 import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import ElGabinete from "./ElGabinete";
 import PartyGamesMenu from "./PartyGamesMenu";
 import ProjectsMenu from "./ProjectsMenu";
@@ -129,6 +130,7 @@ export default function App() {
             <LazyApp />
           </Suspense>
         </ErrorBoundary>
+        <Analytics />
       </>
     );
   }
@@ -149,6 +151,7 @@ export default function App() {
       )}
       {route.kind === "proyectos" && <ProjectsMenu autoFocus={false} />}
       {route.kind === "privado" && <PrivateArea />}
+      <Analytics />
     </>
   );
 }
