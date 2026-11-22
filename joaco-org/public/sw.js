@@ -5,7 +5,7 @@
    - The 3D golf games and anything cross-origin are left to the network. */
 const VERSION = "v1";
 const CACHE = "joaco-" + VERSION;
-const SKIP = [/^\/valdecanas\//, /^\/golf-madrid\//];
+const SKIP = [/^\/valdecanas\//, /^\/golf-madrid\//, /^\/sedberghprep\//];
 
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/favicon.svg"])).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (e) => {
