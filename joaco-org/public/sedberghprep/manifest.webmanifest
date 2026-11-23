@@ -1,0 +1,41 @@
+{
+ "name": "Casterton and the Lakes",
+ "short_name": "Casterton",
+ "description": "Casterton, the Lune valley and Sedbergh Prep in 3D: golf, footgolf, horses, the school, drones and more. Works offline.",
+ "lang": "en",
+ "id": "/sedberghprep/",
+ "start_url": "/sedberghprep/?app=1",
+ "scope": "/sedberghprep/",
+ "display": "fullscreen",
+ "display_override": [
+  "fullscreen",
+  "standalone"
+ ],
+ "orientation": "any",
+ "background_color": "#123a52",
+ "theme_color": "#123a52",
+ "icons": [
+  {
+   "src": "/sedberghprep/icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/sedberghprep/icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "/sedberghprep/icons/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "shortcuts": [
+  {
+   "name": "Live scorecard",
+   "url": "/sedberghprep/tarjeta/"
+  }
+ ]
+}
